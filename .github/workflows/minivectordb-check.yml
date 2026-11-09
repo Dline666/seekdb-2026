@@ -1,0 +1,44 @@
+# Linux x86_64 check for MiniVectorDB: builds the submission Dockerfile and
+# runs the public cases and the kill -9 test against the built binary.
+# Lives only on the ci/minivectordb-check branch, not on the submission branch.
+name: minivectordb-check
+on:
+  push:
+    branches: [ci/minivectordb-check]
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker build
+        run: docker build --progress=plain -t mvdb:ci .
+      - name: image info
+        run: |
+          docker image inspect mvdb:ci --format '{{.Architecture}} {{.Os}} {{.Size}}'
+          docker run --rm mvdb:ci --help 2>&1 | head -20 || true
+      - name: public cases through docker run -i
+        run: |
+          mkdir -p "$RUNNER_TEMP/cases"
+          printf '#!/bin/sh\nexec docker run --rm -i -v "$2":/data mvdb:ci\n' > "$RUNNER_TEMP/mvdb-docker"
+          chmod +x "$RUNNER_TEMP/mvdb-docker"
+          MVDB_TMP="$RUNNER_TEMP/cases" python3 minivectordb/tools/run_cases.py \
+            --bin "$RUNNER_TEMP/mvdb-docker" --cases mysqltest
+      - name: extract binary
+        run: |
+          id=$(docker create mvdb:ci)
+          docker cp "$id":/app/minivectordb "$RUNNER_TEMP/mvdb"
+          docker rm "$id"
+          file "$RUNNER_TEMP/mvdb"
+      - name: kill -9 recovery test
+        run: |
+          mkdir -p "$RUNNER_TEMP/crash"
+          for s in 1 2 3; do
+            MVDB_TMP="$RUNNER_TEMP/crash" python3 minivectordb/tools/crash_test.py \
+              --bin "$RUNNER_TEMP/mvdb" --rounds 40 --seed $s
+          done
+      - name: benchmark (reference)
+        run: |
+          mkdir -p "$RUNNER_TEMP/bench"
+          MVDB_TMP="$RUNNER_TEMP/bench" python3 minivectordb/tools/bench.py --bin "$RUNNER_TEMP/mvdb" --queries 300
