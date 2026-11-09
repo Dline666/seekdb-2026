@@ -29,6 +29,8 @@ _OBSERVER_GENERATED_SOURCE_REPLACEMENTS = {
 
 
 _OBSERVER_NATIVE_DEPS = [
+    "//src/share:startup_result",
+    "//src/share:local_io_config",
     "//rust:sql_nio_headers",
     "//src/oblib/easy:easy",
     "//src/oblib:common_sql_mode",
@@ -44,7 +46,6 @@ _OBSERVER_NATIVE_DEPS = [
     "//src/data_plane:virtual_tx_data",
     "//src/logservice:logservice",
     "//src/share:log_protocol",
-    "//src/objit:objit_api_interface",
     "//src/pl:pl_interface",
     "//src/pl:pl_internal_headers",
     "//src/pl:_generated_pl_parser_headers",
@@ -153,16 +154,12 @@ _OBSERVER_NATIVE_DEPS = [
     "//src/storage:tablet_autoincrement_handler_internal",
     "//src/storage:tablet_autoincrement_service_internal",
     "//bazel/third_party:absl_headers",
-    "//bazel/third_party:curl_headers",
     "//bazel/third_party:libaio_headers",
-    "//bazel/third_party:libxml2_headers",
     "//bazel/third_party:mariadb_headers",
     "//bazel/third_party:openssl_headers",
     "//bazel/third_party:rapidjson_headers",
     "//bazel/third_party:roaring_headers",
-    "//bazel/third_party:s2_headers",
     "//bazel/third_party:vsag_headers",
-    "//bazel/third_party:zlib_headers",
 ]
 
 _OBSERVER_RUNTIME_ONLY_SHARE_DEPS = [
@@ -228,7 +225,6 @@ grouped_unity_cc_library(
         "//src/oblib:oblib_common",
         "//src/oblib:oblib_compression",
         "//src/oblib:oblib_concurrency_primitives",
-        "//src/oblib:oblib_db_log",
         "//src/oblib:oblib_db_meta",
         "//src/oblib:oblib_encoding_primitives",
         "//src/oblib:oblib_foundation",
@@ -262,7 +258,6 @@ grouped_unity_cc_library(
         "//src/oblib:oblib_common",
         "//src/oblib:oblib_compression",
         "//src/oblib:oblib_concurrency_primitives",
-        "//src/oblib:oblib_db_log",
         "//src/oblib:oblib_db_meta",
         "//src/oblib:oblib_foundation",
         "//src/oblib:oblib_io_primitives",
@@ -291,7 +286,6 @@ grouped_unity_cc_library(
         "//src/oblib:oblib_common",
         "//src/oblib:oblib_compression",
         "//src/oblib:oblib_concurrency_primitives",
-        "//src/oblib:oblib_db_log",
         "//src/oblib:oblib_db_meta",
         "//src/oblib:oblib_diagnostics_primitives",
         "//src/oblib:oblib_foundation",
@@ -363,6 +357,7 @@ filegroup(
 )
 
 _CORE_LINK_DEPS = [
+    "//rust:bridges",
     "//src/oblib:ob_malloc_objects",
     ":observer_version",
     "//src/sql:sql_runtime_simd",
@@ -398,10 +393,12 @@ _TAIL_LINK_DEPS = select({
 ]
 
 _ORDERED_LINK_FILES = [
-    "//rust:sql_nio_archive",
-    "//rust:config_archive",
+    "//rust:archive",
 ] + select({
-    "//bazel:sanity_enabled": ["//deps/external:jemalloc_archive"],
+    "@platforms//os:linux": ["//deps/external:jemalloc_archive"],
+    "@platforms//os:macos": ["//deps/external:jemalloc_archive"],
+    "@platforms//os:windows": ["//deps/external:jemalloc_archive"],
+    "@platforms//os:android": ["//deps/external:jemalloc_archive"],
     "//conditions:default": [],
 }) + select({
     "@platforms//os:windows": [],
@@ -440,6 +437,8 @@ _EXECUTABLE_LINKOPTS = select({
     "@platforms//os:windows": ["/INCREMENTAL:NO", "/OPT:REF", "/OPT:ICF"],
     "@platforms//os:android": ["-pie", "-fopenmp", "-static-openmp", "-Wl,--gc-sections", "-Wl,--build-id=sha1"],
     "@platforms//os:macos": [
+        # Retain jemalloc's standalone malloc-zone registration constructor.
+        "-Wl,-u,_je_zone_register",
         "-Wl,-dead_strip",
         "-Wl,-framework,Security",
         "-Wl,-framework,CoreFoundation",
@@ -504,6 +503,13 @@ alias(
 )
 
 cc_library(
+    name = "in_process_api",
+    srcs = ["in_process/seekdb.cpp"],
+    hdrs = ["in_process/seekdb.h"],
+    deps = ["//rust:in_process_headers"],
+)
+
+cc_library(
     name = "_unittest_in_process_entry",
     testonly = True,
     srcs = ["in_process/in_process_server.cpp"],
@@ -516,7 +522,6 @@ cc_library(
         "//src/oblib:oblib_io_primitives",
         "//src/oblib:oblib_rpc",
         "//deps/external:jemalloc_headers",
-        "//bazel/third_party:curl_headers",
         "//rust:in_process_headers",
         "//rust:logger_headers",
     ],
@@ -541,7 +546,7 @@ final_link(
     ) + select({
         # The shared test runtime retains the Rust in-process bridge, including
         # its reference to run_server. Supply the real implementation on Linux.
-        "@platforms//os:linux": [":_unittest_in_process_entry"],
+        "@platforms//os:linux": [":_unittest_in_process_entry", ":in_process_api"],
         "//conditions:default": [],
     }),
     ordered_link_files = _ORDERED_LINK_FILES,

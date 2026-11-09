@@ -26,7 +26,6 @@
 #include <windows.h>
 #include <psapi.h>
 #endif
-#include "lib/signal/ob_signal_struct.h"
 #include "lib/utility/ob_tracepoint.h"
 #include "lib/utility/ob_platform_utils.h"
 #include "lib/alloc/malloc_hook.h"
@@ -51,7 +50,6 @@ const ObCtxInfo &get_global_ctx_info()
 void  __attribute__((constructor(MALLOC_INIT_PRIORITY))) init_global_memory_pool()
 {
   auto& t = EventTable::instance();
-  auto& a = AChunkMgr::instance();
   in_hook()= true;
   global_default_allocator = ObMallocAllocator::get_instance();
   in_hook()= false;

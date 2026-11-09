@@ -16,7 +16,7 @@
 
 #define USING_LOG_PREFIX STORAGE
 
-#include "config_bridge.h"
+#include "rust/config.h"
 #include "ob_ls_tablet_service.h"
 #include "storage/tx/ob_ts_mgr.h"
 #include "share/rc/ob_server_runtime.h"
@@ -2304,7 +2304,6 @@ int ObLSTabletService::delete_rows(
   int ret = OB_SUCCESS;
   NG_TRACE(S_delete_rows_begin);
   const ObTabletID &data_tablet_id = ctx.tablet_id_;
-  ObRowReshape *row_reshape = nullptr;
   int64_t afct_num = 0;
 
   if (OB_UNLIKELY(!is_inited_)) {

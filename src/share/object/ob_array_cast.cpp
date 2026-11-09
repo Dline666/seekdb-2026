@@ -18,7 +18,7 @@
 #include "share/object/ob_array_cast.h"
 #include "common/json_type/ob_json_parse.h"
 #include "share/ob_lob_access_utils.h"
-#include <fast_float/fast_float.h>
+#include "rust/number_parser.h"
 #include "share/object/ob_obj_cast_util.h"
 #include <string>
 #include <regex>
@@ -556,9 +556,35 @@ int ObArrayCastUtils::string_cast_map(common::ObIAllocator &alloc,
   // add quote to numberic key if it not exists
   std::regex regex_quote(R"((\{|,)\s*(-?\d+(\.\d+)?(?:[eE][-+]?\d+)?)\s*:)");
   src_text = std::regex_replace(src_text, regex_quote, R"($1"$2":)");
-  // change null key in any case to NULL
+  // Quote the normalized NULL key for JSON parsers that require quoted object keys.
   std::regex regex_null(R"((\{|,)\s*\"?(n|N)(u|U)(l|L)(l|L)\s*\"?\s*:)");
-  src_text = std::regex_replace(src_text, regex_null, R"($1NULL:)");
+  src_text = std::regex_replace(src_text, regex_null, R"($1"NULL":)");
+  // MAP accepts case-insensitive NULL values, including nested array elements.
+  // Normalize only unquoted tokens; string contents and escaped quotes are data.
+  bool in_string = false;
+  bool escaped = false;
+  for (size_t i = 0; i < src_text.size(); ++i) {
+    const char ch = src_text[i];
+    if (in_string) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch == '\\') {
+        escaped = true;
+      } else if (ch == '"') {
+        in_string = false;
+      }
+    } else if (ch == '"') {
+      in_string = true;
+    } else if (is_null_string_start(ch)
+               && is_null_const_string(src_text.data() + i, src_text.data() + src_text.size())
+               && (i == 0 || is_whitespace(src_text[i - 1]) || src_text[i - 1] == ':'
+                   || src_text[i - 1] == '[' || src_text[i - 1] == ',')
+               && (is_whitespace(src_text[i + NULL_STR_LEN]) || src_text[i + NULL_STR_LEN] == ','
+                   || src_text[i + NULL_STR_LEN] == ']' || src_text[i + NULL_STR_LEN] == '}')) {
+      src_text.replace(i, NULL_STR_LEN, "null");
+      i += NULL_STR_LEN - 1;
+    }
+  }
   // parse text to json node
   const char *syntaxerr = NULL;
   uint64_t err_offset = 0;
@@ -702,12 +728,14 @@ static int parse_uint32_key(const char*& ptr, const char* end, const char* text_
       if (key_len <= 0) {
         ret = OB_INVALID_ARGUMENT;
       } else {
-        fast_float::from_chars_result result = fast_float::from_chars(key_start, ptr, dim);
-        if (result.ec == std::errc::invalid_argument) {
+        size_t consumed = 0;
+        oceanbase::number_parser::Status status = oceanbase::number_parser::parse_u32(
+            rust::Slice<const uint8_t>(reinterpret_cast<const uint8_t *>(key_start), key_len), dim, consumed);
+        if (status == oceanbase::number_parser::Status::Invalid) {
           ret = OB_INVALID_ARGUMENT;
-        } else if (result.ec == std::errc::result_out_of_range) {
+        } else if (status == oceanbase::number_parser::Status::OutOfRange) {
           ret = OB_DATA_OUT_OF_RANGE;
-        } else if (result.ptr != ptr) {
+        } else if (consumed != static_cast<size_t>(key_len)) {
           ret = OB_INVALID_ARGUMENT;
         }
       }
@@ -768,10 +796,10 @@ static int parse_float_value(const char*& ptr, const char* end, const char* text
       if (value_len <= 0) {
         ret = OB_INVALID_ARGUMENT;
       } else {
-        // Parse float value using fast_float
-        const char *value_end = value_start + value_len;
-        fast_float::from_chars_result result = fast_float::from_chars(value_start, value_end, value);
-        if (result.ec != std::errc()) {
+        size_t consumed = 0;
+        oceanbase::number_parser::Status status = oceanbase::number_parser::parse_f32(
+            rust::Slice<const uint8_t>(reinterpret_cast<const uint8_t *>(value_start), value_len), value, consumed);
+        if (status != oceanbase::number_parser::Status::Ok) {
           ret = OB_INVALID_ARGUMENT;
         }
       }
@@ -986,8 +1014,10 @@ int ObArrayCastUtils::string_cast_vector(common::ObIAllocator &alloc, ObString &
             ++ptr;
           }
 
-          fast_float::from_chars_result parse_ret = fast_float::from_chars(ptr, end, res);
-          if (OB_UNLIKELY(parse_ret.ec != std::errc())) {
+          size_t consumed = 0;
+          oceanbase::number_parser::Status parse_status = oceanbase::number_parser::parse_f64(
+              rust::Slice<const uint8_t>(reinterpret_cast<const uint8_t *>(ptr), end - ptr), res, consumed);
+          if (OB_UNLIKELY(parse_status != oceanbase::number_parser::Status::Ok)) {
             if (ptr < end && is_null_string_start(*ptr)) {
               if (!is_null_const_string(ptr, end)) {
                 ret = OB_INVALID_ARGUMENT;
@@ -1000,7 +1030,7 @@ int ObArrayCastUtils::string_cast_vector(common::ObIAllocator &alloc, ObString &
               ret = OB_INVALID_ARGUMENT;
             }
           } else {
-            ptr = parse_ret.ptr;
+            ptr += consumed;
             if (is_neg_flag) {
               res *= -1;
             }

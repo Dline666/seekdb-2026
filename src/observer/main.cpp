@@ -54,7 +54,6 @@ static void seekdb_cov_init_profile_file(int argc, char **argv)
 #include "lib/oblog/ob_easy_log.h"
 #include "lib/oblog/ob_log.h"
 #include "lib/oblog/ob_warning_buffer.h"
-#include "lib/signal/ob_signal_struct.h"
 #include "lib/utility/ob_defer.h"
 #include "observer/ob_command_line_parser.h"
 #include "observer/ob_server.h"
@@ -63,7 +62,6 @@ static void seekdb_cov_init_profile_file(int argc, char **argv)
 #include "observer/ob_signal_handle.h"
 #include "share/config/ob_server_config.h"
 #include "share/ob_version.h"
-#include <curl/curl.h>
 #include <stdlib.h>
 #ifndef _WIN32
 #include <getopt.h>
@@ -541,9 +539,6 @@ static void print_limit(const char *name, const int resource)
       _OB_LOG(INFO, "[%s] %-24s = %ld", __func__, name, limit.rlim_cur);
     }
   }
-  if (RLIMIT_CORE == resource) {
-    g_rlimit_core = limit.rlim_cur;
-  }
 }
 
 static void print_all_limits()
@@ -644,16 +639,12 @@ static int safe_sd_notify(int unset_environment, const char *state)
 
 int inner_main(int argc, char *argv[])
 {
-#if defined(__APPLE__)
-  const ObMallocBackend startup_malloc_backend = get_ob_malloc_backend();
-  if (!configure_darwin_malloc_zone(startup_malloc_backend)) {
-    MPRINT("Failed to configure macOS malloc zone for backend '%s'.",
-           ob_malloc_backend_name(startup_malloc_backend));
+#if defined(__APPLE__) && defined(OB_HAVE_BUNDLED_JEMALLOC) && !defined(OB_USE_ASAN)
+  if (!configure_darwin_malloc_zone()) {
+    MPRINT("Failed to configure the bundled jemalloc macOS malloc zone.");
     return OB_ERR_UNEXPECTED;
   }
 #endif
-  // LLVM removed: the LLVM symbolizer is gone; sanity (ASAN/UBSAN) builds keep
-  // backtrace_symbolize_func at its default (NULL) -> unsymbolized frames.
 #if defined(_WIN32) || defined(__ANDROID__)
   snprintf(ob_get_tname(), OB_THREAD_NAME_BUF_LEN, "seekdb");
 #else
@@ -726,8 +717,6 @@ int inner_main(int argc, char *argv[])
   } else if (OB_FAIL(FileDirectoryUtils::create_full_path(CONF_DIR))) {
     MPRINT("create log dir fail: ./etc/");
   } else if (FALSE_IT(create_observer_softlink())) {
-  } else if (OB_FAIL(ObEncryptionUtil::init_ssl_malloc())) {
-    MPRINT("failed to init crypto malloc");
   }
   if (OB_FAIL(ret)) {
   } else if (!opts->nodaemon_ && !opts->initialize_) {
@@ -735,9 +724,6 @@ int inner_main(int argc, char *argv[])
     MPRINT("    Start seekdb with --nodaemon if you don't want to start as a daemon process.");
     if (OB_FAIL(start_daemon(PID_FILE_NAME))) {
       MPRINT("Start seekdb as a daemon failed. Did you started seekdb already?");
-    } else if (!restore_malloc_backend_after_fork()) {
-      ret = OB_ERR_UNEXPECTED;
-      MPRINT("Failed to restore malloc backend after starting daemon process.");
     }
   } else if (opts->nodaemon_) {
     if (OB_FAIL(start_daemon(PID_FILE_NAME, true/*skip_daemon*/))) {
@@ -748,9 +734,6 @@ int inner_main(int argc, char *argv[])
   if (OB_FAIL(ret)) {
   } else {
     ObCurTraceId::set("Y0-0000000000000001-0-0");
-    CURLcode curl_code = curl_global_init(CURL_GLOBAL_ALL);
-    OB_ASSERT(CURLE_OK == curl_code);
-
     const char *syslog_file_info = ObServerUtils::build_syslog_file_info();
     OB_LOGGER.set_log_level(opts->log_level_);
     OB_LOGGER.set_max_file_size(LOG_FILE_SIZE);
@@ -760,7 +743,6 @@ int inner_main(int argc, char *argv[])
              "default file", LOG_FILE_NAME,
              "max_log_file_size", LOG_FILE_SIZE,
              "enable_async_log", OB_LOGGER.enable_async_log());
-    const ObMallocBackend malloc_backend = get_ob_malloc_backend();
     if (0 == memory_used) {
       _LOG_INFO("Get virtual memory info failed");
     } else {
@@ -775,16 +757,6 @@ int inner_main(int argc, char *argv[])
     print_all_limits();
     dl_iterate_phdr(callback, NULL);
 
-#if defined(__APPLE__) || defined(__ANDROID__)
-    // macOS/Android don't support M_MMAP_MAX and M_ARENA_MAX
-#elif defined(__linux__)
-    if (is_ob_malloc_backend(malloc_backend)) {
-      static const int DEFAULT_MMAP_MAX_VAL = 1024 * 1024 * 1024;
-      mallopt(M_MMAP_MAX, DEFAULT_MMAP_MAX_VAL);
-      mallopt(M_ARENA_MAX, 1); // disable malloc multiple arena pool
-    }
-#endif
-
     // turn warn log on so that there's a observer.log.wf file which
     // records all WARN and ERROR logs in log directory.
     ObWarningBuffer::set_warn_log_on(true);
@@ -795,13 +767,6 @@ int inner_main(int argc, char *argv[])
       ObServer &observer = ObServer::get_instance();
       LOG_INFO("seekdb starts", "seekdb_version", PACKAGE_NAME " " PACKAGE_VERSION, "embedded", opts->embedded_);
       if (OB_FAIL(observer.init(*opts))) {
-      } else if (OB_MALLOC_BACKEND_UNKNOWN == malloc_backend) {
-        LOG_WARN("invalid malloc backend",
-                 "env", ob_malloc_backend_env_name(),
-                 "supported", "obmalloc, jemalloc");
-      } else {
-        LOG_INFO("malloc backend initialized",
-                 "backend", ob_malloc_backend_name(malloc_backend));
       }
       OB_DELETE(ObServerOptions, mem_attr, opts);
       if (OB_FAIL(ret)) {
@@ -823,7 +788,6 @@ int inner_main(int argc, char *argv[])
       }
       observer.destroy();
     }
-    curl_global_cleanup();
     unlink(PID_FILE_NAME);
   }
 
