@@ -20,7 +20,8 @@ enum class TokenKind {
 struct Token {
   TokenKind kind = TokenKind::kEnd;
   std::string text;  // ident 原文 / symbol 文本 / 解转义后的字符串
-  std::int64_t number = 0;
+  // 数字字面量按无符号存储，以便解析 INT64_MIN（-9223372036854775808）。
+  std::uint64_t magnitude = 0;
   std::vector<double> vector;
   std::size_t pos = 0;
 };

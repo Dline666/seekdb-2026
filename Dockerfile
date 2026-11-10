@@ -4,7 +4,8 @@
 
 FROM ubuntu:24.04 AS build
 
-RUN apt-get update \
+RUN (apt-get update || (sed -i 's#http://\(archive\|security\).ubuntu.com#http://mirrors.aliyun.com#g' \
+        /etc/apt/sources.list.d/ubuntu.sources && apt-get update)) \
  && apt-get install -y --no-install-recommends build-essential cmake \
  && rm -rf /var/lib/apt/lists/*
 

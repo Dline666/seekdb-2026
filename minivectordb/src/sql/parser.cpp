@@ -1,6 +1,7 @@
 #include "sql/parser.h"
 
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -84,7 +85,12 @@ class Parser {
     if (peek().kind != TokenKind::kNumber) {
       error("expected " + std::string(what));
     }
-    return tokens_[pos_++].number;
+    Token const& token = tokens_[pos_++];
+    if (token.magnitude >
+        static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())) {
+      throw SqlError("integer literal out of range");
+    }
+    return static_cast<std::int64_t>(token.magnitude);
   }
 
   void expect_end() {
@@ -184,16 +190,27 @@ class Parser {
       if (peek().kind != TokenKind::kNumber) {
         error("expected number after '-'");
       }
+      constexpr std::uint64_t kInt64MinMagnitude = 9223372036854775808ULL;
+      std::uint64_t const magnitude = tokens_[pos_++].magnitude;
+      if (magnitude > kInt64MinMagnitude) {
+        throw SqlError("integer literal out of range");
+      }
       Literal lit;
       lit.kind = Literal::Kind::kInt;
-      lit.int_value = -tokens_[pos_++].number;
+      lit.int_value = magnitude == kInt64MinMagnitude
+                          ? std::numeric_limits<std::int64_t>::min()
+                          : -static_cast<std::int64_t>(magnitude);
       return lit;
     }
     Token const& token = peek();
     if (token.kind == TokenKind::kNumber) {
+      if (token.magnitude >
+          static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())) {
+        throw SqlError("integer literal out of range");
+      }
       Literal lit;
       lit.kind = Literal::Kind::kInt;
-      lit.int_value = token.number;
+      lit.int_value = static_cast<std::int64_t>(token.magnitude);
       ++pos_;
       return lit;
     }

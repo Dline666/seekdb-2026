@@ -91,16 +91,19 @@ std::vector<Token> tokenize(std::string_view sql) {
         throw SqlError("syntax error: decimal literal is not supported");
       }
       std::string_view const text = sql.substr(start, i - start);
-      std::int64_t value = 0;
+      std::uint64_t value = 0;
       auto const result =
           std::from_chars(text.data(), text.data() + text.size(), value);
+      if (result.ec == std::errc::result_out_of_range) {
+        throw SqlError("integer literal out of range: " + std::string(text));
+      }
       if (result.ec != std::errc() ||
           result.ptr != text.data() + text.size()) {
-        throw SqlError("integer literal out of range: " + std::string(text));
+        throw SqlError("invalid integer literal: " + std::string(text));
       }
       Token token;
       token.kind = TokenKind::kNumber;
-      token.number = value;
+      token.magnitude = value;
       token.text = std::string(text);
       token.pos = start;
       out.push_back(std::move(token));
