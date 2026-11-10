@@ -1,0 +1,250 @@
+{
+  "schema": "agent-learning-evidence-v3-unbounded",
+  "synthetic": false,
+  "project": {
+    "name": "MiniVectorDB",
+    "competition": "OceanBase 2026 数据库大赛 · 加赛（round2）",
+    "date": "2026-11-09",
+    "language": "zh-CN",
+    "scope": "两个真实开发会话的完整证据索引。学生消息逐字原文；工具结果由 Agent 记录，均可在本文件内按 JSON pointer 定位。"
+  },
+  "provenance": {
+    "student": "Dline666",
+    "agent": "Claude Code (Opus 5.5)",
+    "sessions": [
+      {
+        "id": "local_fdb49f41-8003-4147-8de9-000578327f49",
+        "topic": "赛题资料抓取、前置准备清单、资料整理"
+      },
+      {
+        "id": "local_f9cbdc43-8b03-4a19-b2eb-ebe1c42387a3",
+        "topic": "实现计划、P0-P6 开发与验证、题包适配、提交准备"
+      }
+    ],
+    "statement": "学生消息为逐字原文。所有工具结果均为本地真实执行后由 Agent 记录；Agent 自动产生的规划、解释、代码与修复不作为学生理解证据。"
+  },
+  "student_turns": [
+    {"id": "U1", "session": "prep", "content": "@赛题说明.md 里面的链接内容都可以直接获取吗"},
+    {"id": "U2", "session": "prep", "content": "文档和网络环境都没有限制，你采用其它方案获取内容"},
+    {"id": "U3", "session": "prep", "content": "获取链接内容方式记录到项目记忆中"},
+    {"id": "U4", "session": "prep", "content": "关于完成这个赛题还需要哪些前置准备，不用帮我完成，我使用另一个模型进行"},
+    {"id": "U5", "session": "prep", "content": "相关资料整理到一个文件夹里面，代码我会新建一个文件夹，保证项目整洁"},
+    {"id": "U6", "session": "prep", "content": "@资料/原始数据/ 这里面是什么数据"},
+    {"id": "U7", "session": "prep", "content": "需要"},
+    {"id": "U8", "session": "prep", "content": "还需要哪些内容"},
+    {"id": "U9", "session": "prep", "content": "可以"},
+    {"id": "U10", "session": "build", "content": "基于当前拥有的信息，进行赛题实现计划"},
+    {"id": "U11", "session": "build", "content": "C++性能会高一些吗"},
+    {"id": "U12", "session": "build", "content": "使用C++"},
+    {"id": "U13", "session": "build", "content": "开始 P0"},
+    {"id": "U14", "session": "build", "content": "开始 P1"},
+    {"id": "U15", "session": "build", "content": "先修 Docker"},
+    {"id": "U16", "session": "build", "content": "用 WSL 加组"},
+    {"id": "U17", "session": "build", "content": "开始 P2"},
+    {"id": "U18", "session": "build", "content": "开始 P3"},
+    {"id": "U19", "session": "build", "content": "先暂停"},
+    {"id": "U20", "session": "build", "content": "继续"},
+    {"id": "U21", "session": "build", "content": "开始 P4"},
+    {"id": "U22", "session": "build", "content": "后续进程不用给我选择，直接完成到最小验证"},
+    {"id": "U23", "session": "build", "content": "现在查看仓库，题包已经发布"},
+    {"id": "U24", "session": "build", "content": "不用私有仓库，这个不用管"},
+    {"id": "U25", "session": "build", "content": "继续执行"},
+    {"id": "U26", "session": "build", "content": "可以提交了吗"},
+    {"id": "U27", "session": "build", "content": "完成conversation.json"}
+  ],
+  "tool_results": [
+    {
+      "id": "T1",
+      "recorded_by": "agent",
+      "topic": "语雀正文抓取",
+      "command": "curl -sS -H \"Referer: https://oceanbase.yuque.com/\" \"https://oceanbase.yuque.com/api/docs/lg8enxlmwg69unt6?book_id=81051108&mode=markdown\"",
+      "observed": "已抓到全文（15,850 字）；落盘 资料/赛题一_原文.md，35,711 字节"
+    },
+    {
+      "id": "T2",
+      "recorded_by": "agent",
+      "topic": "WSL docker 加组与镜像构建",
+      "command": "wsl -d Ubuntu -e sudo usermod -aG docker dline；docker build ...",
+      "observed": "getent group docker -> docker:x:108:dline；docker info driver=overlayfs；Successfully tagged minivectordb:dev，镜像 120MB"
+    },
+    {
+      "id": "T3",
+      "recorded_by": "agent",
+      "topic": "P0 语句切分冒烟",
+      "command": "MINIVECTORDB_BIN=... bash tools/smoke.sh",
+      "observed": "smoke OK: 6 statements；SIGTERM 后 exit=0，stderr 打印 shutting down (signal received)"
+    },
+    {
+      "id": "T4",
+      "recorded_by": "agent",
+      "topic": "P1 赛题示例与边界错误",
+      "command": "minivectordb --data-dir tmp/p1 < 示例 SQL",
+      "observed": "id 1 distance 0.141421374149721；id 2 distance 1.272792188223375；ROLLBACK 后 3 行全部恢复；ERR vector dimension mismatch: expected 3, got 2"
+    },
+    {
+      "id": "T5",
+      "recorded_by": "agent",
+      "topic": "P2 正常关闭与强杀恢复",
+      "command": "正常关闭后重启；kill -9 后复用同一 /data 重启",
+      "observed": "正常关闭后 wal.log 8B、catalog.meta 129B；强杀后 wal.log 446B，重放得到 id 1,3 与 other.id=7；未提交事务强杀后只剩 id 1"
+    },
+    {
+      "id": "T6",
+      "recorded_by": "agent",
+      "topic": "P3 随机崩溃矩阵",
+      "command": "python3 tools/crash_test.py --iterations 30/100 --recovery-rounds 3 --big-rows 20000",
+      "observed": "30 轮随机全部 PASS；100 轮压力测试退出码 0；PASS: recovery-interrupted"
+    },
+    {
+      "id": "T7",
+      "recorded_by": "agent",
+      "topic": "P4 超内存",
+      "command": "minivectordb --data-dir tmp/bigdata --buffer-pages 64 < big.sql",
+      "observed": "load=40.32 s rss=8112 KB；query1=6.21 s rss=7208 KB；RESTART_SAME；堆文件 54,616,064 字节"
+    },
+    {
+      "id": "T8",
+      "recorded_by": "agent",
+      "topic": "P4 与独立复算对比",
+      "command": "python3 tmp/check_topk.py tmp/ret_ids.txt",
+      "observed": "returned count: 100；set equal: True；missing: []；extra: []；returned-order violations vs true distance: 0"
+    },
+    {
+      "id": "T9",
+      "recorded_by": "agent",
+      "topic": "P5 公开用例",
+      "command": "python3 tools/run_public_cases.py --bin ./build/release/minivectordb",
+      "observed": "PASS sql_crud (9 statements)、sql_comparisons (7)、sql_ordering (7)、sql_empty (4)、vector_euclidean (5)；all public cases passed（Windows/Linux/容器）"
+    },
+    {
+      "id": "T10",
+      "recorded_by": "agent",
+      "topic": "P6 读入与 AVX2",
+      "command": "MVDB_TIMING 分段计时；容器内 docker run 跑基准",
+      "observed": "同一 9.8 MB 语句 reader=1.819 s -> reader=0.249 s；container load=1.84 s、query=2.93 s"
+    },
+    {
+      "id": "T11",
+      "recorded_by": "agent",
+      "topic": "提交前本地基准",
+      "command": "三轮完整流程（10k×128、100 批提交、1000 次 TopK）",
+      "observed": "full1=2.09 s rss=20096 KB；full2=2.04 s rss=20224 KB；full3=2.00 s rss=20296 KB；分段 load=0.95 s、query=1.31 s"
+    }
+  ],
+  "evidence_map": [
+    {
+      "id": "E1",
+      "dimension": "独立验证与质疑",
+      "tier": 1,
+      "confidence": "medium",
+      "student_evidence": {
+        "pointer": "/student_turns/1/content",
+        "quote": "文档和网络环境都没有限制，你采用其它方案获取内容"
+      },
+      "result_evidence": {
+        "pointer": "/tool_results/0/observed",
+        "quote": "已抓到全文（15,850 字）；落盘 资料/赛题一_原文.md，35,711 字节"
+      },
+      "rationale": "Agent 先断言链接不可访问，学生指出结论与事实不符并要求换方案；随后 curl 抓取成功且产物可核对。学生贡献是识别错误结论与提出替代方向，抓取执行由 Agent 完成。",
+      "dedupe": "与其它实例无重叠。"
+    },
+    {
+      "id": "E2",
+      "dimension": "问题理解与自主拆解",
+      "tier": 0.5,
+      "confidence": "high",
+      "student_evidence": {
+        "pointer": "/student_turns/3/content",
+        "quote": "关于完成这个赛题还需要哪些前置准备，不用帮我完成，我使用另一个模型进行"
+      },
+      "result_evidence": null,
+      "rationale": "学生把任务拆成「前置准备」与「实现」两条线，并明确本会话只做前者。属规划型贡献，未附自己的验证结果。",
+      "dedupe": "与 E3（实现计划）、E4（题包跟进）是不同阶段，不是同一方案的重复表述。"
+    },
+    {
+      "id": "E3",
+      "dimension": "问题理解与自主拆解",
+      "tier": 0.5,
+      "confidence": "high",
+      "student_evidence": {
+        "pointer": "/student_turns/9/content",
+        "quote": "基于当前拥有的信息，进行赛题实现计划"
+      },
+      "result_evidence": null,
+      "rationale": "在题包与协议未知的前提下要求先出可执行计划，识别了硬阻塞（题包）并确定先做正确性最小闭环。属规划型贡献。",
+      "dedupe": "与 E2 阶段不同：E2 是资料与前置准备拆分，E3 是实现阶段拆分。"
+    },
+    {
+      "id": "E4",
+      "dimension": "问题理解与自主拆解",
+      "tier": 0.5,
+      "confidence": "medium",
+      "student_evidence": {
+        "pointer": "/student_turns/22/content",
+        "quote": "现在查看仓库，题包已经发布"
+      },
+      "result_evidence": null,
+      "rationale": "学生主动跟进官方仓库并率先报告题包发布，触发公开用例接入。接入与修复由 Agent 执行，因此按 0.5 计、不附结果证据。",
+      "dedupe": "与 E2/E3 的规划阶段不同；未与 T9 的结果重复计分。"
+    },
+    {
+      "id": "E5",
+      "dimension": "实验与反馈迭代",
+      "tier": 1,
+      "confidence": "medium",
+      "student_evidence": {
+        "pointer": "/student_turns/15/content",
+        "quote": "用 WSL 加组"
+      },
+      "result_evidence": {
+        "pointer": "/tool_results/1/observed",
+        "quote": "getent group docker -> docker:x:108:dline；docker info driver=overlayfs；Successfully tagged minivectordb:dev，镜像 120MB"
+      },
+      "rationale": "镜像构建被环境阻塞后，学生拍板先修环境（U15）、选 WSL 路线并亲自执行需要密码的 sudo 步骤（U16）；加组生效、dockerd 可用、镜像构建成功均可核对。学生执行了关键动作，验证记录由 Agent 完成。",
+      "dedupe": "U15 与 U16 属同一条修复链，只计一次。"
+    },
+    {
+      "id": "E6",
+      "dimension": "取舍与反思",
+      "tier": 0.5,
+      "confidence": "high",
+      "student_evidence": {
+        "pointer": "/student_turns/10/content",
+        "quote": "C++性能会高一些吗"
+      },
+      "result_evidence": null,
+      "rationale": "学生先追问语言性能差异，再拍板用 C++（U12）。属方案取舍，但没有学生自己做的对照实验或结果解释，按 0.5 计。",
+      "dedupe": "U11 与 U12 是同一条决策链，只计一次。"
+    },
+    {
+      "id": "E7",
+      "dimension": "取舍与反思",
+      "tier": 0.5,
+      "confidence": "high",
+      "student_evidence": {
+        "pointer": "/student_turns/23/content",
+        "quote": "不用私有仓库，这个不用管"
+      },
+      "result_evidence": null,
+      "rationale": "组织方建议私有仓库，学生明确选择公开仓库提交。属有意识的取舍，未给出书面理由或复测。",
+      "dedupe": "与 E6 是不同决策，不重复。"
+    }
+  ],
+  "dimension_notes": {
+    "技术理解与迁移": "本记录中学生没有用自己的话解释机制、预测行为或在迁移场景中验证，因此该维度没有可用实例。Agent 的技术解释与实现不计入。",
+    "实验与反馈迭代": "只有 Docker 环境修复一条链由学生实际执行关键动作；其余实验均为 Agent 设计执行。",
+    "说明": "evidence_map 是整理者按 v3 规则标注的候选证据与档位，不代表评审结论；评审仍以原文核对为准。"
+  },
+  "plans_not_executed": [
+    "近似索引（ann 模式）未实现；CREATE VECTOR INDEX 只记录元数据，检索仍为精确扫描。",
+    "WAL 运行中检查点阈值未实现，长时间写入会让 wal.log 持续增长。",
+    "堆文件删除只打墓碑，文件不收缩。",
+    "正式运行协议未知，当前 stdin/stdout 格式为自描述的 ROWS n / OK n / ERR。"
+  ],
+  "limitations": [
+    "本记录中绝大多数技术分析、实现与验证由 Agent 完成；学生证据集中在方向选择、优先级取舍、对 Agent 结论的质疑与外部状态跟进。",
+    "学生没有提交自己写的实验记录、预测或复测；更高档位（1.5 / 2）所要求的「解释结果并据此修正复测」「迁移到新场景并分析局限」在本材料中没有学生证据。",
+    "conversation.json 仅覆盖 2026-11-09 的两个会话，未包含学生在其他工具或笔记中的工作。",
+    "公开用例只验证语义，不代表隐藏用例或正式驱动的协议。"
+  ]
+}

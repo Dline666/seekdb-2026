@@ -1,0 +1,14 @@
+CREATE TABLE docs (id BIGINT PRIMARY KEY, name VARCHAR(16), v VECTOR(2));
+INSERT INTO docs VALUES (1, 'a', '[1,0]'), (2, 'b', '[0,1]');
+UPDATE docs SET name = 'A' WHERE id = 1;
+DELETE FROM docs WHERE id = 2;
+BEGIN;
+INSERT INTO docs VALUES (3, 'c', '[1,1]');
+COMMIT;
+BEGIN;
+INSERT INTO docs VALUES (4, 'd', '[2,2]');
+UPDATE docs SET name = 'x' WHERE id = 1;
+ROLLBACK;
+CREATE TABLE other (id BIGINT PRIMARY KEY);
+INSERT INTO other VALUES (7);
+CREATE VECTOR INDEX idx ON docs(v);

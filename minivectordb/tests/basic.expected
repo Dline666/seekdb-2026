@@ -1,0 +1,60 @@
+OK 0
+OK 3
+ROWS 3
+id	name
+2	a
+9	a
+5	b
+ROWS 3
+id
+5
+9
+2
+ROWS 1
+id
+2
+ROWS 1
+id
+5
+ROWS 0
+id
+ROWS 0
+id
+ROWS 2
+id	d
+2	1
+5	1
+OK 1
+ROWS 1
+id
+1
+OK 1
+OK 1
+ERR duplicate primary key 1
+ERR exactly one primary key is required
+ERR primary key column 'id' must be BIGINT
+ERR vector dimension mismatch: expected 3, got 2
+ERR cannot update primary key column 'id'
+ERR unsupported function 'COUNT'
+ERR unexpected token near 'OR' at position 29
+OK 0
+OK 1
+OK 1
+OK 1
+ROWS 4
+id	d
+2	1
+1	1.7320508075688772
+9	3
+5	3.4641016151377544
+OK 0
+OK 4
+ROWS 0
+id
+OK 0
+ROWS 4
+id
+1
+2
+5
+9

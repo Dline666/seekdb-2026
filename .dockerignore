@@ -1,0 +1,7 @@
+# 提交到分支根目录的 .dockerignore
+# 构建只需 minivectordb 的 CMakeLists.txt 与 src；其余（含整个 seekdb 树）不发送。
+*
+!minivectordb/
+!minivectordb/CMakeLists.txt
+!minivectordb/src/
+!minivectordb/src/**

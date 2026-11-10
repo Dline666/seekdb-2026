@@ -1,0 +1,8 @@
+ROWS 2
+id	name	v
+1	A	[1, 0]
+3	c	[1, 1]
+ROWS 1
+id
+7
+ERR vector index already exists on table 'docs'
