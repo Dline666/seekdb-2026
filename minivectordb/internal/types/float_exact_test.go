@@ -170,3 +170,35 @@ func TestDecimalExactRoundingBoundary(t *testing.T) {
 		checkFastAgainstStrconv(t, s)
 	}
 }
+
+// TestDecimalExactCarryToFiftyThreeBits covers the one branch the rest of the
+// suite never reaches: the rounding that carries a significand up to 2^53.
+//
+// The literal has to sit on or just above the midpoint between the two
+// float64 values around 2^53, so that the significand comes out as all ones
+// and the carry moves it into the next exponent. The random literals never
+// land there, so without this test a regression in that branch would move a
+// value by one ulp and silently change the distances that the planner ranks
+// by.
+func TestDecimalExactCarryToFiftyThreeBits(t *testing.T) {
+	cases := map[string]float64{
+		// Exactly on the midpoint below 2^53: ties go to even, so the
+		// significand is all ones and has to be carried.
+		"9007199254740991.5":   9007199254740992,
+		"90071992547409915e-1": 9007199254740992,
+		// Just above the midpoint: the same carry without a tie.
+		"9007199254740991.6": 9007199254740992,
+		// Just below the midpoint: no carry, the significand stays.
+		"9007199254740991.4": 9007199254740991,
+	}
+	for s, want := range cases {
+		got, ok := parseFloatFast(s)
+		if !ok {
+			t.Fatalf("parseFloatFast(%q) refused a literal it can convert", s)
+		}
+		if got != want {
+			t.Fatalf("parseFloatFast(%q) = %v, want %v", s, got, want)
+		}
+		checkFastAgainstStrconv(t, s)
+	}
+}

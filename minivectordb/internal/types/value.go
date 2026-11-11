@@ -114,9 +114,9 @@ var pow10 = [...]float64{
 	1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22,
 }
 
-// maxFastMant is the largest mantissa that parseFloatFast accumulates. It is
-// chosen so that mant*10+9 still fits in the 53-bit significand of float64,
-// which keeps float64(mant) exact.
+// maxFastMant is the largest mantissa the cheap path of decimalToFloat
+// accepts. It is chosen so that mant*10+9 still fits in the 53-bit
+// significand of float64, which keeps float64(mant) exact.
 const maxFastMant = 900719925474098
 
 // maxFastDigits is the number of mantissa digits parseFloatFast can hold
@@ -141,14 +141,19 @@ const smallestNormal = 2.2250738585072014e-308
 // parseFloatFast parses a plain decimal literal in one pass and returns the
 // very same float64 that strconv.ParseFloat would return.
 //
-// It accepts only the grammar of validNumber with an ASCII mantissa, a
-// mantissa that is exactly representable in float64 and a decimal exponent
-// whose power of ten is itself exact (|k| <= 22). For those inputs the value
-// is obtained from a single IEEE multiplication or division, which is
-// correctly rounded and therefore bit-identical to strconv, while skipping its
-// multi-pass scan and its general conversion.
+// It accepts the grammar of validNumber with an ASCII mantissa of at most 19
+// digits and a decimal exponent of at most eight digits, and every value it
+// accepts is converted exactly. Two paths do the work: the cheap path takes a
+// mantissa that is exactly representable in float64 together with a power of
+// ten that is itself exact (|k| <= 22), where a single IEEE multiplication or
+// division is correctly rounded and therefore bit-identical to strconv; the
+// exact path takes the longer mantissas the client sends and rounds them with
+// one 128/64 division and the round-to-nearest-even rule strconv uses.
 //
-// Every other input returns ok=false and is handled by strconv.ParseFloat.
+// It reports ok=false for every input it cannot convert exactly: a malformed
+// literal, a mantissa of more than 19 digits, a subnormal or out of range
+// result, and anything the two paths above decline. Those inputs are handled
+// by strconv.ParseFloat.
 func parseFloatFast(s string) (float64, bool) {
 	n := len(s)
 	i := 0
@@ -284,14 +289,14 @@ func decimalToFloat(mant uint64, k int) (float64, bool) {
 // 128/64 division.
 //
 // The decimal value is mant * 2^k / 5^k. The numerator is scaled so that the
-// quotient carries 54 bits, which leaves one bit of head room for the
-// rounding decision, and the quotient is then rounded to a 53 bit
-// significand with the round-to-nearest-even rule that strconv uses. The
-// result is therefore bit-identical to strconv.ParseFloat.
+// quotient carries 54 or 55 bits, which leaves room for the bits that decide
+// the rounding, and the quotient is then rounded to a 53 bit significand with
+// the round-to-nearest-even rule that strconv uses. The result is therefore
+// bit-identical to strconv.ParseFloat.
 //
 // It reports ok=false for every input it cannot prove to be exact: a power
-// of five that does not fit in a uint64, a quotient that does not carry 54
-// bits, or a result outside the normal float64 range.
+// of five that does not fit in a uint64, a numerator that cannot be scaled,
+// or a result outside the normal float64 range.
 func decimalExact(mant uint64, k int) (float64, bool) {
 	if k > 0 {
 		// mant * 10^k = (mant * 5^k) * 2^k. Scaling by a power of two is
@@ -318,8 +323,10 @@ func decimalExact(mant uint64, k int) (float64, bool) {
 		return 0, false
 	}
 	d := pow5[kk]
-	// Scale the numerator so that the quotient carries 54 bits: 53 bits of
-	// significand plus the bit that decides the rounding.
+	// Scale the numerator so that the quotient carries 54 or 55 bits: 53 bits
+	// of significand plus the one or two bits that decide the rounding. The
+	// shift below is always derived from the length of the quotient, never
+	// assumed, because the quotient length depends on the mantissa.
 	s := 54 + bits.Len64(d) - bits.Len64(mant)
 	if s < 0 {
 		return 0, false
@@ -343,7 +350,10 @@ func decimalExact(mant uint64, k int) (float64, bool) {
 	var sig uint64
 	var up bool
 	if shift == 0 {
-		// Only the remainder is dropped: compare it with a half.
+		// The scaling above keeps the quotient at 54 or 55 bits, so this
+		// branch is not reached today. It is kept because the comparison is
+		// the one that decides the rounding when no bit is dropped: compare
+		// the remainder with a half.
 		switch {
 		case 2*r > d:
 			up = true
