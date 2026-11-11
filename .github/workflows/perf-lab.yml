@@ -1,0 +1,63 @@
+# Linux x86_64 / cgroup v2 performance lab. Lives only on the ci/perf-lab
+# branch. Builds the Dockerfile of each listed commit of the submission
+# branch and runs lab/lab.py with the judge's container limits. Results are
+# committed to the ci/perf-results branch (runs/<run id>/).
+name: perf-lab
+on:
+  push:
+    branches: [ci/perf-lab]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: environment
+        run: |
+          {
+            uname -a; nproc; grep -m1 'model name' /proc/cpuinfo
+            grep -o -w 'avx2\|fma\|avx512f' /proc/cpuinfo | sort | uniq -c
+            stat -fc %T /sys/fs/cgroup; docker info --format '{{.CgroupDriver}} {{.CgroupVersion}} {{.ServerVersion}}'
+            df -hT "$RUNNER_TEMP"; free -m
+          } 2>&1 | tee env.txt
+          python3 -m pip install --quiet --user --break-system-packages numpy
+      - name: build images
+        run: |
+          set -e
+          for c in $(cat lab/commits.txt); do
+            git fetch --depth=1 origin "$c"
+            mkdir -p "$RUNNER_TEMP/src-$c"
+            git archive "$c" | tar -x -C "$RUNNER_TEMP/src-$c"
+            docker build -q -t "mvdb:$c" "$RUNNER_TEMP/src-$c" | tee -a build.txt
+          done
+      - name: lab
+        run: |
+          args=""
+          for c in $(cat lab/commits.txt); do args="$args $c=mvdb:$c"; done
+          mkdir -p "$RUNNER_TEMP/data"
+          LAB_TMP="$RUNNER_TEMP/data" python3 lab/lab.py --images $args --rounds $(cat lab/rounds.txt) --out lab-results.jsonl 2>&1 | tee lab-log.txt
+      - name: summary
+        if: always()
+        run: python3 lab/summary.py lab-results.jsonl | tee summary.md | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: publish results
+        if: always()
+        run: |
+          set -e
+          out="$RUNNER_TEMP/out/runs/$GITHUB_RUN_ID"
+          mkdir -p "$out"
+          cp env.txt build.txt lab-results.jsonl lab-log.txt summary.md lab/commits.txt "$out"/ 2>/dev/null || true
+          echo "$GITHUB_SHA" > "$out/lab-sha.txt"
+          cd "$RUNNER_TEMP/out"
+          git init -q
+          git config user.name perf-lab
+          git config user.email perf-lab@users.noreply.github.com
+          git remote add origin "$(git -C "$GITHUB_WORKSPACE" config --get remote.origin.url)"
+          hdr=$(git -C "$GITHUB_WORKSPACE" config --get http.https://github.com/.extraheader)
+          git config http.https://github.com/.extraheader "$hdr"
+          if git fetch -q --depth=1 origin ci/perf-results; then git reset -q FETCH_HEAD; fi
+          git add runs
+          git commit -q -m "perf-lab run $GITHUB_RUN_ID"
+          git push -q origin HEAD:refs/heads/ci/perf-results
