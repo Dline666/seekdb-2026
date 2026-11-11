@@ -153,9 +153,28 @@ def run_query(image, batches, qs, ref):
             db.req(b)
         db.req(qs[0][2])  # warm-up
         t0 = time.perf_counter()
-        res = [db.req(sql) for _, _, sql in qs]
+        res = []
+        tpart = {"unf": 0.0, "fil": 0.0}
+        for _, c, sql in qs:
+            t1 = time.perf_counter()
+            res.append(db.req(sql))
+            tpart["fil" if c is not None else "unf"] += time.perf_counter() - t1
         t = time.perf_counter() - t0
         s = db.stats()
+        # Transport floor (not part of T/B/M): same-size requests that do no
+        # table work, a constant L2_DISTANCE between two literal vectors.
+        floor_sqls = []
+        for _, _, sql in qs:
+            lit = sql.split("'[")[1].split("]'")[0]
+            floor_sqls.append("SELECT L2_DISTANCE('[%s]', '[%s]') AS d" % (lit, lit))
+        t1 = time.perf_counter()
+        for f_sql in floor_sqls:
+            db.req(f_sql)
+        tfloor = time.perf_counter() - t1
+        t1 = time.perf_counter()
+        for _ in qs:
+            db.req("SELECT 1")
+        tping = time.perf_counter() - t1
         db.close()
     rec = {"unf": [], "fil": []}
     bad_order = bad_dist = 0
@@ -169,6 +188,7 @@ def run_query(image, batches, qs, ref):
             if abs(row[1] - x ** 0.5) > 1e-5 * max(1, x ** 0.5):
                 bad_dist += 1
     return {"T_s": t, "B_mib": s["io_mib"], "M_mib": s["mem_peak_mib"], "rbytes": s["rbytes"], "wbytes": s["wbytes"],
+            "T_unf_s": tpart["unf"], "T_fil_s": tpart["fil"], "floor_samesize_s": tfloor, "floor_ping_s": tping,
             "recall_unf": sum(rec["unf"]) / len(rec["unf"]), "recall_fil": sum(rec["fil"]) / len(rec["fil"]),
             "order_mismatch": bad_order, "dist_mismatch": bad_dist}
 

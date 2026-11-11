@@ -28,6 +28,11 @@ for t in tags:
         return 0.6 * f(rt) + 0.2 * f(rb) + 0.2 * f(rm)
     E = (e("write") + 2 * e("query")) / 3
     q = rs[-1]["query"]
+    if "T_unf_s" in q:
+        print(f"<!-- {t[:7]} query split unf={s.median(r['query']['T_unf_s'] for r in rs):.3f} "
+              f"fil={s.median(r['query']['T_fil_s'] for r in rs):.3f} "
+              f"floor_samesize={s.median(r['query']['floor_samesize_s'] for r in rs):.3f} "
+              f"floor_ping={s.median(r['query']['floor_ping_s'] for r in rs):.3f} -->")
     print(f"| {t[:7]} | {len(rs)} | {m['write']['T_s']:.3f} | {m['write']['B_mib']:.1f} | {m['write']['M_mib']:.1f} | "
           f"{m['query']['T_s']:.3f} | {m['query']['B_mib']:.1f} | {m['query']['M_mib']:.1f} | "
           f"{min(r['query']['recall_unf'] for r in rs):.3f}/{min(r['query']['recall_fil'] for r in rs):.3f} | "
