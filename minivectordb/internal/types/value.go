@@ -98,6 +98,10 @@ var pow10 = [...]float64{
 // which keeps float64(mant) exact.
 const maxFastMant = 900719925474098
 
+// maxFastDigits is the number of mantissa digits parseFloatFast can hold
+// without overflowing its uint64 accumulator.
+const maxFastDigits = 19
+
 // parseFloatFast parses a plain decimal literal in one pass and returns the
 // very same float64 that strconv.ParseFloat would return.
 //
@@ -120,31 +124,48 @@ func parseFloatFast(s string) (float64, bool) {
 	var mant uint64
 	digits := 0     // total number of mantissa digits
 	fracDigits := 0 // number of digits after the decimal point
-	sawDot := false
-	exact := true
+	// The integer part. Eight digits at a time where possible: the block
+	// conversion is a handful of instructions for eight characters.
+	for i+8 <= n {
+		v := le64(s, i)
+		if !eightDigits(v) {
+			break
+		}
+		mant = mant*1e8 + eightDigitsValue(v)
+		digits += 8
+		i += 8
+	}
 	for i < n {
-		c := s[i]
-		if c >= '0' && c <= '9' {
+		c := s[i] - '0'
+		if c > 9 {
+			break
+		}
+		mant = mant*10 + uint64(c)
+		digits++
+		i++
+	}
+	if i < n && s[i] == '.' {
+		i++
+		for i+8 <= n {
+			v := le64(s, i)
+			if !eightDigits(v) {
+				break
+			}
+			mant = mant*1e8 + eightDigitsValue(v)
+			digits += 8
+			fracDigits += 8
+			i += 8
+		}
+		for i < n {
+			c := s[i] - '0'
+			if c > 9 {
+				break
+			}
+			mant = mant*10 + uint64(c)
 			digits++
-			if sawDot {
-				fracDigits++
-			}
-			if exact {
-				if mant <= maxFastMant {
-					mant = mant*10 + uint64(c-'0')
-				} else {
-					exact = false
-				}
-			}
+			fracDigits++
 			i++
-			continue
 		}
-		if c == '.' && !sawDot {
-			sawDot = true
-			i++
-			continue
-		}
-		break
 	}
 	if digits == 0 {
 		return 0, false
@@ -172,7 +193,15 @@ func parseFloatFast(s string) (float64, bool) {
 			exp = -exp
 		}
 	}
-	if i != n || !exact {
+	if i != n {
+		return 0, false
+	}
+	if digits > maxFastDigits {
+		// The accumulator may have wrapped; the value is not exact anyway.
+		return 0, false
+	}
+	if mant > maxFastMant*10+9 {
+		// More than 53 bits of significand: float64(mant) would round.
 		return 0, false
 	}
 	k := exp - fracDigits
@@ -193,13 +222,39 @@ func parseFloatFast(s string) (float64, bool) {
 	return f, true
 }
 
+// le64 reads the eight bytes of s starting at i as a little-endian word.
+func le64(s string, i int) uint64 {
+	return uint64(s[i]) | uint64(s[i+1])<<8 | uint64(s[i+2])<<16 | uint64(s[i+3])<<24 |
+		uint64(s[i+4])<<32 | uint64(s[i+5])<<40 | uint64(s[i+6])<<48 | uint64(s[i+7])<<56
+}
+
+// eightDigits reports whether the eight bytes of v are all ASCII digits.
+func eightDigits(v uint64) bool {
+	// Every byte must be in 0x30..0x3f, and adding six must keep it in
+	// 0x30..0x3f as well, which leaves exactly '0'..'9'.
+	return v&0xf0f0f0f0f0f0f0f0 == 0x3030303030303030 &&
+		(v+0x0606060606060606)&0xf0f0f0f0f0f0f0f0 == 0x3030303030303030
+}
+
+// eightDigitsValue returns the number spelled by eight ASCII digits. The
+// first character of the block is the most significant digit.
+func eightDigitsValue(v uint64) uint64 {
+	v -= 0x3030303030303030
+	v = (v*10 + (v >> 8)) & 0x00ff00ff00ff00ff
+	v = (v*100 + (v >> 16)) & 0x0000ffff0000ffff
+	v = (v*10000 + (v >> 32)) & 0x00000000ffffffff
+	return v
+}
+
+// maxFloat32 is the largest finite float32. A float64 that is NaN or
+// infinite, and one that is too large for a float32, all turn into a float32
+// that is either NaN or outside this range.
+const maxFloat32 = 3.4028234663852886e+38
+
 // ToFloat32 converts a finite float64 to float32, failing on NaN, Inf or overflow.
 func ToFloat32(f float64) (float32, bool) {
-	if math.IsNaN(f) || math.IsInf(f, 0) {
-		return 0, false
-	}
 	r := float32(f)
-	if math.IsInf(float64(r), 0) {
+	if !(r >= -maxFloat32 && r <= maxFloat32) {
 		return 0, false
 	}
 	return r, true

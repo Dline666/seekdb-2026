@@ -203,6 +203,105 @@ func TestParseVectorFloat32Semantics(t *testing.T) {
 	}
 }
 
+// TestEightDigitsBlock checks the eight-digit block conversion against the
+// obvious loop, and the digit test against a brute force check.
+func TestEightDigitsBlock(t *testing.T) {
+	rng := rand.New(rand.NewSource(23))
+	for i := 0; i < 20000; i++ {
+		n := rng.Intn(100000000)
+		s := fmt.Sprintf("%08d", n)
+		v := le64(s, 0)
+		if !eightDigits(v) {
+			t.Fatalf("%q is not eight digits", s)
+		}
+		if got := eightDigitsValue(v); got != uint64(n) {
+			t.Fatalf("%q: got %d want %d", s, got, n)
+		}
+	}
+	// Blocks that are not eight digits must be rejected.
+	for _, s := range []string{"1234567a", "1234567 ", "1234567+", "1234567.",
+		"-1234567", "1234567.5", "\x80\x80\x80\x80\x80\x80\x80\x80",
+		"\xff\xff\xff\xff\xff\xff\xff\xff", "        ", "\n\n\n\n\n\n\n\n"} {
+		if eightDigits(le64(s, 0)) {
+			t.Fatalf("%q must not be eight digits", s)
+		}
+	}
+	// The block must agree with the byte-wise reading.
+	for i := 0; i < 1000; i++ {
+		var b [8]byte
+		for j := range b {
+			b[j] = byte('0' + rng.Intn(10))
+		}
+		v := le64(string(b[:]), 0)
+		if !eightDigits(v) {
+			t.Fatalf("%q is not eight digits", b)
+		}
+		var want uint64
+		for j := range b {
+			want = want*10 + uint64(b[j]-'0')
+		}
+		if got := eightDigitsValue(v); got != want {
+			t.Fatalf("%q: got %d want %d", b, got, want)
+		}
+	}
+}
+
+// TestParseFloatFastMatchesStrconv checks the fast decimal scanner against
+// strconv on every shape it is meant to accept: whenever it returns a value,
+// that value has to be the one strconv produces, bit for bit.
+func TestParseFloatFastMatchesStrconv(t *testing.T) {
+	rng := rand.New(rand.NewSource(17))
+	check := func(s string) {
+		t.Helper()
+		got, ok := parseFloatFast(s)
+		if !ok {
+			return
+		}
+		want, err := strconv.ParseFloat(s, 64)
+		if err != nil {
+			t.Fatalf("%q: fast path accepted, strconv failed: %v", s, err)
+		}
+		if math.Float64bits(got) != math.Float64bits(want) {
+			t.Fatalf("%q: got %v (%x) want %v (%x)", s, got, math.Float64bits(got), want, math.Float64bits(want))
+		}
+	}
+	// Random decimals with a wide range of digit counts and exponents.
+	for i := 0; i < 40000; i++ {
+		n := rng.Intn(1000000)
+		digits := fmt.Sprintf("%d", n)
+		switch rng.Intn(4) {
+		case 0:
+			digits += fmt.Sprintf("%06d", rng.Intn(1000000))
+		case 1:
+			digits += fmt.Sprintf("%d", rng.Intn(100))
+		case 2:
+			digits += fmt.Sprintf("%09d", rng.Intn(1000000000))
+		}
+		if rng.Intn(2) == 0 {
+			digits = "0" + digits
+		}
+		if rng.Intn(2) == 0 {
+			digits = digits[:1] + "." + digits[1:]
+		}
+		if rng.Intn(2) == 0 {
+			digits = "-" + digits
+		}
+		if rng.Intn(3) == 0 {
+			digits += fmt.Sprintf("e%+d", rng.Intn(46)-23)
+		}
+		check(digits)
+		check(strings.TrimPrefix(digits, "-"))
+	}
+	for _, s := range []string{"0", "-0", "+0", "0.0", "1", "1.", ".5", "-.5",
+		"0.5", "00.50", "1e0", "1E0", "1e+5", "1e-5", "1e22", "1e-22", "1e23",
+		"1e-23", "1e308", "1e-308", "1e-323", "1e-324", "1e-400",
+		"1.7976931348623157e308", "900719925474099", "9007199254740991",
+		"9007199254740992", "9007199254740993", "12345678901234567",
+		"123456789012345678901234567890", "0.00000000000000000001"} {
+		check(s)
+	}
+}
+
 // BenchmarkParseVector measures literal parsing alone.
 func BenchmarkParseVector(b *testing.B) {
 	rng := rand.New(rand.NewSource(3))
