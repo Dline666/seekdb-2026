@@ -51,8 +51,10 @@ func main() {
 	// Peak memory is scored. The live heap is small (vector copy plus
 	// indexes), and most garbage comes from parsing large INSERT statements,
 	// so a tighter GC target lowers the peak without a measurable time cost.
+	// The live set holds no pointers (float32 vectors and integer maps), so
+	// marking is cheap and a low target does not thrash the collector.
 	if os.Getenv("GOGC") == "" {
-		debug.SetGCPercent(50)
+		debug.SetGCPercent(20)
 	}
 	switch *sync {
 	case "none":
