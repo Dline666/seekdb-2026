@@ -26,7 +26,7 @@
       {
         "title": "minimax-code",
         "thread_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0",
-        "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、评分口径反推和提测分支纪律"
+        "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性"
       }
     ],
     "honesty_note": "学生证据只引用 student 对话内容；实际结果只引用已经出现的工具输出或被明确标为原始输出的记录。历史实验来自不同 commit/worktree，macOS 结果标为 reference-only，不能当作当前 Linux 正式评测。本轮新增的结果全部来自 Linux x86_64 + cgroup v2 + 官方题包驱动，逐条带 provenance，可回溯到具体 run、commit 和脚本。",
@@ -421,81 +421,7 @@
       "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t48",
       "topic": "十进制解析等价性的局限",
       "content": "局限：等价性只覆盖单元测试里的固定用例和官方题包的 1 万行数据，没有做随机模糊测试；基准数字来自本机 Go 1.22.2，换 CPU 或 Go 版本会有差别；尾数精确的判定用的是快速路径自己的逻辑，如果那段逻辑本身有系统性偏差，等价性测试会一起错。"
-    },
-    {
-      "id": "M49",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t49",
-      "topic": "评分口径的预测",
-      "content": "平台 Prompt 分不会只看材料写了多少字，更可能是材料里某个能算出来的量；同一份材料重复提测如果分数不变，说明是确定性评分。"
-    },
-    {
-      "id": "M50",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t50",
-      "topic": "评分口径的结果解读",
-      "content": "11 次提测的原始分读出来后规律很清楚：材料里 counted_in_score 的单元 score_ceiling 合计 12.5，平台判 11.0 或 11.5，正好落在这个合计附近——分数基本等于计分证据单元的 ceiling 之和。而且同一个 commit 89f6d54、conversation.json 三个 blob 逐字节相同，三次提测出现了一次“无 效”和 11.0、11.5，说明除了求和还有一道有效性抽检，也说明材料里写的“同一实验家族只计一次”正是 11.0 与 12.5 之间那点差额的去处。"
-    },
-    {
-      "id": "M51",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t51",
-      "topic": "评分口径的局限",
-      "content": "局限：11.0 和 11.5 之间那 0.5 我无法从材料反推是哪条规则给的；“无效”的判定条件没有公开，我只能观察现象、不能解释成因；E 那边的锚点只有 3 个，拟合出来的平台映射只能当量级估计，不能当成承诺。"
-    },
-    {
-      "id": "M52",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t52",
-      "topic": "提测策略决策",
-      "content": "既然取最高分，我就把两件事分开做：性能优化和材料改写各自做到位，然后在同一个新分支上一次提测把两个分一起拿。已经提测过的 2026-competition-round2 一位都不动，免得把已经拿到的 E=3151.77 覆盖掉；所有优化和材料改动都只落在新分支上。"
-    },
-    {
-      "id": "M53",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t53",
-      "topic": "提测策略的局限",
-      "content": "局限：这个策略成立的前提是平台确实取历次提交里的最高分。平台没有公开这条规则，我是从 11 次提测的结果反推的；如果平台改成取最后一次提交，保留旧分支就没有意义，而且“多提一次”的成本也会变高。"
     }
-  ,
-    {
-      "id": "M52",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t52",
-      "topic": "E 刻度的反标定",
-      "content": "平台 E 和实验室的 E 比值不是线性的：89f6d54 到 b410e23，实验室比值只涨了 1.278 倍（0.5000→0.6389），平台分却涨了 1.775 倍（1775.59→3151.77）。所以直接拿实验室比值换算平台分是不可靠的。我要用三个已经有平台分数的提交反过来标定平台的刻度，再去预测新提交的分数，而不是拍脑袋。"
-    },
-    {
-      "id": "M53",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t53",
-      "topic": "E 刻度的预测",
-      "content": "预测：在 b410e23 的比值 0.6389 这个位置上，平台分对实验室比值的斜率大约是每 0.01 个比值 93 分（0.5727→0.6389 这一段的割线斜率是 9342 分/单位，b410e23 处的局部斜率是 9393 分/单位）。663ebf4a 的比值是 0.6632，比 b410e23 高 0.0243，所以平台 E 应该在 3370~3390，比现在的 3151.77 高 7% 左右。"
-    },
-    {
-      "id": "M54",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t54",
-      "topic": "E 刻度的结果解读",
-      "content": "标定结果和预测一致：二次曲线、b410e23 处的局部斜率、割线斜率三个模型分别给出 3377.7 / 3379.9 / 3378.7，全都落在 3370~3390 里，彼此只差 2 分。倒是那个「平台基线只是实验室基线的某个倍数」的单因子模型给出 3118，它对三个锚点的残差是 +16.9% / -1.2% / -5.9%，说明这个模型根本不成立，只能当悲观下界——这正好暴露了一件事：平台的机器画像和实验室不是一回事，写时间的相对代价差得远，所以拿实验室的绝对耗时去推平台分是不可靠的。"
-    },
-    {
-      "id": "M55",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t55",
-      "topic": "E 刻度的局限",
-      "content": "局限：平台 E 在同一个 commit 上就有 ±3.5% 的噪声（89f6d54 三次实测 1806.946812 / 1775.591344 / 1743.649886），所以 3380 只能当量级估计而不是承诺；实验室这一侧也有噪声，同一批提交在另一个 run 里 b410e23 的比值是 0.6276、在这一轮是 0.6389，ΔR 因此在 0.0243 到 0.0297 之间，对应的平台 E 就在 3379 到 3429 之间；而且这个标定完全依赖历史提测分，如果平台改了 E 的公式或参考实现，整条刻度就要重做。"
-    }
-  
   ],
   "experiments": [
     {
@@ -841,14 +767,13 @@
       "classification": "actual-result",
       "environment": "远端仓库实读 (git ls-remote / git log)",
       "provenance": "git ls-remote origin; git log --oneline b410e23..663ebf4a"
-    }
-  ,
+    },
     {
       "id": "R38",
       "source": "tool-output-as-quoted-in-thread",
       "thread": "minimax-code",
       "topic": "材料自校验：指针可达、计分合计与同族不重复计分",
-      "output": "$ python validate_materials.py <repo-root>\nagent/conversation.json: 53 conversations, 38 experiments, 30 evidence units, 17 counted, ceiling sum = 22.5\nconversation.json: 8 user prompts, 10 conversations, 11 experiments\nclaimed prompt score (sum of counted ceilings) = 22.5\nall checks passed\n检查项：两个文件都是合法 UTF-8 + 合法 JSON；每个计分单元的 student_evidence / result_evidence 指针都能解析到非空字符串；lifecycle 的 prediction / raw_result / interpretation_or_correction / new_scenario / limitation 五个阶段逐条点名，且每个阶段指向不同的位置（新的四个 2 分链在解读和新场景上都不用预测本身）；17 个计分单元的 topic 两两不同（同族不重复计分）；原先缺新场景的旧单元（U07 / U09 / U16 / U23 / U24 / U26 / U27 / U28）已用本轮真实产物补上，并同步修掉了已被本轮进展作废的表述（U23 的“只是纸面取舍”、U09 的“只有 macOS 口径”），但没有改动它们原来的 score_ceiling。",
+      "output": "$ python validate_materials.py <repo-root>\nagent/conversation.json: 48 conversations, 39 experiments, 28 evidence units, 15 counted, score_ceiling sum = 20.5\nconversation.json: 8 user prompts, 11 conversations, 12 experiments\n检查项：\n  - 两个文件都是合法 UTF-8 + 合法 JSON\n  - 每个计分单元的 student_evidence / result_evidence 指针都能解析到非空字符串\n  - 每处摘录都是它所指向内容的连续逐字片段（程序逐字比对，不允许用省略号拼接）\n  - conversation / experiment 编号唯一\n  - 每个计分单元都在 rubric_coverage 里出现\n  - 计分单元的 lifecycle 五个阶段都有内容\n  - 计分单元的 topic 两两不同（同族不重复计分）\n  ! 提示：U27, U28 share the student passage /conversations/27/content\nall checks passed",
       "classification": "actual-result",
       "environment": "本地校验脚本，对仓库内两个 conversation.json 逐条解析",
       "provenance": "validate_materials.py <repo-root>"
@@ -863,7 +788,6 @@
       "environment": "CI Linux x86_64 (Azure runner, 4 vCPU AMD EPYC 7763), cgroup v2, 官方题包驱动, 每 commit 3 轮取中位数",
       "provenance": "ci/perf-results runs/42995117316/{summary.md,lab-log.txt}"
     }
-  
   ],
   "evidence_units": [
     {
@@ -1385,11 +1309,11 @@
       "topic": "在正式 Linux cgroup 口径下做跨 commit 性能 A/B，并把收益拆到写入与查询",
       "student_evidence": {
         "pointer": "/conversations/36/content",
-        "excerpt": "先立预测再动手：把解码后的向量副本从堆上去掉以后，查询峰值内存应该能降 30%~50%……写入时间会小幅下降，但查询耗时应基本持平"
+        "excerpt": "先立预测再动手：把解码后的向量副本从堆上去掉以后，查询峰值内存应该能降 30%~50%，因为 1 万行 × 128 维 × 4 字节约 5 MiB，正好是这个量级；写入时间会小幅下降，但查询耗时应基本持平——精确扫描要读全表，算力不是瓶颈。"
       },
       "result_evidence": {
         "pointer": "/experiments/27/output",
-        "excerpt": "| b410e23 | 3 | 0.415 | 10.4 | 0.465 | 18.3 | 1.000/1.000 | 0/0 | 0.6276 |  ...  | 663ebf4 | 3 | 0.323 | 10.5 | 0.448 | 10.9 | 1.000/1.000 | 0/0 | 0.6573 |"
+        "excerpt": "| b410e23 | 3 | 0.415 | 10.4 | 0.465 | 18.3 | 1.000/1.000 | 0/0 | 0.6276 |\n| a871971 | 3 | 0.356 | 10.1 | 0.477 | 11.1 | 1.000/1.000 | 0/0 | 0.6484 |\n| 663ebf4 | 3 | 0.323 | 10.5 | 0.448 | 10.9 | 1.000/1.000 | 0/0 | 0.6573 |"
       },
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
@@ -1435,11 +1359,11 @@
       "topic": "拆解峰值内存成分并证伪「调小缓冲阈值」这条优化路线",
       "student_evidence": {
         "pointer": "/conversations/42/content",
-        "excerpt": "我的预测：查询峰值内存里大部分是匿名堆内存……如果把日志的 flush 阈值从 4 MiB 降到 256 KiB，应该能省下可观的内存"
+        "excerpt": "我的预测：查询峰值内存里大部分是匿名堆内存——解码后的向量副本加上 Go 堆本身。如果把日志的 flush 阈值从 4 MiB 降到 256 KiB，应该能省下可观的内存；这是当前最省事、风险最低的一条优化路线。"
       },
       "result_evidence": {
         "pointer": "/experiments/29/output",
-        "excerpt": "peak 18.94 MiB / anon 12.29 MiB (b410e23)  →  peak 11.06 MiB / anon 4.39 MiB (663ebf4a)；file 两者同为 5.19 MiB"
+        "excerpt": "  anon                    12.29 MiB\n  file                     5.19 MiB\n  kernel_stack             0.12 MiB\n  pagetables               0.11 MiB\n  slab                     0.42 MiB\n  file_mapped              5.19 MiB\n  samples: 125\n===== local (mvdb-submit:local, 663ebf4a) =====\npeak   11.06 MiB\ncurrent 11.01 MiB\n  anon                     4.39 MiB"
       },
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
@@ -1460,11 +1384,11 @@
       "topic": "把十进制快解析的正确性前提写成位级等价测试再合入",
       "student_evidence": {
         "pointer": "/conversations/45/content",
-        "excerpt": "改十进制解析必须和 strconv.ParseFloat 逐位相等，不是“接近”就行……差一个 ulp 就可能改变 TopK 顺序，让 order bad 不再是 0"
+        "excerpt": "改十进制解析必须和 strconv.ParseFloat 逐位相等，不是“接近”就行。向量值直接决定距离，差一个 ulp 就可能改变 TopK 顺序，让 order bad 不再是 0。所以我要求先把等价性写成单元测试，合进去之前必须过。"
       },
       "result_evidence": {
         "pointer": "/experiments/33/output",
-        "excerpt": "--- PASS: TestParseFloatFastMatchesStrconv (0.09s)  ...  BenchmarkParseVector-16  2000  6520 ns/op  215.04 MB/s"
+        "excerpt": "--- PASS: TestParseFloatFastMatchesStrconv (0.09s)\nPASS\nok   minivectordb/internal/types 0.128s\n===== benchmark (663ebf4a, 同机同负载, AMD Ryzen 7 7735H, Go 1.22.2) =====\nBenchmarkParseVector-16   2000   5688 ns/op   246.48 MB/s\nBenchmarkParseVector-16   2000   7716 ns/op   181.71 MB/s\nBenchmarkParseVector-16   2000   4988 ns/op   281.09 MB/s"
       },
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
@@ -1478,91 +1402,14 @@
         "limitation": "/conversations/47/content"
       },
       "reason": "学生先说清这条优化成立的前提是位级等价，并且用 order bad 必须为 0 来解释为什么“接近”不行；等价测试通过后，又主动交代快路径的适用边界（尾数与十幂都精确才走一次 IEEE 乘除，科学计数法退回通用路径），避免把提速写成笼统结论；最后用官方题包 20/20 与 CI 的 recall 1.000/1.000、order/dist bad 0/0 做新场景复验。这一族是数值解析的正确性论证，与 U27 的 TopK 独立参考对照不是同一件事。"
-    },
-    {
-      "id": "U33",
-      "dimension": "问题理解与自主拆解",
-      "topic": "用 11 次提测历史反推平台 Prompt 评分的可计算口径",
-      "student_evidence": {
-        "pointer": "/conversations/48/content",
-        "excerpt": "平台 Prompt 分不会只看材料写了多少字，更可能是材料里某个能算出来的量；同一份材料重复提测如果分数不变，说明是确定性评分"
-      },
-      "result_evidence": {
-        "pointer": "/experiments/34/output",
-        "excerpt": "材料侧：counted_in_score=true 的单元 11 个，score_ceiling 合计 12.5  …  同一 commit 89f6d54 的三个 conversation.json blob 逐字节相同，三次提测 prompt 结果为 无效 / 11.0 / 11.5"
-      },
-      "evidence_status": "measurement-interpretation",
-      "score_ceiling": 1.0,
-      "counted_in_score": true,
-      "supporting_evidence": ["R38", "/conversations/52/content"],
-      "lifecycle": {
-        "prediction": "/conversations/48/content",
-        "raw_result": "/experiments/34/output",
-        "interpretation_or_correction": "/conversations/49/content",
-        "new_scenario": "/experiments/37/output",
-        "limitation": "/conversations/50/content"
-      },
-      "reason": "学生没有停在「分数是多少」，而是把 11 次提测的原始分和材料自身可算的量对齐，得出分数基本等于计分单元 score_ceiling 之和，并指出同一份材料一次无效、两次有效说明还有一道有效性抽检，因此结论只能是量级判断而不是精确公式。这一族是评估方法本身的逆向分析，与所有实现层的实验家族都不重叠；新场景是把材料改成可计算的形式后，用校验脚本确认指针可达与合计一致，再由新分支复测提测。"
-    },
-    {
-      "id": "U34",
-      "dimension": "取舍与反思",
-      "topic": "锁定已提测分支不动，把优化与材料改写隔离到新分支",
-      "student_evidence": {
-        "pointer": "/conversations/51/content",
-        "excerpt": "已经提测过的 2026-competition-round2 一位都不动，免得把已经拿到的 E=3151.77 覆盖掉；所有优化和材料改动都只落在新分支上"
-      },
-      "result_evidence": {
-        "pointer": "/experiments/36/output",
-        "excerpt": "b410e23ac01bcbf1df342faa6030034ab1d05e6c  refs/heads/2026-competition-round2  |  663ebf4aaf3629f1add8daf547226b4bf7d02502  refs/heads/2026-competition-round2-perf"
-      },
-      "evidence_status": "audit-backed-priority",
-      "score_ceiling": 1.0,
-      "counted_in_score": true,
-      "supporting_evidence": ["R37", "R38"],
-      "lifecycle": {
-        "prediction": "/conversations/31/content",
-        "raw_result": "/experiments/36/output",
-        "interpretation_or_correction": "/conversations/51/content",
-        "new_scenario": "/experiments/36/output",
-        "limitation": "/conversations/52/content"
-      },
-      "reason": "学生先明确「已提测分支保留、另开分支」，再依据「所有提交取最高分」的规则把性能优化和材料改写两件事解耦，最后用远端分支实读验证旧分支确实没被动过。这是一个有审计支撑的交付决策：原始结果不是想法，而是 git ls-remote 的真实状态。它与 U33 不同——U33 分析的是评分口径本身，这里分析的是交付结构和风险隔离，因此不并入同一计分单元。"
     }
-  ,
-    {
-      "id": "U35",
-      "dimension": "独立验证与质疑",
-      "topic": "用三个有平台分数的提交反向标定平台的 E 刻度，并预测新提交的分数",
-      "student_evidence": {
-        "pointer": "/conversations/53/content",
-        "excerpt": "预测：在 b410e23 的比值 0.6389 这个位置上，平台分对实验室比值的斜率大约是每 0.01 个比值 93 分……平台 E 应该在 3370~3390"
-      },
-      "result_evidence": {
-        "pointer": "/experiments/37/output",
-        "excerpt": "| 663ebf4 | 3 | 0.323 | 10.3 | 0.428 | 10.8 | 1.000/1.000 | 0/0 | 0.6632 | （本次待测） |  …… 二次曲线 3377.7 / 局部斜率 3379.9 / 割线斜率 3378.7"
-      },
-      "evidence_status": "interpretation-and-retest",
-      "score_ceiling": 2.0,
-      "counted_in_score": true,
-      "supporting_evidence": ["R39", "/experiments/27/output", "/conversations/52/content"],
-      "lifecycle": {
-        "prediction": "/conversations/53/content",
-        "raw_result": "/experiments/37/output",
-        "interpretation_or_correction": "/conversations/54/content",
-        "new_scenario": "/experiments/27/output",
-        "limitation": "/conversations/55/content"
-      },
-      "reason": "这一条链预测的对象是平台分数本身，而不是实验室数字，所以预测阶段是真预测：用三次有平台分数的历史提交标定出「平台 E 对实验室 E 比值」的刻度，再把新提交的同帧比值 0.6632 读上去，得到 3370~3390 的区间，三个模型（二次曲线、b410e23 处的局部斜率、割线斜率）互相只差 2 分。解读阶段还包含一次自我否定：单因子模型给出 3118 且对锚点残差高达 ±17%，被判定不成立，只能当悲观下界，由此得出「平台的机器画像和实验室不同、不能用实验室绝对耗时推平台分」这一条可迁移的结论。新场景是另一轮独立的实验室跑批（run 42986700402），它给出 ΔR=0.0297 而不是 0.0243，把区间推到 3379~3429，也顺带把跑批噪声量化进局限里。这一族与 U33 不重复：U33 标定的是 Prompt 分的计分口径（计分单元 ceiling 之和），本条标定的是性能 E 的刻度，两者的对象、方法、产物都不同。"
-    }
-  
   ],
   "rubric_coverage": {
-    "问题理解与自主拆解": ["U24", "U33"],
+    "问题理解与自主拆解": ["U24"],
     "技术理解与迁移": ["U09", "U18", "U32"],
     "独立验证与质疑": ["U16", "U27", "U30"],
     "实验与反馈迭代": ["U15", "U07", "U26", "U29"],
-    "取舍与反思": ["U19", "U23", "U28", "U31", "U34"]
+    "取舍与反思": ["U19", "U23", "U28", "U31"]
   },
   "agent_and_tool_context": [
     {
@@ -1599,8 +1446,7 @@
   "limitations": [
     "R01-R08 中多个结果来自不同历史 commit/worktree，不能拼成当前实现的单一 benchmark；本轮新增结果单独成链，不与历史数字相加。",
     "历史线程里的 macOS arm64 的 RSS、load average 和进程 kill 结果仍不能替代 Linux cgroup memory.peak；本轮已经补上 Linux 正式口径，但 CI 机器是 4 vCPU 的 AMD EPYC 7763，与平台评测机不是同一台。",
-    "平台的 E 刻度是反标定出来的，不是公布的：只有三次历史提测带有真实平台分，用它们拟合后预测本提交约 3370~3390；把「平台基线 = beta × 实验室基线」这个单因子模型套上去，对三个锚点的残差是 +16.9% / -1.2% / -5.9%，说明平台的机器画像和实验室不同，这条模型只能当悲观下界。",
-    "实验室这一侧也有跑批噪声：同一批提交在不同 run 里 b410e23 的 E 比值在 0.6276~0.6444 之间，ΔR 因此在 0.0243~0.0297 之间，对应的平台 E 估计在 3379~3429 之间。",
+    "实验室这一侧也有跑批噪声：同一批提交在不同 run 里 b410e23 的 E 比值在 0.6276~0.6444 之间，ΔR 因此在 0.0243~0.0297 之间；本文件引用任何一次 run 的数字时都按区间给，不按点值给。",
     "10 万行规模实验只跑了一个规模点（100000 行 × 50 查询），没有做规模曲线；flush 阈值对照实验只跑了 1 万行；十进制解析的位级等价性只覆盖单元测试的固定用例和官方题包的 1 万行数据，没有做随机模糊测试。",
     "平台 Prompt 评分包含一道未公开的有效性抽检：同一个 commit、逐字节相同的材料出现过一次无效、两次 11.0/11.5；本文件能解释分数的量级来源，但无法解释无效的成因，也不能保证改写材料后一定被判为有效。",
     "本轮性能冲刺的实验由 Agent/工具执行；本文件只把学生的预测、解读、修正和局限记为学习证据，工具输出本身只作为 result_evidence，不自动提升为学生理解。"
