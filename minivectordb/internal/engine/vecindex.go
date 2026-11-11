@@ -66,8 +66,20 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 	x.resetIVF()
 	x.pks = make([]int64, 0, len(t.rows))
 	x.off = make([]int64, 0, len(t.rows))
+	// The slots follow the log order. The scan then walks the log from the
+	// oldest row to the newest and reads the mapped file sequentially; with
+	// an arbitrary order every row would be a separate random access.
+	type rowRef struct {
+		pk  int64
+		off int64
+	}
+	rows := make([]rowRef, 0, len(t.rows))
 	for pk, off := range t.rows {
-		x.upsert(db, t, pk, off)
+		rows = append(rows, rowRef{pk, off})
+	}
+	sort.Slice(rows, func(i, j int) bool { return rows[i].off < rows[j].off })
+	for _, r := range rows {
+		x.upsert(db, t, r.pk, r.off)
 	}
 }
 
