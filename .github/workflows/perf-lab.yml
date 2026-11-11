@@ -46,7 +46,8 @@ jobs:
           set -e
           for c in $(cat lab/commits.txt); do
             echo "== $c" | tee -a regress.txt
-            (cd "$RUNNER_TEMP/src-$c" && python3 protocol_check/run.py --image "mvdb:$c" --output "$RUNNER_TEMP/pc-$c") 2>&1 | tail -3 | tee -a regress.txt
+            (cd "$RUNNER_TEMP/src-$c" && python3 protocol_check/run.py --image "mvdb:$c" --output "$RUNNER_TEMP/pc-$c") > "$RUNNER_TEMP/pc-$c.log" 2>&1 || true
+            python3 -c "import json,sys; r=json.load(open(sys.argv[1])); print('protocol_check passed=%s pass=%d/%d' % (r['passed'], sum(c['status']=='PASS' for c in r['cases']), len(r['cases'])))" "$RUNNER_TEMP/pc-$c/result.json" | tee -a regress.txt
             id=$(docker create "mvdb:$c"); docker cp "$id":/app/minivectordb "$RUNNER_TEMP/bin-$c"; docker rm "$id" >/dev/null
             mkdir -p "$RUNNER_TEMP/crash-$c"
             for s in 1 2 3; do

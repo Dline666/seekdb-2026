@@ -54,7 +54,7 @@ def cg_stats(d):
 class DB:
     def __init__(self, image, data):
         self.name = "lab-" + uuid.uuid4().hex[:12]
-        self.p = subprocess.Popen(["docker", "run", "-i", "--name", self.name, *LIMITS,
+        self.p = subprocess.Popen(["docker", "run", "-i", "--name", self.name, *LIMITS, "-e", "MVDB_SYNC_STATS=1",
                                    "--mount", f"type=bind,src={data},dst=/data", image],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                   text=True, bufsize=1 << 20)
@@ -133,13 +133,25 @@ def run_write(image, batches):
             assert db.req(b)["affected_rows"] == 100
         t = time.perf_counter() - t0
         s1 = db.stats()
-        db.close()
+        # Transport floor (not part of T/B/M): same-size requests that the
+        # database only lexes, a SELECT 1 followed by the batch as a comment.
+        t1 = time.perf_counter()
+        for b in batches:
+            db.req("SELECT 1 /*" + b + "*/")
+        floor = time.perf_counter() - t1
+        err = db.close()
+        sync = {}
+        for line in err.splitlines():
+            if "syncstats " in line:
+                sync = json.loads(line.split("syncstats ", 1)[1])
         # Persistence check: restart and count.
         db = DB(image, d)
         n = db.req("SELECT id FROM docs")["rows"]
         db.close()
         return {"T_s": t, "B_mib": s1["io_mib"], "M_mib": s1["mem_peak_mib"], "rbytes": s1["rbytes"],
-                "wbytes": s1["wbytes"], "B_during_mib": s1["io_mib"] - s0["io_mib"], "restart_rows": len(n)}
+                "wbytes": s1["wbytes"], "B_during_mib": s1["io_mib"] - s0["io_mib"], "restart_rows": len(n),
+                "floor_samesize_s": floor, "sync_calls": sync.get("sync_calls"),
+                "sync_s": (sync.get("sync_ns") or 0) / 1e9}
 
 
 def run_query(image, batches, qs, ref):

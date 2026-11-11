@@ -28,6 +28,11 @@ for t in tags:
         return 0.6 * f(rt) + 0.2 * f(rb) + 0.2 * f(rm)
     E = (e("write") + 2 * e("query")) / 3
     q = rs[-1]["query"]
+    w = rs[-1]["write"]
+    if "floor_samesize_s" in w:
+        print(f"<!-- {t[:7]} write split sync_calls={w.get('sync_calls')} "
+              f"sync={s.median((r['write'].get('sync_s') or 0) for r in rs):.3f} "
+              f"floor_samesize={s.median(r['write']['floor_samesize_s'] for r in rs):.3f} -->")
     if "T_unf_s" in q:
         print(f"<!-- {t[:7]} query split unf={s.median(r['query']['T_unf_s'] for r in rs):.3f} "
               f"fil={s.median(r['query']['T_fil_s'] for r in rs):.3f} "
