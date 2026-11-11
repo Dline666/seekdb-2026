@@ -199,6 +199,7 @@ def main():
     ap.add_argument("--rounds", type=int, default=3)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--tests", default="", help="file with commands to run before the benchmark")
     a = ap.parse_args()
     vecs, cat, batches, qs = workload(a.seed)
     ref = truth(vecs, cat, qs)

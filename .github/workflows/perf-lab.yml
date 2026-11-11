@@ -33,6 +33,26 @@ jobs:
             git archive "$c" | tar -x -C "$RUNNER_TEMP/src-$c"
             docker build -q -t "mvdb:$c" "$RUNNER_TEMP/src-$c" | tee -a build.txt
           done
+      - name: go tests on linux/amd64 (each commit, with -race)
+        run: |
+          set -e
+          for c in $(cat lab/commits.txt); do
+            echo "== $c" | tee -a gotest.txt
+            docker run --rm -v "$RUNNER_TEMP/src-$c/minivectordb":/src -w /src golang:1.22 \
+              sh -c 'go vet ./... && go test -count=1 ./... && go test -race -count=1 ./...' 2>&1 | tee -a gotest.txt
+          done
+      - name: protocol_check and kill -9 (each commit, docker image)
+        run: |
+          set -e
+          for c in $(cat lab/commits.txt); do
+            echo "== $c" | tee -a regress.txt
+            (cd "$RUNNER_TEMP/src-$c" && python3 protocol_check/run.py --image "mvdb:$c" --output "$RUNNER_TEMP/pc-$c") 2>&1 | tail -3 | tee -a regress.txt
+            id=$(docker create "mvdb:$c"); docker cp "$id":/app/minivectordb "$RUNNER_TEMP/bin-$c"; docker rm "$id" >/dev/null
+            mkdir -p "$RUNNER_TEMP/crash-$c"
+            for s in 1 2 3; do
+              MVDB_TMP="$RUNNER_TEMP/crash-$c" python3 "$RUNNER_TEMP/src-$c/minivectordb/tools/crash_test.py" --bin "$RUNNER_TEMP/bin-$c" --rounds 40 --seed $s 2>&1 | tee -a regress.txt
+            done
+          done
       - name: lab
         run: |
           args=""
@@ -48,7 +68,7 @@ jobs:
           set -e
           out="$RUNNER_TEMP/out/runs/$GITHUB_RUN_ID"
           mkdir -p "$out"
-          cp env.txt build.txt lab-results.jsonl lab-log.txt summary.md lab/commits.txt "$out"/ 2>/dev/null || true
+          cp env.txt build.txt gotest.txt regress.txt lab-results.jsonl lab-log.txt summary.md lab/commits.txt "$out"/ 2>/dev/null || true
           echo "$GITHUB_SHA" > "$out/lab-sha.txt"
           cd "$RUNNER_TEMP/out"
           git init -q
