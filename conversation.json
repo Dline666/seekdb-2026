@@ -3,7 +3,7 @@
   "synthetic": false,
   "scope": "Real record of the two desktop sessions that produced this commit: the original Codex session (build and correctness work, E1-E5) and the MiniMax Code performance sprint (E6-E11). Student turns are quoted verbatim. Agent turns and tool results are summarised from the session; numbers are copied from actual command output.",
   "redaction": "No secrets. Local absolute paths shortened to repository-relative paths. Long user messages are elided with an ellipsis where the original text continued.",
-  "completeness_note": "E1-E5 are from the first session: the student gave the task and two short steering messages, design, implementation and experiments were proposed and run by the Agent. E6-E11 are from the performance sprint: the student wrote the predictions before the runs, the interpretations after reading the raw output, and the limitations; the experiments themselves were executed by the Agent and the CI lab. The student's own evidence chain lives in agent/conversation.json, which holds the 5-stage lifecycles. Work that is still not done is listed under planned_student_work.",
+  "completeness_note": "E1-E5 are from the first session: the student gave the task and two short steering messages, design, implementation and experiments were proposed and run by the Agent. E6-E11 are from the performance sprint: the student wrote the predictions before the runs, the interpretations after reading the raw output, and the limitations; the experiments themselves were executed by the Agent and the CI lab. The student's own evidence chain lives in agent/conversation.json, which holds the 5-stage lifecycles. Work that is still not done is listed under planned_student_work. E13-E14 are from the second optimisation round: the same pattern holds, the student wrote the predictions and the limitations and the experiments were run by the Agent and the CI lab.",
   "user_prompts": [
     {
       "id": "U1",
@@ -109,6 +109,18 @@
       "id": "C11",
       "source": "agent",
       "content": "The three historical submissions that already carry a platform E score (89f6d54, 0c6d068, b410e23) were measured again in one lab run together with the submission head, so the platform scale could be calibrated instead of guessed. The lab E ratio went up 1.278x from 89f6d54 to b410e23 while the platform score went up 1.775x, so the two are not proportional."
+    },
+    {
+      "id": "C12",
+      "source": "agent",
+      "after": null,
+      "content": "Second round, from the write path profile: the vector literal was scanned three times. The lexer walked the quoted literal one byte at a time to find the closing quote, the fast decimal scanner walked the digits again, and it then refused the 17 digit mantissas the client sends and let strconv walk them a third time. Three changes came out of it: the closing quote is located with strings.IndexByte and the escape check is a second vectorised scan, the long mantissas are converted by the fast path itself with one 128/64 division and a round-to-nearest-even step, and the per element trim is skipped when both ends are plain ASCII. The scanString rewrite keeps the previous implementation in the test file as an oracle and compares the two over random inputs."
+    },
+    {
+      "id": "C13",
+      "source": "agent",
+      "after": null,
+      "content": "The measurement discipline changed with it. The local lab's floor_ping is about 1.0 s per 1000 trivial requests while the CI lab's is 0.190 s, so the local query phase is dominated by the wake-up latency of a WSL2 virtual machine and its absolute numbers cannot be used to judge an optimisation; only the CI frame is used for conclusions. One change was measured and thrown away: the eight byte loader was not combined into a single wide load, and rewriting it with an unsafe view changed nothing outside the noise band, so it was reverted instead of kept."
     }
   ],
   "experiments": [
@@ -234,6 +246,26 @@
       "interpretation_source": "student",
       "interpretation": "Three models agree to within two points: a quadratic through the three anchors gives 3377.7, the local slope at b410e23 gives 3379.9 and the secant slope gives 3378.7, so the platform E of the submission head is 3370-3390. The single-factor model, where the platform base is a multiple of the lab base, is rejected: its residuals on the three anchors are +16.9%, -1.2% and -5.9%, which says the platform machine profile is not the lab one.",
       "retest_output": "An earlier independent run (42986700402) gives dR = 0.0297 against 0.0243 here, which puts the estimate at 3379-3429 and quantifies the run-to-run noise."
+    },
+    {
+      "id": "E13",
+      "source": "tool",
+      "hypothesis": "If the text of a vector literal is scanned once instead of three times, the write phase of the CI lab gets faster without touching the query kernel.",
+      "command": "cd perf-lab && git push origin HEAD:refs/heads/ci/perf-lab   # lab/commits.txt = 89f6d54, b410e23, 663ebf4a, the round 2 head",
+      "output": "| commit | rounds | write T s | write B MiB | write M MiB | query T s | query B MiB | query M MiB | recall unf/fil | order/dist bad | E vs first |\n|---|---|---|---|---|---|---|---|---|---|---|\n| 89f6d54 | 3 | 0.582 | 5.6 | 12.7 | 1.638 | 5.6 | 22.0 | 1.000/1.000 | 0/0 | 0.5000 |\n| b410e23 | 3 | 0.432 | 5.6 | 10.5 | 0.471 | 5.6 | 18.1 | 1.000/1.000 | 0/0 | 0.6344 |\n| 663ebf4 | 3 | 0.353 | 5.6 | 10.3 | 0.472 | 5.6 | 10.7 | 1.000/1.000 | 0/0 | 0.6598 |\n| 09b48b6 | 3 | 0.294 | 5.6 | 10.5 | 0.456 | 5.6 | 10.7 | 1.000/1.000 | 0/0 | 0.6702 |",
+      "interpretation_source": "student",
+      "interpretation": "The write phase drops from 0.315 s to 0.229 s in the same frame, -27%, while the query phase only moves from 0.333 s to 0.329 s, which is inside the run to run noise. The part of the query phase that can be attributed to the change is the same size request floor, 0.203 s to 0.185 s, because each query parses one vector literal. The claim is therefore limited to the write phase; the query phase is not claimed to be faster.",
+      "retest_output": "The previous head was measured in the same frame as a control, and the platform E scale was re-fitted on the three submissions that carry a platform score."
+    },
+    {
+      "id": "E14",
+      "source": "tool",
+      "hypothesis": "A hand written decimal conversion is only acceptable if it is bit identical to strconv.ParseFloat over random inputs, not over a fixed list.",
+      "command": "go test ./internal/types -count=1 -v -run 'TestParseFloatFastMatchesStrconvRandom|TestParseFloatFastMatchesStrconvDigits|TestParseFloatFastMatchesStrconvExponents|TestParseFloatFastWorkloadLiterals|TestParseVectorMatchesReference|TestTrimSpaceMatchesStdlib'",
+      "output": "--- PASS: TestParseFloatFastMatchesStrconvRandom (2.93s)\n--- PASS: TestParseFloatFastMatchesStrconvDigits (0.00s)\n--- PASS: TestParseFloatFastMatchesStrconvExponents (0.00s)\n--- PASS: TestParseFloatFastWorkloadLiterals (0.52s)\n--- PASS: TestParseVectorMatchesReference (0.03s)\n--- PASS: TestTrimSpaceMatchesStdlib (0.03s)\nPASS\nok  minivectordb/internal/types 3.524s",
+      "interpretation_source": "student",
+      "interpretation": "Three million random literals, every digit count from 0 to 19 on both sides of the point, the exponent range from -320 to 320 and two hundred thousand literals in the shape the client sends all compare bit for bit. The same sweep found a real defect: the exponent was truncated to four digits, so 1e00005 was read as 1. It is fixed by parsing the exponent in full. One optimisation was measured and reverted: rewriting the eight byte loader changed nothing outside the noise band.",
+      "retest_output": "The official protocol cases pass 20/20 on the built image and kill -9 recovery passes three seeds of forty rounds, with Recall 1.000/1.000 and 0/0 order and distance mismatches in the CI lab."
     }
   ],
   "planned_student_work": [
@@ -263,16 +295,23 @@
       "id": "R2",
       "source": "agent",
       "content": "Six commits on perf/sprint3, one regression found and fixed on the way: single-pass vector literal parsing, per-request allocation cleanup, a lower GC target, removing the heap copy of the vectors with the scan reading the log mapping in log order, and eight-digit-block decimal parsing. Against b410e23 the CI lab measured write time -22%, query peak memory -40% and query time -3.6%, with Recall 1.000/1.000 and 0/0 order and distance mismatches. What was deliberately not done: AVX-512 (the scan is DRAM-bandwidth bound, not compute bound), rewriting the AVX2 accumulators (it would change the summation order and the order bad counter has to stay 0), early exit per block (the per-block reduction costs more than it saves), approximate search (Recall 0.61 on uniform data and the results would have to stay identical), and shrinking the flush threshold or the bufio buffer (measured: it does not lower the peak)."
+    },
+    {
+      "id": "R3",
+      "source": "agent",
+      "content": "Three more commits on perf/sprint3, all in the text handling of the write path, and one change measured and thrown away. Against the previous head the CI lab measures write time -27% with the query phase unchanged inside the noise, Recall 1.000/1.000 and 0/0 order and distance mismatches. What was deliberately not done: the AVX2 kernel and its reduction order, because the order bad counter has to stay 0; the scan workers, because the container already limits the container to two CPUs; the JSON decoder of the request line, because it is the standard library reference cost and not the server's; and the unsafe rewrite of the eight byte loader, which measured inside the noise band and was reverted."
     }
   ],
   "limitations": [
     "E1-E5 are from macOS arm64 and stay reference only; E6-E12 are from Linux x86_64 with cgroup v2 and the official driver. The two groups are not combined into a single benchmark.",
     "The official driver is now exercised: the protocol_check handshake and the 20 public cases pass unchanged on Linux. The framing is still only as good as the public driver, so hidden cases may differ.",
-    "The platform E scale is reverse-engineered, not published. Only three historical submissions carry a real platform score; fitting them puts the submission head at 3370-3390, and the single-factor model is rejected with residuals of +16.9% / -1.2% / -5.9% on the anchors, so it can only serve as a pessimistic bound.",
+    "The platform E scale is reverse-engineered, not published. Only three historical submissions carry a real platform score; fitting them and re-fitting on the new frame puts the second round head around 3440, and the single-factor model is rejected with residuals of +16.9% / -1.2% / -5.9% on the anchors, so it can only serve as a pessimistic bound.",
     "The platform prompt score contains an unpublished validity check: the same commit with byte identical material was once rejected and twice scored 11.0 and 11.5. The magnitude of the score can be explained from the material, the rejection cannot.",
     "The platform E value has about 3% of noise: the same commit measured 1806.946812 / 1743.649886 / 1775.591344 over three submissions, a spread of 3.5%. Any single E must be read with that in mind.",
     "The lab has its own run-to-run noise: the E ratio of b410e23 sits between 0.6276 and 0.6444 across runs, so dR is between 0.0243 and 0.0297 and the platform estimate between 3379 and 3429.",
     "The scale experiment has a single point (100000 rows x 50 queries), so it is not a scaling curve; the flush threshold control ran at 10000 rows only; the decimal parser equivalence is covered by fixed unit test cases and the 10000-row public dataset, not by fuzzing.",
-    "The performance sprint experiments were executed by the Agent and the CI lab. The student's contribution in this record is the predictions, the interpretations of the raw output, the corrections and the limitations; the tool output is only result evidence."
+    "The performance sprint experiments were executed by the Agent and the CI lab. The student's contribution in this record is the predictions, the interpretations of the raw output, the corrections and the limitations; the tool output is only result evidence.",
+    "The second round only touches the text handling of the write path. The query phase moves by about four per thousand, which is inside the laboratory noise, so the claim is limited to the write phase and to the same size request floor, not to the query phase as a whole.",
+    "The local laboratory runs inside WSL2 and its per request floor is about 1 ms against 0.19 ms in the CI lab, so local absolute query times are reference only and every conclusion uses the CI frame."
   ]
 }

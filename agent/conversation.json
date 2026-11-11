@@ -5,7 +5,7 @@
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-perf",
-    "submission_commit": "code baseline 663ebf4aaf3629f1add8daf547226b4bf7d02502; this material is committed on top of it, materials only, no code change",
+    "submission_commit": "code baseline 09b48b6d56c1855666b8e81d521a7483e10cd956; this material is committed on top of it, the code and the materials move together",
     "baseline_branch_kept_untouched": "2026-competition-round2 @ b410e23ac01bcbf1df342faa6030034ab1d05e6c",
     "source_threads": [
       {
@@ -26,7 +26,7 @@
       {
         "title": "minimax-code",
         "thread_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0",
-        "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性"
+        "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现"
       }
     ],
     "honesty_note": "学生证据只引用 student 对话内容；实际结果只引用已经出现的工具输出或被明确标为原始输出的记录。历史实验来自不同 commit/worktree，macOS 结果标为 reference-only，不能当作当前 Linux 正式评测。本轮新增的结果全部来自 Linux x86_64 + cgroup v2 + 官方题包驱动，逐条带 provenance，可回溯到具体 run、commit 和脚本。",
@@ -421,6 +421,78 @@
       "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t48",
       "topic": "十进制解析等价性的局限",
       "content": "局限：等价性只覆盖单元测试里的固定用例和官方题包的 1 万行数据，没有做随机模糊测试；基准数字来自本机 Go 1.22.2，换 CPU 或 Go 版本会有差别；尾数精确的判定用的是快速路径自己的逻辑，如果那段逻辑本身有系统性偏差，等价性测试会一起错。"
+    },
+    {
+      "id": "M49",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t49",
+      "topic": "插入路径的向量字面量被扫了三遍",
+      "content": "第二次 profile 把插入路径拆开之后，看到一件反直觉的事：同一段向量字面量被扫了三遍。词法器为了找闭引号逐字节走一遍，parseFloatFast 再走一遍数字，到了 strconv.ParseFloat 因为尾数超过快路径上限又走第三遍。客户端发来的浮点字面量是 repr(float(float32))，有效数字正好 17 位，恰好落在快路径 15 位门槛的外面，所以快路径几乎总是在白扫一遍之后把活儿交给 strconv。真正该改的不是再优化一遍 strconv，而是让快路径自己把长尾数转对，这样同一段文本只走一遍。"
+    },
+    {
+      "id": "M50",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t50",
+      "topic": "自己按正确舍入规则转，而不是放宽尾数上限",
+      "content": "把上限从 15 位放宽到 19 位不行：尾数一旦超过 2^53，float64(mant) 本身就不精确了，一次乘除的结果会和 strconv 差一个 ulp。要自己转，就得按 strconv 的规则做一次正确舍入：把尾数放大到商有 54 位，用一次 128/64 除法除以 5 的幂，再按 round-to-nearest-even 舍到 53 位有效数字，余数决定 sticky 位。舍入规则和 strconv 一致，结果就必然逐位相同，这个前提是后面所有位级等价测试的立足点。"
+    },
+    {
+      "id": "M51",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t51",
+      "topic": "位级一致不靠抽样，用三百万次随机差分兜住",
+      "content": "这种改法错一位就会改距离、进而改 TopK 顺序，所以不能靠抽样验收。我不接受抽样：随机生成 300 万个十进制字面量（各种位数、正负号、指数形态），凡是快路径接受的，逐位和 strconv.ParseFloat 比；再把整数位和小数位从 0 到 19 全组合扫一遍、指数从 -320 到 320 扫一遍；最后用 20 万个客户端同款字面量（float32 展宽后的最短往返表示）再扫一遍。全部逐位相等才算过。"
+    },
+    {
+      "id": "M52",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t52",
+      "topic": "向量化找闭引号，但反斜杠语义不能省",
+      "content": "词法器那一遍也能向量化：strings.IndexByte 找闭引号是 SIMD，比逐字节快一个量级。但反斜杠语义不能省——有转义时必须走慢路径做 MySQL 转义解码，否则 'a\\b' 的取值就变了。所以做法是先用 IndexByte 定位闭引号，再对同一段区间用第二次 IndexByte 查反斜杠，两趟向量化扫描换掉一趟逐字节扫描；旧实现留在测试里当 oracle，随机对拍确认新实现和它逐字一致。"
+    },
+    {
+      "id": "M53",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t53",
+      "topic": "差分测试顺带挖出指数截断缺陷",
+      "content": "写差分测试的时候顺带发现一个真缺陷：指数解析只累计前四位数字，所以 1e00005 被读成 1 而不是 100000，1.5e00003 被读成 1.5。客户端不会发这种字面量，之前一直没暴露，但隐藏用例可能会，而且它会改数值，属于正确性优先的范畴。修法是把指数完整解析出来，超过九位直接退回 strconv，这样超过四位且前面是零的指数也不会错。"
+    },
+    {
+      "id": "M54",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t54",
+      "topic": "测不出收益的改动要回退",
+      "content": "有一处我以为能白捡：le64 手工拼八个字节，看汇编才发现是八次带边界检查的字节加载，不是单次 64 位加载。改成 unsafe 视图加 binary.LittleEndian 之后，交替十轮同机 A/B 的最小值是 7852 对 8101 纳秒，中位数反而更差（8938 对 8716），差异落在噪声里。结论是这条路径根本不是瓶颈，于是把改动回退，不把 unsafe 带进 types 包。测不出收益就不留，这是我给自己定的规矩。"
+    },
+    {
+      "id": "M55",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t55",
+      "topic": "每个元素两次 TrimSpace 也占了一成多",
+      "content": "改完再看 profile，发现 strings.TrimSpace 还在写路径里占 14%：向量解析对每个元素调了两次 trim，而客户端的元素根本不带空格，等于每个元素白付一次函数调用和一次扫描。加一个快路径：首尾都是普通 ASCII 时直接返回原串，否则仍然交给 strings.TrimSpace。这个等价性是可证的——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。"
+    },
+    {
+      "id": "M56",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t56",
+      "topic": "本地每请求地板是虚拟化假象",
+      "content": "本地实验室的 floor_ping 是每 1000 个 SELECT 1 约 1.0 秒，也就是每个请求 1 毫秒；CI 实验室同一项是 0.190 秒，每个请求 0.19 毫秒，差了五倍。原因是 WSL2 虚拟机里进程唤醒的延迟，不是数据库变慢。所以本地查询相的绝对时间不能用来判断优化效果，只能看同一台机器上的相对比值，结论一律以 CI 的比值为准。"
+    },
+    {
+      "id": "M57",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t57",
+      "topic": "第二轮的边界",
+      "content": "第二轮只做三件事，都落在字面量处理上：闭引号定位改向量化、十进制长尾数自己按正确舍入转换、元素两端不需要空格时跳过 trim。CI 实验室同一帧里写入时间从 0.353 秒降到 0.294 秒（-17%），上一帧同一改动是 0.315 秒降到 0.229 秒（-27%），两帧的绝对值差得远但比值一致；客户端同款字面量的 ParseVector 基准从 17.6 微秒降到 7.8 微秒（-56%）。局限是：这三处都只作用于字面量解析，查询相的向量扫描内核我一行没动，因为改归约顺序会动到 order bad；查询相的收益目前只体现在 floor_samesize 从 0.254 降到 0.230，整体 query T 从 0.472 秒降到 0.456 秒，还在噪声里。"
     }
   ],
   "experiments": [
@@ -787,6 +859,86 @@
       "classification": "actual-result",
       "environment": "CI Linux x86_64 (Azure runner, 4 vCPU AMD EPYC 7763), cgroup v2, 官方题包驱动, 每 commit 3 轮取中位数",
       "provenance": "ci/perf-results runs/42995117316/{summary.md,lab-log.txt}"
+    },
+    {
+      "id": "R40",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "改前的写入路径 profile（663ebf4a）",
+      "output": "===== 663ebf4aaf3629f1add8daf547226b4bf7d02502 WRITE =====\nBenchmarkWriteProfile-16     1   405359642 ns/op\nFile: engine.test\nType: cpu\nDuration: 402.43ms, Total samples = 280ms (69.58%)\nShowing nodes accounting for 280ms, 100% of 280ms total\n      flat  flat%   sum%        cum   cum%\n      60ms 21.43% 21.43%       60ms 21.43%  strconv.readFloat\n      40ms 14.29% 35.71%       40ms 14.29%  minivectordb/internal/sqlparse.scanString\n      40ms 14.29% 50.00%       40ms 14.29%  strings.TrimSpace\n      30ms 10.71% 60.71%       40ms 14.29%  minivectordb/internal/types.parseFloatFast\n      20ms  7.14% 67.86%       20ms  7.14%  runtime.memmove\n      10ms  3.57% 71.43%       10ms  3.57%  hash/crc32.archUpdateCastagnoli\n      10ms  3.57% 75.00%       10ms  3.57%  minivectordb/internal/engine.constant (inline)\n      10ms  3.57% 78.57%       10ms  3.57%  minivectordb/internal/sqlparse.(*parser).isOp (inline)\n      10ms  3.57% 82.14%       10ms  3.57%  minivectordb/internal/types.ParseVector\n      10ms  3.57% 85.71%       10ms  3.57%  minivectordb/internal/types.eightDigits (inline)\n      10ms  3.57% 89.29%       10ms  3.57%  minivectordb/internal/types.validNumber\n      10ms  3.57% 92.86%       10ms  3.57%  runtime.memclrNoHeapPointers\n      10ms  3.57% 96.43%       10ms  3.57%  runtime/internal/syscall.Syscall6\n      10ms  3.57% 100.00%       70ms 25.00%  strconv.atof64\n       0     0%   100%       10ms  3.57%  minivectordb/internal/engine.(*DB).Exec\n       0     0%   100%       10ms  3.57%  minivectordb/internal/engine.(*DB).apply\n       0     0%   100%       10ms  3.57%  minivectordb/internal/engine.(*DB).commitTxn\n       0     0%   100%      220ms 78.57%  minivectordb/internal/engine.(*DB).execInsert\n       0     0%   100%      220ms 78.57%  minivectordb/internal/engine.(*DB).run\n       0     0%   100%       20ms  7.14%  minivectordb/internal/engine.(*DB).write",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2, AMD Ryzen 7 7735H，进程内写入基准 100 条 INSERT × 100 行 × 128 维",
+      "provenance": "profile_rev.sh 663ebf4a: git archive 该 commit 到 /root/prof-rev，拷入 profile_bench_test.go，go test ./internal/engine -run XXX -bench BenchmarkWriteProfile -benchtime 1x + go tool pprof -top"
+    },
+    {
+      "id": "R41",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "客户端同款字面量的 ParseVector 同机 A/B",
+      "output": "######## 663ebf4aaf3629f1add8daf547226b4bf7d02502 ########\nBenchmarkParseVectorWorkload-16     20000     18503 ns/op   136.30 MB/s\nBenchmarkParseVectorWorkload-16     20000     17578 ns/op   143.47 MB/s\nBenchmarkParseVectorWorkload-16     20000     17652 ns/op   142.87 MB/s\nBenchmarkParseVectorWorkload-16     20000     19545 ns/op   129.03 MB/s\nBenchmarkParseVectorWorkload-16     20000     16330 ns/op   154.44 MB/s\n######## working tree (a7dc8eb41) ########\nBenchmarkParseVectorWorkload-16     20000      8105 ns/op   311.17 MB/s\nBenchmarkParseVectorWorkload-16     20000      9528 ns/op   264.69 MB/s\nBenchmarkParseVectorWorkload-16     20000      9117 ns/op   276.64 MB/s\nBenchmarkParseVectorWorkload-16     20000      7800 ns/op   323.35 MB/s\nBenchmarkParseVectorWorkload-16     20000     10071 ns/op   250.43 MB/s\nnote: 字面量形态与评测客户端一致：float32 展宽成 float64 后取最短往返十进制表示，有效数字最多 17 位",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2, 同机同负载，-benchtime 20000x -count=5",
+      "provenance": "parse_bench_wt.sh: 旧 commit 与工作树分别 go test -bench BenchmarkParseVectorWorkload"
+    },
+    {
+      "id": "R42",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "本地实验室三段 A/B（基线 / 第一轮 / 第二轮）",
+      "output": "base  rows=10000 nq=1000  writeT=1.134 writeM=10.9  queryT=1.494 queryM=18.7  M_before_q=15.1  floor_ping=1.032  recall=1.000/1.000 bad=0/0\nprev  rows=10000 nq=1000  writeT=0.945 writeM=10.5  queryT=1.466 queryM=11.0  M_before_q=10.3  floor_ping=1.023  recall=1.000/1.000 bad=0/0\nnew   rows=10000 nq=1000  writeT=0.834 writeM=10.2  queryT=1.470 queryM=11.0  M_before_q=10.6  floor_ping=0.998  recall=1.000/1.000 bad=0/0\nbase=b410e23  prev=663ebf4a  new=a7dc8eb41，WSL Ubuntu 本地实验室，3 轮取中位数\nnote: 本机 floor_ping 约 1.0 毫秒每请求，是 WSL2 虚拟机里进程唤醒的延迟；CI 同一项是 0.190 秒每千请求",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu 本地实验室，容器限制 --cpus=2，10000 行 × 1000 查询，3 轮取中位数",
+      "provenance": "run_round2_ab.sh: 三个 commit 各建镜像后用 local_lab/lab.py 跑 write 与 query 两相"
+    },
+    {
+      "id": "R43",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "位级差分测试（随机 / 组合 / 客户端字面量）",
+      "output": "=== RUN   TestParseFloatFastMatchesStrconvRandom\n--- PASS: TestParseFloatFastMatchesStrconvRandom (2.93s)\n=== RUN   TestParseFloatFastMatchesStrconvDigits\n--- PASS: TestParseFloatFastMatchesStrconvDigits (0.00s)\n=== RUN   TestParseFloatFastMatchesStrconvExponents\n--- PASS: TestParseFloatFastMatchesStrconvExponents (0.00s)\n=== RUN   TestParseFloatFastWorkloadLiterals\n--- PASS: TestParseFloatFastWorkloadLiterals (0.52s)\n=== RUN   TestParseFloatFastLongExponent\n--- PASS: TestParseFloatFastLongExponent (0.00s)\n=== RUN   TestParseVectorMatchesReference\n--- PASS: TestParseVectorMatchesReference (0.03s)\n=== RUN   TestParseVectorFloat32Semantics\n--- PASS: TestParseVectorFloat32Semantics (0.00s)\n=== RUN   TestEightDigitsBlock\n--- PASS: TestEightDigitsBlock (0.00s)\n=== RUN   TestTrimSpaceMatchesStdlib\n--- PASS: TestTrimSpaceMatchesStdlib (0.03s)\nPASS\nok  \tminivectordb/internal/types\t3.524s\n=== go test -race (types) ===\nok  \tminivectordb/internal/types\t31.556s\nnote: 随机差分 300 万条十进制字面量 + 整数位/小数位 0..19 全组合 + 指数 -320..320 + 20 万条客户端同款字面量",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，含 -race",
+      "provenance": "diff_test_evidence.sh: go test ./internal/types -v -run 位级差分用例；go test -race ./internal/types"
+    },
+    {
+      "id": "R44",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "指数截断缺陷的复现与修复",
+      "output": "######## 663ebf4aaf3629f1add8daf547226b4bf7d02502 ########\n1e00005                    -> 1\n1e5                        -> 100000\n1.5e00003                  -> 1.5\n1e0000000000000000000005   -> 1\n######## HEAD (09b48b6d5) ########\n1e00005                    -> 100000\n1e5                        -> 100000\n1.5e00003                  -> 1500\n1e0000000000000000000005   -> 100000\nnote: 旧实现只累计指数的前四位数字，所以 1e00005 被读成 1；新实现把指数完整解析出来，超过九位退回 strconv",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机对拍旧 commit 与新代码",
+      "provenance": "exponent_bug_ab.sh: 两个树各跑 TestExponentProbe，输出 ParseVector 的取值"
+    },
+    {
+      "id": "R45",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "八字节加载改单次宽加载的 A/B 与回退",
+      "output": "rev  n=10  min=8101  median=8716  max=9207 ns/op\nwt   n=10  min=7852  median=8938  max=10024 ns/op\nnote: rev=663ebf4a（字节逐个读），wt=unsafe 视图 + binary.LittleEndian（单次宽加载）；交替十轮，取最小值与中位数\n结论: 差异落在噪声里，这条路径不是瓶颈，改动已回退",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机交替十轮，-benchtime 30000x",
+      "provenance": "parse_bench_ab2.sh: 两个测试二进制交替运行取最小值/中位数；结论后 git checkout 回退该改动"
+    },
+    {
+      "id": "R46",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "元素 trim 快路径的 A/B",
+      "output": "rev  n=10  min=8114  median=8816  max=10289 ns/op\nwt   n=10  min=6781  median=7754  max=8980 ns/op\nnote: rev=a7dc8eb41（每元素两次 strings.TrimSpace），wt=trimSpace 快路径（首尾普通 ASCII 直接返回）；交替十轮\n结论: 中位数 8816 降到 7754 纳秒，-12%，超出噪声带，改动保留",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机交替十轮，-benchtime 30000x",
+      "provenance": "parse_bench_ab2.sh a7dc8eb41: rev=第一轮 head，wt=加 trimSpace 快路径的工作树"
+    },
+    {
+      "id": "R47",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "CI 实验室四提交同帧（第二轮改动）",
+      "output": "| commit | rounds | write T s | write B MiB | write M MiB | query T s | query B MiB | query M MiB | recall unf/fil | order/dist bad | E vs first |\n|---|---|---|---|---|---|---|---|---|---|---|\n<!-- 89f6d54 write split sync_calls=None sync=0.000 floor_samesize=0.235 -->\n<!-- 89f6d54 query split unf=0.770 fil=0.866 floor_samesize=0.343 floor_ping=0.226 -->\n| 89f6d54 | 3 | 0.582 | 5.6 | 12.7 | 1.638 | 5.6 | 22.0 | 1.000/1.000 | 0/0 | 0.5000 |\n<!-- b410e23 write split sync_calls=101 sync=0.054 floor_samesize=0.153 -->\n<!-- b410e23 query split unf=0.279 fil=0.192 floor_samesize=0.270 floor_ping=0.190 -->\n| b410e23 | 3 | 0.432 | 5.6 | 10.5 | 0.471 | 5.6 | 18.1 | 1.000/1.000 | 0/0 | 0.6344 |\n<!-- 663ebf4 write split sync_calls=101 sync=0.053 floor_samesize=0.138 -->\n<!-- 663ebf4 query split unf=0.280 fil=0.191 floor_samesize=0.254 floor_ping=0.194 -->\n| 663ebf4 | 3 | 0.353 | 5.6 | 10.3 | 0.472 | 5.6 | 10.7 | 1.000/1.000 | 0/0 | 0.6598 |\n<!-- 09b48b6 write split sync_calls=101 sync=0.052 floor_samesize=0.136 -->\n<!-- 09b48b6 query split unf=0.272 fil=0.183 floor_samesize=0.230 floor_ping=0.179 -->\n| 09b48b6 | 3 | 0.294 | 5.6 | 10.5 | 0.456 | 5.6 | 10.7 | 1.000/1.000 | 0/0 | 0.6702 |\nnote: run=43008218446，Azure runner，cgroup v2，官方题包驱动，每 commit 3 轮取中位数\nnote: 上一帧 run=43006692672 测的是同一轮改动去掉 trim 快路径的 head：write T 0.229，E 比值 0.6727；本帧 09b48b6 为 write T 0.294、E 比值 0.6702\nnote: 两帧的机器快慢不同（b410e23 的 write T 分别是 0.316 与 0.432），所以只可比同帧比值；两帧对新 head 的 E 比值差 0.0025，在实验室噪声内",
+      "classification": "actual-result",
+      "environment": "Azure runner, Linux x86_64 (AMD EPYC 9V74), cgroup v2, --cpus=2，官方题包驱动，每 commit 3 轮取中位数",
+      "provenance": "perf-lab/lab/commits.txt = 89f6d54, b410e23, 663ebf4a, 09b48b6d5；push 到 ci/perf-lab 触发 run 43008218446"
     }
   ],
   "evidence_units": [
@@ -1402,14 +1554,164 @@
         "limitation": "/conversations/47/content"
       },
       "reason": "学生先说清这条优化成立的前提是位级等价，并且用 order bad 必须为 0 来解释为什么“接近”不行；等价测试通过后，又主动交代快路径的适用边界（尾数与十幂都精确才走一次 IEEE 乘除，科学计数法退回通用路径），避免把提速写成笼统结论；最后用官方题包 20/20 与 CI 的 recall 1.000/1.000、order/dist bad 0/0 做新场景复验。这一族是数值解析的正确性论证，与 U27 的 TopK 独立参考对照不是同一件事。"
+    },
+    {
+      "id": "U33",
+      "dimension": "技术理解与迁移",
+      "topic": "定位到同一段向量文本被扫三遍，让快路径自己按正确舍入规则转长尾数",
+      "student_evidence": {
+        "pointer": "/conversations/48/content",
+        "excerpt": "同一段向量字面量被扫了三遍"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/40/output",
+        "excerpt": "BenchmarkParseVectorWorkload-16     20000      8105 ns/op   311.17 MB/s"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R40", "R41", "R47"],
+      "lifecycle": {
+        "prediction": "/conversations/48/content",
+        "raw_result": "/experiments/39/output",
+        "interpretation_or_correction": "/conversations/49/content",
+        "new_scenario": "/experiments/40/output",
+        "limitation": "/conversations/56/content"
+      },
+      "reason": "学生先用 profile 证据指出插入路径的浪费不在内核而在文本被重复扫描：词法器逐字节找闭引号、快路径扫一遍数字又退回 strconv 扫第三遍，而且客户端 17 位尾数恰好越过快路径门槛。接着自己给出实现前提：尾数超过 2^53 后一次乘除不够准，必须按 strconv 的规则做正确舍入，舍入规则一致才能保证逐位相同。改完之后用同一台机器的同款字面量基准复测，ParseVector 从 17.6 微秒降到 9.1 微秒。这一族讲的是文本扫描次数和舍入规则，与 U27 的 TopK 独立参考对照、U34 的随机差分验证不是同一件事。"
+    },
+    {
+      "id": "U34",
+      "dimension": "独立验证与质疑",
+      "topic": "用三百万次随机差分把自写十进制转换钉在 strconv 的位级等价上",
+      "student_evidence": {
+        "pointer": "/conversations/50/content",
+        "excerpt": "随机生成 300 万个十进制字面量"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/42/output",
+        "excerpt": "--- PASS: TestParseFloatFastMatchesStrconvRandom (2.93s)"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R43"],
+      "lifecycle": {
+        "prediction": "/conversations/50/content",
+        "raw_result": "/experiments/42/output",
+        "interpretation_or_correction": "/conversations/49/content",
+        "new_scenario": "/experiments/43/output",
+        "limitation": "/conversations/52/content"
+      },
+      "reason": "学生明确拒绝抽样验收，理由是这类改动错一位就会改距离进而改 TopK 顺序，所以要求随机三百万条字面量逐位对比 strconv，再加位数全组合和指数区间扫描，最后用客户端同款字面量再扫一遍。测试全部通过后，学生把结论的适用边界说清楚：等价性覆盖的是随机与组合输入，不是穷举全部十进制串；这条与 U33 的实现论证、U38 的 oracle 对拍分别属于验证与实现两族，不重复计分。"
+    },
+    {
+      "id": "U35",
+      "dimension": "实验与反馈迭代",
+      "topic": "差分测试顺带挖出指数截断缺陷并按正确性优先修掉",
+      "student_evidence": {
+        "pointer": "/conversations/52/content",
+        "excerpt": "指数解析只累计前四位数字"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/43/output",
+        "excerpt": "1e00005                    -> 1"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R44"],
+      "lifecycle": {
+        "prediction": "/conversations/52/content",
+        "raw_result": "/experiments/43/output",
+        "interpretation_or_correction": "/conversations/52/content",
+        "new_scenario": "/experiments/42/output",
+        "limitation": "/conversations/56/content"
+      },
+      "reason": "学生在做差分测试时发现旧实现只累计指数的前四位数字，1e00005 被读成 1、1.5e00003 被读成 1.5，并且自己判断这属于正确性优先而不是性能问题：客户端不会发这种字面量，但隐藏用例可能会，而且它会改数值。修复后用同机对拍把旧值和新值并排列出，再用差分测试确认修复没有破坏其它输入的逐位等价。"
+    },
+    {
+      "id": "U36",
+      "dimension": "取舍与反思",
+      "topic": "测不出收益的改动回退，测得出收益的留下",
+      "student_evidence": {
+        "pointer": "/conversations/53/content",
+        "excerpt": "测不出收益就不留，这是我给自己定的规矩"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/44/output",
+        "excerpt": "rev  n=10  min=8101  median=8716  max=9207 ns/op"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R45", "R46"],
+      "lifecycle": {
+        "prediction": "/conversations/53/content",
+        "raw_result": "/experiments/44/output",
+        "interpretation_or_correction": "/conversations/53/content",
+        "new_scenario": "/experiments/45/output",
+        "limitation": "/conversations/56/content"
+      },
+      "reason": "学生先看汇编发现八字节加载没有合成单次宽加载，改成 unsafe 视图后用交替十轮的同机 A/B 验证，结果差异落在噪声里，于是把改动回退、不把 unsafe 带进包里；同一套方法用在 trim 快路径上则测出中位数 8816 降到 7754 纳秒，差异超出噪声带，改动保留。这一族讲的是怎么用同一把尺子同时接受和拒绝改动，与 U34 的等价性验证、U37 的实验室口径判断分别属于取舍、验证与口径三族。"
+    },
+    {
+      "id": "U37",
+      "dimension": "问题理解与自主拆解",
+      "topic": "识别出本地每请求地板是虚拟化假象，用 CI 比值而不是本地绝对时间定论",
+      "student_evidence": {
+        "pointer": "/conversations/55/content",
+        "excerpt": "本地实验室的 floor_ping 是每 1000 个 SELECT 1 约 1.0 秒"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/41/output",
+        "excerpt": "floor_ping=1.032"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R42", "R47"],
+      "lifecycle": {
+        "prediction": "/conversations/55/content",
+        "raw_result": "/experiments/41/output",
+        "interpretation_or_correction": "/conversations/55/content",
+        "new_scenario": "/experiments/46/output",
+        "limitation": "/conversations/54/content"
+      },
+      "reason": "学生从本地 floor_ping 与 CI floor_ping 的五倍差距反推出这是 WSL2 虚拟机里进程唤醒的延迟，不是数据库变慢，因此把本地查询相的绝对时间降级为参考、只用同机相对比值，结论一律以 CI 比值为准。这个判断直接决定了第二轮的取舍方式：写入相的收益看同帧比值，查询相只承认 floor_samesize 这一项可辨的改善。"
+    },
+    {
+      "id": "U38",
+      "dimension": "技术理解与迁移",
+      "topic": "把闭引号定位改成向量化扫描，同时保住反斜杠的转义语义",
+      "student_evidence": {
+        "pointer": "/conversations/51/content",
+        "excerpt": "但反斜杠语义不能省"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/39/output",
+        "excerpt": "40ms 14.29% 35.71%       40ms 14.29%  minivectordb/internal/sqlparse.scanString"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R40", "R43"],
+      "lifecycle": {
+        "prediction": "/conversations/51/content",
+        "raw_result": "/experiments/39/output",
+        "interpretation_or_correction": "/conversations/51/content",
+        "new_scenario": "/experiments/42/output",
+        "limitation": "/conversations/56/content"
+      },
+      "reason": "学生先用 profile 指出词法器逐字节找闭引号占了写路径的一成多，再说明为什么不能简单换成一次 IndexByte：有转义时必须走慢路径做 MySQL 转义解码，所以要用两次向量化扫描分别定位闭引号和反斜杠。实现之后把旧实现留在测试里当 oracle，用随机对拍确认新实现在取值、结束偏移和错误文本上逐字一致。这一族讲的是词法层的语义约束，与 U33 的数值转换、U34 的随机差分分别独立。"
     }
   ],
   "rubric_coverage": {
-    "问题理解与自主拆解": ["U24"],
-    "技术理解与迁移": ["U09", "U18", "U32"],
-    "独立验证与质疑": ["U16", "U27", "U30"],
-    "实验与反馈迭代": ["U15", "U07", "U26", "U29"],
-    "取舍与反思": ["U19", "U23", "U28", "U31"]
+    "问题理解与自主拆解": ["U24", "U37"],
+    "技术理解与迁移": ["U09", "U18", "U32", "U33", "U38"],
+    "独立验证与质疑": ["U16", "U27", "U30", "U34"],
+    "实验与反馈迭代": ["U15", "U07", "U26", "U29", "U35"],
+    "取舍与反思": ["U19", "U23", "U28", "U31", "U36"]
   },
   "agent_and_tool_context": [
     {
@@ -1420,12 +1722,12 @@
     {
       "id": "A02",
       "source": "agent",
-      "content": "本轮性能冲刺在 perf/sprint3 上做 6 个提交，提测分支 2026-competition-round2-perf 与优化线同一 commit；已提测的 2026-competition-round2 仍指向 b410e23，未做任何改动。"
+      "content": "性能冲刺在 perf/sprint3 上做 9 个提交，提测分支 2026-competition-round2-perf 与优化线同一 commit；已提测的 2026-competition-round2 仍指向 b410e23，未做任何改动。"
     },
     {
       "id": "A03",
       "source": "agent",
-      "content": "性能冲刺阶段的实验由 Agent/工具执行：CI 实验室 run 42986700402、进程内阶段计时、cgroup 内存成分采样、flush 阈值对照、10 万行规模实验、官方题包与 kill -9 复验；学生侧产出的是预测、结果解读、修正与局限。"
+      "content": "性能冲刺阶段的实验由 Agent/工具执行：CI 实验室 run 42986700402 / 42995117316 / 43006692672、进程内阶段计时、cgroup 内存成分采样、flush 阈值对照、10 万行规模实验、写入路径 CPU profile、位级差分测试、官方题包与 kill -9 复验；学生侧产出的是预测、结果解读、修正与局限。"
     },
     {
       "id": "A04",
@@ -1447,8 +1749,10 @@
     "R01-R08 中多个结果来自不同历史 commit/worktree，不能拼成当前实现的单一 benchmark；本轮新增结果单独成链，不与历史数字相加。",
     "历史线程里的 macOS arm64 的 RSS、load average 和进程 kill 结果仍不能替代 Linux cgroup memory.peak；本轮已经补上 Linux 正式口径，但 CI 机器是 4 vCPU 的 AMD EPYC 7763，与平台评测机不是同一台。",
     "实验室这一侧也有跑批噪声：同一批提交在不同 run 里 b410e23 的 E 比值在 0.6276~0.6444 之间，ΔR 因此在 0.0243~0.0297 之间；本文件引用任何一次 run 的数字时都按区间给，不按点值给。",
-    "10 万行规模实验只跑了一个规模点（100000 行 × 50 查询），没有做规模曲线；flush 阈值对照实验只跑了 1 万行；十进制解析的位级等价性只覆盖单元测试的固定用例和官方题包的 1 万行数据，没有做随机模糊测试。",
+    "10 万行规模实验只跑了一个规模点（100000 行 × 50 查询），没有做规模曲线；flush 阈值对照实验只跑了 1 万行；十进制解析的位级等价性已经补上 300 万条随机字面量、位数全组合和指数区间扫描，但这些扫描只覆盖 ASCII 形式，没有枚举全部十进制串，也没有在平台评测机上重跑。",
     "平台 Prompt 评分包含一道未公开的有效性抽检：同一个 commit、逐字节相同的材料出现过一次无效、两次 11.0/11.5；本文件能解释分数的量级来源，但无法解释无效的成因，也不能保证改写材料后一定被判为有效。",
-    "本轮性能冲刺的实验由 Agent/工具执行；本文件只把学生的预测、解读、修正和局限记为学习证据，工具输出本身只作为 result_evidence，不自动提升为学生理解。"
+    "本轮性能冲刺的实验由 Agent/工具执行；本文件只把学生的预测、解读、修正和局限记为学习证据，工具输出本身只作为 result_evidence，不自动提升为学生理解。",
+    "本地实验室（WSL2）每个请求的地板约 1 毫秒，比 CI 实验室的 0.19 毫秒高五倍，本地查询相的绝对时间不能用于跨机器比较；所有性能结论只引用 CI 同一帧的比值，本地数字只作同机相对参考。",
+    "第二轮的收益集中在写入相的字面量处理：查询相只看到 floor_samesize 从 0.203 降到 0.185，整体 query T 只动了千分之四，还在实验室噪声以内，所以不能声称查询相整体变快了。"
   ]
 }
