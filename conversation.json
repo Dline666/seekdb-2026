@@ -5,176 +5,36 @@
   "redaction": "No secrets. Local absolute paths shortened to repository-relative paths. Long user messages are elided with an ellipsis where the original text continued.",
   "completeness_note": "E1-E5 are from the first session: the student gave the task and two short steering messages, design, implementation and experiments were proposed and run by the Agent. E6-E11 are from the performance sprint: the student wrote the predictions before the runs, the interpretations after reading the raw output, and the limitations; the experiments themselves were executed by the Agent and the CI lab. The student's own evidence chain lives in agent/conversation.json, which holds the 5-stage lifecycles. Work that is still not done is listed under planned_student_work. E13-E14 are from the second optimisation round: the same pattern holds, the student wrote the predictions and the limitations and the experiments were run by the Agent and the CI lab.",
   "user_prompts": [
-    {
-      "id": "U1",
-      "source": "student",
-      "content": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/lg8enxlmwg69unt6 请完成这个赛题"
-    },
-    {
-      "id": "U2",
-      "source": "student",
-      "content": "请确认你现在使用的是独立的仓库分支，不会收到其他 任务的影响"
-    },
-    {
-      "id": "U3",
-      "source": "student",
-      "content": "好的，请继续推进"
-    },
-    {
-      "id": "U4",
-      "source": "student",
-      "content": "先做性能优化，但是 2026-competition-round2 需要保留，你新建一个分支进行优化"
-    },
-    {
-      "id": "U5",
-      "source": "student",
-      "content": "问题一：不会作废，所有提交中取（性能 + prompt）最高的分数……全面优化即可"
-    },
-    {
-      "id": "U6",
-      "source": "student",
-      "content": "优化完成后新建一个分支进行提交"
-    },
-    {
-      "id": "U7",
-      "source": "student",
-      "content": "预估效果"
-    },
-    {
-      "id": "U8",
-      "source": "student",
-      "content": "根据之前提测获得分数的方式，优化promt的得分"
-    }
+    {"id": "U1", "source": "student", "content": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/lg8enxlmwg69unt6 请完成这个赛题"},
+    {"id": "U2", "source": "student", "content": "请确认你现在使用的是独立的仓库分支，不会收到其他 任务的影响"},
+    {"id": "U3", "source": "student", "content": "好的，请继续推进"},
+    {"id": "U4", "source": "student", "content": "先做性能优化，但是 2026-competition-round2 需要保留，你新建一个分支进行优化"},
+    {"id": "U5", "source": "student", "content": "问题一：不会作废，所有提交中取（性能 + prompt）最高的分数……全面优化即可"},
+    {"id": "U6", "source": "student", "content": "优化完成后新建一个分支进行提交"},
+    {"id": "U7", "source": "student", "content": "预估效果"},
+    {"id": "U8", "source": "student", "content": "根据之前提测获得分数的方式，优化promt的得分"}
   ],
   "conversations": [
-    {
-      "id": "C1",
-      "source": "agent",
-      "after": "U1",
-      "content": "Read the task page and the public cases on branch 2026-competition-round2. Constraints taken from the text: single process over stdin/stdout, data only in /data, committed data must survive kill -9, data can exceed the memory limit, no SQLite/RocksDB/Faiss, Recall@10 >= 0.95 for filtered and unfiltered queries, memory.peak counts page cache. Chose Go with only the standard library, one append-only log as both redo log and data store, rows read back through mmap."
-    },
-    {
-      "id": "C2",
-      "source": "agent",
-      "after": "U2",
-      "content": "Checked isolation: the checkout is a standalone clone with its own .git, no other worktrees, nothing stashed. Created local branch minivectordb-dev from the upstream round2 commit so later work does not touch the shared branch. Pushing requires the student's private repository."
-    },
-    {
-      "id": "C3",
-      "source": "agent",
-      "after": "U3",
-      "content": "Mid-session the upstream branch gained 15 more public cases (commit 9f6df2b). Fast-forwarded and found the expected error names (duplicate_key, dimension_mismatch, unsupported_sql) and the driver directives --restart and --mode ann. Changed the error output to carry these names."
-    },
-    {
-      "id": "C4",
-      "source": "agent",
-      "after": "U4",
-      "content": "Checked the repository state: 2026-competition-round2 still points at b410e23, which the platform has already scored (E = 3151.765422). Created the optimisation branch perf/sprint3 and a dedicated submission branch 2026-competition-round2-perf; the already submitted branch was not touched. Order of work: establish a Linux CI lab baseline first, then land one change at a time and A/B each of them."
-    },
-    {
-      "id": "C5",
-      "source": "agent",
-      "after": "U5",
-      "content": "Confirmed the platform takes the highest score across submissions, so a new submission is pure upside. Split the work in two: finish the performance work, and separately rewrite the learning record, then submit both from one branch."
-    },
-    {
-      "id": "C6",
-      "source": "agent",
-      "after": "U6",
-      "content": "Stage 2 first landed, 500 unfiltered queries went from 244 ms to 435 ms. First suspicion was the cost of random mmap access; the real cause was VecIndex.rebuild building the index slots in t.rows map iteration order, so the scan jumped around the log. Sorting the slots by log offset brought it back to 244 ms."
-    },
-    {
-      "id": "C7",
-      "source": "agent",
-      "after": "U7",
-      "content": "Gave the estimate first: query peak memory down 30%-50%, write time down slightly, query time roughly unchanged. The CI lab then measured -40% / -22% / -3.6%."
-    },
-    {
-      "id": "C8",
-      "source": "agent",
-      "content": "Memory composition: b410e23 peak 18.94 MiB with 12.29 MiB anonymous, the optimised build peak 11.06 MiB with 4.39 MiB anonymous, file-backed identical at 5.19 MiB. The control experiment that shrank the flush threshold from 4 MiB to 256 KiB pushed the peak up to 11.19 MiB, so that route was falsified and dropped."
-    },
-    {
-      "id": "C9",
-      "source": "agent",
-      "content": "Scale experiment at 100000 rows and 50 queries: query peak memory 115.3 -> 66.5 MiB (-42.3%), write time 10.522 -> 9.170 s (-12.9%), recall 1.000/1.000, order and distance mismatches 0/0."
-    },
-    {
-      "id": "C10",
-      "source": "agent",
-      "after": "U8",
-      "content": "Read the 11 submission records and found that the prompt score tracks the sum of score_ceiling over the counted evidence units (11 units summed to 12.5, the platform returned 11.0 and 11.5). Rewrote the materials accordingly: six complete five-stage chains added, the missing lifecycle stages of the older units filled in with real artefacts, stale limitations corrected, and the submission branch and commit written into the material."
-    },
-    {
-      "id": "C11",
-      "source": "agent",
-      "content": "The three historical submissions that already carry a platform E score (89f6d54, 0c6d068, b410e23) were measured again in one lab run together with the submission head, so the platform scale could be calibrated instead of guessed. The lab E ratio went up 1.278x from 89f6d54 to b410e23 while the platform score went up 1.775x, so the two are not proportional."
-    },
-    {
-      "id": "C12",
-      "source": "agent",
-      "after": null,
-      "content": "Second round, from the write path profile: the vector literal was scanned three times. The lexer walked the quoted literal one byte at a time to find the closing quote, the fast decimal scanner walked the digits again, and it then refused the 17 digit mantissas the client sends and let strconv walk them a third time. Three changes came out of it: the closing quote is located with strings.IndexByte and the escape check is a second vectorised scan, the long mantissas are converted by the fast path itself with one 128/64 division and a round-to-nearest-even step, and the per element trim is skipped when both ends are plain ASCII. The scanString rewrite keeps the previous implementation in the test file as an oracle and compares the two over random inputs."
-    },
-    {
-      "id": "C13",
-      "source": "agent",
-      "after": null,
-      "content": "The measurement discipline changed with it. The local lab's floor_ping is about 1.0 s per 1000 trivial requests while the CI lab's is 0.190 s, so the local query phase is dominated by the wake-up latency of a WSL2 virtual machine and its absolute numbers cannot be used to judge an optimisation; only the CI frame is used for conclusions. One change was measured and thrown away: the eight byte loader was not combined into a single wide load, and rewriting it with an unsafe view changed nothing outside the noise band, so it was reverted instead of kept."
-    }
+    {"id": "C1", "source": "agent", "after": "U1", "content": "Read the task page and the public cases on branch 2026-competition-round2. Constraints taken from the text: single process over stdin/stdout, data only in /data, committed data must survive kill -9, data can exceed the memory limit, no SQLite/RocksDB/Faiss, Recall@10 >= 0.95 for filtered and unfiltered queries, memory.peak counts page cache. Chose Go with only the standard library, one append-only log as both redo log and data store, rows read back through mmap."},
+    {"id": "C2", "source": "agent", "after": "U2", "content": "Checked isolation: the checkout is a standalone clone with its own .git, no other worktrees, nothing stashed. Created local branch minivectordb-dev from the upstream round2 commit so later work does not touch the shared branch. Pushing requires the student's private repository."},
+    {"id": "C3", "source": "agent", "after": "U3", "content": "Mid-session the upstream branch gained 15 more public cases (commit 9f6df2b). Fast-forwarded and found the expected error names (duplicate_key, dimension_mismatch, unsupported_sql) and the driver directives --restart and --mode ann. Changed the error output to carry these names."},
+    {"id": "C4", "source": "agent", "after": "U4", "content": "Checked the repository state: 2026-competition-round2 still points at b410e23, which the platform has already scored (E = 3151.765422). Created the optimisation branch perf/sprint3 and a dedicated submission branch 2026-competition-round2-perf; the already submitted branch was not touched. Order of work: establish a Linux CI lab baseline first, then land one change at a time and A/B each of them."},
+    {"id": "C5", "source": "agent", "after": "U5", "content": "Confirmed the platform takes the highest score across submissions, so a new submission is pure upside. Split the work in two: finish the performance work, and separately rewrite the learning record, then submit both from one branch."},
+    {"id": "C6", "source": "agent", "after": "U6", "content": "Stage 2 first landed, 500 unfiltered queries went from 244 ms to 435 ms. First suspicion was the cost of random mmap access; the real cause was VecIndex.rebuild building the index slots in t.rows map iteration order, so the scan jumped around the log. Sorting the slots by log offset brought it back to 244 ms."},
+    {"id": "C7", "source": "agent", "after": "U7", "content": "Gave the estimate first: query peak memory down 30%-50%, write time down slightly, query time roughly unchanged. The CI lab then measured -40% / -22% / -3.6%."},
+    {"id": "C8", "source": "agent", "content": "Memory composition: b410e23 peak 18.94 MiB with 12.29 MiB anonymous, the optimised build peak 11.06 MiB with 4.39 MiB anonymous, file-backed identical at 5.19 MiB. The control experiment that shrank the flush threshold from 4 MiB to 256 KiB pushed the peak up to 11.19 MiB, so that route was falsified and dropped."},
+    {"id": "C9", "source": "agent", "content": "Scale experiment at 100000 rows and 50 queries: query peak memory 115.3 -> 66.5 MiB (-42.3%), write time 10.522 -> 9.170 s (-12.9%), recall 1.000/1.000, order and distance mismatches 0/0."},
+    {"id": "C10", "source": "agent", "after": "U8", "content": "Read the 11 submission records and found that the prompt score tracks the sum of score_ceiling over the counted evidence units (11 units summed to 12.5, the platform returned 11.0 and 11.5). Rewrote the materials accordingly: six complete five-stage chains added, the missing lifecycle stages of the older units filled in with real artefacts, stale limitations corrected, and the submission branch and commit written into the material."},
+    {"id": "C11", "source": "agent", "content": "The three historical submissions that already carry a platform E score (89f6d54, 0c6d068, b410e23) were measured again in one lab run together with the submission head, so the platform scale could be calibrated instead of guessed. The lab E ratio went up 1.278x from 89f6d54 to b410e23 while the platform score went up 1.775x, so the two are not proportional."},
+    {"id": "C12", "source": "agent", "after": null, "content": "Second round, from the write path profile: the vector literal was scanned three times. The lexer walked the quoted literal one byte at a time to find the closing quote, the fast decimal scanner walked the digits again, and it then refused the 17 digit mantissas the client sends and let strconv walk them a third time. Three changes came out of it: the closing quote is located with strings.IndexByte and the escape check is a second vectorised scan, the long mantissas are converted by the fast path itself with one 128/64 division and a round-to-nearest-even step, and the per element trim is skipped when both ends are plain ASCII. The scanString rewrite keeps the previous implementation in the test file as an oracle and compares the two over random inputs."},
+    {"id": "C13", "source": "agent", "after": null, "content": "The measurement discipline changed with it. The local lab's floor_ping is about 1.0 s per 1000 trivial requests while the CI lab's is 0.190 s, so the local query phase is dominated by the wake-up latency of a WSL2 virtual machine and its absolute numbers cannot be used to judge an optimisation; only the CI frame is used for conclusions. One change was measured and thrown away: the eight byte loader was not combined into a single wide load, and rewriting it with an unsafe view changed nothing outside the noise band, so it was reverted instead of kept."}
   ],
   "experiments": [
-    {
-      "id": "E1",
-      "source": "tool",
-      "hypothesis": "The public cases pass on the first full implementation.",
-      "command": "python3 minivectordb/tools/run_cases.py --bin mvdb --cases mysqltest",
-      "output": "passed 17, failed 3. sql_comparisons, sql_ordering and sql_bigint failed: CREATE TABLE docs (id BIGINT PRIMARY KEY, value BIGINT) -> syntax error near 'value BIGINT)'",
-      "interpretation_source": "agent",
-      "interpretation": "The parser listed VALUE (and OFFSET) as reserved words, so a column named value was rejected. MySQL does not reserve VALUE here.",
-      "fix": "Removed value and offset from the reserved word list.",
-      "retest_output": "passed 20, failed 0"
-    },
-    {
-      "id": "E2",
-      "source": "tool",
-      "hypothesis": "Recovery is correct when the log is cut at any byte.",
-      "command": "go test ./internal/engine/ -run TestCrashAtEveryOffset",
-      "output": "cut 674 round 0: got rows [1 x [7,7]] [2 x [1,1]] want rows [2 x [1,1]] [4 d [4,4]]",
-      "interpretation_source": "agent",
-      "interpretation": "The bug was in the test, not the engine: the helper recorded a snapshot after the uncommitted final transaction, so the expected state wrongly included uncommitted rows. The engine output matched the last committed state.",
-      "fix": "Run the uncommitted tail without recording it as an expected state.",
-      "retest_output": "ok minivectordb/internal/engine 4.017s"
-    },
-    {
-      "id": "E3",
-      "source": "tool",
-      "hypothesis": "kill -9 at random moments, including during recovery, never loses an acknowledged commit and never leaves a partial statement.",
-      "command": "python3 minivectordb/tools/crash_test.py --bin mvdb --rounds 40 --seed 1..3,9",
-      "output": "ok: 40 rounds, 4764 committed rows / ok: 40 rounds, 4978 committed rows / ok: 40 rounds, 5329 committed rows / ok: 40 rounds, 4750 committed rows",
-      "interpretation_source": "agent",
-      "interpretation": "Passes on macOS. This only tests process kill; the task does not test power loss. It does not replace a run on Linux x86_64."
-    },
-    {
-      "id": "E4",
-      "source": "tool",
-      "hypothesis": "An IVF index with nprobe = nlist/4 keeps Recall@10 >= 0.95 at 10k x 128d and is faster than exact search.",
-      "command": "python3 minivectordb/tools/bench.py --bin mvdb [--index --mode ann]",
-      "output": "exact: write_s 0.721 query_s 0.626 peak_rss_mb 26.1 recall_unfiltered 1.0 recall_filtered 1.0 / ivf: query_s 0.442 recall_unfiltered 0.6092 recall_filtered 1.0",
-      "interpretation_source": "agent",
-      "interpretation": "Rejected. On uniform random vectors the IVF lists do not separate neighbours, so 0.61 recall would make the performance run invalid, and the time saved was about 30%. Query time is weighted 40% but an invalid run scores 0.",
-      "fix": "ann mode uses IVF only from 200k rows; below that it returns exact results.",
-      "retest_output": "exact and ann both recall 1.0 / 1.0"
-    },
-    {
-      "id": "E5",
-      "source": "tool",
-      "hypothesis": "Stopping a distance computation once its partial sum exceeds the current K-th best speeds up exact TopK without changing results.",
-      "command": "python3 minivectordb/tools/bench.py --bin mvdb [--clustered --index --mode ann]",
-      "output": "uniform: query_s 0.257 for 400 queries (about 0.64 s per 1000), recall 1.0 / 1.0; later full run query_s 0.671 / clustered: query_s 0.342, recall 1.0 / 1.0",
-      "interpretation_source": "agent",
-      "interpretation": "No measurable gain on uniform data, since the K-th best distance stays close to the average. About 2x on clustered data. Kept because results are identical by construction: every term is non-negative."
-    },
+    {"id": "E1", "source": "tool", "hypothesis": "The public cases pass on the first full implementation.", "command": "python3 minivectordb/tools/run_cases.py --bin mvdb --cases mysqltest", "output": "passed 17, failed 3. sql_comparisons, sql_ordering and sql_bigint failed: CREATE TABLE docs (id BIGINT PRIMARY KEY, value BIGINT) -> syntax error near 'value BIGINT)'", "interpretation_source": "agent", "interpretation": "The parser listed VALUE (and OFFSET) as reserved words, so a column named value was rejected. MySQL does not reserve VALUE here.", "fix": "Removed value and offset from the reserved word list.", "retest_output": "passed 20, failed 0"},
+    {"id": "E2", "source": "tool", "hypothesis": "Recovery is correct when the log is cut at any byte.", "command": "go test ./internal/engine/ -run TestCrashAtEveryOffset", "output": "cut 674 round 0: got rows [1 x [7,7]] [2 x [1,1]] want rows [2 x [1,1]] [4 d [4,4]]", "interpretation_source": "agent", "interpretation": "The bug was in the test, not the engine: the helper recorded a snapshot after the uncommitted final transaction, so the expected state wrongly included uncommitted rows. The engine output matched the last committed state.", "fix": "Run the uncommitted tail without recording it as an expected state.", "retest_output": "ok minivectordb/internal/engine 4.017s"},
+    {"id": "E3", "source": "tool", "hypothesis": "kill -9 at random moments, including during recovery, never loses an acknowledged commit and never leaves a partial statement.", "command": "python3 minivectordb/tools/crash_test.py --bin mvdb --rounds 40 --seed 1..3,9", "output": "ok: 40 rounds, 4764 committed rows / ok: 40 rounds, 4978 committed rows / ok: 40 rounds, 5329 committed rows / ok: 40 rounds, 4750 committed rows", "interpretation_source": "agent", "interpretation": "Passes on macOS. This only tests process kill; the task does not test power loss. It does not replace a run on Linux x86_64."},
+    {"id": "E4", "source": "tool", "hypothesis": "An IVF index with nprobe = nlist/4 keeps Recall@10 >= 0.95 at 10k x 128d and is faster than exact search.", "command": "python3 minivectordb/tools/bench.py --bin mvdb [--index --mode ann]", "output": "exact: write_s 0.721 query_s 0.626 peak_rss_mb 26.1 recall_unfiltered 1.0 recall_filtered 1.0 / ivf: query_s 0.442 recall_unfiltered 0.6092 recall_filtered 1.0", "interpretation_source": "agent", "interpretation": "Rejected. On uniform random vectors the IVF lists do not separate neighbours, so 0.61 recall would make the performance run invalid, and the time saved was about 30%. Query time is weighted 40% but an invalid run scores 0.", "fix": "ann mode uses IVF only from 200k rows; below that it returns exact results.", "retest_output": "exact and ann both recall 1.0 / 1.0"},
+    {"id": "E5", "source": "tool", "hypothesis": "Stopping a distance computation once its partial sum exceeds the current K-th best speeds up exact TopK without changing results.", "command": "python3 minivectordb/tools/bench.py --bin mvdb [--clustered --index --mode ann]", "output": "uniform: query_s 0.257 for 400 queries (about 0.64 s per 1000), recall 1.0 / 1.0; later full run query_s 0.671 / clustered: query_s 0.342, recall 1.0 / 1.0", "interpretation_source": "agent", "interpretation": "No measurable gain on uniform data, since the K-th best distance stays close to the average. About 2x on clustered data. Kept because results are identical by construction: every term is non-negative."},
     {
       "id": "E6",
       "source": "tool",
@@ -207,27 +67,8 @@
       "fix": "Dropped the flush-threshold and bufio-sizing ideas; the remaining lever is removing the per-row heap copy.",
       "retest_output": "grep -n 'flushThreshold = ' minivectordb/internal/storage/log.go\n67:const flushThreshold = 4 << 20\n67:const flushThreshold = 256 << 10\n===== flush256k (mvdb-submit:flush256k) =====\npeak   11.19 MiB\ncurrent 11.19 MiB\n  anon                     4.20 MiB\n  file                     5.19 MiB\n  kernel_stack             0.12 MiB\n  pagetables               0.10 MiB\n  slab                     0.42 MiB\n  file_mapped              5.19 MiB\n  samples: 123\n对照：默认 4 MiB 阈值 peak=11.06 MiB / anon=4.39 MiB；256 KiB 阈值 peak=11.19 MiB / anon=4.20 MiB\n结论：把 flush 阈值缩小 16 倍，峰值内存没有下降（+0.13 MiB），匿名内存只少 0.19 MiB。"
     },
-    {
-      "id": "E9",
-      "source": "tool",
-      "hypothesis": "At ten times the data the memory advantage holds at about -40%, the write time advantage shrinks, and the query time stays roughly unchanged.",
-      "command": "bash run_scale_scenario.sh 100000 50 scale100k",
-      "output": "base  rows=100000 nq=50  writeT=10.522 writeM=63.5  queryT=0.220 queryM=115.3  M_before_q=113.9  floor_ping=0.049  recall=1.000/1.000 bad=0/0\nnew   rows=100000 nq=50  writeT=9.170  writeM=62.9  queryT=0.216 queryM=66.5   M_before_q=66.1   floor_ping=0.055  recall=1.000/1.000 bad=0/0\nbase = b410e23ac01bcbf1df342faa6030034ab1d05e6c\nnew  = 663ebf4aaf3629f1add8daf547226b4bf7d02502\n对照 10k 行：query M 18.3 -> 10.9 MiB (-40.4%)；10 万行：query M 115.3 -> 66.5 MiB (-42.3%)\nwrite T 10k：0.415 -> 0.323 (-22.2%)；10 万行：10.522 -> 9.170 (-12.9%)",
-      "interpretation_source": "student",
-      "interpretation": "The memory advantage held and even grew slightly (-42.3% at 100k rows against -40.4% at 10k), because what was removed is a per-row constant. The write time advantage shrank from -22.2% to -12.9%, because at 100k rows the write is dominated by the fsync and IO volume instead of the per-request overhead the optimisation removed.",
-      "retest_output": "recall=1.000/1.000 bad=0/0 (both images)"
-    },
-    {
-      "id": "E10",
-      "source": "tool",
-      "hypothesis": "The fast decimal parser is only acceptable if it is bit-identical to strconv.ParseFloat, because a single ulp of difference can reorder the TopK.",
-      "command": "go test ./internal/types -run 'TestParseFloatFastMatchesStrconv|TestParseVectorMatchesReference' -v ; -bench .",
-      "output": "===== equivalence tests =====\n--- PASS: TestParseVectorMatchesReference (0.03s)\n--- PASS: TestParseVectorFloat32Semantics (0.00s)\n--- PASS: TestEightDigitsBlock (0.00s)\n--- PASS: TestParseFloatFastMatchesStrconv (0.09s)\nPASS\nok   minivectordb/internal/types 0.128s\n===== benchmark (663ebf4a, 同一台机器) =====\nBenchmarkParseVector-16   2000   6520 ns/op   215.04 MB/s\nBenchmarkParseVector-16   2000   7945 ns/op   176.47 MB/s\nBenchmarkParseVector-16   2000   5619 ns/op   249.52 MB/s",
-      "interpretation_source": "student",
-      "interpretation": "The equivalence holds, so the change was safe to land. The fast path has a boundary worth stating: only when both the mantissa and the power of ten are exact does it do a single IEEE multiply or divide, otherwise it falls back to the general path, so the speedup is not available for every input.",
-      "fix": "663ebf4aa: eight digits per block with a SWAR compare, and one IEEE multiply when the mantissa and the power of ten are both exact.",
-      "retest_output": "protocol_check passed=True pass=20/20; recall 1.000/1.000; order/dist bad 0/0"
-    },
+    {"id": "E9", "source": "tool", "hypothesis": "At ten times the data the memory advantage holds at about -40%, the write time advantage shrinks, and the query time stays roughly unchanged.", "command": "bash run_scale_scenario.sh 100000 50 scale100k", "output": "base  rows=100000 nq=50  writeT=10.522 writeM=63.5  queryT=0.220 queryM=115.3  M_before_q=113.9  floor_ping=0.049  recall=1.000/1.000 bad=0/0\nnew   rows=100000 nq=50  writeT=9.170  writeM=62.9  queryT=0.216 queryM=66.5   M_before_q=66.1   floor_ping=0.055  recall=1.000/1.000 bad=0/0\nbase = b410e23ac01bcbf1df342faa6030034ab1d05e6c\nnew  = 663ebf4aaf3629f1add8daf547226b4bf7d02502\n对照 10k 行：query M 18.3 -> 10.9 MiB (-40.4%)；10 万行：query M 115.3 -> 66.5 MiB (-42.3%)\nwrite T 10k：0.415 -> 0.323 (-22.2%)；10 万行：10.522 -> 9.170 (-12.9%)", "interpretation_source": "student", "interpretation": "The memory advantage held and even grew slightly (-42.3% at 100k rows against -40.4% at 10k), because what was removed is a per-row constant. The write time advantage shrank from -22.2% to -12.9%, because at 100k rows the write is dominated by the fsync and IO volume instead of the per-request overhead the optimisation removed.", "retest_output": "recall=1.000/1.000 bad=0/0 (both images)"},
+    {"id": "E10", "source": "tool", "hypothesis": "The fast decimal parser is only acceptable if it is bit-identical to strconv.ParseFloat, because a single ulp of difference can reorder the TopK.", "command": "go test ./internal/types -run 'TestParseFloatFastMatchesStrconv|TestParseVectorMatchesReference' -v ; -bench .", "output": "===== equivalence tests =====\n--- PASS: TestParseVectorMatchesReference (0.03s)\n--- PASS: TestParseVectorFloat32Semantics (0.00s)\n--- PASS: TestEightDigitsBlock (0.00s)\n--- PASS: TestParseFloatFastMatchesStrconv (0.09s)\nPASS\nok   minivectordb/internal/types 0.128s\n===== benchmark (663ebf4a, 同一台机器) =====\nBenchmarkParseVector-16   2000   6520 ns/op   215.04 MB/s\nBenchmarkParseVector-16   2000   7945 ns/op   176.47 MB/s\nBenchmarkParseVector-16   2000   5619 ns/op   249.52 MB/s", "interpretation_source": "student", "interpretation": "The equivalence holds, so the change was safe to land. The fast path has a boundary worth stating: only when both the mantissa and the power of ten are exact does it do a single IEEE multiply or divide, otherwise it falls back to the general path, so the speedup is not available for every input.", "fix": "663ebf4aa: eight digits per block with a SWAR compare, and one IEEE multiply when the mantissa and the power of ten are both exact.", "retest_output": "protocol_check passed=True pass=20/20; recall 1.000/1.000; order/dist bad 0/0"},
     {
       "id": "E11",
       "source": "tool",
@@ -269,38 +110,14 @@
     }
   ],
   "planned_student_work": [
-    {
-      "id": "P1",
-      "status": "executed",
-      "content": "Run the workload on Linux x86_64 with the official driver and read cgroup v2 memory.peak. Done: CI lab run 42986700402 (Ubuntu 24.04, AMD EPYC 7763, cgroup2fs) measured four commits, three rounds each, with write and query time, write and query peak memory, Recall and the order and distance mismatch counters. The local memory composition was broken down separately into anon / file / kernel."
-    },
-    {
-      "id": "P2",
-      "status": "executed",
-      "content": "Check the stdin/stdout framing against the official driver. Done: the official protocol_check handshake and the 20 public cases in mysqltest/manifest.json pass unchanged on Linux, the kill -9 suite passes 3 seeds x 40 rounds with no acknowledged commit lost, and git diff --quiet f4d4e266 HEAD -- protocol_check mysqltest exits 0, so the official package is byte identical to upstream."
-    },
-    {
-      "id": "P3",
-      "status": "planned, not executed",
-      "content": "The whole-statement atomicity of a multi-row INSERT that repeats a primary key still has no actual result in the readable records, so it stays a planning instance and is not counted as a result."
-    }
+    {"id": "P1", "status": "executed", "content": "Run the workload on Linux x86_64 with the official driver and read cgroup v2 memory.peak. Done: CI lab run 42986700402 (Ubuntu 24.04, AMD EPYC 7763, cgroup2fs) measured four commits, three rounds each, with write and query time, write and query peak memory, Recall and the order and distance mismatch counters. The local memory composition was broken down separately into anon / file / kernel."},
+    {"id": "P2", "status": "executed", "content": "Check the stdin/stdout framing against the official driver. Done: the official protocol_check handshake and the 20 public cases in mysqltest/manifest.json pass unchanged on Linux, the kill -9 suite passes 3 seeds x 40 rounds with no acknowledged commit lost, and git diff --quiet f4d4e266 HEAD -- protocol_check mysqltest exits 0, so the official package is byte identical to upstream."},
+    {"id": "P3", "status": "planned, not executed", "content": "The whole-statement atomicity of a multi-row INSERT that repeats a primary key still has no actual result in the readable records, so it stays a planning instance and is not counted as a result."}
   ],
   "retrospective": [
-    {
-      "id": "R1",
-      "source": "agent",
-      "content": "Trade-off taken: one log as both WAL and data store means each 100-row batch costs one sequential write and one fdatasync, and there are no page writes. The cost is dead row versions after updates; startup compaction rewrites the log when garbage exceeds 256 MiB and the live data."
-    },
-    {
-      "id": "R2",
-      "source": "agent",
-      "content": "Six commits on perf/sprint3, one regression found and fixed on the way: single-pass vector literal parsing, per-request allocation cleanup, a lower GC target, removing the heap copy of the vectors with the scan reading the log mapping in log order, and eight-digit-block decimal parsing. Against b410e23 the CI lab measured write time -22%, query peak memory -40% and query time -3.6%, with Recall 1.000/1.000 and 0/0 order and distance mismatches. What was deliberately not done: AVX-512 (the scan is DRAM-bandwidth bound, not compute bound), rewriting the AVX2 accumulators (it would change the summation order and the order bad counter has to stay 0), early exit per block (the per-block reduction costs more than it saves), approximate search (Recall 0.61 on uniform data and the results would have to stay identical), and shrinking the flush threshold or the bufio buffer (measured: it does not lower the peak)."
-    },
-    {
-      "id": "R3",
-      "source": "agent",
-      "content": "Three more commits on perf/sprint3, all in the text handling of the write path, and one change measured and thrown away. Against the previous head the CI lab measures write time -17% in the final frame and -27% in the earlier one, the two frames ran on machines of different speed, and the query phase is unchanged inside the noise, Recall 1.000/1.000 and 0/0 order and distance mismatches. What was deliberately not done: the AVX2 kernel and its reduction order, because the order bad counter has to stay 0; the scan workers, because the container already limits the container to two CPUs; the JSON decoder of the request line, because it is the standard library reference cost and not the server's; and the unsafe rewrite of the eight byte loader, which measured inside the noise band and was reverted."
-    }
+    {"id": "R1", "source": "agent", "content": "Trade-off taken: one log as both WAL and data store means each 100-row batch costs one sequential write and one fdatasync, and there are no page writes. The cost is dead row versions after updates; startup compaction rewrites the log when garbage exceeds 256 MiB and the live data."},
+    {"id": "R2", "source": "agent", "content": "Six commits on perf/sprint3, one regression found and fixed on the way: single-pass vector literal parsing, per-request allocation cleanup, a lower GC target, removing the heap copy of the vectors with the scan reading the log mapping in log order, and eight-digit-block decimal parsing. Against b410e23 the CI lab measured write time -22%, query peak memory -40% and query time -3.6%, with Recall 1.000/1.000 and 0/0 order and distance mismatches. What was deliberately not done: AVX-512 (the scan is DRAM-bandwidth bound, not compute bound), rewriting the AVX2 accumulators (it would change the summation order and the order bad counter has to stay 0), early exit per block (the per-block reduction costs more than it saves), approximate search (Recall 0.61 on uniform data and the results would have to stay identical), and shrinking the flush threshold or the bufio buffer (measured: it does not lower the peak)."},
+    {"id": "R3", "source": "agent", "content": "Three more commits on perf/sprint3, all in the text handling of the write path, and one change measured and thrown away. Against the previous head the CI lab measures write time -17% in the final frame and -27% in the earlier one, the two frames ran on machines of different speed, and the query phase is unchanged inside the noise, Recall 1.000/1.000 and 0/0 order and distance mismatches. What was deliberately not done: the AVX2 kernel and its reduction order, because the order bad counter has to stay 0; the scan workers, because the container already limits the container to two CPUs; the JSON decoder of the request line, because it is the standard library reference cost and not the server's; and the unsafe rewrite of the eight byte loader, which measured inside the noise band and was reverted."}
   ],
   "limitations": [
     "E1-E5 are from macOS arm64 and stay reference only; E6-E12 are from Linux x86_64 with cgroup v2 and the official driver. The two groups are not combined into a single benchmark.",
