@@ -29,7 +29,7 @@
         "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
       }
     ],
-    "honesty_note": "学生证据只引用 student 对话内容；实际结果只引用已经出现的工具输出或被明确标为原始输出的记录。历史实验来自不同 commit/worktree，macOS 结果标为 reference-only，不能当作当前 Linux 正式评测。本轮新增的结果全部来自 Linux x86_64 + cgroup v2 + 官方题包驱动，逐条带 provenance，可回溯到具体 run、commit 和脚本。 计分单元的五个生命周期阶段里，局限（以及个别单元的解读）在没有对应学生原话时以文字写出，这类单元共 9 个（U07.limitation、U15.limitation、U16.limitation、U19.limitation、U23.limitation、U24.limitation、U26.interpretation_or_correction、U27.limitation、U28.limitation），其余阶段都指向具体的对话或实验位置。上一轮自校验（实验 R38）提示过 U27、U28 共用同一段学生原话，本轮已把 U28 改指 M13，该提示不再成立。",
+    "honesty_note": "学生证据只引用 student 对话内容；实际结果只引用已经出现的工具输出或被明确标为原始输出的记录。历史实验来自不同 commit/worktree，macOS 结果标为 reference-only，不能当作当前 Linux 正式评测。本轮新增的结果全部来自 Linux x86_64 + cgroup v2 + 官方题包驱动，逐条带 provenance，可回溯到具体 run、commit 和脚本。 计分单元的五个生命周期阶段里，局限（以及个别单元的解读）在没有对应学生原话时以文字写出，这类单元共 9 个（U07.limitation、U15.limitation、U16.limitation、U19.limitation、U23.limitation、U24.limitation、U26.interpretation_or_correction、U27.limitation、U28.limitation），其余阶段都指向具体的对话或实验位置。上一轮自校验（实验 R38）提示过 U27、U28 共用同一段学生原话，本轮已把 U28 改指 M13，该提示不再成立。 计分单元之间没有任何共用：21 个计分单元各自引用互不重复的学生原话。计分单元与未计分单元之间有 2 处共用同一段原话——U28 与 U05 共用 M13、U27 与 U25 共用 M27——这两处未计分单元 counted_in_score=false，不进入 ceiling 合计，也没有各自的 reason 声称计分。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -492,7 +492,7 @@
       "thread": "minimax-code",
       "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t57",
       "topic": "第二轮的边界",
-      "content": "第二轮只做三件事，都落在字面量处理上：闭引号定位改向量化、十进制长尾数自己按正确舍入转换、元素两端不需要空格时跳过 trim。CI 实验室同一帧里写入时间从 0.353 秒降到 0.294 秒（-17%），上一帧同一改动是 0.315 秒降到 0.229 秒（-27%），两帧的绝对值差得远但比值一致；客户端同款字面量的 ParseVector 基准从 17.6 微秒降到 7.8 微秒（-56%）。局限是：这三处都只作用于字面量解析，查询相的向量扫描内核我一行没动，因为改归约顺序会动到 order bad；查询相的收益目前只体现在 floor_samesize 从 0.254 降到 0.230，整体 query T 从 0.472 秒降到 0.456 秒，还在噪声里。"
+      "content": "第二轮只做三件事，都落在字面量处理上：闭引号定位改向量化、十进制长尾数自己按正确舍入转换、元素两端不需要空格时跳过 trim。CI 实验室同一帧里写入时间从 0.353 秒降到 0.294 秒（-17%），上一帧同一改动是 0.315 秒降到 0.229 秒（-27%，这里的 0.315 是上一帧的第一轮 head 663ebf4，和本帧的 0.353 是同一个比较基线，不是那一帧的 b410e23 基线 0.316），两帧的绝对值差得远但比值一致；客户端同款字面量的 ParseVector 基准从 17.6 微秒降到 7.8 微秒（-56%）。局限是：这三处都只作用于字面量解析，查询相的向量扫描内核我一行没动，因为改归约顺序会动到 order bad；查询相的收益目前只体现在 floor_samesize 从 0.254 降到 0.230，整体 query T 从 0.472 秒降到 0.456 秒，还在噪声里。"
     }
   ],
   "experiments": [
@@ -1452,7 +1452,7 @@
       "evidence_status": "independent-reference-result",
       "score_ceiling": 1.0,
       "counted_in_score": true,
-      "reason": "学生明确要求独立参考而不是复用 store.search；实际结果报告了 a/c 的 TopK mismatch=0/1000 和不同精度路径的耗时。该实例与早先 near_d8 边界实验不同，分别计为独立参考路线。",
+      "reason": "学生明确要求独立参考而不是复用 store.search；实际结果报告了 a/c 的 TopK mismatch=0/1000 和不同精度路径的耗时。这一实例与早先 near_d8 边界实验不同，属于独立参考路线。同一段学生原话也被更早的 near_d8 边界单元（U05，不计分）引用过，两处关注的问题不同，这里只计独立参考这一条。",
       "lifecycle": {
         "prediction": "/conversations/27/content",
         "raw_result": "/experiments/20/output",
@@ -1476,7 +1476,7 @@
       "evidence_status": "specification-risk-found",
       "score_ceiling": 1.0,
       "counted_in_score": true,
-      "reason": "学生从题面规格质疑排序口径：两个距离平方只差 1 个 ulp 时开方后可能得到相同的 double，这时按平方距离排序和按输出距离排序、配合主键打破并列，结果可能不同，所以要求先把这个边界处理掉。同一轮里用源码探针确认被测代码输出的确是距离平方（dist_probe: Neighbor::distance is double: 1; id=2 distance=25 hex=0x1.9p+4，source squared_distance() has no sqrt），于是“输出是平方距离、题面要求欧氏距离”被记成一条规范风险。这一族识别的是输出口径与题面的冲突，和 U27 的独立参考对照不是同一件事。",
+      "reason": "学生从题面规格质疑排序口径：两个距离平方只差 1 个 ulp 时开方后可能得到相同的 double，这时按平方距离排序和按输出距离排序、配合主键打破并列，结果可能不同，所以要求先把这个边界处理掉。同一轮里用源码探针确认被测代码输出的确是距离平方（dist_probe: Neighbor::distance is double: 1; id=2 distance=25 hex=0x1.9p+4，source squared_distance() has no sqrt），于是“输出是平方距离、题面要求欧氏距离”被记成一条规范风险。这一族识别的是输出口径与题面的冲突，和 U27 的独立参考对照不是同一件事。同一段学生原话也被更早的 k 边界单元（U05，不计分）引用过，两处关注的问题不同，这里只计规范风险这一条。",
       "lifecycle": {
         "prediction": "/conversations/12/content",
         "raw_result": "/experiments/21/output",
