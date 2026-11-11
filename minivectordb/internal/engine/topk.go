@@ -117,7 +117,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// "ann" mode answers with the exact scan.
 	ann = ann && x.live >= ivfMinRows
 	if ann && x.Explicit && x.live >= 2*x.ivfBuilt {
-		x.trainIVF() // first use, or the table has doubled since training
+		x.trainIVF(db, t) // first use, or the table has doubled since training
 	}
 	qw := widen(q)
 	var ov map[int64]int64
@@ -141,13 +141,15 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			}
 		}
 		// Evaluate WHERE before the distance: a filtered-out row costs one
-		// row lookup instead of a full distance computation.
+		// row lookup instead of a full distance computation. The row bytes
+		// are read once and used for both.
 		off := x.off[s]
-		if rowPred != nil && !rowPred(db.rowBytes(off)) {
+		rb := db.rowBytes(off)
+		if rowPred != nil && !rowPred(rb) {
 			return
 		}
 		bd := tk.bound()
-		d := l2sqBound(qw, x.vec(s), bd)
+		d := l2sqBytesBound(qw, rb[t.vecOff:], bd)
 		if d > bd {
 			return
 		}
