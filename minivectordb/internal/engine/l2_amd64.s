@@ -60,3 +60,57 @@ done:
 	VZEROUPPER
 	MOVSD X0, ret+24(FP)
 	RET
+
+// func l2sq32AVX2(a *float32, b *float32, groups int) float32
+//
+// Approximate squared distance in float32 over groups of 8 elements, used
+// only as a pre-filter with a proven error margin; exact distances are
+// always recomputed in float64.
+TEXT ·l2sq32AVX2(SB), NOSPLIT, $0-28
+	MOVQ a+0(FP), SI
+	MOVQ b+8(FP), DI
+	MOVQ groups+16(FP), CX
+	VXORPS Y0, Y0, Y0
+	VXORPS Y1, Y1, Y1
+	VXORPS Y2, Y2, Y2
+	VXORPS Y3, Y3, Y3
+loop4:
+	CMPQ CX, $4
+	JLT loop1
+	VMOVUPS 0(DI), Y4
+	VMOVUPS 32(DI), Y5
+	VMOVUPS 64(DI), Y6
+	VMOVUPS 96(DI), Y7
+	VSUBPS 0(SI), Y4, Y4
+	VSUBPS 32(SI), Y5, Y5
+	VSUBPS 64(SI), Y6, Y6
+	VSUBPS 96(SI), Y7, Y7
+	VFMADD231PS Y4, Y4, Y0
+	VFMADD231PS Y5, Y5, Y1
+	VFMADD231PS Y6, Y6, Y2
+	VFMADD231PS Y7, Y7, Y3
+	ADDQ $128, SI
+	ADDQ $128, DI
+	SUBQ $4, CX
+	JMP loop4
+loop1:
+	TESTQ CX, CX
+	JZ reduce
+	VMOVUPS 0(DI), Y4
+	VSUBPS 0(SI), Y4, Y4
+	VFMADD231PS Y4, Y4, Y0
+	ADDQ $32, SI
+	ADDQ $32, DI
+	DECQ CX
+	JMP loop1
+reduce:
+	VADDPS Y1, Y0, Y0
+	VADDPS Y3, Y2, Y2
+	VADDPS Y2, Y0, Y0
+	VEXTRACTF128 $1, Y0, X1
+	VADDPS X1, X0, X0
+	VHADDPS X0, X0, X0
+	VHADDPS X0, X0, X0
+	VZEROUPPER
+	MOVSS X0, ret+24(FP)
+	RET

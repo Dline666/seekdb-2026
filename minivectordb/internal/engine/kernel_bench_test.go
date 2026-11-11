@@ -110,3 +110,50 @@ func TestKernelPathsAgree(t *testing.T) {
 		}
 	}
 }
+
+// TestPrefilterBound checks the error bound the pre-filter relies on:
+// exact <= approx*(1+eps)+tiny, i.e. approx*(1-eps) never exceeds the exact
+// distance by more than tiny, over varied magnitudes, cancellation-heavy
+// inputs and dimensions.
+func TestPrefilterBound(t *testing.T) {
+	if !useSIMD {
+		t.Skip("no SIMD kernel on this CPU")
+	}
+	rng := rand.New(rand.NewSource(4))
+	worst := 0.0
+	for it := 0; it < 200000; it++ {
+		n := 1 + rng.Intn(1024)
+		if it%7 == 0 {
+			n = 128
+		}
+		scale := math.Pow(10, float64(rng.Intn(40)-20))
+		a := make([]float32, n)
+		b := make([]float32, n)
+		for i := range a {
+			base := rng.NormFloat64() * scale
+			a[i] = float32(base)
+			switch rng.Intn(3) {
+			case 0: // near-identical values: heavy cancellation
+				b[i] = float32(base * (1 + rng.NormFloat64()*1e-6))
+			case 1:
+				b[i] = float32(rng.NormFloat64() * scale)
+			default:
+				b[i] = a[i]
+			}
+		}
+		exact := l2sq(a, b)
+		approx := l2sqApprox(a, b)
+		if math.IsInf(approx, 1) {
+			continue
+		}
+		if approx*(1-prefilterEps) > exact+prefilterTiny {
+			t.Fatalf("n=%d scale=%g: approx %v exact %v", n, scale, approx, exact)
+		}
+		if exact > 1e-20 {
+			if r := math.Abs(approx-exact) / exact; r > worst {
+				worst = r
+			}
+		}
+	}
+	t.Logf("worst relative error %.3g (margin %.3g)", worst, prefilterEps)
+}

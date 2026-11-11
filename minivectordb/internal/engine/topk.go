@@ -120,6 +120,8 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 		x.trainIVF() // first use, or the table has doubled since training
 	}
 	qw := widen(q)
+	// The pre-filter error margin is proven for dimensions up to 16384.
+	prefilter := usePrefilter && len(q) <= 16384
 	var ov map[int64]int64
 	if db.txn != nil {
 		ov = db.txn.overlay[t.ID]
@@ -147,7 +149,19 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			return
 		}
 		bd := tk.bound()
-		d := l2sqBound(qw, x.vec(s), bd)
+		v := x.vec(s)
+		// Cheap float32 pre-filter. The exact float64 distance d satisfies
+		// d <= approx*(1+eps)+tiny (see prefilterSafe), so a row whose
+		// estimate already exceeds the bound by that margin cannot enter
+		// the TopK and is skipped without the exact computation.
+		if prefilter && bd < math.Inf(1) {
+			// a is +Inf when a float32 difference or sum overflows; the
+			// bound does not hold then, so only finite estimates count.
+			if a := l2sqApprox(q, v); a*(1-prefilterEps) > bd+prefilterTiny && a < math.Inf(1) {
+				return
+			}
+		}
+		d := l2sqBound(qw, v, bd)
 		if d > bd {
 			return
 		}
