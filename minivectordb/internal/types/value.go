@@ -62,12 +62,19 @@ func ParseVector(s string) ([]float32, *SQLError) {
 			}
 		}
 		part = strings.TrimSpace(part)
-		if !validNumber(part) {
-			return nil, ErrVectorFormat(s)
-		}
-		f, err := strconv.ParseFloat(part, 64)
-		if err != nil && !math.IsInf(f, 0) {
-			return nil, ErrVectorFormat(s)
+		f, ok := parseFloatFast(part)
+		if !ok {
+			// Slow path: anything the single-pass scanner does not handle
+			// exactly. This is also the path that decides whether the literal
+			// is well formed at all.
+			if !validNumber(part) {
+				return nil, ErrVectorFormat(s)
+			}
+			f64, err := strconv.ParseFloat(part, 64)
+			if err != nil && !math.IsInf(f64, 0) {
+				return nil, ErrVectorFormat(s)
+			}
+			f = f64
 		}
 		f32, ok := ToFloat32(f)
 		if !ok {
@@ -76,6 +83,114 @@ func ParseVector(s string) ([]float32, *SQLError) {
 		out = append(out, f32)
 	}
 	return out, nil
+}
+
+// pow10 holds the powers of ten that are exactly representable in float64.
+// 10^23 is the first one that is not, because 5^23 no longer fits in the
+// 53-bit significand.
+var pow10 = [...]float64{
+	1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
+	1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22,
+}
+
+// maxFastMant is the largest mantissa that parseFloatFast accumulates. It is
+// chosen so that mant*10+9 still fits in the 53-bit significand of float64,
+// which keeps float64(mant) exact.
+const maxFastMant = 900719925474098
+
+// parseFloatFast parses a plain decimal literal in one pass and returns the
+// very same float64 that strconv.ParseFloat would return.
+//
+// It accepts only the grammar of validNumber with an ASCII mantissa, a
+// mantissa that is exactly representable in float64 and a decimal exponent
+// whose power of ten is itself exact (|k| <= 22). For those inputs the value
+// is obtained from a single IEEE multiplication or division, which is
+// correctly rounded and therefore bit-identical to strconv, while skipping its
+// multi-pass scan and its general conversion.
+//
+// Every other input returns ok=false and is handled by strconv.ParseFloat.
+func parseFloatFast(s string) (float64, bool) {
+	n := len(s)
+	i := 0
+	neg := false
+	if i < n && (s[i] == '+' || s[i] == '-') {
+		neg = s[i] == '-'
+		i++
+	}
+	var mant uint64
+	digits := 0     // total number of mantissa digits
+	fracDigits := 0 // number of digits after the decimal point
+	sawDot := false
+	exact := true
+	for i < n {
+		c := s[i]
+		if c >= '0' && c <= '9' {
+			digits++
+			if sawDot {
+				fracDigits++
+			}
+			if exact {
+				if mant <= maxFastMant {
+					mant = mant*10 + uint64(c-'0')
+				} else {
+					exact = false
+				}
+			}
+			i++
+			continue
+		}
+		if c == '.' && !sawDot {
+			sawDot = true
+			i++
+			continue
+		}
+		break
+	}
+	if digits == 0 {
+		return 0, false
+	}
+	exp := 0
+	if i < n && (s[i] == 'e' || s[i] == 'E') {
+		i++
+		negExp := false
+		if i < n && (s[i] == '+' || s[i] == '-') {
+			negExp = s[i] == '-'
+			i++
+		}
+		expDigits := 0
+		for i < n && s[i] >= '0' && s[i] <= '9' {
+			if expDigits < 4 {
+				exp = exp*10 + int(s[i]-'0')
+			}
+			expDigits++
+			i++
+		}
+		if expDigits == 0 {
+			return 0, false
+		}
+		if negExp {
+			exp = -exp
+		}
+	}
+	if i != n || !exact {
+		return 0, false
+	}
+	k := exp - fracDigits
+	if k < -22 || k > 22 {
+		return 0, false
+	}
+	f := float64(mant)
+	switch {
+	case k == 0:
+	case k > 0:
+		f *= pow10[k]
+	default:
+		f /= pow10[-k]
+	}
+	if neg {
+		f = -f
+	}
+	return f, true
 }
 
 // ToFloat32 converts a finite float64 to float32, failing on NaN, Inf or overflow.
