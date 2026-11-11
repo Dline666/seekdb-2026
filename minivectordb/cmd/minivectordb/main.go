@@ -6,6 +6,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
@@ -85,7 +86,15 @@ func main() {
 	// handled by a watcher that closes stdin, which ends the read with EOF.
 	rd := bufio.NewReaderSize(os.Stdin, 1<<20)
 	next := func() line {
-		b, err := rd.ReadBytes('\n')
+		// ReadSlice hands back a view into the reader buffer instead of
+		// allocating a fresh slice per request. The request is fully
+		// processed before the next read, and proto.ParseRequest copies
+		// everything it keeps, so the view never outlives the buffer.
+		b, err := rd.ReadSlice('\n')
+		if err == bufio.ErrBufferFull {
+			// Line longer than the buffer: fall back to an allocating read.
+			b, err = rd.ReadBytes('\n')
+		}
 		if len(b) == 0 && err != nil {
 			if err != io.EOF && !errors.Is(err, os.ErrClosed) {
 				logf("read stdin: %v", err)
@@ -124,7 +133,7 @@ func main() {
 		if l.eof {
 			os.Exit(closeDB())
 		}
-		if len(strings.TrimSpace(string(l.b))) == 0 {
+		if len(bytes.TrimSpace(l.b)) == 0 {
 			continue
 		}
 		req, perr := proto.ParseRequest(l.b)
