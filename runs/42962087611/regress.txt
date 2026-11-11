@@ -1,5 +1,0 @@
-== 5d5aa141995126d93812b62c8b5ebb0aecbf1831
-protocol_check passed=True pass=20/20
-ok: 40 rounds, 44922 committed rows
-ok: 40 rounds, 53394 committed rows
-ok: 40 rounds, 41909 committed rows
