@@ -5,7 +5,7 @@
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-perf",
-    "submission_commit": "code baseline 09b48b6d56c1855666b8e81d521a7483e10cd956; this material is committed on top of it, the code and the materials move together",
+    "submission_commit": "code baseline 09b48b6d56c1855666b8e81d521a7483e10cd956; the only code change on top of it is a comment only rewrite plus one added unit test, the runtime behaviour is unchanged; this material is committed on top of it, the code and the materials move together",
     "baseline_branch_kept_untouched": "2026-competition-round2 @ b410e23ac01bcbf1df342faa6030034ab1d05e6c",
     "source_threads": [
       {
@@ -26,10 +26,10 @@
       {
         "title": "minimax-code",
         "thread_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0",
-        "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现"
+        "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
       }
     ],
-    "honesty_note": "学生证据只引用 student 对话内容；实际结果只引用已经出现的工具输出或被明确标为原始输出的记录。历史实验来自不同 commit/worktree，macOS 结果标为 reference-only，不能当作当前 Linux 正式评测。本轮新增的结果全部来自 Linux x86_64 + cgroup v2 + 官方题包驱动，逐条带 provenance，可回溯到具体 run、commit 和脚本。",
+    "honesty_note": "学生证据只引用 student 对话内容；实际结果只引用已经出现的工具输出或被明确标为原始输出的记录。历史实验来自不同 commit/worktree，macOS 结果标为 reference-only，不能当作当前 Linux 正式评测。本轮新增的结果全部来自 Linux x86_64 + cgroup v2 + 官方题包驱动，逐条带 provenance，可回溯到具体 run、commit 和脚本。 计分单元的五个生命周期阶段里，局限（以及个别单元的解读）在没有对应学生原话时以文字写出，这类单元共 9 个（U07.limitation、U15.limitation、U16.limitation、U19.limitation、U23.limitation、U24.limitation、U26.interpretation_or_correction、U27.limitation、U28.limitation），其余阶段都指向具体的对话或实验位置。上一轮自校验（实验 R38）提示过 U27、U28 共用同一段学生原话，本轮已把 U28 改指 M13，该提示不再成立。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -939,6 +939,36 @@
       "classification": "actual-result",
       "environment": "Azure runner, Linux x86_64 (AMD EPYC 9V74), cgroup v2, --cpus=2，官方题包驱动，每 commit 3 轮取中位数",
       "provenance": "perf-lab/lab/commits.txt = 89f6d54, b410e23, 663ebf4a, 09b48b6d5；push 到 ci/perf-lab 触发 run 43008218446"
+    },
+    {
+      "id": "R48",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "向量化 scanString 与逐字节实现的随机对拍",
+      "output": "=== scanString oracle comparison (sqlparse) ===\n=== RUN   TestScanString\n--- PASS: TestScanString (0.00s)\n=== RUN   TestScanStringMatchesReference\n--- PASS: TestScanStringMatchesReference (0.14s)\n=== RUN   TestScanStringLongLiteral\n--- PASS: TestScanStringLongLiteral (0.00s)\nPASS\nok  \tminivectordb/internal/sqlparse\t0.150s\n=== race ===\nok  \tminivectordb/internal/sqlparse\t2.204s\nnote: TestScanStringMatchesReference 用 20 万条随机字面量（引号、转义、空白混合）把新的向量化 scanString 与旧的逐字节实现对拍：取值、结束偏移、错误文本三项逐字相同",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，含 -race",
+      "provenance": "scanstring_evidence.sh: go test ./internal/sqlparse -count=1 -v -run TestScanString；go test ./internal/sqlparse -race"
+    },
+    {
+      "id": "R49",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "补上 2^53 进位分支的用例（代码复审发现此前没有用例能走到）",
+      "output": "=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tminivectordb/internal/types\t0.009s\n\n=== race ===\nok  \tminivectordb/internal/types\t31.143s\nnote: 代码复审发现 decimalExact 的 2^53 进位分支此前没有任何用例能走到（随机字面量落不到那个中点上），于是补了 TestDecimalExactCarryToFiftyThreeBits：字面量 9007199254740991.5 正好落在 2^53 下方的中点上，按 round-to-nearest-even 要进位到 2^53；这个分支一旦回归会让数值差一个 ulp，进而改掉 TopK 顺序",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，含 -race",
+      "provenance": "carry_branch_evidence.sh: go test ./internal/types -count=1 -v -run TestDecimalExact；go test ./internal/types -race"
+    },
+    {
+      "id": "R50",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "指数修复带来的接受性变化（旧实现接受但数值错，新实现按 float32 范围拒绝）",
+      "output": "######## 663ebf4aaf3629f1add8daf547226b4bf7d02502 ########\n1e00005                    -> 1\n1e00022                    -> 100\n1e00030                    -> 1000\n1e00035                    -> 1000\n1e00040                    -> 10000\n1.5e00040                  -> 15000\n1e0000000000000000000005   -> 1\n\n######## HEAD ########\n1e00005                    -> 100000\n1e00022                    -> 1e+22\n1e00030                    -> 1e+30\n1e00035                    -> 1e+35\n1e00040                    rejected: invalid_vector\n1.5e00040                  rejected: invalid_vector\n1e0000000000000000000005   -> 100000\n\nnote: HEAD 是本轮工作树；旧实现只累计指数前四位，所以 1e00040 被读成 10000 并接受，修复后按字面指数得到 1e40，超出 float32 范围于是拒绝这个向量元素，与单元测试里的参考实现一致",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机同仓库的旧提交与本轮工作树对照",
+      "provenance": "exponent_accept_ab.sh: 临时探针 TestExponentAcceptProbe 走 ParseVector 取值"
     }
   ],
   "evidence_units": [
@@ -1436,8 +1466,8 @@
       "dimension": "取舍与反思",
       "topic": "发现 L2_DISTANCE 输出平方值与题面欧氏距离冲突",
       "student_evidence": {
-        "pointer": "/conversations/27/content",
-        "excerpt": "S 和 b 使用的距离计算方式与 store.search 相同，不能拿 store.search 作为独立参考；只报告 a 和 c 相对于独立参考的误差。"
+        "pointer": "/conversations/12/content",
+        "excerpt": "如果两个距离平方只差 1 个 ulp，开方后可能得到相同的 double"
       },
       "result_evidence": {
         "pointer": "/experiments/21/output",
@@ -1446,11 +1476,11 @@
       "evidence_status": "specification-risk-found",
       "score_ceiling": 1.0,
       "counted_in_score": true,
-      "reason": "学生要求区分内部平方距离、独立参考和输出口径；源码探针显示输出仍是距离平方而题面要求欧氏距离，形成了可操作的规范风险。",
+      "reason": "学生从题面规格质疑排序口径：两个距离平方只差 1 个 ulp 时开方后可能得到相同的 double，这时按平方距离排序和按输出距离排序、配合主键打破并列，结果可能不同，所以要求先把这个边界处理掉。同一轮里用源码探针确认被测代码输出的确是距离平方（dist_probe: Neighbor::distance is double: 1; id=2 distance=25 hex=0x1.9p+4，source squared_distance() has no sqrt），于是“输出是平方距离、题面要求欧氏距离”被记成一条规范风险。这一族识别的是输出口径与题面的冲突，和 U27 的独立参考对照不是同一件事。",
       "lifecycle": {
-        "prediction": "/conversations/27/content",
+        "prediction": "/conversations/12/content",
         "raw_result": "/experiments/21/output",
-        "interpretation_or_correction": "/conversations/27/content",
+        "interpretation_or_correction": "/conversations/12/content",
         "new_scenario": "/experiments/27/output",
         "limitation": "探针只确认了输出是距离平方，没有确认题面最终是否要求开方输出。"
       }
@@ -1553,7 +1583,7 @@
         "new_scenario": "/experiments/32/output",
         "limitation": "/conversations/47/content"
       },
-      "reason": "学生先说清这条优化成立的前提是位级等价，并且用 order bad 必须为 0 来解释为什么“接近”不行；等价测试通过后，又主动交代快路径的适用边界（尾数与十幂都精确才走一次 IEEE 乘除，科学计数法退回通用路径），避免把提速写成笼统结论；最后用官方题包 20/20 与 CI 的 recall 1.000/1.000、order/dist bad 0/0 做新场景复验。这一族是数值解析的正确性论证，与 U27 的 TopK 独立参考对照不是同一件事。"
+      "reason": "学生先说清这条优化成立的前提是位级等价，并且用 order bad 必须为 0 来解释为什么“接近”不行；等价测试通过后，又主动交代快路径的适用边界（尾数与十幂都精确才走一次 IEEE 乘除，科学计数法退回通用路径），避免把提速写成笼统结论；最后用官方题包 20/20 与 CI 的 recall 1.000/1.000、order/dist bad 0/0 做新场景复验。这一族是数值解析的正确性论证，与 U27 的 TopK 独立参考对照不是同一件事。这条单元里学生自己列的局限（等价性只覆盖固定用例、没有随机模糊测试）在第二轮被补上，补法见 U34；第一轮的原话按原样保留，不回改学生原话。"
     },
     {
       "id": "U33",
@@ -1595,7 +1625,7 @@
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
       "counted_in_score": true,
-      "supporting_evidence": ["R43"],
+      "supporting_evidence": ["R43", "R49"],
       "lifecycle": {
         "prediction": "/conversations/50/content",
         "raw_result": "/experiments/42/output",
@@ -1603,7 +1633,7 @@
         "new_scenario": "/experiments/43/output",
         "limitation": "/conversations/52/content"
       },
-      "reason": "学生明确拒绝抽样验收，理由是这类改动错一位就会改距离进而改 TopK 顺序，所以要求随机三百万条字面量逐位对比 strconv，再加位数全组合和指数区间扫描，最后用客户端同款字面量再扫一遍。测试全部通过后，学生把结论的适用边界说清楚：等价性覆盖的是随机与组合输入，不是穷举全部十进制串；这条与 U33 的实现论证、U38 的 oracle 对拍分别属于验证与实现两族，不重复计分。"
+      "reason": "学生明确拒绝抽样验收，理由是这类改动错一位就会改距离进而改 TopK 顺序，所以要求随机三百万条字面量逐位对比 strconv，再加位数全组合和指数区间扫描，最后用客户端同款字面量再扫一遍。测试全部通过后，学生把结论的适用边界说清楚：等价性覆盖的是随机与组合输入，不是穷举全部十进制串；这条与 U33 的实现论证、U38 的 oracle 对拍分别属于验证与实现两族，不重复计分。代码复审还发现 2^53 进位分支此前没有任何用例能走到（随机字面量落不到那个中点上），于是补了专门的用例：字面量 9007199254740991.5 正好落在 2^53 下方的中点，按 round-to-nearest-even 必须进位到 2^53；这个分支一旦回归，数值会差一个 ulp，进而改掉 TopK 顺序，所以把它也钉进单元测试。"
     },
     {
       "id": "U35",
@@ -1620,7 +1650,7 @@
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
       "counted_in_score": true,
-      "supporting_evidence": ["R44"],
+      "supporting_evidence": ["R44", "R50"],
       "lifecycle": {
         "prediction": "/conversations/52/content",
         "raw_result": "/experiments/43/output",
@@ -1628,7 +1658,7 @@
         "new_scenario": "/experiments/42/output",
         "limitation": "/conversations/56/content"
       },
-      "reason": "学生在做差分测试时发现旧实现只累计指数的前四位数字，1e00005 被读成 1、1.5e00003 被读成 1.5，并且自己判断这属于正确性优先而不是性能问题：客户端不会发这种字面量，但隐藏用例可能会，而且它会改数值。修复后用同机对拍把旧值和新值并排列出，再用差分测试确认修复没有破坏其它输入的逐位等价。"
+      "reason": "学生在做差分测试时发现旧实现只累计指数的前四位数字，1e00005 被读成 1、1.5e00003 被读成 1.5，并且自己判断这属于正确性优先而不是性能问题：客户端不会发这种字面量，但隐藏用例可能会，而且它会改数值。修复后用同机对拍把旧值和新值并排列出，再用差分测试确认修复没有破坏其它输入的逐位等价。这条修复顺带把一类边界输入从「接受但数值错误」变成「按 float32 范围拒绝」：旧实现把 1e00040 读成 10000 并接受，修复后按字面指数得到 1e40，超出 float32 范围，于是拒绝这个向量元素，与单元测试里的参考实现一致。这是朝规格走的有意变化，不是回归，客户端不会发这种字面量但隐藏用例可能会。"
     },
     {
       "id": "U36",
@@ -1695,15 +1725,15 @@
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
       "counted_in_score": true,
-      "supporting_evidence": ["R40", "R43"],
+      "supporting_evidence": ["R40", "R48"],
       "lifecycle": {
         "prediction": "/conversations/51/content",
         "raw_result": "/experiments/39/output",
         "interpretation_or_correction": "/conversations/51/content",
-        "new_scenario": "/experiments/42/output",
+        "new_scenario": "/experiments/47/output",
         "limitation": "/conversations/56/content"
       },
-      "reason": "学生先用 profile 指出词法器逐字节找闭引号占了写路径的一成多，再说明为什么不能简单换成一次 IndexByte：有转义时必须走慢路径做 MySQL 转义解码，所以要用两次向量化扫描分别定位闭引号和反斜杠。实现之后把旧实现留在测试里当 oracle，用随机对拍确认新实现在取值、结束偏移和错误文本上逐字一致。这一族讲的是词法层的语义约束，与 U33 的数值转换、U34 的随机差分分别独立。"
+      "reason": "学生先用 profile 指出词法器逐字节找闭引号占了写路径的一成多，再说明为什么不能简单换成一次 IndexByte：有转义时必须走慢路径做 MySQL 转义解码，所以要用两次向量化扫描分别定位闭引号和反斜杠。实现之后把旧实现留在测试里当 oracle，用 20 万条随机字面量对拍，确认新实现在取值、结束偏移和错误文本上逐字一致。这一族讲的是词法层的语义约束，与 U33 的数值转换、U34 的随机差分分别独立。"
     }
   ],
   "rubric_coverage": {
@@ -1722,12 +1752,12 @@
     {
       "id": "A02",
       "source": "agent",
-      "content": "性能冲刺在 perf/sprint3 上做 9 个提交，提测分支 2026-competition-round2-perf 与优化线同一 commit；已提测的 2026-competition-round2 仍指向 b410e23，未做任何改动。"
+      "content": "性能冲刺的代码与材料都在 perf/sprint3 上：第一轮 9 个提交（到 b410e23 为止），第二轮在此之上继续优化并补材料；提测分支 2026-competition-round2-perf 与优化线指向同一 commit；已提测的 2026-competition-round2 仍指向 b410e23ac01bcbf1df342faa6030034ab1d05e6c，未做任何改动。"
     },
     {
       "id": "A03",
       "source": "agent",
-      "content": "性能冲刺阶段的实验由 Agent/工具执行：CI 实验室 run 42986700402 / 42995117316 / 43006692672、进程内阶段计时、cgroup 内存成分采样、flush 阈值对照、10 万行规模实验、写入路径 CPU profile、位级差分测试、官方题包与 kill -9 复验；学生侧产出的是预测、结果解读、修正与局限。"
+      "content": "性能冲刺阶段的实验由 Agent/工具执行：CI 实验室 run 42986700402 / 42995117316 / 43006692672 / 43008218446、进程内阶段计时、cgroup 内存成分采样、flush 阈值对照、10 万行规模实验、写入路径 CPU profile、位级差分测试、官方题包与 kill -9 复验；学生侧产出的是预测、结果解读、修正与局限。"
     },
     {
       "id": "A04",
@@ -1748,11 +1778,12 @@
   "limitations": [
     "R01-R08 中多个结果来自不同历史 commit/worktree，不能拼成当前实现的单一 benchmark；本轮新增结果单独成链，不与历史数字相加。",
     "历史线程里的 macOS arm64 的 RSS、load average 和进程 kill 结果仍不能替代 Linux cgroup memory.peak；本轮已经补上 Linux 正式口径，但 CI 机器是 4 vCPU 的 AMD EPYC 7763，与平台评测机不是同一台。",
-    "实验室这一侧也有跑批噪声：同一批提交在不同 run 里 b410e23 的 E 比值在 0.6276~0.6444 之间，ΔR 因此在 0.0243~0.0297 之间；本文件引用任何一次 run 的数字时都按区间给，不按点值给。",
+    "实验室这一侧也有跑批噪声：同一批提交在不同 run 里 b410e23 的 E 比值在 0.6276~0.6444 之间，第一轮两个 run 的 ΔR 因此在 0.0243~0.0297 之间；第二轮两个 run 的 ΔR（相对 b410e23）是 0.0309 与 0.0358，其中第二轮改动相对第一轮头的增量是 0.0156 与 0.0104，与第一轮同一量级，说明实验室噪声和改动量级可比；本文件引用任何一次 run 的数字时都按区间给，不按点值给。",
     "10 万行规模实验只跑了一个规模点（100000 行 × 50 查询），没有做规模曲线；flush 阈值对照实验只跑了 1 万行；十进制解析的位级等价性已经补上 300 万条随机字面量、位数全组合和指数区间扫描，但这些扫描只覆盖 ASCII 形式，没有枚举全部十进制串，也没有在平台评测机上重跑。",
     "平台 Prompt 评分包含一道未公开的有效性抽检：同一个 commit、逐字节相同的材料出现过一次无效、两次 11.0/11.5；本文件能解释分数的量级来源，但无法解释无效的成因，也不能保证改写材料后一定被判为有效。",
     "本轮性能冲刺的实验由 Agent/工具执行；本文件只把学生的预测、解读、修正和局限记为学习证据，工具输出本身只作为 result_evidence，不自动提升为学生理解。",
     "本地实验室（WSL2）每个请求的地板约 1 毫秒，比 CI 实验室的 0.19 毫秒高五倍，本地查询相的绝对时间不能用于跨机器比较；所有性能结论只引用 CI 同一帧的比值，本地数字只作同机相对参考。",
-    "第二轮的收益集中在写入相的字面量处理：查询相只看到 floor_samesize 从 0.203 降到 0.185，整体 query T 只动了千分之四，还在实验室噪声以内，所以不能声称查询相整体变快了。"
+    "第二轮的收益集中在写入相的字面量处理：最终一帧（run 43008218446）写入相从 0.353 秒降到 0.294 秒（-17%），上一帧同一改动是 -27%，两帧机器快慢不同，只可比同帧比值；查询相只看到 floor_samesize 从 0.254 秒降到 0.230 秒，整体 query T 从 0.472 秒降到 0.456 秒（-3.4%），仍在实验室噪声以内，所以不能声称查询相整体变快了。",
+    "第二轮的指数修复把一类边界输入从「接受但数值错误」变成「按 float32 范围拒绝」：旧实现把 1e00040 读成 10000 并接受，新实现按字面指数得到 1e40，超出 float32 范围所以拒绝这个向量元素，与单元测试里的参考实现一致。客户端不会发这种字面量，隐藏用例可能会，所以这条行为变化是朝规格走的方向，但它确实是一次接受性的变化，这里明确写出来。"
   ]
 }
