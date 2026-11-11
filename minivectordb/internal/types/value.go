@@ -4,6 +4,7 @@ package types
 import (
 	"encoding/binary"
 	"math"
+	"math/bits"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -102,6 +103,21 @@ const maxFastMant = 900719925474098
 // without overflowing its uint64 accumulator.
 const maxFastDigits = 19
 
+// pow5 holds the powers of five that fit in a uint64. 5^28 is the first one
+// that does not.
+var pow5 = [...]uint64{
+	1, 5, 25, 125, 625, 3125, 15625, 78125, 390625, 1953125,
+	9765625, 48828125, 244140625, 1220703125, 6103515625, 30517578125,
+	152587890625, 762939453125, 3814697265625, 19073486328125,
+	95367431640625, 476837158203125, 2384185791015625, 11920928955078125,
+	59604644775390625, 298023223876953125, 1490116119384765625,
+	7450580596923828125,
+}
+
+// smallestNormal is the smallest positive normal float64, 2^-1022. Values
+// below it are subnormal and are left to strconv.
+const smallestNormal = 2.2250738585072014e-308
+
 // parseFloatFast parses a plain decimal literal in one pass and returns the
 // very same float64 that strconv.ParseFloat would return.
 //
@@ -180,9 +196,12 @@ func parseFloatFast(s string) (float64, bool) {
 		}
 		expDigits := 0
 		for i < n && s[i] >= '0' && s[i] <= '9' {
-			if expDigits < 4 {
-				exp = exp*10 + int(s[i]-'0')
+			if expDigits >= 9 {
+				// The exponent is far outside any range the conversion
+				// below can use. Leave it to strconv.
+				return 0, false
 			}
+			exp = exp*10 + int(s[i]-'0')
 			expDigits++
 			i++
 		}
@@ -200,26 +219,147 @@ func parseFloatFast(s string) (float64, bool) {
 		// The accumulator may have wrapped; the value is not exact anyway.
 		return 0, false
 	}
-	if mant > maxFastMant*10+9 {
-		// More than 53 bits of significand: float64(mant) would round.
-		return 0, false
-	}
 	k := exp - fracDigits
-	if k < -22 || k > 22 {
+	f, ok := decimalToFloat(mant, k)
+	if !ok {
 		return 0, false
-	}
-	f := float64(mant)
-	switch {
-	case k == 0:
-	case k > 0:
-		f *= pow10[k]
-	default:
-		f /= pow10[-k]
 	}
 	if neg {
 		f = -f
 	}
 	return f, true
+}
+
+// decimalToFloat converts the decimal value mant*10^k to the float64 that is
+// nearest to it.
+//
+// Two paths are used. The cheap one applies when the mantissa is exactly
+// representable in float64 and the power of ten is exact as well: a single
+// IEEE multiplication or division then produces the correctly rounded result.
+// The exact path handles the longer mantissas the workload uses: it divides
+// the scaled numerator by the power of five with one 128/64 division and
+// rounds the quotient to a 53 bit significand. Both apply the rounding rule
+// strconv applies, so both give the same bits.
+//
+// It reports ok=false when the value cannot be carried out exactly.
+func decimalToFloat(mant uint64, k int) (float64, bool) {
+	if mant == 0 {
+		return 0, true
+	}
+	if mant <= maxFastMant*10+9 && k >= -22 && k <= 22 {
+		f := float64(mant)
+		switch {
+		case k == 0:
+		case k > 0:
+			f *= pow10[k]
+		default:
+			f /= pow10[-k]
+		}
+		return f, true
+	}
+	return decimalExact(mant, k)
+}
+
+// decimalExact converts mant*10^k to the nearest float64 with a single
+// 128/64 division.
+//
+// The decimal value is mant * 2^k / 5^k. The numerator is scaled so that the
+// quotient carries 54 bits, which leaves one bit of head room for the
+// rounding decision, and the quotient is then rounded to a 53 bit
+// significand with the round-to-nearest-even rule that strconv uses. The
+// result is therefore bit-identical to strconv.ParseFloat.
+//
+// It reports ok=false for every input it cannot prove to be exact: a power
+// of five that does not fit in a uint64, a quotient that does not carry 54
+// bits, or a result outside the normal float64 range.
+func decimalExact(mant uint64, k int) (float64, bool) {
+	if k > 0 {
+		// mant * 10^k = (mant * 5^k) * 2^k. Scaling by a power of two is
+		// exact, so rounding the integer product once rounds the whole value.
+		if k >= len(pow5) {
+			return 0, false
+		}
+		p := mant
+		for i := 0; i < k; i++ {
+			hi, lo := bits.Mul64(p, 5)
+			if hi != 0 {
+				return 0, false
+			}
+			p = lo
+		}
+		f := math.Ldexp(float64(p), k)
+		if f == 0 || math.IsInf(f, 0) || math.Abs(f) < smallestNormal {
+			return 0, false
+		}
+		return f, true
+	}
+	kk := -k
+	if kk >= len(pow5) {
+		return 0, false
+	}
+	d := pow5[kk]
+	// Scale the numerator so that the quotient carries 54 bits: 53 bits of
+	// significand plus the bit that decides the rounding.
+	s := 54 + bits.Len64(d) - bits.Len64(mant)
+	if s < 0 {
+		return 0, false
+	}
+	var hi, lo uint64
+	if s >= 64 {
+		hi = mant << (s - 64)
+		lo = 0
+	} else {
+		hi = mant >> (64 - s)
+		lo = mant << s
+	}
+	if hi >= d {
+		return 0, false
+	}
+	q, r := bits.Div64(hi, lo, d)
+	shift := bits.Len64(q) - 53
+	if shift < 0 {
+		return 0, false
+	}
+	var sig uint64
+	var up bool
+	if shift == 0 {
+		// Only the remainder is dropped: compare it with a half.
+		switch {
+		case 2*r > d:
+			up = true
+		case 2*r == d:
+			up = q&1 == 1
+		}
+		sig = q
+	} else {
+		drop := q & (1<<shift - 1)
+		half := uint64(1) << (shift - 1)
+		switch {
+		case drop > half:
+			up = true
+		case drop == half:
+			if r != 0 {
+				up = true
+			} else {
+				// Exactly half: round to even.
+				up = q>>shift&1 == 1
+			}
+		}
+		sig = q >> shift
+	}
+	if up {
+		sig++
+	}
+	exp := -(s + kk) + shift
+	if sig == 1<<53 {
+		sig >>= 1
+		exp++
+	}
+	e := exp + 52
+	if e < -1022 || e > 1023 {
+		return 0, false
+	}
+	return math.Float64frombits(uint64(e+1023)<<52 | (sig & (1<<52 - 1))), true
 }
 
 // le64 reads the eight bytes of s starting at i as a little-endian word.
