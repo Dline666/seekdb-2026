@@ -164,6 +164,7 @@ def run_query(image, batches, qs, ref):
         for b in batches:
             db.req(b)
         db.req(qs[0][2])  # warm-up
+        s_pre = db.stats()
         t0 = time.perf_counter()
         res = []
         tpart = {"unf": 0.0, "fil": 0.0}
@@ -200,6 +201,7 @@ def run_query(image, batches, qs, ref):
             if abs(row[1] - x ** 0.5) > 1e-5 * max(1, x ** 0.5):
                 bad_dist += 1
     return {"T_s": t, "B_mib": s["io_mib"], "M_mib": s["mem_peak_mib"], "rbytes": s["rbytes"], "wbytes": s["wbytes"],
+            "M_before_queries_mib": s_pre["mem_peak_mib"],
             "T_unf_s": tpart["unf"], "T_fil_s": tpart["fil"], "floor_samesize_s": tfloor, "floor_ping_s": tping,
             "recall_unf": sum(rec["unf"]) / len(rec["unf"]), "recall_fil": sum(rec["fil"]) / len(rec["fil"]),
             "order_mismatch": bad_order, "dist_mismatch": bad_dist}

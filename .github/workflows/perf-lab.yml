@@ -46,7 +46,7 @@ jobs:
           for c in $(cat lab/commits.txt); do
             echo "== $c" | tee -a profile.txt
             docker run --rm --cpus=2 -e MVDB_PHASES=1 -v "$RUNNER_TEMP/src-$c/minivectordb":/src -w /src golang:1.22 sh -c '
-              go test ./internal/engine -run "TestPhaseBreakdown|TestWritePhases" -count=1 -v 2>&1 | grep PHASES
+              go test ./internal/engine -run "TestPhaseBreakdown|TestWritePhases|TestPrefilterBound|TestKernelPathsAgree" -count=1 -v 2>&1 | grep -E "PHASES|worst|PASS|FAIL|SKIP"
               go test ./internal/engine -run TestPhaseBreakdown -count=1 -cpuprofile /tmp/q.prof -o /tmp/e.test >/dev/null 2>&1
               go tool pprof -top -nodecount=30 /tmp/e.test /tmp/q.prof 2>/dev/null | sed -n 4,40p
               go test ./internal/engine -run TestWritePhases -count=1 -cpuprofile /tmp/w.prof -o /tmp/e.test >/dev/null 2>&1
