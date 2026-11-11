@@ -1,4 +1,4 @@
-== 2e0e78e6a941f910358f40c755b97786d8886065
+== b14f1f9afb73949a32372490d195715aad2f3d44
 Unable to find image 'golang:1.22' locally
 1.22: Pulling from library/golang
 a492eee5e559: Pulling fs layer
@@ -8,23 +8,21 @@ a492eee5e559: Pulling fs layer
 afa154b433c7: Pulling fs layer
 1451027d3c0e: Pulling fs layer
 4f4fb700ef54: Pulling fs layer
-afa154b433c7: Waiting
 3b7f19923e15: Waiting
+afa154b433c7: Waiting
 1451027d3c0e: Waiting
 4f4fb700ef54: Waiting
-32b550be6cb6: Verifying Checksum
 32b550be6cb6: Download complete
+a492eee5e559: Download complete
 35af2a7690f2: Verifying Checksum
 35af2a7690f2: Download complete
-a492eee5e559: Verifying Checksum
-a492eee5e559: Download complete
-1451027d3c0e: Verifying Checksum
 1451027d3c0e: Download complete
-4f4fb700ef54: Verifying Checksum
-4f4fb700ef54: Download complete
-3b7f19923e15: Download complete
 afa154b433c7: Verifying Checksum
 afa154b433c7: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+3b7f19923e15: Verifying Checksum
+3b7f19923e15: Download complete
 a492eee5e559: Pull complete
 32b550be6cb6: Pull complete
 35af2a7690f2: Pull complete
@@ -37,25 +35,12 @@ Status: Downloaded newer image for golang:1.22
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
 ?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	0.879s
-ok  	minivectordb/internal/proto	0.019s
-ok  	minivectordb/internal/sqlparse	0.002s
+ok  	minivectordb/internal/engine	0.907s
+ok  	minivectordb/internal/proto	0.023s
+ok  	minivectordb/internal/sqlparse	0.001s
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
 ?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	2.795s
-ok  	minivectordb/internal/proto	1.086s
-ok  	minivectordb/internal/sqlparse	1.015s
-== b14f1f9afb73949a32372490d195715aad2f3d44
-?   	minivectordb/cmd/minivectordb	[no test files]
-?   	minivectordb/internal/storage	[no test files]
-?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	0.827s
-ok  	minivectordb/internal/proto	0.017s
-ok  	minivectordb/internal/sqlparse	0.002s
-?   	minivectordb/cmd/minivectordb	[no test files]
-?   	minivectordb/internal/storage	[no test files]
-?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	2.847s
-ok  	minivectordb/internal/proto	1.078s
-ok  	minivectordb/internal/sqlparse	1.015s
+ok  	minivectordb/internal/engine	2.706s
+ok  	minivectordb/internal/proto	1.046s
+ok  	minivectordb/internal/sqlparse	1.009s

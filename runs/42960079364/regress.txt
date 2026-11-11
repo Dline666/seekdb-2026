@@ -1,0 +1,5 @@
+== b14f1f9afb73949a32372490d195715aad2f3d44
+protocol_check passed=True pass=20/20
+ok: 40 rounds, 29944 committed rows
+ok: 40 rounds, 38136 committed rows
+ok: 40 rounds, 34117 committed rows
