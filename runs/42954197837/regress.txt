@@ -1,0 +1,14 @@
+== 2e0e78e6a941f910358f40c755b97786d8886065
+transaction_autocommit_atomic: PASS 
+transaction_shutdown_rollback: PASS 
+Report: /home/runner/work/_temp/pc-2e0e78e6a941f910358f40c755b97786d8886065/result.json
+ok: 40 rounds, 37751 committed rows
+ok: 40 rounds, 33001 committed rows
+ok: 40 rounds, 35876 committed rows
+== b14f1f9afb73949a32372490d195715aad2f3d44
+transaction_autocommit_atomic: PASS 
+transaction_shutdown_rollback: PASS 
+Report: /home/runner/work/_temp/pc-b14f1f9afb73949a32372490d195715aad2f3d44/result.json
+ok: 40 rounds, 32492 committed rows
+ok: 40 rounds, 36862 committed rows
+ok: 40 rounds, 37762 committed rows
