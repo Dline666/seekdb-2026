@@ -12,6 +12,7 @@ afa154b433c7: Waiting
 3b7f19923e15: Waiting
 1451027d3c0e: Waiting
 4f4fb700ef54: Waiting
+32b550be6cb6: Verifying Checksum
 32b550be6cb6: Download complete
 a492eee5e559: Verifying Checksum
 a492eee5e559: Download complete
@@ -19,10 +20,10 @@ a492eee5e559: Download complete
 35af2a7690f2: Download complete
 1451027d3c0e: Verifying Checksum
 1451027d3c0e: Download complete
-4f4fb700ef54: Verifying Checksum
-4f4fb700ef54: Download complete
 3b7f19923e15: Verifying Checksum
 3b7f19923e15: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
 afa154b433c7: Verifying Checksum
 afa154b433c7: Download complete
 a492eee5e559: Pull complete
@@ -36,52 +37,43 @@ Digest: sha256:1cf6c45ba39db9fd6db16922041d074a63c935556a05c5ccb62d181034df7f02
 Status: Downloaded newer image for golang:1.22
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/sqlparse	[no test files]
-?   	minivectordb/internal/types	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	0.694s
-ok  	minivectordb/internal/proto	0.003s
+?   	minivectordb/internal/types	[no test files]
+ok  	minivectordb/internal/engine	0.822s
+ok  	minivectordb/internal/proto	0.002s
 ?   	minivectordb/cmd/minivectordb	[no test files]
-ok  	minivectordb/internal/engine	1.980s
+ok  	minivectordb/internal/engine	2.952s
 ?   	minivectordb/internal/sqlparse	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
 ?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/proto	1.013s
-== 0c6d0687de1e71188512b6ae59d239248e156ae9
-?   	minivectordb/cmd/minivectordb	[no test files]
-?   	minivectordb/internal/storage	[no test files]
-?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	0.717s
-ok  	minivectordb/internal/proto	0.011s
-ok  	minivectordb/internal/sqlparse	0.002s
-?   	minivectordb/cmd/minivectordb	[no test files]
-?   	minivectordb/internal/storage	[no test files]
-?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	2.606s
-ok  	minivectordb/internal/proto	1.014s
-ok  	minivectordb/internal/sqlparse	1.012s
+ok  	minivectordb/internal/proto	1.011s
 == b410e23ac01bcbf1df342faa6030034ab1d05e6c
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
 ?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	0.810s
-ok  	minivectordb/internal/proto	0.018s
-ok  	minivectordb/internal/sqlparse	0.002s
+ok  	minivectordb/internal/engine	0.733s
+ok  	minivectordb/internal/proto	0.014s
+ok  	minivectordb/internal/sqlparse	0.003s
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
 ?   	minivectordb/internal/types	[no test files]
-ok  	minivectordb/internal/engine	2.700s
-ok  	minivectordb/internal/proto	1.087s
-ok  	minivectordb/internal/sqlparse	1.012s
+ok  	minivectordb/internal/engine	2.739s
+ok  	minivectordb/internal/proto	1.057s
+ok  	minivectordb/internal/sqlparse	1.011s
 == 663ebf4aaf3629f1add8daf547226b4bf7d02502
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	0.865s
-ok  	minivectordb/internal/proto	0.016s
-ok  	minivectordb/internal/sqlparse	0.002s
-ok  	minivectordb/internal/types	0.080s
+ok  	minivectordb/internal/engine	0.910s
+ok  	minivectordb/internal/proto	0.011s
+ok  	minivectordb/internal/sqlparse	0.003s
+ok  	minivectordb/internal/types	0.055s
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	2.892s
-ok  	minivectordb/internal/proto	1.091s
-ok  	minivectordb/internal/sqlparse	1.023s
-ok  	minivectordb/internal/types	1.536s
+ok  	minivectordb/internal/engine	2.816s
+ok  	minivectordb/internal/proto	1.074s
+ok  	minivectordb/internal/sqlparse	1.014s
+ok  	minivectordb/internal/types	1.402s
+== efdb88ee7110ef3863f764bf576bf7e2ae68092e
+# minivectordb/internal/sqlparse
+# [minivectordb/internal/sqlparse]
+vet: internal/sqlparse/scanstring_test.go:97:14: gotErr.Msg undefined (type error has no field or method Msg)
