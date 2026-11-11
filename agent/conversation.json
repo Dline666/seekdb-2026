@@ -348,7 +348,7 @@
       "thread": "minimax-code",
       "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t39",
       "topic": "跨 commit A/B 的局限",
-      "content": "局限：这台 CI 机器是 4 vCPU 的 AMD EPYC 7763，平台 E 与实验室 E 只有 3 个锚点、拟合出来还是凹函数，外推到 3300~3500 有 ±3% 的平台噪声；cgroup memory.peak 和我本机 RSS 是两个口径，不能直接比；查询内存是 cgroup memory.peak 口径，和我本机 RSS 口径不能直接比。另外这次 A/B 只在官方 10k 行负载上做过，10 倍规模的行为是另一轮实验的事，不能直接外推。"
+      "content": "局限：这台 CI 机器是 4 vCPU 的 AMD EPYC 7763，平台 E 与实验室 E 只有 3 个锚点、拟合出来还是凹函数，外推到 3300~3500 有 ±3% 的平台噪声；cgroup memory.peak 和我本机 RSS 是两个口径，不能直接比。另外这次 A/B 只在官方 10k 行负载上做过，10 倍规模的行为是另一轮实验的事，不能直接外推。"
     },
     {
       "id": "M40",
