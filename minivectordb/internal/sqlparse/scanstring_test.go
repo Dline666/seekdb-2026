@@ -94,8 +94,13 @@ func TestScanStringMatchesReference(t *testing.T) {
 			t.Fatalf("%q: error mismatch: got %v want %v", src, gotErr, wantErr)
 		}
 		if gotErr != nil {
-			if gotErr.Msg != wantErr.Msg {
-				t.Fatalf("%q: error text mismatch: got %q want %q", src, gotErr.Msg, wantErr.Msg)
+			ge, gok := gotErr.(*Error)
+			we, wok := wantErr.(*Error)
+			if gok != wok {
+				t.Fatalf("%q: error type mismatch: got %T want %T", src, gotErr, wantErr)
+			}
+			if gok && ge.Msg != we.Msg {
+				t.Fatalf("%q: error text mismatch: got %q want %q", src, ge.Msg, we.Msg)
 			}
 			continue
 		}

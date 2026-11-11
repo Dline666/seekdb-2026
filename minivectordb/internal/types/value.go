@@ -39,14 +39,34 @@ func (v Value) Num() float64 {
 	return v.F
 }
 
+// trimSpace is strings.TrimSpace with an inlined fast path.
+//
+// The vector parser trims every element, and the elements of a client vector
+// carry no spaces at all, so the call and the scan are pure overhead. The
+// fast path fires only when both ends are plain ASCII, which is exactly the
+// case in which strings.TrimSpace returns the string unchanged: every ASCII
+// whitespace character is at most 0x20, and a byte below 0x80 means the rune
+// at that end is ASCII, so it cannot be one of the Unicode spaces either.
+// Everything else is left to strings.TrimSpace.
+func trimSpace(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	f, l := s[0], s[len(s)-1]
+	if f > ' ' && f < 0x80 && l > ' ' && l < 0x80 {
+		return s
+	}
+	return strings.TrimSpace(s)
+}
+
 // ParseVector parses '[a, b, ...]' into float32 values, rejecting NaN, Inf,
 // overflow and malformed numbers.
 func ParseVector(s string) ([]float32, *SQLError) {
-	t := strings.TrimSpace(s)
+	t := trimSpace(s)
 	if len(t) < 2 || t[0] != '[' || t[len(t)-1] != ']' {
 		return nil, ErrVectorFormat(s)
 	}
-	body := strings.TrimSpace(t[1 : len(t)-1])
+	body := trimSpace(t[1 : len(t)-1])
 	if body == "" {
 		return []float32{}, nil
 	}
@@ -58,11 +78,11 @@ func ParseVector(s string) ([]float32, *SQLError) {
 			part, body = body, ""
 		} else {
 			part, body = body[:i], body[i+1:]
-			if strings.TrimSpace(body) == "" {
+			if len(trimSpace(body)) == 0 {
 				return nil, ErrVectorFormat(s)
 			}
 		}
-		part = strings.TrimSpace(part)
+		part = trimSpace(part)
 		f, ok := parseFloatFast(part)
 		if !ok {
 			// Slow path: anything the single-pass scanner does not handle

@@ -302,12 +302,63 @@ func TestParseFloatFastMatchesStrconv(t *testing.T) {
 	}
 }
 
+// TestTrimSpaceMatchesStdlib checks the inlined fast path against
+// strings.TrimSpace. The vector parser trims every element, so a fast path
+// that is not exactly equivalent would change which literals are accepted.
+func TestTrimSpaceMatchesStdlib(t *testing.T) {
+	cases := []string{
+		"", " ", "  ", "\t", "\n", "\r", "\v", "\f", "a", " a", "a ", " a ",
+		"\u00a0", "\u00a0a", "a\u00a0", "a\u00a0 ", " \u00a0 ",
+		"\u3000", "a\u3000", "\u3000a", "a\u2003b", "1", "1.5", "-1e5",
+		"0.12345678901234567", " 0.12345678901234567 ",
+	}
+	for _, s := range cases {
+		if got, want := trimSpace(s), strings.TrimSpace(s); got != want {
+			t.Fatalf("trimSpace(%q) = %q, want %q", s, got, want)
+		}
+	}
+	rng := rand.New(rand.NewSource(4242))
+	alphabet := []rune{' ', '\t', '\n', '\r', '\v', '\f', 'a', '1', '.', 'e',
+		'-', '\u00a0', '\u2003', '\u3000', '\u2028'}
+	for i := 0; i < 100000; i++ {
+		n := rng.Intn(8)
+		b := make([]rune, n)
+		for j := range b {
+			b[j] = alphabet[rng.Intn(len(alphabet))]
+		}
+		s := string(b)
+		if got, want := trimSpace(s), strings.TrimSpace(s); got != want {
+			t.Fatalf("trimSpace(%q) = %q, want %q", s, got, want)
+		}
+	}
+}
+
 // BenchmarkParseVector measures literal parsing alone.
 func BenchmarkParseVector(b *testing.B) {
 	rng := rand.New(rand.NewSource(3))
 	lit := make([]string, 128)
 	for i := range lit {
 		lit[i] = fmt.Sprintf("%v", float32(rng.NormFloat64()))
+	}
+	s := "[" + strings.Join(lit, ",") + "]"
+	b.SetBytes(int64(len(s)))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		v, err := ParseVector(s)
+		if err != nil || len(v) != 128 {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkParseVectorWorkload measures the literal shape the benchmark
+// client sends: a float32 widened to float64 and printed with the shortest
+// decimal that round trips, which is up to 17 significant digits.
+func BenchmarkParseVectorWorkload(b *testing.B) {
+	rng := rand.New(rand.NewSource(3))
+	lit := make([]string, 128)
+	for i := range lit {
+		lit[i] = strconv.FormatFloat(float64(float32(rng.NormFloat64())), 'f', -1, 64)
 	}
 	s := "[" + strings.Join(lit, ",") + "]"
 	b.SetBytes(int64(len(s)))
