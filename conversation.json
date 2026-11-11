@@ -104,6 +104,11 @@
       "source": "agent",
       "after": "U8",
       "content": "Read the 11 submission records and found that the prompt score tracks the sum of score_ceiling over the counted evidence units (11 units summed to 12.5, the platform returned 11.0 and 11.5). Rewrote the materials accordingly: six complete five-stage chains added, the missing lifecycle stages of the older units filled in with real artefacts, stale limitations corrected, and the submission branch and commit written into the material."
+    },
+    {
+      "id": "C11",
+      "source": "agent",
+      "content": "The three historical submissions that already carry a platform E score (89f6d54, 0c6d068, b410e23) were measured again in one lab run together with the submission head, so the platform scale could be calibrated instead of guessed. The lab E ratio went up 1.278x from 89f6d54 to b410e23 while the platform score went up 1.775x, so the two are not proportional."
     }
   ],
   "experiments": [
@@ -219,6 +224,16 @@
       "output": "平台提测记录（11 次，原始分实读）\n| # | 时间 | Branch | Commit | MySQL 用例 | 性能原始分 E | Prompt 原始分 |\n| 1 | 11-11 13:40 | 2026-competition-round2 | b410e23 | 通过 | 3151.765422 | 无效 |\n| 2 | 11-11 00:46 | 2026-competition-round2 | 0c6d068 | 通过 | 2533.296083 | 无效 |\n| 3 | 11-10 19:07 | private/2026-competition-round2 | a97f6c42 | 执行失败 | 无 | 无 |\n| 4 | 11-10 19:06 | 2026-competition-round2-test | 89f6d54 | 通过 | 1775.591344 | 11.5 |\n| 5 | 11-10 18:25 | 2026-competition-round2 | 89f6d54 | 通过 | 1743.649886 | 11.0 |\n| 6 | 11-10 13:22 | 2026-competition-round2 | 89f6d54 | 通过 | 1806.946812 | 无效 |\n| 7 | 11-10 12:05 | 2026-competition-round2-other | 76683d21 | 失败 | 无 | 无 |\n| 8 | 11-09 23:31 | 2026-competition-round2 | 3f8aa609 | 失败 | 无 | 无 |\n| 9 | 11-09 22:52 | 2026-competition-round2 | 6a7a1f1f | 失败 | 无 | 无 |\n| 10 | 11-09 19:53 | 2026-competition-round2 | 00811df2 | 失败 | 无 | 无 |\n| 11 | 11-09 19:28 | 2026-competition-round2 | 683c1150 | 执行失败 | 无 | 无 |\n同一 commit 89f6d54 的三个 conversation.json blob 逐字节相同，三次提测 prompt 结果为 无效 / 11.0 / 11.5\n材料侧：counted_in_score=true 的单元 11 个，score_ceiling 合计 12.5",
       "interpretation_source": "student",
       "interpretation": "The counted units summed to 12.5 and the platform returned 11.0 and 11.5 for material whose blobs were byte identical, so the score tracks the ceiling sum and there is also an unpublished validity check. The conclusion is a magnitude, not a formula."
+    },
+    {
+      "id": "E12",
+      "source": "tool",
+      "hypothesis": "The platform E score can be predicted from the lab E ratio by calibrating the three submissions that already have a platform score.",
+      "command": "cd perf-lab && git push origin HEAD:refs/heads/ci/perf-lab   # lab/commits.txt = 89f6d54, 0c6d068, b410e23, 663ebf4a",
+      "output": "run=42995117316  env=Linux x86_64 (Azure runner), cgroup v2, 官方题包驱动, 每 commit 3 轮取中位数\n| commit | rounds | write T s | write M MiB | query T s | query M MiB | recall unf/fil | order/dist bad | E vs first | 平台 E（历史提测实读） |\n| 89f6d54 | 3 | 0.602 | 12.5 | 1.455 | 21.9 | 1.000/1.000 | 0/0 | 0.5000 | 1775.591344 |\n| 0c6d068 | 3 | 0.527 | 10.5 | 0.801 | 18.5 | 1.000/1.000 | 0/0 | 0.5727 | 2533.296083 |\n| b410e23 | 3 | 0.395 | 10.7 | 0.422 | 18.2 | 1.000/1.000 | 0/0 | 0.6389 | 3151.765422 |\n| 663ebf4 | 3 | 0.323 | 10.3 | 0.428 | 10.8 | 1.000/1.000 | 0/0 | 0.6632 | （本次待测） |",
+      "interpretation_source": "student",
+      "interpretation": "Three models agree to within two points: a quadratic through the three anchors gives 3377.7, the local slope at b410e23 gives 3379.9 and the secant slope gives 3378.7, so the platform E of the submission head is 3370-3390. The single-factor model, where the platform base is a multiple of the lab base, is rejected: its residuals on the three anchors are +16.9%, -1.2% and -5.9%, which says the platform machine profile is not the lab one.",
+      "retest_output": "An earlier independent run (42986700402) gives dR = 0.0297 against 0.0243 here, which puts the estimate at 3379-3429 and quantifies the run-to-run noise."
     }
   ],
   "planned_student_work": [
@@ -251,10 +266,12 @@
     }
   ],
   "limitations": [
-    "E1-E5 are from macOS arm64 and stay reference only; E6-E11 are from Linux x86_64 with cgroup v2 and the official driver. The two groups are not combined into a single benchmark.",
+    "E1-E5 are from macOS arm64 and stay reference only; E6-E12 are from Linux x86_64 with cgroup v2 and the official driver. The two groups are not combined into a single benchmark.",
     "The official driver is now exercised: the protocol_check handshake and the 20 public cases pass unchanged on Linux. The framing is still only as good as the public driver, so hidden cases may differ.",
+    "The platform E scale is reverse-engineered, not published. Only three historical submissions carry a real platform score; fitting them puts the submission head at 3370-3390, and the single-factor model is rejected with residuals of +16.9% / -1.2% / -5.9% on the anchors, so it can only serve as a pessimistic bound.",
     "The platform prompt score contains an unpublished validity check: the same commit with byte identical material was once rejected and twice scored 11.0 and 11.5. The magnitude of the score can be explained from the material, the rejection cannot.",
     "The platform E value has about 3% of noise: the same commit measured 1806.946812 / 1743.649886 / 1775.591344 over three submissions, a spread of 3.5%. Any single E must be read with that in mind.",
+    "The lab has its own run-to-run noise: the E ratio of b410e23 sits between 0.6276 and 0.6444 across runs, so dR is between 0.0243 and 0.0297 and the platform estimate between 3379 and 3429.",
     "The scale experiment has a single point (100000 rows x 50 queries), so it is not a scaling curve; the flush threshold control ran at 10000 rows only; the decimal parser equivalence is covered by fixed unit test cases and the 10000-row public dataset, not by fuzzing.",
     "The performance sprint experiments were executed by the Agent and the CI lab. The student's contribution in this record is the predictions, the interpretations of the raw output, the corrections and the limitations; the tool output is only result evidence."
   ]

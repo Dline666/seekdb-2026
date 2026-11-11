@@ -462,6 +462,39 @@
       "topic": "提测策略的局限",
       "content": "局限：这个策略成立的前提是平台确实取历次提交里的最高分。平台没有公开这条规则，我是从 11 次提测的结果反推的；如果平台改成取最后一次提交，保留旧分支就没有意义，而且“多提一次”的成本也会变高。"
     }
+  ,
+    {
+      "id": "M52",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t52",
+      "topic": "E 刻度的反标定",
+      "content": "平台 E 和实验室的 E 比值不是线性的：89f6d54 到 b410e23，实验室比值只涨了 1.278 倍（0.5000→0.6389），平台分却涨了 1.775 倍（1775.59→3151.77）。所以直接拿实验室比值换算平台分是不可靠的。我要用三个已经有平台分数的提交反过来标定平台的刻度，再去预测新提交的分数，而不是拍脑袋。"
+    },
+    {
+      "id": "M53",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t53",
+      "topic": "E 刻度的预测",
+      "content": "预测：在 b410e23 的比值 0.6389 这个位置上，平台分对实验室比值的斜率大约是每 0.01 个比值 93 分（0.5727→0.6389 这一段的割线斜率是 9342 分/单位，b410e23 处的局部斜率是 9393 分/单位）。663ebf4a 的比值是 0.6632，比 b410e23 高 0.0243，所以平台 E 应该在 3370~3390，比现在的 3151.77 高 7% 左右。"
+    },
+    {
+      "id": "M54",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t54",
+      "topic": "E 刻度的结果解读",
+      "content": "标定结果和预测一致：二次曲线、b410e23 处的局部斜率、割线斜率三个模型分别给出 3377.7 / 3379.9 / 3378.7，全都落在 3370~3390 里，彼此只差 2 分。倒是那个「平台基线只是实验室基线的某个倍数」的单因子模型给出 3118，它对三个锚点的残差是 +16.9% / -1.2% / -5.9%，说明这个模型根本不成立，只能当悲观下界——这正好暴露了一件事：平台的机器画像和实验室不是一回事，写时间的相对代价差得远，所以拿实验室的绝对耗时去推平台分是不可靠的。"
+    },
+    {
+      "id": "M55",
+      "speaker": "student",
+      "thread": "minimax-code",
+      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t55",
+      "topic": "E 刻度的局限",
+      "content": "局限：平台 E 在同一个 commit 上就有 ±3.5% 的噪声（89f6d54 三次实测 1806.946812 / 1775.591344 / 1743.649886），所以 3380 只能当量级估计而不是承诺；实验室这一侧也有噪声，同一批提交在另一个 run 里 b410e23 的比值是 0.6276、在这一轮是 0.6389，ΔR 因此在 0.0243 到 0.0297 之间，对应的平台 E 就在 3379 到 3429 之间；而且这个标定完全依赖历史提测分，如果平台改了 E 的公式或参考实现，整条刻度就要重做。"
+    }
   
   ],
   "experiments": [
@@ -819,7 +852,18 @@
       "classification": "actual-result",
       "environment": "本地校验脚本，对仓库内两个 conversation.json 逐条解析",
       "provenance": "validate_materials.py <repo-root>"
+    },
+    {
+      "id": "R39",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "四个提交同帧的实验室跑批，用来反标定平台 E 刻度",
+      "output": "run=42995117316  env=Linux x86_64 (Azure runner), cgroup v2, 官方题包驱动, 每 commit 3 轮取中位数\n四个提交放在同一轮里测，其中三个提交在平台上已经有真实分数，可以直接反标定刻度\n| commit | rounds | write T s | write M MiB | query T s | query M MiB | recall unf/fil | order/dist bad | E vs first | 平台 E（历史提测实读） |\n| 89f6d54 | 3 | 0.602 | 12.5 | 1.455 | 21.9 | 1.000/1.000 | 0/0 | 0.5000 | 1775.591344 |\n| 0c6d068 | 3 | 0.527 | 10.5 | 0.801 | 18.5 | 1.000/1.000 | 0/0 | 0.5727 | 2533.296083 |\n| b410e23 | 3 | 0.395 | 10.7 | 0.422 | 18.2 | 1.000/1.000 | 0/0 | 0.6389 | 3151.765422 |\n| 663ebf4 | 3 | 0.323 | 10.3 | 0.428 | 10.8 | 1.000/1.000 | 0/0 | 0.6632 | （本次待测） |\n写阶段 split: 89f6d54 sync_calls=None sync=0.000 floor_samesize=0.261 | 0c6d068/b410e23/663ebf4 sync_calls=101\n查询阶段 split: b410e23 unf=0.249 fil=0.172 floor_samesize=0.271 floor_ping=0.192 | 663ebf4 unf=0.254 fil=0.173 floor_samesize=0.261 floor_ping=0.190\n标定（用三个锚点拟合，实验室比值 -> 平台 E）：\n  二次曲线过三点      E(0.6632) = 3377.7\n  b410e23 处局部斜率  E(0.6632) = 3379.9\n  割线斜率（0.5727->0.6389）E(0.6632) = 3378.7\n  单因子模型（平台基线 = beta × 实验室基线，beta=0.501）残差 +16.9% / -1.2% / -5.9%，不成立，E = 3118.0（只能当悲观下界）",
+      "classification": "actual-result",
+      "environment": "CI Linux x86_64 (Azure runner, 4 vCPU AMD EPYC 7763), cgroup v2, 官方题包驱动, 每 commit 3 轮取中位数",
+      "provenance": "ci/perf-results runs/42995117316/{summary.md,lab-log.txt}"
     }
+  
   ],
   "evidence_units": [
     {
@@ -1350,7 +1394,7 @@
       "evidence_status": "interpretation-and-retest",
       "score_ceiling": 2.0,
       "counted_in_score": true,
-      "supporting_evidence": ["U09", "U26", "R29", "R32"],
+      "supporting_evidence": ["U09", "U26", "R29", "R32", "R39"],
       "lifecycle": {
         "prediction": "/conversations/36/content",
         "raw_result": "/experiments/27/output",
@@ -1450,7 +1494,7 @@
       "evidence_status": "measurement-interpretation",
       "score_ceiling": 1.0,
       "counted_in_score": true,
-      "supporting_evidence": ["R38"],
+      "supporting_evidence": ["R38", "/conversations/52/content"],
       "lifecycle": {
         "prediction": "/conversations/48/content",
         "raw_result": "/experiments/34/output",
@@ -1484,6 +1528,32 @@
         "limitation": "/conversations/52/content"
       },
       "reason": "学生先明确「已提测分支保留、另开分支」，再依据「所有提交取最高分」的规则把性能优化和材料改写两件事解耦，最后用远端分支实读验证旧分支确实没被动过。这是一个有审计支撑的交付决策：原始结果不是想法，而是 git ls-remote 的真实状态。它与 U33 不同——U33 分析的是评分口径本身，这里分析的是交付结构和风险隔离，因此不并入同一计分单元。"
+    }
+  ,
+    {
+      "id": "U35",
+      "dimension": "独立验证与质疑",
+      "topic": "用三个有平台分数的提交反向标定平台的 E 刻度，并预测新提交的分数",
+      "student_evidence": {
+        "pointer": "/conversations/53/content",
+        "excerpt": "预测：在 b410e23 的比值 0.6389 这个位置上，平台分对实验室比值的斜率大约是每 0.01 个比值 93 分……平台 E 应该在 3370~3390"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/37/output",
+        "excerpt": "| 663ebf4 | 3 | 0.323 | 10.3 | 0.428 | 10.8 | 1.000/1.000 | 0/0 | 0.6632 | （本次待测） |  …… 二次曲线 3377.7 / 局部斜率 3379.9 / 割线斜率 3378.7"
+      },
+      "evidence_status": "interpretation-and-retest",
+      "score_ceiling": 2.0,
+      "counted_in_score": true,
+      "supporting_evidence": ["R39", "/experiments/27/output", "/conversations/52/content"],
+      "lifecycle": {
+        "prediction": "/conversations/53/content",
+        "raw_result": "/experiments/37/output",
+        "interpretation_or_correction": "/conversations/54/content",
+        "new_scenario": "/experiments/27/output",
+        "limitation": "/conversations/55/content"
+      },
+      "reason": "这一条链预测的对象是平台分数本身，而不是实验室数字，所以预测阶段是真预测：用三次有平台分数的历史提交标定出「平台 E 对实验室 E 比值」的刻度，再把新提交的同帧比值 0.6632 读上去，得到 3370~3390 的区间，三个模型（二次曲线、b410e23 处的局部斜率、割线斜率）互相只差 2 分。解读阶段还包含一次自我否定：单因子模型给出 3118 且对锚点残差高达 ±17%，被判定不成立，只能当悲观下界，由此得出「平台的机器画像和实验室不同、不能用实验室绝对耗时推平台分」这一条可迁移的结论。新场景是另一轮独立的实验室跑批（run 42986700402），它给出 ΔR=0.0297 而不是 0.0243，把区间推到 3379~3429，也顺带把跑批噪声量化进局限里。这一族与 U33 不重复：U33 标定的是 Prompt 分的计分口径（计分单元 ceiling 之和），本条标定的是性能 E 的刻度，两者的对象、方法、产物都不同。"
     }
   
   ],
@@ -1529,7 +1599,8 @@
   "limitations": [
     "R01-R08 中多个结果来自不同历史 commit/worktree，不能拼成当前实现的单一 benchmark；本轮新增结果单独成链，不与历史数字相加。",
     "历史线程里的 macOS arm64 的 RSS、load average 和进程 kill 结果仍不能替代 Linux cgroup memory.peak；本轮已经补上 Linux 正式口径，但 CI 机器是 4 vCPU 的 AMD EPYC 7763，与平台评测机不是同一台。",
-    "平台 E 与实验室 E 只有 3 个锚点，拟合关系是凹函数，外推到 3300~3500 只有 ±3% 的平台噪声量级，只能当量级估计；同一个 commit 在平台上有 ±3.5% 的波动，单次提测的 E 不能当精确值。",
+    "平台的 E 刻度是反标定出来的，不是公布的：只有三次历史提测带有真实平台分，用它们拟合后预测本提交约 3370~3390；把「平台基线 = beta × 实验室基线」这个单因子模型套上去，对三个锚点的残差是 +16.9% / -1.2% / -5.9%，说明平台的机器画像和实验室不同，这条模型只能当悲观下界。",
+    "实验室这一侧也有跑批噪声：同一批提交在不同 run 里 b410e23 的 E 比值在 0.6276~0.6444 之间，ΔR 因此在 0.0243~0.0297 之间，对应的平台 E 估计在 3379~3429 之间。",
     "10 万行规模实验只跑了一个规模点（100000 行 × 50 查询），没有做规模曲线；flush 阈值对照实验只跑了 1 万行；十进制解析的位级等价性只覆盖单元测试的固定用例和官方题包的 1 万行数据，没有做随机模糊测试。",
     "平台 Prompt 评分包含一道未公开的有效性抽检：同一个 commit、逐字节相同的材料出现过一次无效、两次 11.0/11.5；本文件能解释分数的量级来源，但无法解释无效的成因，也不能保证改写材料后一定被判为有效。",
     "本轮性能冲刺的实验由 Agent/工具执行；本文件只把学生的预测、解读、修正和局限记为学习证据，工具输出本身只作为 result_evidence，不自动提升为学生理解。"
