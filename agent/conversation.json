@@ -5,7 +5,7 @@
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-perf",
-    "submission_commit": "663ebf4aaf3629f1add8daf547226b4bf7d02502",
+    "submission_commit": "code baseline 663ebf4aaf3629f1add8daf547226b4bf7d02502; this material is committed on top of it, materials only, no code change",
     "baseline_branch_kept_untouched": "2026-competition-round2 @ b410e23ac01bcbf1df342faa6030034ab1d05e6c",
     "source_threads": [
       {
@@ -804,7 +804,7 @@
       "source": "tool-output-as-quoted-in-thread",
       "thread": "minimax-code",
       "topic": "提测分支状态与优化提交序列",
-      "output": "$ git ls-remote origin refs/heads/2026-competition-round2 refs/heads/2026-competition-round2-perf refs/heads/perf/sprint3\nb410e23ac01bcbf1df342faa6030034ab1d05e6c  refs/heads/2026-competition-round2\n663ebf4aaf3629f1add8daf547226b4bf7d02502  refs/heads/2026-competition-round2-perf\n663ebf4aaf3629f1add8daf547226b4bf7d02502  refs/heads/perf/sprint3\n$ git log --oneline b410e23..663ebf4a\n663ebf4aa Parse the decimal literal faster, in eight-digit blocks\na871971fc Scan the log in order and read the mapping directly\n6ccc824d9 Read vectors straight from the log instead of keeping a heap copy\n8c8c73e71 Lower the GC target\na1cedd38d Drop the per-request allocations\n3a450c0ca Parse the vector literal in a single pass\n$ git diff --quiet f4d4e266 HEAD -- protocol_check mysqltest ; echo $?\n0\n（题包 protocol_check/ 与 mysqltest/ 仍与官方上游 f4d4e266 逐字节一致）",
+      "output": "$ git ls-remote origin refs/heads/2026-competition-round2 refs/heads/2026-competition-round2-perf refs/heads/perf/sprint3\nb410e23ac01bcbf1df342faa6030034ab1d05e6c  refs/heads/2026-competition-round2\n<本文件所在提交>                            refs/heads/2026-competition-round2-perf\n<本文件所在提交>                            refs/heads/perf/sprint3\n（已提测的 2026-competition-round2 仍停在 b410e23，本轮一个字节都没有动它；\n优化线与提测分支指向同一个提交，这个提交是 663ebf4a 之上只追加材料的提交）\n$ git log --oneline b410e23..HEAD\n663ebf4aa Parse the decimal literal faster, in eight-digit blocks\na871971fc Scan the log in order and read the mapping directly\n6ccc824d9 Read vectors straight from the log instead of keeping a heap copy\n8c8c73e71 Lower the GC target\na1cedd38d Drop the per-request allocations\n3a450c0ca Parse the vector literal in a single pass\n$ git diff --quiet f4d4e266 HEAD -- protocol_check mysqltest ; echo $?\n0\n（题包 protocol_check/ 与 mysqltest/ 仍与官方上游 f4d4e266 逐字节一致）",
       "classification": "actual-result",
       "environment": "远端仓库实读 (git ls-remote / git log)",
       "provenance": "git ls-remote origin; git log --oneline b410e23..663ebf4a"
