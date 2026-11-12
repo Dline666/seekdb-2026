@@ -14,8 +14,10 @@ const ivfMinRows = 200000
 
 // parallelMinSlots is the smallest index for which the exact scan is split
 // across goroutines; below it the coordination costs more than it saves.
+// 512 lets an equality-filtered query of the benchmark (about 1000
+// candidates out of 10k rows) use both workers too.
 // A variable so tests can force either path.
-var parallelMinSlots = 4096
+var parallelMinSlots = 512
 
 // scanBatch is the number of rows whose distances one kernel call computes.
 const scanBatch = 128

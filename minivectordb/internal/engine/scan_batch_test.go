@@ -17,7 +17,7 @@ import (
 // and without the equality candidate set, an open transaction, ties, and
 // both the serial and the parallel scan.
 func TestBatchedScanMatchesOneRowScan(t *testing.T) {
-	defer func() { batchScan, parallelMinSlots = true, 4096 }()
+	defer func(v int) { batchScan, parallelMinSlots = true, v }(parallelMinSlots)
 	for _, dim := range []int{16, 17, 31, 48, 128} {
 		for _, par := range []int{1 << 30, 1} {
 			parallelMinSlots = par

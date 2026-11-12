@@ -16,11 +16,11 @@ import (
 // covered too. It runs once with the serial scan and once with the scan split
 // across goroutines.
 func TestFilteredTopKMatchesReference(t *testing.T) {
+	defer func(v int) { parallelMinSlots = v }(parallelMinSlots)
 	for _, min := range []int{1 << 30, 1} {
 		parallelMinSlots = min
 		testFilteredTopK(t)
 	}
-	parallelMinSlots = 4096
 }
 
 func testFilteredTopK(t *testing.T) {
