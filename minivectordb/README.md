@@ -69,6 +69,72 @@ point, vectors are float32 and reject NaN, Infinity, overflow and wrong
 dimensions, ties in any ORDER BY break by primary key ascending, filtered TopK
 runs inside the filtered set.
 
+## End-to-end example
+
+Starts from an empty data directory and covers the whole chain: write, plain
+query, vector search, COMMIT, ROLLBACK, and a restart that reads the committed
+rows back.
+
+```bash
+docker build -t minivectordb:latest .            # from the repository root
+rm -rf /tmp/mvdb-demo && mkdir -p /tmp/mvdb-demo
+
+# 1. create, write, query, vector search, commit
+docker run --rm -i -v /tmp/mvdb-demo:/data minivectordb:latest <<'EOF'
+{"id":1,"op":"execute","sql":"CREATE TABLE docs (id BIGINT PRIMARY KEY, content VARCHAR(32), embedding VECTOR(3))"}
+{"id":2,"op":"execute","sql":"BEGIN"}
+{"id":3,"op":"execute","sql":"INSERT INTO docs VALUES (1,'first','[1,0,0]'),(2,'second','[0,1,0]'),(3,'third','[0.9,0.1,0]')"}
+{"id":4,"op":"execute","sql":"SELECT id, content FROM docs WHERE id >= 2 ORDER BY id"}
+{"id":5,"op":"execute","sql":"SELECT id, L2_DISTANCE(embedding, '[1,0,0]') AS distance FROM docs ORDER BY distance LIMIT 2"}
+{"id":6,"op":"execute","sql":"COMMIT"}
+EOF
+```
+
+stdout (one `{"type":"ready"}` handshake, then one response per request):
+
+```text
+{"type":"ready"}
+{"id":1,"ok":true}
+{"id":2,"ok":true}
+{"id":3,"ok":true,"affected_rows":3}
+{"id":4,"ok":true,"columns":["id","content"],"rows":[[2,"second"],[3,"third"]]}
+{"id":5,"ok":true,"columns":["id","distance"],"rows":[[1,0.0],[3,0.141421374149721]]}
+{"id":6,"ok":true}
+```
+
+A rolled back transaction leaves nothing behind:
+
+```bash
+docker run --rm -i -v /tmp/mvdb-demo:/data minivectordb:latest <<'EOF'
+{"id":1,"op":"execute","sql":"BEGIN"}
+{"id":2,"op":"execute","sql":"UPDATE docs SET content = 'changed' WHERE id = 1"}
+{"id":3,"op":"execute","sql":"ROLLBACK"}
+{"id":4,"op":"execute","sql":"SELECT id, content FROM docs ORDER BY id"}
+EOF
+```
+
+```text
+{"type":"ready"}
+{"id":1,"ok":true}
+{"id":2,"ok":true,"affected_rows":1}
+{"id":3,"ok":true}
+{"id":4,"ok":true,"columns":["id","content"],"rows":[[1,"first"],[2,"second"],[3,"third"]]}
+```
+
+And after a restart the committed rows are still there, with the vector
+distance recomputed from the log:
+
+```bash
+docker run --rm -i -v /tmp/mvdb-demo:/data minivectordb:latest <<'EOF'
+{"id":1,"op":"execute","sql":"SELECT id, content, L2_DISTANCE(embedding, '[1,0,0]') AS distance FROM docs ORDER BY id"}
+EOF
+```
+
+```text
+{"type":"ready"}
+{"id":1,"ok":true,"columns":["id","content","distance"],"rows":[[1,"first",0.0],[2,"second",1.4142135623730951],[3,"third",0.141421374149721]]}
+```
+
 ## Design
 
 **Storage.** One append-only log, `data.log`, is both the redo log and the data
@@ -93,16 +159,20 @@ result, so a crash during recovery is harmless. If dead data exceeds both
 256 MiB and the live data, the log is rewritten to a temp file, synced and
 renamed. Vector indexes are rebuilt before the ready line.
 
-**Vector search.** Each table keeps a contiguous float32 copy of its committed
-vectors (within the memory budget). TopK scans it with a bounded max-heap,
-abandons a distance early once its partial sum exceeds the current K-th best,
-and evaluates the WHERE filter only for rows that would enter the heap.
-Uncommitted rows of the current transaction are scanned from the overlay.
-Distances are accumulated in float64. An IVF partition (k-means, sqrt(N)
-lists) exists for `ann` mode but is used only from 200k rows up, without
-filters and outside transactions with pending changes; below that, `ann`
-returns exact results (see the measurements below). If the vectors exceed the
-budget, queries fall back to a heap scan over the log.
+**Vector search.** The vectors are not copied into the heap. The index keeps
+only the primary key and the log offset of every committed row, and TopK reads
+the float32 values straight out of the read-only mmap of `data.log`, in log
+order. That removes the second copy of the table (512 bytes per row at 128
+dims) and is what took the query-side peak memory down. TopK scans the slots
+with a bounded max-heap, abandons a distance early once its partial sum
+exceeds the current K-th best, and evaluates the WHERE filter only for rows
+that would enter the heap. Uncommitted rows of the current transaction are
+scanned from the overlay. Distances are accumulated in float64. An IVF
+partition (k-means, sqrt(N) lists) exists for `ann` mode but is used only from
+200k rows up, without filters and outside transactions with pending changes;
+below that, `ann` returns exact results (see the measurements below). If the
+slot table itself exceeds the memory budget, queries fall back to a heap scan
+over the log.
 
 ## Tests
 

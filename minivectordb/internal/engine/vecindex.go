@@ -250,8 +250,15 @@ func l2sqBound(a []float64, b []float32, bound float64) float64 {
 
 func (x *VecIndex) nearestCentroid(v []float32) int {
 	best, bd := 0, math.Inf(1)
+	// The query is widened once, not once per centroid. l2sq(v, c) is
+	// l2sqBound(widen(v), c, +Inf) by definition, and a bound of +Inf never
+	// ends the sum early, so the distance is the same number as before. What
+	// changes is the allocation: widening per centroid made the training
+	// allocate a kilobyte per comparison, and the garbage, not the distance
+	// arithmetic, was what the training time was spent on.
+	w := widen(v)
 	for c := 0; c < x.nlist; c++ {
-		if d := l2sq(v, x.cents[c*x.dim:(c+1)*x.dim]); d < bd {
+		if d := l2sqBound(w, x.cents[c*x.dim:(c+1)*x.dim], math.Inf(1)); d < bd {
 			best, bd = c, d
 		}
 	}
@@ -359,8 +366,10 @@ func (x *VecIndex) probeOrder(q []float32) []int {
 		d float64
 	}
 	ds := make([]cd, x.nlist)
+	// Widened once, for the same reason as in nearestCentroid.
+	w := widen(q)
 	for c := 0; c < x.nlist; c++ {
-		ds[c] = cd{c, l2sq(q, x.cents[c*x.dim:(c+1)*x.dim])}
+		ds[c] = cd{c, l2sqBound(w, x.cents[c*x.dim:(c+1)*x.dim], math.Inf(1))}
 	}
 	sort.Slice(ds, func(i, j int) bool { return ds[i].d < ds[j].d })
 	out := make([]int, x.nlist)

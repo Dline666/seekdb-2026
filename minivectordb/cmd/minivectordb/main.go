@@ -25,6 +25,31 @@ import (
 	"minivectordb/internal/types"
 )
 
+// readRequestLine reads one request line from rd.
+//
+// ReadSlice hands back a view into the reader buffer, so the common case
+// allocates nothing. When the line is longer than the buffer, ReadSlice has
+// already consumed the bytes it returned, so the rest of the line has to be
+// pieced together from the fragments the following reads return. Each
+// fragment is copied out before the next read, because the reader reuses its
+// buffer.
+//
+// The protocol declares no limit on the request size, so a line that does not
+// fit in the buffer is read in full rather than dropped.
+func readRequestLine(rd *bufio.Reader) ([]byte, error) {
+	b, err := rd.ReadSlice('\n')
+	if err == bufio.ErrBufferFull {
+		buf := append([]byte(nil), b...)
+		for err == bufio.ErrBufferFull {
+			var frag []byte
+			frag, err = rd.ReadSlice('\n')
+			buf = append(buf, frag...)
+		}
+		b = buf
+	}
+	return b, err
+}
+
 func main() {
 	dataDir := flag.String("data-dir", envOr("MVDB_DATA_DIR", "/data"), "data directory")
 	mode := flag.String("mode", envOr("MVDB_SEARCH_MODE", "exact"), "default vector search mode when a request has no search_mode: exact or ann")
@@ -92,11 +117,7 @@ func main() {
 		// allocating a fresh slice per request. The request is fully
 		// processed before the next read, and proto.ParseRequest copies
 		// everything it keeps, so the view never outlives the buffer.
-		b, err := rd.ReadSlice('\n')
-		if err == bufio.ErrBufferFull {
-			// Line longer than the buffer: fall back to an allocating read.
-			b, err = rd.ReadBytes('\n')
-		}
+		b, err := readRequestLine(rd)
 		if len(b) == 0 && err != nil {
 			if err != io.EOF && !errors.Is(err, os.ErrClosed) {
 				logf("read stdin: %v", err)
