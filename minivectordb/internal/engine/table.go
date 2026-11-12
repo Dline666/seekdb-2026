@@ -4,7 +4,6 @@ package engine
 
 import (
 	"encoding/binary"
-	"math"
 	"strings"
 
 	"minivectordb/internal/types"
@@ -100,9 +99,7 @@ func (t *Table) encode(dst []byte, row []types.Value) []byte {
 		case types.TBigint:
 			dst = binary.LittleEndian.AppendUint64(dst, uint64(v.I))
 		case types.TVector:
-			for _, f := range v.V {
-				dst = binary.LittleEndian.AppendUint32(dst, math.Float32bits(f))
-			}
+			dst = types.AppendVector(dst, v.V)
 		default:
 			dst = binary.AppendUvarint(dst, uint64(len(v.S)))
 			dst = append(dst, v.S...)

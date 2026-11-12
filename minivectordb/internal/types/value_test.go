@@ -333,6 +333,28 @@ func TestTrimSpaceMatchesStdlib(t *testing.T) {
 	}
 }
 
+func TestVectorByteRoundTripPreservesBits(t *testing.T) {
+	values := []float32{
+		0, float32(math.Copysign(0, -1)), 1, -1,
+		math.SmallestNonzeroFloat32,
+		math.MaxFloat32,
+		float32(math.Inf(1)),
+		float32(math.NaN()),
+	}
+	encoded := AppendVector([]byte{0xaa}, values)
+	if len(encoded) != 1+4*len(values) {
+		t.Fatalf("encoded length = %d, want %d", len(encoded), 1+4*len(values))
+	}
+	decoded := make([]float32, len(values))
+	DecodeVecInto(decoded, encoded[1:])
+	for i := range values {
+		if math.Float32bits(decoded[i]) != math.Float32bits(values[i]) {
+			t.Fatalf("element %d = %08x, want %08x", i, math.Float32bits(decoded[i]), math.Float32bits(values[i]))
+		}
+	}
+	DecodeVecInto(nil, nil)
+}
+
 // BenchmarkParseVector measures literal parsing alone.
 func BenchmarkParseVector(b *testing.B) {
 	rng := rand.New(rand.NewSource(3))

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+	"unsafe"
 )
 
 type Kind uint8
@@ -430,6 +431,28 @@ func ToFloat32(f float64) (float32, bool) {
 	return r, true
 }
 
+var nativeLittleEndian = func() bool {
+	var x uint16 = 1
+	return *(*byte)(unsafe.Pointer(&x)) == 1
+}()
+
+// AppendVector appends little-endian float32 values. The common little-endian
+// hosts copy the IEEE binary32 representation directly instead of converting
+// and appending every element separately.
+func AppendVector(dst []byte, src []float32) []byte {
+	if len(src) == 0 {
+		return dst
+	}
+	if nativeLittleEndian {
+		raw := unsafe.Slice((*byte)(unsafe.Pointer(&src[0])), 4*len(src))
+		return append(dst, raw...)
+	}
+	for _, f := range src {
+		dst = binary.LittleEndian.AppendUint32(dst, math.Float32bits(f))
+	}
+	return dst
+}
+
 // validNumber accepts [+-]digits[.digits][e[+-]digits] and [+-].digits forms only.
 func validNumber(s string) bool {
 	i, n := 0, len(s)
@@ -508,9 +531,7 @@ func EncodeRow(dst []byte, cols []Column, row []Value) []byte {
 			dst = binary.AppendUvarint(dst, uint64(len(v.S)))
 			dst = append(dst, v.S...)
 		case TVector:
-			for _, f := range v.V {
-				dst = binary.LittleEndian.AppendUint32(dst, math.Float32bits(f))
-			}
+			dst = AppendVector(dst, v.V)
 		}
 	}
 	return dst
@@ -574,7 +595,15 @@ func decodeAt(b []byte, p int, c Column, copyVec bool) (Value, int) {
 
 // DecodeVecInto fills dst from little-endian float32 bytes.
 func DecodeVecInto(dst []float32, b []byte) {
+	if len(dst) == 0 {
+		return
+	}
 	_ = b[4*len(dst)-1]
+	if nativeLittleEndian {
+		raw := unsafe.Slice((*byte)(unsafe.Pointer(&dst[0])), 4*len(dst))
+		copy(raw, b[:len(raw)])
+		return
+	}
 	for i := range dst {
 		dst[i] = math.Float32frombits(binary.LittleEndian.Uint32(b[4*i:]))
 	}
