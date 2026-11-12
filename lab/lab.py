@@ -48,7 +48,14 @@ def cg_stats(d):
                 rb += int(v)
             elif k == "wbytes":
                 wb += int(v)
-    return {"mem_peak_mib": peak / 2**20, "io_mib": (rb + wb) / 2**20, "rbytes": rb, "wbytes": wb}
+    ms = {}
+    for line in open(os.path.join(d, "memory.stat")):
+        k, v = line.split()
+        if k in ("anon", "file", "file_mapped", "file_dirty", "kernel", "kernel_stack", "pagetables", "sock", "shmem"):
+            ms[k] = round(int(v) / 2**20, 2)
+    cur = int(open(os.path.join(d, "memory.current")).read())
+    return {"mem_peak_mib": peak / 2**20, "io_mib": (rb + wb) / 2**20, "rbytes": rb, "wbytes": wb,
+            "mem_current_mib": round(cur / 2**20, 2), "memstat_mib": ms}
 
 
 class DB:
@@ -151,7 +158,8 @@ def run_write(image, batches):
         return {"T_s": t, "B_mib": s1["io_mib"], "M_mib": s1["mem_peak_mib"], "rbytes": s1["rbytes"],
                 "wbytes": s1["wbytes"], "B_during_mib": s1["io_mib"] - s0["io_mib"], "restart_rows": len(n),
                 "floor_samesize_s": floor, "sync_calls": sync.get("sync_calls"),
-                "sync_s": (sync.get("sync_ns") or 0) / 1e9}
+                "sync_s": (sync.get("sync_ns") or 0) / 1e9,
+                "mem_current_mib": s1["mem_current_mib"], "memstat_mib": s1["memstat_mib"]}
 
 
 def run_query(image, batches, qs, ref):
@@ -202,6 +210,7 @@ def run_query(image, batches, qs, ref):
                 bad_dist += 1
     return {"T_s": t, "B_mib": s["io_mib"], "M_mib": s["mem_peak_mib"], "rbytes": s["rbytes"], "wbytes": s["wbytes"],
             "M_before_queries_mib": s_pre["mem_peak_mib"],
+            "mem_current_mib": s["mem_current_mib"], "memstat_mib": s["memstat_mib"],
             "T_unf_s": tpart["unf"], "T_fil_s": tpart["fil"], "floor_samesize_s": tfloor, "floor_ping_s": tping,
             "recall_unf": sum(rec["unf"]) / len(rec["unf"]), "recall_fil": sum(rec["fil"]) / len(rec["fil"]),
             "order_mismatch": bad_order, "dist_mismatch": bad_dist}
