@@ -3,10 +3,8 @@ package engine
 import (
 	"bytes"
 	"math"
-	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 
 	sp "minivectordb/internal/sqlparse"
 	"minivectordb/internal/types"
@@ -83,61 +81,6 @@ func valueText(v types.Value) string {
 	return v.S
 }
 
-// parallelInsertRows is the smallest multi-row INSERT whose vector literals
-// are parsed on two goroutines; a variable so tests can force either path.
-var parallelInsertRows = 16
-
-type preVec struct {
-	v   []float32
-	err *types.SQLError
-	ok  bool // the value is a string literal and v/err hold its parse
-}
-
-// preparseVectors parses the vector column's string literals of a large
-// multi-row INSERT ahead of the row loop, half of the rows on a second
-// goroutine. ParseVector is a pure function, so the row loop gets exactly
-// the value or error it would have computed itself, and it still reports
-// the first error in row and column order. It returns the results by row and
-// the position of the vector column among the supplied values, or nil.
-func preparseVectors(t *Table, s *sp.Insert, target []int) ([]preVec, int) {
-	if t.Vec < 0 || len(s.Rows) < parallelInsertRows || runtime.GOMAXPROCS(0) < 2 {
-		return nil, -1
-	}
-	vj := -1
-	for j, di := range target {
-		if di == t.Vec {
-			vj = j
-			break
-		}
-	}
-	if vj < 0 {
-		return nil, -1
-	}
-	out := make([]preVec, len(s.Rows))
-	parse := func(lo, hi int) {
-		for r := lo; r < hi; r++ {
-			exprs := s.Rows[r]
-			if len(exprs) != len(target) {
-				continue
-			}
-			if lit, ok := exprs[vj].(*sp.StrLit); ok {
-				v, err := types.ParseVector(lit.V)
-				out[r] = preVec{v, err, true}
-			}
-		}
-	}
-	mid := len(s.Rows) / 2
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		parse(mid, len(s.Rows))
-	}()
-	parse(0, mid)
-	wg.Wait()
-	return out, vj
-}
-
 func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
 	t, err := db.table(s.Table)
 	if err != nil {
@@ -174,25 +117,11 @@ func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
 	fresh := make(map[int64]struct{}, len(s.Rows))
 	row := make([]types.Value, len(t.Cols))
 	var enc []byte
-	pre, vj := preparseVectors(t, s, target)
-	for r, exprs := range s.Rows {
+	for _, exprs := range s.Rows {
 		if len(exprs) != len(target) {
 			return nil, types.ErrColCount()
 		}
 		for j, e := range exprs {
-			if pre != nil && j == vj && pre[r].ok {
-				// Same result as coerce on the string literal: parse,
-				// then the dimension check.
-				p := pre[r]
-				if p.err != nil {
-					return nil, p.err
-				}
-				if len(p.v) != t.Cols[t.Vec].Param {
-					return nil, types.ErrVectorDim(t.Cols[t.Vec].Param, len(p.v))
-				}
-				row[target[j]] = types.Vec(p.v)
-				continue
-			}
 			c, err := sc.compile(e)
 			if err != nil {
 				return nil, err
