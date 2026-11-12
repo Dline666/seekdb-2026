@@ -17,6 +17,13 @@ const ivfMinRows = 200000
 // A variable so tests can force either path.
 var parallelMinSlots = 4096
 
+// scanBatch is the number of rows whose distances one kernel call computes.
+const scanBatch = 128
+
+// batchScan enables the batched exact scan; a variable so tests can compare
+// it with the one-row path.
+var batchScan = true
+
 type hit struct {
 	d   float64
 	pk  int64
@@ -190,6 +197,52 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 		rowPred = pred
 	}
 	tk := &topK{k: k, pred: pred, db: db, h: make(hitHeap, 0, k+1)}
+	// scan visits slots lo..hi-1 in order. With the SIMD kernel and the log
+	// mapping it gathers the rows that pass the cheap checks into batches
+	// and computes their distances with one kernel call per batch; the
+	// distances are bit-identical to the one-row kernel and are admitted in
+	// slot order against the same bound, so the result equals the per-row
+	// visit exactly.
+	gather := batchScan && useSIMD && base != nil && t.Dim >= 16
+	scan := func(tk *topK, lo, hi int) {
+		if !gather {
+			for i := lo; i < hi; i++ {
+				visit(tk, slot(i))
+			}
+			return
+		}
+		var offs, pks, rows [scanBatch]int64
+		var out [scanBatch]float64
+		for i := lo; i < hi; {
+			n := 0
+			for ; i < hi && n < scanBatch; i++ {
+				s := slot(i)
+				pk := x.pks[s]
+				if pk == tombstone {
+					continue
+				}
+				if ov != nil {
+					if _, shadowed := ov[pk]; shadowed {
+						continue
+					}
+				}
+				off := x.off[s]
+				if rowPred != nil && !rowPred(db.rowBytes(off)) {
+					continue
+				}
+				at := off + vecOff
+				_ = base[at : at+vecLen] // same bounds check as the one-row path
+				offs[n], pks[n], rows[n] = at, pk, off
+				n++
+			}
+			l2sqGatherBytes(qw, base, offs[:n], out[:n])
+			for j := 0; j < n; j++ {
+				if d := out[j]; d <= tk.bound() {
+					tk.admit(d, pks[j], rows[j])
+				}
+			}
+		}
+	}
 	if useIVF {
 		for _, c := range x.probeOrder(q)[:x.nprobe()] {
 			for _, s := range x.lists[c] {
@@ -206,9 +259,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				for i := lo; i < hi; i++ {
-					visit(p, slot(i))
-				}
+				scan(p, lo, hi)
 			}()
 		}
 		wg.Wait()
@@ -220,9 +271,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			}
 		}
 	} else {
-		for i := 0; i < n; i++ {
-			visit(tk, slot(i))
-		}
+		scan(tk, 0, n)
 	}
 	for pk, off := range ov {
 		if off != deleted {

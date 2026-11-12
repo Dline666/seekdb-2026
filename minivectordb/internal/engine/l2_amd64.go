@@ -18,6 +18,35 @@ func xgetbv0() uint32
 //go:noescape
 func l2sqBlocksAVX2(a *float64, b *byte, blocks int) float64
 
+// l2sqGatherAVX2 runs l2sqBlocksAVX2 for rows vectors at base+offs[r] and
+// stores row r's sum in out[r].
+//
+//go:noescape
+func l2sqGatherAVX2(a *float64, base *byte, offs *int64, blocks, rows int, out *float64)
+
+// l2sqGatherBytes sets out[r] to l2sqSIMDBytes(a, base[offs[r]:]) for every
+// row r: the same kernel per row, then the scalar tail added in order, so
+// each result is bit-identical to the one-row path. The caller guarantees
+// that base[offs[r] : offs[r]+4*len(a)] is in range for every row.
+func l2sqGatherBytes(a []float64, base []byte, offs []int64, out []float64) {
+	out = out[:len(offs)]
+	n := len(a)
+	blocks := n / 16
+	if blocks > 0 && len(offs) > 0 {
+		l2sqGatherAVX2(&a[0], &base[0], &offs[0], blocks, len(offs), &out[0])
+	} else {
+		for r := range out {
+			out[r] = 0
+		}
+	}
+	for i := blocks * 16; i < n; i++ {
+		for r, o := range offs {
+			d := a[i] - float64(math.Float32frombits(binary.LittleEndian.Uint32(base[o+4*int64(i):])))
+			out[r] += d * d
+		}
+	}
+}
+
 // hasAVX2FMA reports whether the CPU and OS support AVX2 and FMA, so the
 // vector kernel can be used. MVDB_NO_SIMD=1 forces the portable kernel.
 func hasAVX2FMA() bool {
