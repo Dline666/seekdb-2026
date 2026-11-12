@@ -90,8 +90,8 @@ func main() {
 	next := func() line {
 		// ReadSlice hands back a view into the reader buffer instead of
 		// allocating a fresh slice per request. The request is fully
-		// processed before the next read, and proto.ParseRequest copies
-		// everything it keeps, so the view never outlives the buffer.
+		// processed before the next read, so any strings parseFast aliases
+		// into this view never outlive the buffer.
 		b, err := rd.ReadSlice('\n')
 		if err == bufio.ErrBufferFull {
 			// Line longer than the buffer: ReadSlice has already consumed

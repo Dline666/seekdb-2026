@@ -10,10 +10,12 @@ import (
 // {"id":1,"op":"execute","sql":"SELECT 1;","search_mode":"exact"}.
 type Request struct {
 	// ID is echoed verbatim so its JSON type (number, string) is preserved.
-	ID         json.RawMessage `json:"id"`
-	Op         string          `json:"op"`
-	SQL        *string         `json:"sql"`
-	SearchMode string          `json:"search_mode"`
+	ID json.RawMessage `json:"id"`
+	Op string          `json:"op"`
+	// SQL may alias the request line returned by parseFast. It is valid only
+	// while that line remains unchanged, which the main request loop obeys.
+	SQL        *string `json:"sql"`
+	SearchMode string  `json:"search_mode"`
 }
 
 // ParseRequest decodes one request line. On error the returned request still

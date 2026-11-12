@@ -3,6 +3,7 @@ package proto
 import (
 	"encoding/json"
 	"unicode/utf8"
+	"unsafe"
 )
 
 // parseFast decodes the common request shape without reflection: a flat
@@ -19,7 +20,9 @@ func parseFast(b []byte) (*Request, bool) {
 			i++
 		}
 	}
-	// str reads a string with no escapes and no control characters.
+	// str reads a string with no escapes and no control characters. The
+	// returned string aliases b so the large SQL field does not need a copy;
+	// callers must keep b unchanged until the request is fully executed.
 	str := func() (string, bool) {
 		if i >= n || b[i] != '"' {
 			return "", false
@@ -32,7 +35,7 @@ func parseFast(b []byte) (*Request, bool) {
 					// encoding/json would replace invalid bytes with U+FFFD.
 					return "", false
 				}
-				s := string(b[i+1 : j])
+				s := unsafe.String(&b[i+1], j-i-1)
 				i = j + 1
 				return s, true
 			}

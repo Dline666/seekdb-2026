@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"math/rand"
 	"testing"
+
+	"minivectordb/internal/engine"
+	"minivectordb/internal/storage"
 )
 
 // slowParse is the reference: the encoding/json path of ParseRequest.
@@ -90,5 +93,62 @@ func TestFastParseMatchesEncodingJSON(t *testing.T) {
 	}
 	if accepted < 100 {
 		t.Fatalf("fast path accepted only %d cases", accepted)
+	}
+}
+
+// TestFastParsePersistentStringsOwnStorage guards the lifetime contract:
+// SQL may alias the request line for the duration of one Exec, but catalog
+// names and saved settings copied from it must survive the next read.
+func TestFastParsePersistentStringsOwnStorage(t *testing.T) {
+	db, err := engine.Open(t.TempDir(), engine.Options{Sync: storage.SyncNone})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	execute := func(sql string) {
+		t.Helper()
+		line, err := json.Marshal(struct {
+			ID   int    `json:"id"`
+			Op   string `json:"op"`
+			SQL  string `json:"sql"`
+			Mode string `json:"search_mode"`
+		}{1, "execute", sql, "exact"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		req, ok := parseFast(line)
+		if !ok || req.SQL == nil {
+			t.Fatalf("fast parse rejected %q", sql)
+		}
+		if _, err := db.Exec(*req.SQL); err != nil {
+			t.Fatal(err)
+		}
+		for i := range line {
+			line[i] = 'x'
+		}
+	}
+	execute("CREATE TABLE docs (id BIGINT PRIMARY KEY, category VARCHAR(8), embedding VECTOR(2))")
+	execute("CREATE VECTOR INDEX vi ON docs(embedding)")
+	execute("SET search_mode = 'ann'")
+
+	execute("INSERT INTO docs VALUES (1, 'keep', '[1,2]')")
+	execute("SELECT id FROM docs WHERE category = 'keep' ORDER BY id LIMIT 1")
+	if got := db.SearchMode(); got != "ann" {
+		t.Fatalf("saved search mode = %q, want ann", got)
+	}
+}
+
+// BenchmarkParseLargeRequest covers the request shape used by the 100-row
+// INSERT workload: almost all of the line is one ASCII string.
+func BenchmarkParseLargeRequest(b *testing.B) {
+	sql := "INSERT INTO docs VALUES ('" + string(bytes.Repeat([]byte("1,"), 125<<10)) + "')"
+	line := []byte(`{"id":1,"op":"execute","sql":"` + sql + `","search_mode":"exact"}`)
+	b.SetBytes(int64(len(line)))
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		if r, ok := parseFast(line); !ok || r.SQL == nil {
+			b.Fatal("fast parse rejected benchmark request")
+		}
 	}
 }

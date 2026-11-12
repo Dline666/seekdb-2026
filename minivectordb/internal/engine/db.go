@@ -160,7 +160,7 @@ func (db *DB) applyDDL(d *ddl) {
 	switch d.Op {
 	case "create_table":
 		t := newTable(d.ID, d.Name, d.Cols, d.PK)
-		db.tables[strings.ToLower(d.Name)] = t
+		db.tables[strings.Clone(strings.ToLower(d.Name))] = t
 		db.byID[d.ID] = t
 		if d.ID >= db.nextTID {
 			db.nextTID = d.ID + 1

@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"sort"
+	"strings"
 
 	"minivectordb/internal/types"
 )
@@ -48,7 +49,7 @@ const indexBytesPerRow = 64
 const tombstone int64 = math.MinInt64
 
 func newVecIndex(name string) *VecIndex {
-	return &VecIndex{Name: name, pos: map[int64]int32{}}
+	return &VecIndex{Name: strings.Clone(name), pos: map[int64]int32{}}
 }
 
 func (x *VecIndex) rebuild(db *DB, t *Table) {

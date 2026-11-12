@@ -111,7 +111,7 @@ func (db *DB) execSet(s *sp.Set) (*Result, error) {
 		m := strings.ToLower(v.V)
 		switch m {
 		case "exact", "ann":
-			db.opts.SearchMode = m
+			db.opts.SearchMode = strings.Clone(m)
 		case "approx", "approximate":
 			db.opts.SearchMode = "ann"
 		default:

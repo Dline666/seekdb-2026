@@ -31,7 +31,12 @@ type Table struct {
 }
 
 func newTable(id uint32, name string, cols []types.Column, pk int) *Table {
-	t := &Table{ID: id, Name: name, Cols: cols, PK: pk, Vec: -1, rows: make(map[int64]int64)}
+	ownedCols := make([]types.Column, len(cols))
+	copy(ownedCols, cols)
+	for i := range ownedCols {
+		ownedCols[i].Name = strings.Clone(ownedCols[i].Name)
+	}
+	t := &Table{ID: id, Name: strings.Clone(name), Cols: ownedCols, PK: pk, Vec: -1, rows: make(map[int64]int64)}
 	t.order = append(t.order, pk)
 	for i, c := range cols {
 		if c.Type == types.TBigint && i != pk {
