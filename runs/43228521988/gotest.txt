@@ -14,18 +14,15 @@ afa154b433c7: Waiting
 3b7f19923e15: Waiting
 32b550be6cb6: Verifying Checksum
 32b550be6cb6: Download complete
-a492eee5e559: Verifying Checksum
 a492eee5e559: Download complete
-35af2a7690f2: Verifying Checksum
 35af2a7690f2: Download complete
 1451027d3c0e: Verifying Checksum
 1451027d3c0e: Download complete
 4f4fb700ef54: Verifying Checksum
 4f4fb700ef54: Download complete
-3b7f19923e15: Verifying Checksum
-3b7f19923e15: Download complete
 afa154b433c7: Verifying Checksum
 afa154b433c7: Download complete
+3b7f19923e15: Download complete
 a492eee5e559: Pull complete
 32b550be6cb6: Pull complete
 35af2a7690f2: Pull complete
@@ -37,26 +34,26 @@ Digest: sha256:1cf6c45ba39db9fd6db16922041d074a63c935556a05c5ccb62d181034df7f02
 Status: Downloaded newer image for golang:1.22
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	0.870s
-ok  	minivectordb/internal/proto	0.029s
-ok  	minivectordb/internal/sqlparse	0.115s
-ok  	minivectordb/internal/types	1.768s
+ok  	minivectordb/internal/engine	1.106s
+ok  	minivectordb/internal/proto	0.022s
+ok  	minivectordb/internal/sqlparse	0.098s
+ok  	minivectordb/internal/types	1.836s
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	3.024s
-ok  	minivectordb/internal/proto	1.133s
-ok  	minivectordb/internal/sqlparse	1.793s
-ok  	minivectordb/internal/types	14.665s
-== ba5b0fee4fd6c2bcccdc6585a87b0547f1b22420
+ok  	minivectordb/internal/engine	3.104s
+ok  	minivectordb/internal/proto	1.173s
+ok  	minivectordb/internal/sqlparse	1.775s
+ok  	minivectordb/internal/types	15.733s
+== bb4a13460cf9d0031e4d933d4ba892650f730495
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	0.889s
+ok  	minivectordb/internal/engine	1.493s
 ok  	minivectordb/internal/proto	0.014s
-ok  	minivectordb/internal/sqlparse	0.113s
-ok  	minivectordb/internal/types	1.791s
+ok  	minivectordb/internal/sqlparse	0.100s
+ok  	minivectordb/internal/types	1.775s
 ?   	minivectordb/cmd/minivectordb	[no test files]
 ?   	minivectordb/internal/storage	[no test files]
-ok  	minivectordb/internal/engine	2.961s
-ok  	minivectordb/internal/proto	1.096s
-ok  	minivectordb/internal/sqlparse	1.790s
-ok  	minivectordb/internal/types	14.684s
+ok  	minivectordb/internal/engine	6.309s
+ok  	minivectordb/internal/proto	1.089s
+ok  	minivectordb/internal/sqlparse	1.740s
+ok  	minivectordb/internal/types	16.119s

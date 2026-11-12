@@ -1,0 +1,150 @@
+== f75bd58987755a1303443c39274b34269da86e17
+--- PASS: TestKernelPathsAgree (0.01s)
+PHASES queries=1000 parse_ms=4.3 exec_ms=149.4 unfiltered500_ms=131.8 filtered500_ms=31.9
+--- PASS: TestPhaseBreakdown (0.56s)
+WRITEPHASES batches=100 json_ms=91.5 parse_ms=10.0 exec_ms=68.3 sql_bytes=24825321
+--- PASS: TestWritePhases (0.42s)
+PASS
+Duration: 701.18ms, Total samples = 830ms (118.37%)
+Showing nodes accounting for 800ms, 96.39% of 830ms total
+Showing top 30 nodes out of 125
+      flat  flat%   sum%        cum   cum%
+     310ms 37.35% 37.35%      310ms 37.35%  minivectordb/internal/engine.l2sqBlocksAVX2
+      40ms  4.82% 42.17%      430ms 51.81%  minivectordb/internal/engine.(*DB).vectorTopK.func1
+      30ms  3.61% 45.78%      380ms 45.78%  minivectordb/internal/engine.l2sqBytesBound
+      30ms  3.61% 49.40%      340ms 40.96%  minivectordb/internal/engine.l2sqSIMDBytes
+      30ms  3.61% 53.01%       30ms  3.61%  runtime.scanblock
+      30ms  3.61% 56.63%       50ms  6.02%  strconv.ryuFtoaShortest
+      20ms  2.41% 59.04%      140ms 16.87%  fmt.Fprintf
+      20ms  2.41% 61.45%       20ms  2.41%  math/rand.(*rngSource).Uint64
+      20ms  2.41% 63.86%       30ms  3.61%  minivectordb/internal/types.parseFloatFast
+      20ms  2.41% 66.27%       20ms  2.41%  runtime.casgstatus
+      20ms  2.41% 68.67%       20ms  2.41%  runtime.futex
+      20ms  2.41% 71.08%       20ms  2.41%  runtime.memclrNoHeapPointers
+      20ms  2.41% 73.49%       20ms  2.41%  runtime.memmove
+      20ms  2.41% 75.90%       20ms  2.41%  strconv.ryuDigits32
+      20ms  2.41% 78.31%       20ms  2.41%  sync.(*Pool).pin
+      10ms  1.20% 79.52%       60ms  7.23%  fmt.(*pp).fmtFloat
+      10ms  1.20% 80.72%       20ms  2.41%  fmt.newPrinter
+      10ms  1.20% 81.93%      120ms 14.46%  minivectordb/internal/engine.(*DB).execSelect
+      10ms  1.20% 83.13%       10ms  1.20%  minivectordb/internal/engine.(*topK).bound (inline)
+      10ms  1.20% 84.34%       10ms  1.20%  minivectordb/internal/sqlparse.isSpace
+      10ms  1.20% 85.54%       40ms  4.82%  minivectordb/internal/types.ParseVector
+      10ms  1.20% 86.75%       10ms  1.20%  minivectordb/internal/types.decimalToFloat
+      10ms  1.20% 87.95%       10ms  1.20%  runtime.(*gcBitsArena).tryAlloc (inline)
+      10ms  1.20% 89.16%       20ms  2.41%  runtime.(*sweepLocked).sweep
+      10ms  1.20% 90.36%       10ms  1.20%  runtime.adjustframe
+      10ms  1.20% 91.57%       10ms  1.20%  runtime.heapSetType
+      10ms  1.20% 92.77%       40ms  4.82%  runtime.mallocgc
+      10ms  1.20% 93.98%       10ms  1.20%  runtime.nextslicecap (inline)
+      10ms  1.20% 95.18%       20ms  2.41%  runtime.semrelease1
+      10ms  1.20% 96.39%       10ms  1.20%  runtime.stackalloc
+Duration: 601.67ms, Total samples = 430ms (71.47%)
+Showing nodes accounting for 430ms, 100% of 430ms total
+Showing top 30 nodes out of 89
+      flat  flat%   sum%        cum   cum%
+      60ms 13.95% 13.95%       60ms 13.95%  strconv.fmtF
+      40ms  9.30% 23.26%       40ms  9.30%  encoding/json.checkValid
+      30ms  6.98% 30.23%       30ms  6.98%  encoding/json.(*decodeState).rescanLiteral
+      30ms  6.98% 37.21%       30ms  6.98%  encoding/json.appendString[go.shape.string]
+      30ms  6.98% 44.19%       30ms  6.98%  runtime.memmove
+      20ms  4.65% 48.84%       20ms  4.65%  encoding/json.unquoteBytes
+      20ms  4.65% 53.49%       20ms  4.65%  minivectordb/internal/types.decimalExact
+      20ms  4.65% 58.14%       20ms  4.65%  sync.runtime_procPin
+      10ms  2.33% 60.47%      120ms 27.91%  fmt.(*fmt).fmtFloat
+      10ms  2.33% 62.79%       10ms  2.33%  fmt.(*fmt).init
+      10ms  2.33% 65.12%       30ms  6.98%  fmt.(*pp).free
+      10ms  2.33% 67.44%       10ms  2.33%  math/rand.(*rngSource).Int63
+      10ms  2.33% 69.77%       20ms  4.65%  minivectordb/internal/sqlparse.Lex
+      10ms  2.33% 72.09%       10ms  2.33%  minivectordb/internal/types.ToFloat32
+      10ms  2.33% 74.42%       30ms  6.98%  minivectordb/internal/types.decimalToFloat
+      10ms  2.33% 76.74%       40ms  9.30%  minivectordb/internal/types.parseFloatFast
+      10ms  2.33% 79.07%       10ms  2.33%  runtime.(*bmap).setoverflow
+      10ms  2.33% 81.40%       10ms  2.33%  runtime.deductAssistCredit
+      10ms  2.33% 83.72%       10ms  2.33%  runtime.scanblock
+      10ms  2.33% 86.05%       10ms  2.33%  runtime.scanobject
+      10ms  2.33% 88.37%       10ms  2.33%  runtime/internal/syscall.Syscall6
+      10ms  2.33% 90.70%       70ms 16.28%  strconv.formatDigits
+      10ms  2.33% 93.02%      100ms 23.26%  strconv.genericFtoa
+      10ms  2.33% 95.35%       10ms  2.33%  strconv.mult128bitPow10
+      10ms  2.33% 97.67%       10ms  2.33%  strconv.ryuDigits
+      10ms  2.33%   100%       20ms  4.65%  sync.(*Pool).Put
+         0     0%   100%       20ms  4.65%  encoding/json.(*decodeState).literalStore
+         0     0%   100%       50ms 11.63%  encoding/json.(*decodeState).object
+         0     0%   100%       50ms 11.63%  encoding/json.(*decodeState).unmarshal
+         0     0%   100%       50ms 11.63%  encoding/json.(*decodeState).value
+== bb4a13460cf9d0031e4d933d4ba892650f730495
+--- PASS: TestKernelPathsAgree (0.01s)
+PHASES queries=1000 parse_ms=4.8 exec_ms=152.4 unfiltered500_ms=107.5 filtered500_ms=32.1
+--- PASS: TestPhaseBreakdown (0.56s)
+WRITEPHASES batches=100 json_ms=92.8 parse_ms=10.5 exec_ms=71.7 sql_bytes=24825321
+--- PASS: TestWritePhases (0.43s)
+PASS
+Duration: 701.82ms, Total samples = 780ms (111.14%)
+Showing nodes accounting for 730ms, 93.59% of 780ms total
+Showing top 30 nodes out of 153
+      flat  flat%   sum%        cum   cum%
+     300ms 38.46% 38.46%      300ms 38.46%  minivectordb/internal/engine.l2sqGatherAVX2
+      60ms  7.69% 46.15%      390ms 50.00%  minivectordb/internal/engine.(*DB).vectorTopK.func4
+      40ms  5.13% 51.28%       40ms  5.13%  runtime.futex
+      30ms  3.85% 55.13%       30ms  3.85%  runtime.memclrNoHeapPointers
+      20ms  2.56% 57.69%       30ms  3.85%  minivectordb/internal/types.parseFloatFast
+      20ms  2.56% 60.26%       90ms 11.54%  runtime.mallocgc
+      20ms  2.56% 62.82%       20ms  2.56%  runtime/internal/syscall.Syscall6
+      20ms  2.56% 65.38%       20ms  2.56%  strconv.fmtF
+      10ms  1.28% 66.67%       10ms  1.28%  fmt.(*fmt).pad
+      10ms  1.28% 67.95%       90ms 11.54%  fmt.(*pp).doPrintf
+      10ms  1.28% 69.23%       80ms 10.26%  fmt.(*pp).printArg
+      10ms  1.28% 70.51%       20ms  2.56%  fmt.newPrinter
+      10ms  1.28% 71.79%       10ms  1.28%  minivectordb/internal/engine.(*topK).bound (inline)
+      10ms  1.28% 73.08%       20ms  2.56%  minivectordb/internal/engine.l2sqBytes
+      10ms  1.28% 74.36%      310ms 39.74%  minivectordb/internal/engine.l2sqGatherBytes
+      10ms  1.28% 75.64%       10ms  1.28%  minivectordb/internal/sqlparse.(*parser).tableName
+      10ms  1.28% 76.92%       50ms  6.41%  minivectordb/internal/types.ParseVector
+      10ms  1.28% 78.21%       10ms  1.28%  minivectordb/internal/types.eightDigits (inline)
+      10ms  1.28% 79.49%       20ms  2.56%  runtime.(*mspan).writeHeapBitsSmall
+      10ms  1.28% 80.77%       10ms  1.28%  runtime.(*sweepLocked).sweep.(*mheap).freeSpan.func4
+      10ms  1.28% 82.05%       10ms  1.28%  runtime.deductAssistCredit
+      10ms  1.28% 83.33%       10ms  1.28%  runtime.gcDrain
+      10ms  1.28% 84.62%       10ms  1.28%  runtime.gcTrigger.test
+      10ms  1.28% 85.90%       10ms  1.28%  runtime.heapBitsSlice (inline)
+      10ms  1.28% 87.18%       10ms  1.28%  runtime.memmove
+      10ms  1.28% 88.46%       10ms  1.28%  runtime.pallocSum.unpack (inline)
+      10ms  1.28% 89.74%       10ms  1.28%  runtime.runqgrab
+      10ms  1.28% 91.03%       10ms  1.28%  strconv.computeBounds (inline)
+      10ms  1.28% 92.31%       60ms  7.69%  strconv.genericFtoa
+      10ms  1.28% 93.59%       10ms  1.28%  strconv.ryuDigits32
+Duration: 601.56ms, Total samples = 450ms (74.81%)
+Showing nodes accounting for 450ms, 100% of 450ms total
+Showing top 30 nodes out of 99
+      flat  flat%   sum%        cum   cum%
+      30ms  6.67%  6.67%       30ms  6.67%  encoding/json.appendString[go.shape.string]
+      30ms  6.67% 13.33%       50ms 11.11%  encoding/json.checkValid
+      30ms  6.67% 20.00%       30ms  6.67%  runtime/internal/syscall.Syscall6
+      30ms  6.67% 26.67%       30ms  6.67%  strconv.fmtF
+      30ms  6.67% 33.33%      130ms 28.89%  strconv.genericFtoa
+      30ms  6.67% 40.00%       30ms  6.67%  strconv.ryuDigits32
+      20ms  4.44% 44.44%       20ms  4.44%  encoding/json.(*decodeState).rescanLiteral
+      20ms  4.44% 48.89%       20ms  4.44%  encoding/json.stateInString
+      20ms  4.44% 53.33%       20ms  4.44%  encoding/json.unquoteBytes
+      20ms  4.44% 57.78%       20ms  4.44%  minivectordb/internal/types.decimalToFloat
+      20ms  4.44% 62.22%       70ms 15.56%  strconv.ryuFtoaShortest
+      10ms  2.22% 64.44%      140ms 31.11%  fmt.(*fmt).fmtFloat
+      10ms  2.22% 66.67%      160ms 35.56%  fmt.Fprintf
+      10ms  2.22% 68.89%       10ms  2.22%  indexbytebody
+      10ms  2.22% 71.11%       20ms  4.44%  math/rand.(*Rand).Float64
+      10ms  2.22% 73.33%       10ms  2.22%  math/rand.(*rngSource).Uint64 (inline)
+      10ms  2.22% 75.56%       10ms  2.22%  minivectordb/internal/sqlparse.(*parser).isOp
+      10ms  2.22% 77.78%       40ms  8.89%  minivectordb/internal/types.ParseVector
+      10ms  2.22% 80.00%       10ms  2.22%  minivectordb/internal/types.le64 (inline)
+      10ms  2.22% 82.22%       10ms  2.22%  runtime.getempty
+      10ms  2.22% 84.44%       30ms  6.67%  runtime.mallocgc
+      10ms  2.22% 86.67%       10ms  2.22%  runtime.memmove
+      10ms  2.22% 88.89%       10ms  2.22%  runtime.nextFreeFast (inline)
+      10ms  2.22% 91.11%       10ms  2.22%  runtime.publicationBarrier
+      10ms  2.22% 93.33%       10ms  2.22%  runtime.sweepone
+      10ms  2.22% 95.56%       10ms  2.22%  strconv.computeBounds (inline)
+      10ms  2.22% 97.78%       40ms  8.89%  strconv.ryuDigits
+      10ms  2.22%   100%       10ms  2.22%  strings.(*Builder).WriteByte
+         0     0%   100%       20ms  4.44%  encoding/json.(*decodeState).literalStore
+         0     0%   100%       40ms  8.89%  encoding/json.(*decodeState).object
