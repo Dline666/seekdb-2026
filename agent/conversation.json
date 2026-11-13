@@ -1073,8 +1073,8 @@
     {
       "id": "E30",
       "topic": "协议层 2MiB/5MiB 单行",
-      "command": "python3 - <<'PY'  # send 2MiB then 5MiB single-line INSERT to ./mvdb, check id/affected\nimport json,subprocess\np=subprocess.Popen(['./mvdb','--data-dir','/tmp/big'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)\nassert json.loads(p.stdout.readline())=={'type':'ready'}\nfor n,mb in ((1,2),(2,5)):\n    sql='INSERT INTO docs VALUES '+','.join(\"(%d,'c','[%s]')\"%(i,'0.5,'*127+'0.5') for i in range(mb*1024*1024//120))\n    p.stdin.write(json.dumps({'id':n,'op':'execute','sql':sql})+'\\n'); p.stdin.flush()\n    r=json.loads(p.stdout.readline()); assert r['id']==n and r['ok'], r\n    print('bigline', mb, 'MiB ok affected', r['affected_rows'])\nPY",
-      "output": "bigline 2 MiB ok affected 17895\nbigline 5 MiB ok affected 44739",
+      "command": "python3 - <<'PY'  # send ~2MiB then ~5MiB single-line INSERT to ./mvdb, check id/affected\nimport json,subprocess\np=subprocess.Popen(['./mvdb','--data-dir','/tmp/big'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)\nassert json.loads(p.stdout.readline())=={'type':'ready'}\nvec='0.5,'*127+'0.5'; prefix='INSERT INTO docs VALUES '\nfor n,mb in ((1,2),(2,5)):\n    target=mb*1024*1024; rows=[]; size=len(prefix)\n    while True:\n        row=\"(%d,'c','[%s]')\"%(len(rows),vec); add=len(row)+(1 if rows else 0)\n        if size+add>target: break\n        rows.append(row); size+=add\n    sql=prefix+','.join(rows)\n    p.stdin.write(json.dumps({'id':n,'op':'execute','sql':sql})+'\\n'); p.stdin.flush()\n    r=json.loads(p.stdout.readline()); assert r['id']==n and r['ok'] and r['affected_rows']==len(rows), r\n    print('bigline', mb, 'MiB ok affected', r['affected_rows'], 'line_bytes', len(sql))\nPY",
+      "output": "bigline 2 MiB ok affected 3981 line_bytes 2096900\nbigline 5 MiB ok affected 9950 line_bytes 5242563",
       "environment": "Linux x86_64; 本地驱动; 真实协议",
       "classification": "actual-result",
       "source": "tool-output",
