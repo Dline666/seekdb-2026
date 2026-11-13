@@ -107,6 +107,7 @@ func (db *DB) execSelect(s *sp.Select) (*Result, error) {
 		return res, nil
 	}
 	var offs []int64
+	var dists []float64 // squared L2 distances, parallel to offs
 	ok := false
 	if len(keys) == 1 && keys[0].c.l2q != nil && !keys[0].desc && want <= 1<<20 {
 		var eq *eqFilterSpec
@@ -115,7 +116,7 @@ func (db *DB) execSelect(s *sp.Select) (*Result, error) {
 				eq = &eqFilterSpec{col, val, eqCovers(s.Where)}
 			}
 		}
-		offs, ok = db.vectorTopK(t, keys[0].c.l2q, pred, int(want), s.Approx, eq)
+		offs, dists, ok = db.vectorTopK(t, keys[0].c.l2q, pred, int(want), s.Approx, eq)
 	}
 	if !ok {
 		offs = db.scanSorted(t, pred, keys, want)
@@ -124,11 +125,32 @@ func (db *DB) execSelect(s *sp.Select) (*Result, error) {
 		return res, nil
 	}
 	offs = offs[s.Offset:]
+	if dists != nil {
+		dists = dists[s.Offset:]
+	}
+	// The ORDER BY L2_DISTANCE column, when it is also a SELECT item,
+	// shares its compiled expression with the sort key (same pointer:
+	// orderKeys resolves an alias/ordinal to the item's compiled value).
+	// Its value is sqrt of the squared distance vectorTopK already
+	// computed, so reuse it instead of recomputing L2 per result row.
+	l2col := -1
+	if dists != nil {
+		for j, o := range outs {
+			if o.c == keys[0].c {
+				l2col = j
+				break
+			}
+		}
+	}
 	res.Rows = make([][]types.Value, len(offs))
 	for i, off := range offs {
 		b := db.rowBytes(off)
 		row := make([]types.Value, len(outs))
 		for j, o := range outs {
+			if j == l2col {
+				row[j] = types.Float(math.Sqrt(dists[i]))
+				continue
+			}
 			row[j] = o.c.fn(b)
 		}
 		res.Rows[i] = row

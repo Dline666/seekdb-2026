@@ -36,9 +36,28 @@ type VecIndex struct {
 	slotList []int32
 	ivfBuilt int // live count when the IVF was trained
 
+	// Int8 prefilter state. codes holds one uint8 code per dimension per
+	// slot (slot-major: codes[s*dim+i]); qp holds the per-slot affine
+	// parameters. Codes are derived state, rebuilt with the slots, and are
+	// only used to filter candidates: exact distances are always
+	// recomputed for survivors. codes is nil when the prefilter is off
+	// (small dimension, memory budget, or a disabled index).
+	// qf holds the folded per-slot threshold constants (see foldQparam),
+	// four float64s per slot in slot-major order: qf[s*4+0]=m2,
+	// qf[s*4+1]=t2, qf[s*4+2]=s2, qf[s*4+3]=cRow. The fused scan's kernel
+	// reads all four with one cursor. It is built and reset exactly with
+	// qp, so it is never stale relative to the codes.
+	codes       []byte
+	qp          []qparam
+	qf          []float64
+	maxScale    float32   // largest per-row quantization scale in the index; a stale larger value is safe (it only loosens the prefilter threshold)
+	qscratch    []float32 // reused decode buffer for quantizeSlot
+	noPrefilter bool
+
 	// gen changes whenever a slot changes; derived sets compare against it.
 	gen uint64
 	eq  map[int]*eqSet
+	cat map[int]map[string]*catBlock
 }
 
 // indexBytesPerRow is the in-memory cost of one indexed row once the vectors
@@ -58,9 +77,17 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 	x.Disabled = int64(len(t.rows))*indexBytesPerRow > db.opts.IndexMemBytes
 	if x.Disabled {
 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
+		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
 		x.resetIVF()
 		return
 	}
+	// The prefilter needs dim+48 bytes per row (codes + parameters +
+	// folded threshold constants) on top of the index itself, and only
+	// pays off for the batched scan (dim>=16).
+	// When it does not fit, the index still works and queries just run the
+	// exact scan.
+	x.noPrefilter = x.dim < 16 || int64(len(t.rows))*(int64(x.dim)+48) > db.opts.IndexMemBytes
+	x.codes, x.qp, x.qf, x.maxScale = nil, nil, nil, 0
 	x.pks, x.off, x.free = nil, nil, nil
 	x.pos = make(map[int64]int32, len(t.rows))
 	x.live = 0
@@ -96,8 +123,16 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	if !x.has(pk) && int64(x.live+1)*indexBytesPerRow > db.opts.IndexMemBytes {
 		x.Disabled = true
 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
+		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
 		x.resetIVF()
 		return
+	}
+	// Backstop for the codes budget: rows added after the last rebuild can
+	// push the codes past the budget. Dropping the codes only turns the
+	// prefilter off; the index itself keeps working.
+	if !x.has(pk) && !x.noPrefilter && x.dim >= 16 &&
+		int64(x.live+1)*(int64(x.dim)+48) > db.opts.IndexMemBytes {
+		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, true, 0
 	}
 	s, ok := x.pos[pk]
 	if !ok {
@@ -111,6 +146,11 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 			if x.slotList != nil {
 				x.slotList = append(x.slotList, -1)
 			}
+			if !x.noPrefilter && x.dim >= 16 {
+				x.codes = append(x.codes, make([]byte, x.dim)...)
+				x.qp = append(x.qp, qparam{})
+				x.qf = append(x.qf, 0, 0, 0, 0)
+			}
 		}
 		x.pos[pk] = s
 		x.live++
@@ -119,10 +159,42 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	}
 	x.pks[s] = pk
 	x.off[s] = off
+	x.quantizeSlot(db, t, s)
 	if x.slotList != nil {
 		c := x.nearestCentroidBytes(db, t, off)
 		x.lists[c] = append(x.lists[c], s)
 		x.slotList[s] = int32(c)
+	}
+}
+
+// quantizeSlot (re)builds the int8 codes of the row in slot s from the
+// vector stored at x.off[s]. It reuses x.qscratch so bulk inserts do not
+// allocate once per row. It is a no-op when the prefilter is off. The
+// defensive growth below keeps the invariant the scan relies on (every
+// slot owns dim code bytes and one parameter set); upsert extends the
+// arrays on append, so it should never trigger, but a slot without codes
+// would let the scan filter on stale data, which must not happen silently.
+func (x *VecIndex) quantizeSlot(db *DB, t *Table, s int32) {
+	if x.noPrefilter || x.dim < 16 {
+		return
+	}
+	if want := (int(s) + 1) * x.dim; len(x.codes) < want {
+		x.codes = append(x.codes, make([]byte, want-len(x.codes))...)
+	}
+	for len(x.qp) <= int(s) {
+		x.qp = append(x.qp, qparam{})
+		x.qf = append(x.qf, 0, 0, 0, 0)
+	}
+	if len(x.qscratch) < x.dim {
+		x.qscratch = make([]float32, x.dim)
+	}
+	v := x.qscratch[:x.dim]
+	x.decodeInto(v, db, t, x.off[s])
+	base := int(s) * x.dim
+	x.qp[s] = quantizeRow(v, x.codes[base:base+x.dim])
+	x.qf[4*int(s)], x.qf[4*int(s)+1], x.qf[4*int(s)+2], x.qf[4*int(s)+3] = foldQparam(x.qp[s], x.dim)
+	if x.qp[s].scale > x.maxScale {
+		x.maxScale = x.qp[s].scale
 	}
 }
 
