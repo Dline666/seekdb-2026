@@ -1,0 +1,10 @@
+== b410e23ac01bcbf1df342faa6030034ab1d05e6c
+protocol_check passed=True pass=20/20
+ok: 40 rounds, 37325 committed rows
+ok: 40 rounds, 43310 committed rows
+ok: 40 rounds, 40379 committed rows
+== e3d67a821851a6a08866270c9ba6dc454c3d02e9
+protocol_check passed=True pass=20/20
+ok: 40 rounds, 44706 committed rows
+ok: 40 rounds, 48062 committed rows
+ok: 40 rounds, 45790 committed rows
