@@ -19,6 +19,24 @@ var compactMinGarbage int64 = 256 << 20
 // synced and renamed over the old one, so a crash at any point leaves either
 // the old or the new complete log.
 func (db *DB) maybeCompact() error {
+	// The fixed-width columns and at least one length byte per VARCHAR give
+	// a lower bound on live log bytes without touching row pages. Most logs
+	// cannot meet either compaction threshold; reading their row headers in
+	// map order would turn startup into a second, random pass over the file.
+	liveLower := int64(0)
+	for _, t := range db.byID {
+		minRow := int64(t.varBase + storage.HdrSize + 4)
+		for _, vi := range t.varIdx {
+			if vi >= 0 {
+				minRow++
+			}
+		}
+		liveLower += int64(len(t.rows)) * minRow
+	}
+	garbageUpper := db.log.Size() - liveLower
+	if garbageUpper < compactMinGarbage || garbageUpper < liveLower {
+		return nil
+	}
 	live := int64(0)
 	for _, t := range db.byID {
 		for _, off := range t.rows {
