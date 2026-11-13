@@ -316,16 +316,16 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			}
 			return
 		}
-		// With AVX512_VNNI the VPDPBUSD kernel runs instead of the
+		// With AVX512-VNNI or AVX-VNNI the VPDPBUSD kernel replaces the
 		// AVX2 one, in both the unfiltered fused branch and the
 		// block branch below: the biased query codes (qc8) and the
-		// bias-absorbing qmin (qminAdj) are built once per query
-		// here, not per batch. See fusedScanInt8VNNI.
+		// bias-absorbing qmin (qminAdj) are built once
+		// per worker here, not per batch. See fusedScanInt8VNNI.
 		var qc8 []int8
 		var qminAdj float64
 		// Built only when a fused branch will actually use them; the
 		// multi-pass path below never touches qc8/qminAdj.
-		if useVNNI && (fusedBlockOK || fusedOK) {
+		if (useVNNI || useAVXVNNI) && (fusedBlockOK || fusedOK) || useAVXVNNI && fusedCandidateOK {
 			qc8 = make([]int8, len(qc))
 			for i, c := range qc {
 				qc8[i] = int8(c - 128)
@@ -353,6 +353,8 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				var m int
 				if useVNNI {
 					m = fusedScanInt8BlockVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+				} else if useAVXVNNI {
+					m = fusedScanBlockAVXVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
 				} else {
 					m = fusedScanInt8Block(qc, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
 				}
@@ -383,7 +385,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			// kernel keeps every row (the dot work for that first batch
 			// is the only cost of fusing the prefilter in).
 			//
-			// qc8/qminAdj (VNNI) are built once per query above and
+			// qc8/qminAdj (VNNI) are built once per worker above and
 			// shared with the block branch.
 			var surv [2 * scanBatch]int64
 			var soff, spk [scanBatch]int64
@@ -406,10 +408,16 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd)
 				var m int
 				if fusedCandidateOK {
-					m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+					if useAVXVNNI {
+						m = fusedScanCandidateAVXVNNI(qc8, x, cand[i:i+n], qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+					} else {
+						m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+					}
 					fusedCandidateBatches.Add(1)
 				} else if useVNNI {
 					m = fusedScanVNNI(qc8, x, int32(i), n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+				} else if useAVXVNNI {
+					m = fusedScanAVXVNNI(qc8, x, int32(i), n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
 				} else {
 					m = fusedScanInt8(qc, x, int32(i), n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
 				}
