@@ -1,0 +1,510 @@
+[
+  {
+    "source": "/tmp/seekdb-round3-results/stress-final.jsonl",
+    "config": {
+      "batch": 64,
+      "binary": "/tmp/seekdb-round3-bin/final",
+      "bulk_update": true,
+      "cpu_max": "200000 100000",
+      "data_dir": "/tmp/seekdb-round3-stress-final",
+      "device": "8:48",
+      "dim": 1024,
+      "durability": "explicit fdatasync",
+      "env": [
+        "GOMAXPROCS=2",
+        "GOMEMLIMIT=1288490188",
+        "GOGC=20"
+      ],
+      "exceeds_2gib": true,
+      "generator": "row-local xorshift signed uint8/16",
+      "index_mem_mb": 256,
+      "memory_limit": 2147483648,
+      "memory_swap_max": 0,
+      "phase": "config",
+      "queries_per_state": 12,
+      "raw_vector_bytes": 2252800000,
+      "rows": 550000
+    },
+    "phases": [
+      {
+        "phase": "initial_startup",
+        "t_s": 0.002809148,
+        "wall_s": 0.003191213,
+        "b_bytes": 0,
+        "r_bytes": 0,
+        "w_bytes": 0,
+        "m_bytes": 1572864,
+        "max_sampled_anon": 958464,
+        "max_sampled_file": 0,
+        "max_sampled_rss": 3219456,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "write",
+        "t_s": 39.46376074699988,
+        "wall_s": 76.186690551,
+        "b_bytes": 2305736704,
+        "r_bytes": 0,
+        "w_bytes": 2305736704,
+        "m_bytes": 2147487744,
+        "max_sampled_anon": 41586688,
+        "max_sampled_file": 2057687040,
+        "max_sampled_rss": 43892736,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 1618,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "log_bytes": 2270546282
+      },
+      {
+        "phase": "query_after_write",
+        "t_s": 60.04744526,
+        "wall_s": 60.059224674,
+        "b_bytes": 8756371456,
+        "r_bytes": 8756371456,
+        "w_bytes": 0,
+        "m_bytes": 2147532800,
+        "max_sampled_anon": 62627840,
+        "max_sampled_file": 2081816576,
+        "max_sampled_rss": 2145181696,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 21317,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 12,
+        "reference_bad": 0
+      },
+      {
+        "phase": "updates_deletes_rollback",
+        "t_s": 0.027795247,
+        "wall_s": 0.051533195,
+        "b_bytes": 155648,
+        "r_bytes": 0,
+        "w_bytes": 155648,
+        "m_bytes": 2147483648,
+        "max_sampled_anon": 62631936,
+        "max_sampled_file": 2076278784,
+        "max_sampled_rss": 2140483584,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 21318,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "query_after_updates",
+        "t_s": 16.017213586,
+        "wall_s": 16.040898193,
+        "b_bytes": 8368889856,
+        "r_bytes": 8368889856,
+        "w_bytes": 0,
+        "m_bytes": 2147487744,
+        "max_sampled_anon": 64847872,
+        "max_sampled_file": 2076983296,
+        "max_sampled_rss": 2141917184,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 41411,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 12,
+        "reference_bad": 0
+      },
+      {
+        "phase": "kill_after_acknowledged_commits",
+        "t_s": 0.029463497,
+        "wall_s": 0.043805665,
+        "b_bytes": 0,
+        "r_bytes": 0,
+        "w_bytes": 0,
+        "m_bytes": 2147459072,
+        "max_sampled_anon": 64847872,
+        "max_sampled_file": 2074333184,
+        "max_sampled_rss": 2140233728,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 41411,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "recovery_after_commit_kill",
+        "t_s": 0.753286133,
+        "wall_s": 0.754068403,
+        "b_bytes": 609693696,
+        "r_bytes": 609693696,
+        "w_bytes": 0,
+        "m_bytes": 2147483648,
+        "max_sampled_anon": 42291200,
+        "max_sampled_file": 2130345984,
+        "max_sampled_rss": 44597248,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 42251,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "query_after_commit_recovery",
+        "t_s": 57.792616729,
+        "wall_s": 57.824578283,
+        "b_bytes": 5796540416,
+        "r_bytes": 5796540416,
+        "w_bytes": 0,
+        "m_bytes": 2147487744,
+        "max_sampled_anon": 63164416,
+        "max_sampled_file": 2100768768,
+        "max_sampled_rss": 2143567872,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 55451,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 12,
+        "reference_bad": 0
+      },
+      {
+        "phase": "uncommitted_tail_flushed",
+        "t_s": 25.868055338,
+        "wall_s": 25.899313572,
+        "b_bytes": 2175590400,
+        "r_bytes": 2175590400,
+        "w_bytes": 0,
+        "m_bytes": 2147487744,
+        "max_sampled_anon": 63332352,
+        "max_sampled_file": 2075148288,
+        "max_sampled_rss": 2140700672,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 62644,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 1,
+        "reference_bad": 0,
+        "log_bytes": 2270629344
+      },
+      {
+        "phase": "kill_with_uncommitted_transaction",
+        "t_s": 0.029924436,
+        "wall_s": 0.044712169,
+        "b_bytes": 0,
+        "r_bytes": 0,
+        "w_bytes": 0,
+        "m_bytes": 2147467264,
+        "max_sampled_anon": 63332352,
+        "max_sampled_file": 2075148288,
+        "max_sampled_rss": 2140700672,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 62644,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "kill_during_recovery",
+        "t_s": 0.011942676,
+        "wall_s": 0.012126385,
+        "b_bytes": 16560128,
+        "r_bytes": 16560128,
+        "w_bytes": 0,
+        "m_bytes": 2100043776,
+        "max_sampled_anon": 0,
+        "max_sampled_file": 2091708416,
+        "max_sampled_rss": 561152,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 62644,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "killed_before_ready": true
+      },
+      {
+        "phase": "final_recovery",
+        "t_s": 0.90956759,
+        "wall_s": 0.910279493,
+        "b_bytes": 946757632,
+        "r_bytes": 946753536,
+        "w_bytes": 4096,
+        "m_bytes": 2147483648,
+        "max_sampled_anon": 42553344,
+        "max_sampled_file": 2139312128,
+        "max_sampled_rss": 44859392,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 64919,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "query_after_final_recovery",
+        "t_s": 39.475969816,
+        "wall_s": 39.505418195,
+        "b_bytes": 7132639232,
+        "r_bytes": 7132635136,
+        "w_bytes": 4096,
+        "m_bytes": 2147487744,
+        "max_sampled_anon": 65716224,
+        "max_sampled_file": 2077138944,
+        "max_sampled_rss": 2143477760,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 83840,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 12,
+        "reference_bad": 0
+      },
+      {
+        "phase": "final_full_census",
+        "t_s": 34.703616266,
+        "wall_s": 36.395014822,
+        "b_bytes": 1079955456,
+        "r_bytes": 1079955456,
+        "w_bytes": 0,
+        "m_bytes": 2147487744,
+        "max_sampled_anon": 252313600,
+        "max_sampled_file": 2071658496,
+        "max_sampled_rss": 2140184576,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 89815,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_rows_checked": 549997,
+        "reference_bad": 0
+      },
+      {
+        "phase": "bulk_update",
+        "t_s": 3.921982947,
+        "wall_s": 3.95710861,
+        "b_bytes": 4006735872,
+        "r_bytes": 1963360256,
+        "w_bytes": 2043375616,
+        "m_bytes": 2147483648,
+        "max_sampled_anon": 240545792,
+        "max_sampled_file": 2026000384,
+        "max_sampled_rss": 2139291648,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 96117,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "affected_rows": 549997
+      },
+      {
+        "phase": "query_after_bulk_update",
+        "t_s": 21.310952262,
+        "wall_s": 21.350517326,
+        "b_bytes": 43058302976,
+        "r_bytes": 43058302976,
+        "w_bytes": 0,
+        "m_bytes": 2147749888,
+        "max_sampled_anon": 134651904,
+        "max_sampled_file": 2005442560,
+        "max_sampled_rss": 2123661312,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 375256,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 12,
+        "reference_bad": 0
+      },
+      {
+        "phase": "kill_after_bulk_commit",
+        "t_s": 0.054173694,
+        "wall_s": 0.078471319,
+        "b_bytes": 0,
+        "r_bytes": 0,
+        "w_bytes": 0,
+        "m_bytes": 2147467264,
+        "max_sampled_anon": 134651904,
+        "max_sampled_file": 1993842688,
+        "max_sampled_rss": 2116087808,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 375256,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "recovery_after_bulk_commit",
+        "t_s": 2.226166983,
+        "wall_s": 2.227208645,
+        "b_bytes": 3392225280,
+        "r_bytes": 3392225280,
+        "w_bytes": 0,
+        "m_bytes": 2147483648,
+        "max_sampled_anon": 47960064,
+        "max_sampled_file": 2131406848,
+        "max_sampled_rss": 50200576,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 380692,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      },
+      {
+        "phase": "query_after_bulk_recovery",
+        "t_s": 27.718839752,
+        "wall_s": 27.739046194,
+        "b_bytes": 46082883584,
+        "r_bytes": 46082883584,
+        "w_bytes": 0,
+        "m_bytes": 2147692544,
+        "max_sampled_anon": 58126336,
+        "max_sampled_file": 2093150208,
+        "max_sampled_rss": 2133610496,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 563913,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_checked": 12,
+        "reference_bad": 0
+      },
+      {
+        "phase": "final_full_census",
+        "t_s": 585.699081703,
+        "wall_s": 587.397842717,
+        "b_bytes": 840325402624,
+        "r_bytes": 840325402624,
+        "w_bytes": 0,
+        "m_bytes": 2147721216,
+        "max_sampled_anon": 261140480,
+        "max_sampled_file": 2071986176,
+        "max_sampled_rss": 2129797120,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 4949017,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "reference_rows_checked": 549997,
+        "reference_bad": 0
+      },
+      {
+        "phase": "graceful_shutdown",
+        "t_s": 0.070188525,
+        "wall_s": 0.096849262,
+        "b_bytes": 0,
+        "r_bytes": 0,
+        "w_bytes": 0,
+        "m_bytes": 2133954560,
+        "max_sampled_anon": 246943744,
+        "max_sampled_file": 1866936320,
+        "max_sampled_rss": 2115477504,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 4949017,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        }
+      }
+    ],
+    "basic_workflow_success": {
+      "cgroup_reused_across_restarts": true,
+      "full_census_checked": true,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 89815,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0
+      },
+      "phase": "basic_workflow_success",
+      "raw_vector_bytes": 2252800000,
+      "reference_bad": 0,
+      "reference_checked": 49,
+      "whole_workflow_m_bytes": 2147532800
+    },
+    "success": {
+      "cgroup_reused_across_restarts": true,
+      "data_dir": "/tmp/seekdb-round3-stress-final",
+      "exceeds_2gib": true,
+      "full_census_checked": true,
+      "log_bytes": 4313968692,
+      "memory_events": {
+        "high": 0,
+        "low": 0,
+        "max": 4949017,
+        "oom": 0,
+        "oom_group_kill": 0,
+        "oom_kill": 0
+      },
+      "phase": "success",
+      "raw_vector_bytes": 2252800000,
+      "reference_bad": 0,
+      "reference_checked": 73,
+      "whole_workflow_m_bytes": 2147749888
+    }
+  }
+]

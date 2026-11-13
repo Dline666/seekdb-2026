@@ -1,0 +1,54 @@
+[
+  {
+    "Architecture": "amd64",
+    "Config": {
+      "Cmd": [
+        "--data-dir",
+        "/data"
+      ],
+      "Entrypoint": [
+        "/app/minivectordb"
+      ],
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      ],
+      "Labels": {
+        "org.opencontainers.image.version": "24.04"
+      },
+      "Volumes": {
+        "/data": {}
+      },
+      "WorkingDir": "/app"
+    },
+    "Created": "2026-11-13T19:54:53.609855711Z",
+    "GraphDriver": {
+      "Data": {
+        "LowerDir": "/tmp/seekdb-docker-data/overlay2/e10003c11b76bdd2fecce30f6fd156b95b593670a042d4743b77a618ee626d96/diff:/tmp/seekdb-docker-data/overlay2/e3423734bd18028ac86211486943a57cf9040820218038a1b7870bf30172d1c2/diff:/tmp/seekdb-docker-data/overlay2/ef16ba1dfdb0e6d7281d1eff42082b67a055f24b860c6bcd26bb6037666094e3/diff",
+        "MergedDir": "/tmp/seekdb-docker-data/overlay2/c9800554727e3289b1440ef94528217bf0a42900fb98a214ecc6321d3d15c2fc/merged",
+        "UpperDir": "/tmp/seekdb-docker-data/overlay2/c9800554727e3289b1440ef94528217bf0a42900fb98a214ecc6321d3d15c2fc/diff",
+        "WorkDir": "/tmp/seekdb-docker-data/overlay2/c9800554727e3289b1440ef94528217bf0a42900fb98a214ecc6321d3d15c2fc/work"
+      },
+      "Name": "overlay2"
+    },
+    "Id": "sha256:f6cc9435373aba3dd4b84c00b4c4ab20d5652c0a7c76fbffdaa88de3f6ffc151",
+    "Metadata": {
+      "LastTagTime": "2026-11-14T03:54:53.62142493+08:00"
+    },
+    "Os": "linux",
+    "Parent": "sha256:4c1a024adcb267041a010ba743738b8b920d290b93e76a0f3aa79dcb61d3a80d",
+    "RepoDigests": [],
+    "RepoTags": [
+      "seekdb-exact:round3"
+    ],
+    "RootFS": {
+      "Layers": [
+        "sha256:21210938f5a37a9887b2d0a20428917b923a636ca6efe038c3c7d9cd9f1f9b61",
+        "sha256:00c01900ecaf293a9e13d91d1bb25a4be2163400ec5c192a56b8e7eb2031fd42",
+        "sha256:2e5ca230a77a56b9bd1f283814d735a90ce675fe81eff3114c61b7fc5f9ab82b",
+        "sha256:8e1901f6472c32a0458d3e82c22335738ecccde2658be66be66c4cb45301c082"
+      ],
+      "Type": "layers"
+    },
+    "Size": 82849844
+  }
+]

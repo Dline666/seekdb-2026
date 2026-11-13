@@ -1,0 +1,8 @@
+{
+  "daemon_pid": 182,
+  "context": "/tmp/seekdb-round3-docker-context-_e_4d5b1",
+  "socket": "unix:///tmp/seekdb-round3-docker.sock",
+  "stress_success_checked": true,
+  "stop_signal": "SIGTERM",
+  "daemon_stopped": true
+}

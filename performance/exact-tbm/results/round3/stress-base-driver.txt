@@ -1,0 +1,13 @@
+panic: cgroup OOM in failed_request
+
+goroutine 1 [running]:
+main.(*meter).finish(0xc000314140, {0x51a802, 0xe}, 0x406c121939ba8bd8, 0xc00008af58)
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:166 +0xbd4
+main.(*child).read(0xc000462150)
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:222 +0x42c
+main.(*child).send(0xc000462150, {0x51e6d5, 0x1d}, {0x5192b8, 0x7})
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:250 +0x252
+main.(*child).sql(0xc000462150?, {0x51e6d5?, 0x51e6b8?})
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:260 +0x4b
+main.main()
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:649 +0x2e6d

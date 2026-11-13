@@ -1,0 +1,42 @@
+[
+  {
+    "name": "recovery",
+    "phase": "recovery_compare,recovery_compare_queries,recovery_compare_shutdown",
+    "rounds": 3,
+    "median": {
+      "t_s": 4.540042531,
+      "b_bytes": 8153329664,
+      "m_bytes": 2147483648
+    },
+    "phase_E": {
+      "baseline": "round2",
+      "median": 0.8341930895827371,
+      "runs": [
+        0.8278094729563897,
+        0.8341930895827371,
+        0.8375470987638283
+      ]
+    },
+    "note": "Phase-only local comparison; not official overall E or a platform score."
+  },
+  {
+    "name": "round2",
+    "phase": "recovery_compare,recovery_compare_queries,recovery_compare_shutdown",
+    "rounds": 3,
+    "median": {
+      "t_s": 50.05704155,
+      "b_bytes": 93069934592,
+      "m_bytes": 2147487744
+    },
+    "phase_E": {
+      "baseline": "round2",
+      "median": 0.49912582892385654,
+      "runs": [
+        0.5023278885654607,
+        0.49912582892385654,
+        0.4989695531979834
+      ]
+    },
+    "note": "Phase-only local comparison; not official overall E or a platform score."
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "round2",
+    "phase": "bulk_update",
+    "rounds": 3,
+    "median": {
+      "t_s": 0.982095283,
+      "b_bytes": 95039488,
+      "m_bytes": 925011968
+    },
+    "phase_E": {
+      "baseline": "round2",
+      "median": 0.4999277356051315,
+      "runs": [
+        0.4999277356051315,
+        0.5018664080848457,
+        0.4910348195716967
+      ]
+    },
+    "note": "Phase-only local comparison; not official overall E or a platform score."
+  },
+  {
+    "name": "stream",
+    "phase": "bulk_update",
+    "rounds": 3,
+    "median": {
+      "t_s": 0.546194591,
+      "b_bytes": 95039488,
+      "m_bytes": 271929344
+    },
+    "phase_E": {
+      "baseline": "round2",
+      "median": 0.6400347333389131,
+      "runs": [
+        0.5976267095529281,
+        0.6422120426377531,
+        0.6400347333389131
+      ]
+    },
+    "note": "Phase-only local comparison; not official overall E or a platform score."
+  }
+]

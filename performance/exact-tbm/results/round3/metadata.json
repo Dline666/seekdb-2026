@@ -1,0 +1,64 @@
+{
+  "date_local": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "branch": "perf/exact-tbm-5500",
+  "base_commit": "af1163209d0489fc7f0119c26d9595266dfa6d46",
+  "final_engine_commit": "2585f13d05868efa8d39b8c5e41893dbcc61f4ff",
+  "implementation_commits": {
+    "bounds": "219ca11",
+    "recovery": "92432ad",
+    "stream": "2585f13"
+  },
+  "isolated_variants": {
+    "round2": "base unchanged; SHA256 matches ROUND2 release-safe",
+    "bounds": "base plus vecindex.go, prefilter.go, topk.go, eqset.go changes only",
+    "recovery": "base plus compact.go changes only",
+    "stream": "base plus dml.go changes only",
+    "final": "all three production changes"
+  },
+  "database_build": {
+    "go_version": "Ubuntu Go 1.22.2",
+    "CGO_ENABLED": "0",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOFLAGS": "-trimpath",
+    "ldflags": "-s -w"
+  },
+  "host": {
+    "distribution": "WSL ArchBench",
+    "kernel": "6.18.58.1-microsoft-standard-WSL2",
+    "cpu": "Intel Core Ultra 5 125H",
+    "visible_logical_cpus": 8,
+    "host_mem_total_kib": 10186396,
+    "data_filesystem": "ext4",
+    "data_device": "8:48"
+  },
+  "database_limits": {
+    "cpu.max": "200000 100000",
+    "memory.max": 2147483648,
+    "memory.swap.max": 0,
+    "pids.max": 128,
+    "GOMAXPROCS": 2,
+    "GOMEMLIMIT": 1288490188,
+    "GOGC": 20,
+    "index_mem_mib": 256,
+    "sync_mode": "fdatasync"
+  },
+  "driver": {
+    "location": "outside database cgroup",
+    "memory_sample_period_ms": 50,
+    "stress_cgroup": "reused across all process restarts",
+    "recovery_cache_control": "own log only: sync, FADV_DONTNEED, mincore resident-pages assertion",
+    "initial_diagnostic_go_version": "1.22.12; excluded from strict performance comparison",
+    "final_go_version": "1.22.2"
+  },
+  "docker": {
+    "tag": "seekdb-exact:round3",
+    "image_id": "sha256:f6cc9435373aba3dd4b84c00b4c4ab20d5652c0a7c76fbffdaa88de3f6ffc151",
+    "binary_sha256": "6535372ed1dae468838f87bbc435ec66a63be049894c7d7d08539157dd6b86c3",
+    "public_cases_passed": 20,
+    "run_after_performance_completed": true
+  },
+  "formal_submissions_used": 0,
+  "pushed": false
+}

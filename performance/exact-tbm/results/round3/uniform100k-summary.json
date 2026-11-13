@@ -1,0 +1,113 @@
+[
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "uniform",
+    "name": "bounds",
+    "write": {
+      "t_s": 2.748727747,
+      "b_bytes": 109711360,
+      "m_bytes": 116772864,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.29348323,
+      "b_bytes": 109711360,
+      "m_bytes": 152109056,
+      "warmup_s": 0.419619932,
+      "rounds": 5
+    },
+    "checked_queries": 1500,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "round2",
+      "median": 0.49853772459139395,
+      "rounds": [
+        0.49966937271964174,
+        0.49853772459139395,
+        0.4748092790670869,
+        0.5015773401183583,
+        0.49123970145247
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "uniform",
+    "name": "final",
+    "write": {
+      "t_s": 2.691948022,
+      "b_bytes": 109711360,
+      "m_bytes": 116412416,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.297654566,
+      "b_bytes": 109711360,
+      "m_bytes": 152121344,
+      "warmup_s": 0.418948942,
+      "rounds": 5
+    },
+    "checked_queries": 1500,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "round2",
+      "median": 0.498031432689344,
+      "rounds": [
+        0.49275027793171156,
+        0.501524220893641,
+        0.49961441318616967,
+        0.47841218428488874,
+        0.498031432689344
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "uniform",
+    "name": "round2",
+    "write": {
+      "t_s": 2.668514772,
+      "b_bytes": 109711360,
+      "m_bytes": 116305920,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.292500753,
+      "b_bytes": 109711360,
+      "m_bytes": 152104960,
+      "warmup_s": 0.419243011,
+      "rounds": 5
+    },
+    "checked_queries": 1500,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "round2",
+      "median": 0.5004140407062567,
+      "rounds": [
+        0.4591169563537395,
+        0.5000187263412741,
+        0.5040086887781849,
+        0.5004140407062567,
+        0.5007450148699061
+      ]
+    }
+  }
+]

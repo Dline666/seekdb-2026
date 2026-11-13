@@ -1,0 +1,20 @@
+panic: EOF [recovered]
+	panic: EOF
+
+goroutine 1 [running]:
+main.main.func2()
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:756 +0x19b
+panic({0x503700?, 0x6040e0?})
+	/tmp/seekdb-round3-go/src/runtime/panic.go:770 +0x132
+main.(*child).read(0xc000162000)
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:268 +0x276
+main.(*child).send(0xc000162000, {0xc000292a00, 0x1a57}, {0x520769, 0x7})
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:294 +0x252
+main.(*child).sql(0x52b75f?, {0xc000292a00?, 0xc00012a308?})
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:304 +0x4b
+main.checkPoint(0xc000162000, 0x400, 0x2cc25, {0xa?, 0xc00012ab78?, 0x4?})
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:555 +0x190
+main.recoveryComparison({0x7ffce3f3fda7, 0x1e}, {0xc000112008, 0x4}, 0x86470, 0x400, 0x3, {0xc000114000, 0x2, 0x2})
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:660 +0x63f
+main.main()
+	/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go:792 +0x17a6

@@ -197,6 +197,10 @@ func main() {
 					must(e)
 					cmd := exec.Command(filepath.Join(*binDir, parts[0]), "--data-dir", data+"/db")
 					cmd.Env = append(os.Environ(), "GOMAXPROCS=2")
+					// UseCgroupFD enforces the hard limit without a private cgroup
+					// namespace. Match the application's Docker heap target even
+					// when its root-path detector cannot see this child cgroup.
+					cmd.Env = append(cmd.Env, "GOMEMLIMIT=1288490188")
 					cmd.Env = append(cmd.Env, parts[1:]...)
 					cmd.SysProcAttr = &syscall.SysProcAttr{UseCgroupFD: true, CgroupFD: int(f.Fd())}
 					cmd.Stderr = errfile
