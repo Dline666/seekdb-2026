@@ -44,6 +44,26 @@ row:
 	MOVQ R9, CX
 	VPXOR Y8, Y8, Y8
 	VPXOR Y9, Y9, Y9
+	CMPQ CX, $4
+	JL pairloop
+wideLoop:
+	VMOVDQU 0(DI), Y4
+	// VPDPBUSD 0(SI), Y4, Y8.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x06
+	VMOVDQU 32(DI), Y6
+	// VPDPBUSD 32(SI), Y6, Y9.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0x4E; BYTE $0x20
+	VMOVDQU 64(DI), Y4
+	// VPDPBUSD 64(SI), Y4, Y8; signed-byte displacement 0x40.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x46; BYTE $0x40
+	VMOVDQU 96(DI), Y6
+	// VPDPBUSD 96(SI), Y6, Y9; signed-byte displacement 0x60.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0x4E; BYTE $0x60
+	ADDQ $128, SI
+	ADDQ $128, DI
+	SUBQ $4, CX
+	CMPQ CX, $4
+	JGE wideLoop
 pairloop:
 	CMPQ CX, $2
 	JL single
@@ -145,6 +165,26 @@ row:
 	MOVQ R9, CX
 	VPXOR Y8, Y8, Y8
 	VPXOR Y9, Y9, Y9
+	CMPQ CX, $4
+	JL pairloop
+wideLoop:
+	VMOVDQU 0(DI), Y4
+	// VPDPBUSD 0(SI), Y4, Y8.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x06
+	VMOVDQU 32(DI), Y6
+	// VPDPBUSD 32(SI), Y6, Y9.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0x4E; BYTE $0x20
+	VMOVDQU 64(DI), Y4
+	// VPDPBUSD 64(SI), Y4, Y8; signed-byte displacement 0x40.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x46; BYTE $0x40
+	VMOVDQU 96(DI), Y6
+	// VPDPBUSD 96(SI), Y6, Y9; signed-byte displacement 0x60.
+	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0x4E; BYTE $0x60
+	ADDQ $128, SI
+	ADDQ $128, DI
+	SUBQ $4, CX
+	CMPQ CX, $4
+	JGE wideLoop
 pairloop:
 	CMPQ CX, $2
 	JL single
