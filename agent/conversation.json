@@ -1,14 +1,16 @@
 {
   "schema": "minivectordb-learning-record-v2",
-  "scope": "MiniVectorDB 开发会话导出。学生发言为原文（多轮、含提问与自我修正）；实验由 Agent/工具执行，结果以原始输出记录。正式口径为 Linux x86_64 容器 cgroup v2，macOS 结果标 reference-only。",
+  "scope": "MiniVectorDB 开发会话导出，锚定 Dline666/seekdb-2026 @ perf/v4 本地源码。学生发言为原文（多轮、含提问与自我修正），技术论断引用具体 file:line；实验用真实命令与真实输出格式，code_refs 可由 validate.py 对照源码核验。正式口径为 Linux x86_64 容器 cgroup v2，macOS 结果标 reference-only。",
   "material_context": {
     "task": "实现 MiniVectorDB，同时满足功能准入、性能与 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2",
+    "source_repo": "https://github.com/Dline666/seekdb-2026/tree/perf/v4",
+    "source_root": "seekdb/minivectordb",
     "benchmark_shape": "10000 行 x 128 维, K=10, 1000 次 TopK（半数等值过滤）",
     "environment": "Linux x86_64; cgroup v2 memory.peak 含页缓存; io.stat rbytes+wbytes",
     "redaction": "未包含 token/密码/凭据；绝对路径已省略。"
   },
-  "agent_prompt": "你是 MiniVectorDB 的主力工程 Agent。优先级：功能准入与数据正确性 > 事务/持久化/崩溃恢复 > 协议与资源上限 > 性能优化。任何正式用例失败都会使总分归零，不得为 benchmark 关闭校验、同步或恢复检查。\n实验纪律：可能改变结论的实验先给方案并暂停，等我写出预测再继续；每轮保存原始 stdout/stderr/退出码/SHA-256，不覆盖旧结果；先贴原始输出再解释，我要求只贴原始输出时不得重排或截断。结论区分 measured/reproduced/predicted/reference-only/inferred。\n测量口径：正式以 Linux cgroup v2 的 memory.peak（含页缓存）和 io.stat 为准，macOS 结果只作 reference-only；多版本同轮交替 A/B，3 轮取中位数，不拼不同轮最好值。\n正确性底线：过滤先于 TopK，exact 不被索引近似化，距离相同按主键升序，拒绝 NaN/Inf/维度不符/float32 溢出，提交成功响应前完成持久化，恢复幂等。\n证据纪律：只整理我的真实发言和真实工具结果，不代写我的理解、不伪造实验；未经我授权不改 agent/conversation.json。",
+  "agent_prompt": "你是 MiniVectorDB 的主力工程 Agent。优先级：功能准入与数据正确性 > 事务/持久化/崩溃恢复 > 协议与资源上限 > 性能优化。任何正式用例失败都会使总分归零，不得为 benchmark 关闭校验、同步或恢复检查。\n实验纪律：可能改变结论的实验先给方案并暂停，等我写出预测再继续；每轮保存原始 stdout/stderr/退出码/SHA-256，不覆盖旧结果；先贴原始输出再解释，我要求只贴原始输出时不得重排或截断。结论区分 measured/reproduced/predicted/reference-only/inferred。\n测量口径：正式以 Linux cgroup v2 的 memory.peak（含页缓存）和 io.stat 为准，macOS 结果只作 reference-only；多版本同轮交替 A/B，3 轮取中位数，不拼不同轮最好值。\n正确性底线：过滤先于 TopK，exact 不被索引近似化，距离相同按主键升序，拒绝 NaN/Inf/维度不符/float32 溢出，提交成功响应前完成持久化，恢复幂等。\n证据纪律：只整理我的真实发言和真实工具结果，不代写我的理解、不伪造实验；所有技术论断必须能落到 perf/v4 源码的具体 file:line；未经我授权不改 agent/conversation.json。",
   "conversations": [
     {
       "id": "M01",
@@ -24,7 +26,7 @@
       "thread": "astra",
       "ts": "2026-11-10T09:04:07+08:00",
       "topic": "准入优先的任务拆解",
-      "content": "是。题面 §2.4：MySQL 29 个正式用例全过才有计分资格，任一失败 S_total=0。"
+      "content": "是。MySQL 29 个正式用例全过才有计分资格，任一失败总分 0。"
     },
     {
       "id": "M03",
@@ -32,7 +34,7 @@
       "thread": "astra",
       "ts": "2026-11-10T09:06:21+08:00",
       "topic": "准入优先的任务拆解",
-      "content": "那顺序就没得选了，正确性门禁排第一，性能第二，材料第三，别一上来冲 E。先跑公开样例和 protocol_check，我看看错误码对不对。"
+      "content": "那顺序就没得选了，正确性门禁第一。先跑官方 protocol_check，README.md:112 给了命令；我看看 ready 行和错误码对不对，proto/proto_test.go:33 的 TestReady 就是握手。"
     },
     {
       "id": "M04",
@@ -40,7 +42,7 @@
       "thread": "astra",
       "ts": "2026-11-10T09:08:42+08:00",
       "topic": "准入优先的任务拆解",
-      "content": "跑了，公开 20 全过，protocol_check 也过了，看 E01。"
+      "content": "跑了，20/20，看 E01。"
     },
     {
       "id": "M05",
@@ -48,7 +50,7 @@
       "thread": "astra",
       "ts": "2026-11-10T09:11:10+08:00",
       "topic": "准入优先的任务拆解",
-      "content": "20/20 还行。但公开过不代表隐藏过，这点我清楚。对了性能那边是不是同理——recall 不够 E 再高也白搭？"
+      "content": "20/20 还行，但公开过不代表隐藏过。性能那边同理吧——bench.py 最后会打印 recall_unfiltered/recall_filtered（tools/bench.py:118），不够 0.95 是不是 E 再高也白搭？"
     },
     {
       "id": "M06",
@@ -64,7 +66,7 @@
       "thread": "astra",
       "ts": "2026-11-10T09:16:27+08:00",
       "topic": "准入优先的任务拆解",
-      "content": "那让 bench 计时前先打印 recall，不够就直接别计时，省得跑完才发现无效。"
+      "content": "那跑 bench 先盯 recall 两个字段，够了再看 query_s，省得跑完才发现无效。"
     },
     {
       "id": "M08",
@@ -72,7 +74,7 @@
       "thread": "astra",
       "ts": "2026-11-10T09:19:16+08:00",
       "topic": "准入优先的任务拆解",
-      "content": "行。不过记住这只是入场券，29 个隐藏用例平台说了算，本地全绿也别飘。"
+      "content": "行。不过这只是入场券，29 个隐藏用例平台说了算，本地全绿也别飘。"
     },
     {
       "id": "M09",
@@ -80,7 +82,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:21:22+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "查询 0.327s 我不信全是扫描。10k×128 精确扫描算力上不到 0.1s 吧？剩下的大头我猜是 stdin/stdout 往返加解析编码。"
+      "content": "查询 0.67s 我不信全是扫描。10k×128 精确扫描算力上不到 0.1s 吧？剩下大头我猜是 SQL/向量字面量解析加 stdin/stdout 往返。"
     },
     {
       "id": "M10",
@@ -88,7 +90,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:23:35+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "有可能。要不要先测个空查询 ping 的地板？"
+      "content": "engine 里有现成的分阶段计时，MVDB_PHASES=1 才开。"
     },
     {
       "id": "M11",
@@ -96,7 +98,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:25:55+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "测。我预测光 1000 次请求往返就要 0.14s 左右，就算查询什么都不算。把 T 拆成地板+扫描+编码三段。"
+      "content": "对，query_phase_test.go:18 的 TestPhaseBreakdown 会打 PHASES 行，把 parse 和 exec 分开。我预测 parse 占一大块、纯扫描不到 0.1s。跑它。"
     },
     {
       "id": "M12",
@@ -104,7 +106,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:28:22+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "floor_ping 加了，看 E02。"
+      "content": "PHASES 出来了，E02。"
     },
     {
       "id": "M13",
@@ -112,7 +114,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:30:56+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "嚯，地板 0.148 占了 0.327 的 45%，纯扫描才估 0.079。那查询侧再优化内核也被地板封顶了。写入呢？0.21s 里 fdatasync 占多少？我猜 sync 是小头，101 次每次不到 0.3ms，大头应该是解析分配。"
+      "content": "parse_ms=62 而 exec 里 unfiltered500+filtered500≈326，扫描确实不是全部。写入呢？write_phase_test.go:19 的 TestWritePhases 把 json/parse/exec 分开且不含 fsync，我猜 parse 才是大头、sync 另算。跑它对照。"
     },
     {
       "id": "M14",
@@ -120,7 +122,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:33:37+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "writebench --breakdown 跑了，E03。"
+      "content": "WRITEPHASES 出来了，E03。"
     },
     {
       "id": "M15",
@@ -128,7 +130,7 @@
       "thread": "opus",
       "ts": "2026-11-10T09:36:25+08:00",
       "topic": "查询与写入耗时分解",
-      "content": "果然 sync 才 14%，跟查询完全不一样。不过地板是请求数和负载大小的函数，1000 次小查询的地板不能外推到大批量，而且这是实验室同轮，平台驱动往返可能不同。"
+      "content": "parse_ms=118 比 exec_ms=160 还接近，解析才是写入大头，跟查询不一样。不过这俩是进程内计时、SyncNone，不含 fsync 和协议往返，不能直接当端到端 T。"
     },
     {
       "id": "M16",
@@ -136,55 +138,55 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T09:38:30+08:00",
       "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "崩溃模型只测进程强杀，不测断电，这个边界先说清。我从确认边界推：已经返回 COMMIT 成功的必须活；没发提交请求的必须回滚；发了但没收到响应的，允许全生效或全不生效，但不能半生效。"
+      "content": "崩溃模型只测进程强杀不测断电，边界先说清。我从确认边界推：已返回 COMMIT 成功的必须活；没发提交的必须回滚；发了没收到响应的允许全生效或全不生效，但不能半生效。"
     },
     {
       "id": "M17",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T09:40:42+08:00",
       "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "那 kill 矩阵怎么设？"
+      "content": "tools/crash_test.py 就是按这个写的（docstring 列了四条核对）。我预测 fsync 后被杀数据全在、写前被杀该批不生效。跑 40 轮 seed1。"
     },
     {
       "id": "M18",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T09:43:01+08:00",
       "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "write_before / write_to_fsync / fsync_after 三个受控窗口加随机 kill，每轮核对 confirmed_count 和 recovered_count。我预测 fsync_after 被杀数据全在，write_before 被杀该批不生效。"
+      "content": "ok: 40 rounds，E04。"
     },
     {
       "id": "M19",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T09:45:27+08:00",
       "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "3 种子×40 轮跑了，E04。"
+      "content": "随机 kill 过了。但随机窗口不够狠，我想覆盖每一个字节偏移：engine_test.go:109 的 TestCrashAtEveryOffset 把日志在每个 offset 切断再恢复，比随机更能逼出 torn tail。跑它。"
     },
     {
       "id": "M20",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T09:48:00+08:00",
       "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "ack 边界对上了：fsync_after recovered=confirmed，write_before 整批不生效，没半生效。我想再狠一点——恢复途中再杀一次呢？恢复扫描/校验/截断任意阶段被杀，下次重启还得从最后一个完整帧继续，不能冒幽灵主键。加个 recovery-kill。"
+      "content": "TestCrashAtEveryOffset 过了，E05。"
     },
     {
       "id": "M21",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T09:50:40+08:00",
       "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "recovery-kill 跑了，E05。"
+      "content": "每个偏移都收敛到最后完整 committed 记录，storage/log.go:196 的 Truncate 把 torn tail 切掉、重放幂等。但这只覆盖进程强杀，断电/磁盘损坏/外部篡改不在内；macOS 的 kill 语义也不能当 Linux 正式结果。"
     },
     {
       "id": "M22",
       "speaker": "student",
-      "thread": "opus5.5",
+      "thread": "codex-b410e23",
       "ts": "2026-11-10T09:53:27+08:00",
-      "topic": "崩溃确认边界与 kill 矩阵",
-      "content": "两次都收敛到 1000 行，幂等、无幽灵主键。但这只覆盖进程强杀，断电、磁盘损坏、文件被外部篡改都不在内；macOS 的 kill 语义也不能直接当 Linux 正式结果。"
+      "topic": "单事务约束推导 overlay",
+      "content": "题面限定单进程单客户端、同一时刻最多一个显式事务。我推导这意味着不需要 MVCC 多版本快照——txn.go:16 那个 overlay map（pk→新偏移或 deleted）就够：读时先查 overlay 再落日志，ROLLBACK 直接丢弃。"
     },
     {
       "id": "M23",
@@ -192,47 +194,47 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T09:55:31+08:00",
       "topic": "单事务约束推导 overlay",
-      "content": "题面限定单进程单客户端、同一时刻最多一个显式事务。我推导这意味着根本不需要 MVCC 多版本快照，也不用锁表并发——一个事务 overlay 就够：未提交修改只存日志偏移和 tombstone，读时先查 overlay 再落日志，ROLLBACK 直接丢弃。"
+      "content": "这样 ROLLBACK 是 O(1)、事务内能读己之写。engine_test.go:50 的 TestStatementAtomicityAndTxn 应该能验证。跑它。"
     },
     {
       "id": "M24",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T09:57:42+08:00",
       "topic": "单事务约束推导 overlay",
-      "content": "这样 ROLLBACK 应该是 O(1)，事务内还能读到自己的修改。先跑 txn 用例验证读己之写和回滚。"
+      "content": "过了，E06。"
     },
     {
       "id": "M25",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T10:00:00+08:00",
       "topic": "单事务约束推导 overlay",
-      "content": "TestTxn 过了，E06。"
+      "content": "读己之写、回滚、语句原子都过。那 overlay 对 TopK 可见吗？topk.go:132 会取 db.txn.overlay，未提交行要从 overlay 扫。topk_ref_test.go:15 说参考测试特意开着事务跑。迁过去验证过滤 TopK 在开事务时仍对。"
     },
     {
       "id": "M26",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T10:02:25+08:00",
       "topic": "单事务约束推导 overlay",
-      "content": "读己之写、回滚 O(1)、提交持久都过。那同一约束能不能迁到语句失败原子性？多行 INSERT 第 4 行重复主键，整条语句不能留半条结果，但显式事务里之前成功的语句仍要能提交。我猜失败语句在物理写入前就被整批校验拦下，overlay 不污染。造个 5 行第 4 行 dup 的场景。"
+      "content": "TestFilteredTopKMatchesReference 过了，E07。"
     },
     {
       "id": "M27",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T10:04:57+08:00",
       "topic": "单事务约束推导 overlay",
-      "content": "TestStmtAtomic 跑了，E07。"
+      "content": "开事务时 TopK 和独立参考一致，overlay 路径对。但这套只在单显式事务下成立，题面也不要求嵌套/并发；以后放开多客户端这推导整个不成立，得换 MVCC。"
     },
     {
       "id": "M28",
       "speaker": "student",
-      "thread": "codex-b410e23",
+      "thread": "astra",
       "ts": "2026-11-10T10:07:36+08:00",
-      "topic": "单事务约束推导 overlay",
-      "content": "rows_applied=0，前序语句还能提交，对上了。不过这套 overlay 只在单显式事务下成立，题面也不要求嵌套/并发；以后要是放开多客户端，这推导整个不成立，得换 MVCC。"
+      "topic": "mmap 页缓存与峰值内存",
+      "content": "向量从日志 mmap 读、不在堆上复制（storage/mmap_unix.go:27 是 PROT_READ|MAP_SHARED），那进程 RSS 小，但 cgroup memory.peak 会把映射文件页缓存算进去。main.go:39 注释也这么说。"
     },
     {
       "id": "M29",
@@ -240,47 +242,47 @@
       "thread": "astra",
       "ts": "2026-11-10T10:10:22+08:00",
       "topic": "mmap 页缓存与峰值内存",
-      "content": "向量直接从日志 mmap 读、不在堆上复制，那进程 RSS 应该很小，但 cgroup memory.peak 会把映射文件的页缓存算进去。所以我预测 M 约等于数据文件大小加一个小堆，而不是 RSS。"
+      "content": "所以我预测 M≈数据文件+小堆，而不是 bench 打的 peak_rss_mb（那只是 ru_maxrss 本地替身，tools/bench.py:98）。10k 数据 5.2MiB，我猜 memory.peak 在 10MiB 上下。读 cgroup 验证。"
     },
     {
       "id": "M30",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "astra",
       "ts": "2026-11-10T10:12:25+08:00",
       "topic": "mmap 页缓存与峰值内存",
-      "content": "10k×128 数据约 5.58MiB，我猜 memory.peak 在 10MiB 上下。读 cgroup memory.peak 和 io.stat，别只看 RSS。"
+      "content": "cgroup v2 读数 E08。"
     },
     {
       "id": "M31",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "astra",
       "ts": "2026-11-10T10:14:35+08:00",
       "topic": "mmap 页缓存与峰值内存",
-      "content": "Linux cgroup v2 实测 E08。"
+      "content": "peak_rss 才 26 但 memory.peak 含页缓存更高，机制对。那超内存场景：400k 行约 206MiB、限额 256MiB，main.go:41 会把向量预算压到限额 1/4。我预测 peak 贴数据量走但不爆，因为 mmap 页可回收；真正危险是全表物化到堆。测 400k/256MiB。"
     },
     {
       "id": "M32",
-      "speaker": "student",
-      "thread": "astra",
-      "ts": "2026-11-10T10:16:52+08:00",
-      "topic": "mmap 页缓存与峰值内存",
-      "content": "RSS 才 4.2 但 peak 10.6，页缓存确实计入了，M≈数据+小堆。那超内存场景呢？400k 行约 206MiB、限额 256MiB，我预测 peak 贴着数据量走到约 210MiB 但不会爆，因为 mmap 页可回收；真正危险的是把全表物化到堆。测 400k/256MiB。"
-    },
-    {
-      "id": "M33",
       "speaker": "agent",
       "thread": "astra",
-      "ts": "2026-11-10T10:19:16+08:00",
+      "ts": "2026-11-10T10:16:52+08:00",
       "topic": "mmap 页缓存与峰值内存",
       "content": "400k 跑了，E09。"
     },
     {
-      "id": "M34",
+      "id": "M33",
       "speaker": "student",
       "thread": "astra",
-      "ts": "2026-11-10T10:21:47+08:00",
+      "ts": "2026-11-10T10:19:16+08:00",
       "topic": "mmap 页缓存与峰值内存",
-      "content": "peak 211 没爆、重启行数对、recall 1.0。但 256MiB 下数据还小于内存，没真正测到数据超内存时页缓存回收的压力路径；128MiB 补测时基线和候选都在写完第一条点查超时，那个场景这次没结论。"
+      "content": "没爆、重启行数对。但 256MiB 下数据还小于内存，没真正测到数据超内存时页缓存回收的压力路径；更小的限额这次没结论。"
+    },
+    {
+      "id": "M34",
+      "speaker": "student",
+      "thread": "opus",
+      "ts": "2026-11-10T10:21:47+08:00",
+      "topic": "fdatasync 语义与 group commit",
+      "content": "追加日志同时当 redo 和数据，每次提交一次 fdatasync 而不是 fsync：sync_linux.go:8 直接 syscall.Fdatasync，log.go:61 在 COMMIT 后调。机制是文件大小这种可恢复元数据靠重启扫描重建，不需要同步全部 inode。"
     },
     {
       "id": "M35",
@@ -288,47 +290,47 @@
       "thread": "opus",
       "ts": "2026-11-10T10:24:25+08:00",
       "topic": "fdatasync 语义与 group commit",
-      "content": "我用追加日志同时当 redo 和数据，每次提交一次 fdatasync 而不是 fsync。机制是 fdatasync 只保证文件数据和必要元数据落盘，文件大小这种可恢复元数据靠重启扫描就能重建，所以不需要同步全部 inode 元数据。"
+      "content": "预测 100 批约 101 次 sync、每次亚毫秒。strace 数一下。"
     },
     {
       "id": "M36",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T10:27:10+08:00",
       "topic": "fdatasync 语义与 group commit",
-      "content": "预测 100 批写入约 101 次 sync，每次亚毫秒，sync_s 总共约 0.03s。strace 数一下。"
+      "content": "strace 计数 E10。"
     },
     {
       "id": "M37",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T10:29:12+08:00",
       "topic": "fdatasync 语义与 group commit",
-      "content": "strace 计数计时 E10。"
+      "content": "101 次、共 0.03s，对上。那 group commit 合并 sync 能不能省？但 README:84 说 COMMIT 先 fdatasync 再回复，合并会延迟 ack 违反确认边界。我猜省下的 0.03s 抵不过 ack 风险。用 --sync none（main.go:31）当故障注入跑 crash_test，看 kill 后丢不丢已确认提交。"
     },
     {
       "id": "M38",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T10:31:21+08:00",
       "topic": "fdatasync 语义与 group commit",
-      "content": "101 次、平均 0.297ms、共 0.03s，对上。那 group commit 呢？把多次提交合并成一次 sync 能不能省？但题面要求提交成功响应发出前必须完成持久化，group commit 会延迟 ack，违反确认边界。我猜合并省下的 0.03s 不足以抵消 ack 语义风险。注入一个故意延迟 sync 的故障，看 kill 后丢不丢已确认提交。"
+      "content": "--sync none 的 crash_test E11。"
     },
     {
       "id": "M39",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T10:33:37+08:00",
       "topic": "fdatasync 语义与 group commit",
-      "content": "delayed_sync 故障注入 E11。"
+      "content": "kill -9 下 --sync none 居然也过——页缓存还在，进程杀不掉页缓存。所以这测试证明不了 none 安全，只有断电/fsync 探针能区分。每提交一次 fdatasync 不能省。sync 延迟强依赖硬件，0.297ms 是这台机的值。"
     },
     {
       "id": "M40",
       "speaker": "student",
-      "thread": "opus",
+      "thread": "opus5.5",
       "ts": "2026-11-10T10:36:00+08:00",
-      "topic": "fdatasync 语义与 group commit",
-      "content": "延迟 sync 确实丢已确认提交（probe FAIL），正常路径 ack 在 sync 后则全保。所以每提交一次 fdatasync 不能省。不过 sync 延迟强依赖硬件和文件系统，0.297ms 是这台实验室机的值，平台评测机可能不同。"
+      "topic": "累加顺序与逐位一致",
+      "content": "距离按存储后的 float32 算、float64 累加。AVX2 内核每 16 维一个 block（l2_amd64.go:19），标量尾部按顺序补。现在 gather 批量一次算多行（l2_amd64.go:25）。"
     },
     {
       "id": "M41",
@@ -336,47 +338,47 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T10:38:30+08:00",
       "topic": "累加顺序与逐位一致",
-      "content": "距离按存储后的 float32 算，但我把 float32 widen 成 float64 累加减少误差。AVX2 内核每 16 维一个 block，标量尾部按顺序补。现在要做 gather 批量内核，一次算多行。"
+      "content": "l2_gather_amd64.s:7 注释声称 out[r] 和单行逐位相同。我预测只要每行累加顺序一致就真逐位相等、不是近似。scan_batch_test.go:19 的 TestBatchedScanMatchesOneRowScan 和 kernel_bench_test.go:102 的 TestKernelPathsAgree 能验。跑。"
     },
     {
       "id": "M42",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T10:41:07+08:00",
       "topic": "累加顺序与逐位一致",
-      "content": "我预测：只要每行内部累加顺序和单行内核完全一致、尾部按同样顺序加，批量结果就能和单行逐位相同，不是近似相等。跑 20 种子差分。"
+      "content": "两个差分测试都过，E12。"
     },
     {
       "id": "M43",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T10:43:51+08:00",
       "topic": "累加顺序与逐位一致",
-      "content": "difftest 20 种子 E12。"
+      "content": "逐位一致成立。那把保持顺序的原则迁到并行扫描：topk.go:252 把行切给多个 worker、各自 topK 再合并，合并必须保持 distance-then-pk 序（topk.go:33 worse）。topk_ref_test.go:20 会调低 parallelMinSlots 逼出并行路径。迁过去验证并行结果仍等于串行。"
     },
     {
       "id": "M44",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T10:45:52+08:00",
       "topic": "累加顺序与逐位一致",
-      "content": "max_abs_diff=0.0，逐位一致不是容差内相等。那把保持累加顺序的原则迁到 int8 预过滤的数学：量化下界 lb=sqrt(code_dist)*s - residual_norm 必须保守舍入——残差范数向上取整、乘 1-1e-5——才能保证 lb 不超过真距离，否则会把该进 TopK 的行误删。我预测保守下界下 prefilter 和 exact 完全一致。测 64 查询。"
+      "content": "调低 parallelMinSlots 后参考测试过，E13。"
     },
     {
       "id": "M45",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T10:48:00+08:00",
       "topic": "累加顺序与逐位一致",
-      "content": "TestP1Prefilter E13。"
+      "content": "并行合并后仍和独立参考一致。但逐位一致依赖同一 CPU 的 FMA 收缩（l2_amd64.s 的 VFMADD231PD），换 FMA 实现不同的机器可能差最后一位；并行只保证序不保证跨机逐位。"
     },
     {
       "id": "M46",
       "speaker": "student",
-      "thread": "opus5.5",
+      "thread": "codex-b410e23",
       "ts": "2026-11-10T10:50:15+08:00",
-      "topic": "累加顺序与逐位一致",
-      "content": "64 查询全匹配、无误删。但逐位一致依赖同一 CPU 的 FMA 收缩行为，换一台 FMA 实现不同的机器可能差最后一位；int8 下界也只对 L2 成立，换内积或余弦要重推。"
+      "topic": "IVF 在均匀数据上的召回机制",
+      "content": "你说上 IVF 提速？我先泼冷水。bench 默认均匀随机向量（tools/bench.py:48），IVF 靠聚类分近邻，但均匀分布没有簇结构，nprobe 不够就大量漏。topk.go:122 注释自己就写了 10k 下 recall 0.61。"
     },
     {
       "id": "M47",
@@ -384,47 +386,47 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T10:52:37+08:00",
       "topic": "IVF 在均匀数据上的召回机制",
-      "content": "你说上 IVF 提速？我先泼盆冷水。benchmark 是均匀随机向量，IVF 靠聚类把近邻分到同一列表，但均匀分布根本没有簇结构，查询的近邻散落各列表，nprobe 不够就大量漏掉。"
+      "content": "我预测 uniform 下 recall 远低于 0.95、聚簇才高。跑 --index --mode ann 看 uniform。"
     },
     {
       "id": "M48",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T10:55:06+08:00",
       "topic": "IVF 在均匀数据上的召回机制",
-      "content": "我预测 uniform 下 recall 远低于 0.95，聚簇数据下才高。先测 uniform 的 IVF recall。"
+      "content": "uniform IVF E14。"
     },
     {
       "id": "M49",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T10:57:42+08:00",
       "topic": "IVF 在均匀数据上的召回机制",
-      "content": "IVF uniform 实测 E14。"
+      "content": "recall_unfiltered=0.61，这次性能直接无效，机制成立。那另一面：--clustered（bench.py:45 绕 32 个中心采样）有簇结构，同参数 recall 应回 0.95 以上且更快。跑 clustered 对照。"
     },
     {
       "id": "M50",
-      "speaker": "student",
-      "thread": "codex-b410e23",
-      "ts": "2026-11-10T11:00:25+08:00",
-      "topic": "IVF 在均匀数据上的召回机制",
-      "content": "0.61，远低于 0.95，这次性能直接无效，机制解释成立——均匀数据无簇可分。那另一面呢？如果向量有明显簇结构，同参数 recall 应该回到 0.95 以上且更快。测 clustered。"
-    },
-    {
-      "id": "M51",
       "speaker": "agent",
       "thread": "codex-b410e23",
-      "ts": "2026-11-10T11:02:25+08:00",
+      "ts": "2026-11-10T11:00:25+08:00",
       "topic": "IVF 在均匀数据上的召回机制",
       "content": "clustered E15。"
     },
     {
-      "id": "M52",
+      "id": "M51",
       "speaker": "student",
       "thread": "codex-b410e23",
-      "ts": "2026-11-10T11:04:32+08:00",
+      "ts": "2026-11-10T11:02:25+08:00",
       "topic": "IVF 在均匀数据上的召回机制",
-      "content": "聚簇下 0.972、提速约 2 倍，跟均匀数据相反。所以是数据分布决定 IVF 可用性。正式 benchmark 用未公开种子的均匀数据，IVF 不可用；代码里 IVF 只在≥200k 行才启用，10k 规模直接走 exact，避免 recall 风险。"
+      "content": "聚簇 recall 1.0、query 0.34 比 uniform exact 0.67 快，跟均匀相反。所以是数据分布决定 IVF 可用性。topk.go:13 把 ivfMinRows 设 200000、10k 直接走 exact，就是躲这个 recall 风险。"
+    },
+    {
+      "id": "M52",
+      "speaker": "student",
+      "thread": "astra",
+      "ts": "2026-11-10T11:04:32+08:00",
+      "topic": "质疑 ReadSlice 大行截断",
+      "content": "等下，main.go:95 用 ReadSlice 读 stdin，缓冲 1MiB（main.go:89）。ReadSlice 遇超长行返回 ErrBufferFull，如果回退分支不把已读前缀拼回去就丢前 1MiB。大批量 INSERT 单行可能超 1MiB。"
     },
     {
       "id": "M53",
@@ -432,47 +434,47 @@
       "thread": "astra",
       "ts": "2026-11-10T11:06:46+08:00",
       "topic": "质疑 ReadSlice 大行截断",
-      "content": "等下，你用 ReadSlice 读 stdin 我不放心。ReadSlice 遇到超过缓冲区的长行会返回 ErrBufferFull，如果回退分支没把已读的前缀拼回去，就会丢掉前 1MiB。大批量 INSERT 单行可能超 1MiB。"
+      "content": "我读 main.go:99 是 head := append([]byte(nil), b...) 再 ReadBytes 拼接——前缀保留了。但我不信注释，造 >1MiB 单行实测。sqlparse/scanstring_test.go:115 的 TestScanStringLongLiteral 先跑。"
     },
     {
       "id": "M54",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "astra",
       "ts": "2026-11-10T11:09:07+08:00",
       "topic": "质疑 ReadSlice 大行截断",
-      "content": "我预测当前实现在 >1MiB 单行时会解析失败、响应 id 对不上。造个 2MiB 单行 INSERT 复现。"
+      "content": "长字面量测试过，E16。"
     },
     {
       "id": "M55",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "astra",
       "ts": "2026-11-10T11:11:35+08:00",
       "topic": "质疑 ReadSlice 大行截断",
-      "content": "大行测试 E16，确实复现了。"
+      "content": "解析层没问题。但我要走真实协议端到端：发一条 2MiB 单行 INSERT 给 ./mvdb，核对响应 id 和 affected_rows，再扫到 5MiB 确认没有别的截断点。迁到协议层重测。"
     },
     {
       "id": "M56",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "astra",
       "ts": "2026-11-10T11:14:10+08:00",
       "topic": "质疑 ReadSlice 大行截断",
-      "content": "就是丢前缀，这正是 62460386 正式失败的原因。修复：回退分支保留已读前缀再拼接完整行。我预测修复后 2MiB 能过。但只测 2MiB 不够，迁到 5MiB 单行和 64KiB-5MiB 扫描，确认没有别的截断点。修完重测。"
+      "content": "2MiB/5MiB 协议实测 E17。"
     },
     {
       "id": "M57",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "astra",
       "ts": "2026-11-10T11:16:52+08:00",
       "topic": "质疑 ReadSlice 大行截断",
-      "content": "bigline family 重测 E17。"
+      "content": "id 对齐、affected 对，前缀没丢。但只测到 5MiB，更大行没覆盖；而且这是本地驱动，正式驱动缓冲行为可能不同，提测前还得平台预检。"
     },
     {
       "id": "M58",
       "speaker": "student",
-      "thread": "astra",
+      "thread": "opus",
       "ts": "2026-11-10T11:19:41+08:00",
-      "topic": "质疑 ReadSlice 大行截断",
-      "content": "64KiB 到 5MiB 全过、id 对齐。不过只测到 5MiB，更大的行没覆盖；而且这是本地驱动，正式驱动的缓冲行为可能不同，提测前还得在平台预检确认。"
+      "topic": "质疑 unsafe.String 别名",
+      "content": "proto/fast.go:38 用 unsafe.String 让 req.SQL 指向 stdin 读缓冲，下一条请求会覆盖这块内存。我质疑：任何从 SQL 派生、请求结束后还留着的 string 都会被悄悄改写——表名、列名这种要持久化的。"
     },
     {
       "id": "M59",
@@ -480,47 +482,47 @@
       "thread": "opus",
       "ts": "2026-11-10T11:21:47+08:00",
       "topic": "质疑 unsafe.String 别名",
-      "content": "parseFast 用 unsafe.String 让 req.SQL 直接指向 stdin 读缓冲，下一条请求会覆盖这块内存。我质疑：任何从 SQL 派生、请求结束后还留着的 string 都会被悄悄改写——比如表名、列名这种要持久化的。"
+      "content": "fast_test.go:102 的 TestFastParsePersistentStringsOwnStorage 就是查这个。我预测持久化名字都 strings.Clone 了（db.go:163、table.go:38）才安全。跑它。"
     },
     {
       "id": "M60",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T11:24:00+08:00",
       "topic": "质疑 unsafe.String 别名",
-      "content": "预测如果不 strings.Clone，重开表后名字会变成下一条请求的内容。设计涂缓冲测试：每条请求结束后把整块缓冲涂 0xA5，和 encoding/json 慢路径逐字节比响应。"
+      "content": "own-storage 测试过，E18。"
     },
     {
       "id": "M61",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T11:26:20+08:00",
       "topic": "质疑 unsafe.String 别名",
-      "content": "F8 涂缓冲门禁 E18。"
+      "content": "当前安全。但我不能只信单元测试。迁到字节级对照：fast_test.go:38 的 TestFastParseMatchesEncodingJSON 把 fast 路径和 encoding/json 慢路径逐字节比，再走 protocol_check 的 DDL+重启用例确认重开表后名字没被改写。"
     },
     {
       "id": "M62",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T11:28:47+08:00",
       "topic": "质疑 unsafe.String 别名",
-      "content": "1473 请求 0 差异，持久化名字都 Clone 了，事务 overlay 只存偏移、eqset 键从日志拷贝，所以当前安全。但我不能只信这一轮流。迁到 DDL 名称生命周期审计：专门构造 CREATE TABLE 后立刻跟一条长 INSERT 覆盖缓冲，再重启读表名，确认名字没被改写。"
+      "content": "字节对照 + protocol_check E19。"
     },
     {
       "id": "M63",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T11:31:21+08:00",
       "topic": "质疑 unsafe.String 别名",
-      "content": "ddl-lifecycle E19。"
+      "content": "0 差异、重启后名字完整。但涂缓冲/对照只覆盖请求流出现过的语句形态，protocol_check 的重启也代替了真实强杀；人工审计还没逐文件读完，不能声称绝对无别名。"
     },
     {
       "id": "M64",
       "speaker": "student",
-      "thread": "opus",
+      "thread": "opus5.5",
       "ts": "2026-11-10T11:34:02+08:00",
-      "topic": "质疑 unsafe.String 别名",
-      "content": "重启后表名/列名/索引名都完整。但涂缓冲只覆盖请求流里出现过的语句形态，进程内重开也代替了真实重启和强杀；人工审计还没逐文件读完，不能声称绝对无别名。"
+      "topic": "质疑实验室收益外推平台",
+      "content": "你说本地 bench 快了平台 E 就涨？我不信。bench.py docstring 自己写 'Local numbers are reference only'，peak_rss_mb 只是 ru_maxrss 替身（bench.py:98），平台按 cgroup memory.peak 含页缓存算。硬件和驱动往返都不同。"
     },
     {
       "id": "M65",
@@ -528,47 +530,47 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T11:36:50+08:00",
       "topic": "质疑实验室收益外推平台",
-      "content": "你说实验室快了平台 E 就涨？我不信。实验室推算历史上偏乐观约 10%，而且实验室和平台硬件、驱动往返都不同。我要同一轮 A/B，不是拿历史数字比。"
+      "content": "我要同一轮 A/B 两个二进制各跑一次 bench，不是拿历史数字比。预测查询提升很小因为已接近协议/解析地板。跑 mvdb-old vs mvdb。"
     },
     {
       "id": "M66",
-      "speaker": "student",
-      "thread": "opus5.5",
-      "ts": "2026-11-10T11:38:55+08:00",
-      "topic": "质疑实验室收益外推平台",
-      "content": "预测 f75bd58 相对 ba5b0fe 查询提升很小，因为查询已接近协议地板。同轮跑 f75bd58 vs ba5b0fe 各 3 轮取中位数。"
-    },
-    {
-      "id": "M67",
       "speaker": "agent",
       "thread": "opus5.5",
-      "ts": "2026-11-10T11:41:07+08:00",
+      "ts": "2026-11-10T11:38:55+08:00",
       "topic": "质疑实验室收益外推平台",
       "content": "同轮 A/B E20。"
     },
     {
-      "id": "M68",
+      "id": "M67",
       "speaker": "student",
+      "thread": "opus5.5",
+      "ts": "2026-11-10T11:41:07+08:00",
+      "topic": "质疑实验室收益外推平台",
+      "content": "查询只差一点、写入差一些，到不了你暗示的大涨。那把不信外推迁到内存口径：本地 peak_rss 26 不能当平台 M。迁到 Linux cgroup 直接读 memory.peak 和 io.stat，跟本地 RSS 对照，看差多少。"
+    },
+    {
+      "id": "M68",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T11:43:26+08:00",
       "topic": "质疑实验室收益外推平台",
-      "content": "查询只快 1.3%，根本到不了你暗示的大涨，地板封顶。写入倒是快了 12%。那把同样的同轮 A/B、不信外推迁到写入声明核查：你说写入优化能到 E4000，我要用平台已知锚点折算——89f6d54 约 1776、b410e23=3152——而不是实验室比值。"
+      "content": "cgroup 对照 E21。"
     },
     {
       "id": "M69",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T11:45:52+08:00",
       "topic": "质疑实验室收益外推平台",
-      "content": "anchor_fold E21。"
+      "content": "memory.peak 明显高于本地 RSS，页缓存计入，口径差实锤。所以本地数字只能参考、最终 E 以正式提测为准；README:120 那张表也标了 macOS reference-only。"
     },
     {
       "id": "M70",
       "speaker": "student",
-      "thread": "opus5.5",
+      "thread": "codex-b410e23",
       "ts": "2026-11-10T11:48:25+08:00",
-      "topic": "质疑实验室收益外推平台",
-      "content": "折算 E 约 3830、区间 3700-4000，比单点估计诚实。但折算只有比例参考，平台评测机硬件未知，最终 E 必须以正式提测为准，实验室数字不能当成绩。"
+      "topic": "独立参考与排序反例",
+      "content": "你拿 store.search 当参考验 TopK？循环论证吧——被测和参考同一套距离/比较器，错了也一起错。我要独立参考：topk_ref_test.go:115 用 float64 全量暴力+全排序+独立 tie-break，不复用被测 heap。"
     },
     {
       "id": "M71",
@@ -576,127 +578,127 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T11:51:05+08:00",
       "topic": "独立参考与排序反例",
-      "content": "你拿 store.search 当参考验证 TopK？这是循环论证吧——被测路径和参考用同一套距离/比较器，错了也一起错。我要独立参考：float64 全量暴力算距离、全排序、独立 tie-break，不复用被测的 heap 和开方。"
+      "content": "预测独立参考下 mismatch=0。另外平方距离排序和开方后排序在浮点边界可能不同，topk_ref_test.go:47 特意造粗值产生大量精确 tie。跑 TestFilteredTopKMatchesReference。"
     },
     {
       "id": "M72",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T11:53:52+08:00",
       "topic": "独立参考与排序反例",
-      "content": "预测独立参考下 mismatch 应为 0。另外平方距离排序和开方后排序在浮点边界可能不同，要专门造反例。"
+      "content": "独立参考 0 不一致，E22。"
     },
     {
       "id": "M73",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T11:55:56+08:00",
       "topic": "独立参考与排序反例",
-      "content": "独立参考对照 E22。"
+      "content": "不是自证。那迁到 tie-break 在批量/并行扫描下是否仍按主键升序：scan_batch_test.go:48 也造 coarse ties，topk.go:33 worse 是 distance-then-pk。跑 TestBatchedScanMatchesOneRowScan 确认批量路径 tie 序不变。"
     },
     {
       "id": "M74",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T11:58:07+08:00",
       "topic": "独立参考与排序反例",
-      "content": "0/1000 不一致，不是自证。那迁到排序反例：构造两个向量平方距离差约 1e-9、开方后在 float32 输出精度下并列，验证是否按主键升序而非平方距离顺序。我预测会出现平方距离排序不等于开方排序的 case，必须按题面距离相同按主键升序处理。"
+      "content": "批量 tie 序测试过，E23。"
     },
     {
       "id": "M75",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T12:00:25+08:00",
       "topic": "独立参考与排序反例",
-      "content": "TestTieBreak E23。"
+      "content": "批量/并行下 tie 仍按主键升序，符合 README:69。但独立参考只覆盖测试造的形态，浮点边界是构造反例，不能穷尽所有 IEEE754 边界。"
     },
     {
       "id": "M76",
       "speaker": "student",
-      "thread": "codex-b410e23",
+      "thread": "astra",
       "ts": "2026-11-10T12:02:50+08:00",
-      "topic": "独立参考与排序反例",
-      "content": "确实造出了平方距离排序会错、按主键升序才对的 case，当前实现符合题面。但独立参考只覆盖 1000 查询的形态，浮点边界是构造的特定反例，不能穷尽所有 IEEE754 边界。"
+      "topic": "SIMD 扫描到 gather 批量迭代",
+      "content": "假设精确扫描是算力瓶颈，上 AVX2 应大幅提速。kernel_bench_test.go:26 的 BenchmarkScan 能对比标量和 SIMD。我预测 unfiltered 扫描明显下降。跑。"
     },
     {
       "id": "M77",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "astra",
       "ts": "2026-11-10T12:05:22+08:00",
       "topic": "SIMD 扫描到 gather 批量迭代",
-      "content": "假设精确扫描是算力瓶颈，上 AVX2 应该大幅提速。我预测 unfiltered 扫描时间随 SIMD 明显下降。先 bench 对比标量和 AVX2 内核。"
+      "content": "BenchmarkScan + TestKernelMatchesReference E24。"
     },
     {
       "id": "M78",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "astra",
       "ts": "2026-11-10T12:08:01+08:00",
       "topic": "SIMD 扫描到 gather 批量迭代",
-      "content": "内核 bench E24。"
+      "content": "嗯？内核快了但端到端查询几乎没动。假设被部分否定——TestPhaseBreakdown 显示解析/往返占大头，扫描是内存带宽受限不是算力受限。修正方向：减少每行调用开销，用 gather 批量（topk.go:238 一次核调用算一批）。预测批量再省一点但有限。跑 BenchmarkGatherScan 并迁到过滤路径看是否同样受限。"
     },
     {
       "id": "M79",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "astra",
       "ts": "2026-11-10T12:10:47+08:00",
       "topic": "SIMD 扫描到 gather 批量迭代",
-      "content": "嗯？内核快了 2 倍，端到端查询几乎没动。假设被部分否定了——地板封顶，而且扫描是内存带宽受限不是算力受限。修正方向：减少每行调用开销，用 gather 批量一次算 128 行。我预测批量能再省一点调用开销但收益有限。实现后复测，并迁到过滤路径看是否同样受限。"
+      "content": "BenchmarkGatherScan + PHASES E25。"
     },
     {
       "id": "M80",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "astra",
       "ts": "2026-11-10T12:12:50+08:00",
       "topic": "SIMD 扫描到 gather 批量迭代",
-      "content": "gather batch128 + 过滤路径 E25。"
+      "content": "gather 只再省一点，过滤路径因候选集小本来就快（filtered500_ms 远小于 unfiltered500_ms）。结论查询侧贴近地板、堆内核收益递减。这些是实验室数字，带宽受限判断依赖这台机。"
     },
     {
       "id": "M81",
       "speaker": "student",
-      "thread": "astra",
+      "thread": "opus",
       "ts": "2026-11-10T12:15:00+08:00",
-      "topic": "SIMD 扫描到 gather 批量迭代",
-      "content": "gather 只再省 0.003s，过滤路径因为候选集小本来就快。结论是查询侧已贴近地板，继续堆内核收益递减。这些是实验室同轮数字，内存带宽受限的判断依赖这台机的带宽，换硬件可能不同。"
+      "topic": "等值候选集预过滤迭代",
+      "content": "假设过滤 TopK 不该全表扫：eqset.go:18 的 eqSlots 按 VARCHAR 值把 slot 分组，topk.go:188 在有等值条件时用候选集代替全表。我预测 filtered 只扫候选、远快于 unfiltered，且结果不变。"
     },
     {
       "id": "M82",
       "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T12:17:17+08:00",
-      "topic": "int8 预过滤迭代",
-      "content": "假设给每行存一个 int8 量化码，先用码算下界，下界都进不了 TopK 的行就不算精确距离，能省大量 float 计算。我预测 survivors——需要精确算的行——只占百分之几。先测 survivors 比例和与 exact 的一致性。"
+      "topic": "等值候选集预过滤迭代",
+      "content": "engine_test.go:95 的 TestFilteredTopKFiltersBeforeAdmission 验证过滤先于入堆。跑它，再看候选集是否真缩小扫描。"
     },
     {
       "id": "M83",
       "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T12:19:41+08:00",
-      "topic": "int8 预过滤迭代",
-      "content": "int8 预过滤测量 E26。"
+      "topic": "等值候选集预过滤迭代",
+      "content": "过滤先于入堆过，E26。"
     },
     {
       "id": "M84",
       "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T12:22:12+08:00",
-      "topic": "int8 预过滤迭代",
-      "content": "survivors 4.1%，prefilter 和 exact 全匹配；但 codes_only recall 才 0.89，说明量化码不能单独出结果，只能做下界预过滤。那迁到 mmap 变体：码和残差也放 mmap，我预测省堆内存但 I/O 略增。测 mmap 版的 M 和 B。"
+      "topic": "等值候选集预过滤迭代",
+      "content": "结果对。那迁到资源侧：候选集/索引是内存预算内的派生状态，main.go:32 的 --index-mem-mb（默认 256）超了会回退日志 heap 扫（README:105）。我用 MVDB_INDEX_MEM_MB=1 逼出回退，预测查询变慢但 recall 不变，取舍是内存换速度。跑 bench 对照。"
     },
     {
       "id": "M85",
       "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T12:24:50+08:00",
-      "topic": "int8 预过滤迭代",
-      "content": "int8-mmap E27。"
+      "topic": "等值候选集预过滤迭代",
+      "content": "小预算回退 bench E27。"
     },
     {
       "id": "M86",
       "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T12:27:35+08:00",
-      "topic": "int8 预过滤迭代",
-      "content": "mmap 版 peak 略增 0.3MiB、B 增 0.3MiB（多了码和残差），查询略快，取舍是内存/I/O 换计算。不过均匀随机数据下残差范数较大、下界较松，survivors 才 4%；聚簇数据下界更紧收益更大，但正式是均匀数据，收益有限。"
+      "topic": "等值候选集预过滤迭代",
+      "content": "小预算下回退日志扫、query 变慢但 recall 仍 1.0，取舍成立。不过候选集只对单等值 VARCHAR 有效（eqset.go:42 eqCovers），范围/多条件仍全扫；均匀数据下候选集大小≈行数/类别数，收益有限。"
     },
     {
       "id": "M87",
@@ -704,7 +706,7 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T12:29:37+08:00",
       "topic": "写入 sync 假设到解析迭代",
-      "content": "假设写入慢主要是每提交 fdatasync。我预测 sync 占写入时间一半以上。先测 sync_s 占比。"
+      "content": "假设写入慢主要是每提交 fdatasync。我预测 sync 占一半以上。但 TestWritePhases 是 SyncNone 不含 sync，先跑它看 parse/exec 占比，再单独 strace sync。"
     },
     {
       "id": "M88",
@@ -712,7 +714,7 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T12:31:46+08:00",
       "topic": "写入 sync 假设到解析迭代",
-      "content": "写入阶段计时 E28。"
+      "content": "WRITEPHASES + strace E28。"
     },
     {
       "id": "M89",
@@ -720,7 +722,7 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T12:34:02+08:00",
       "topic": "写入 sync 假设到解析迭代",
-      "content": "才 10.6%？假设被否定了，解析和分配占 0.16s 才是大头。修正方向：十进制快速精确解析 + 减少每请求分配 + GOGC=20 降 GC 频率。我预测写入能从 0.284 降到 0.19 左右。实现后复测，并迁到查询解析看是否同样受益。"
+      "content": "sync 才 0.03s、parse_ms=118 才是大头，假设被否定。修正方向：十进制快速精确解析（types/value.go:158 parseFloatFast、:301 decimalExact）+ 降 GC（main.go:57 GOGC  unset 时 SetGCPercent(20)）。预测写入下降。实现后复测，并迁到查询解析看是否同样受益。"
     },
     {
       "id": "M90",
@@ -728,7 +730,7 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T12:36:25+08:00",
       "topic": "写入 sync 假设到解析迭代",
-      "content": "fast-parse + GOGC20 E29。"
+      "content": "快解析正确性 + GOGC20 复测 E29。"
     },
     {
       "id": "M91",
@@ -736,7 +738,7 @@
       "thread": "opus5.5",
       "ts": "2026-11-10T12:38:55+08:00",
       "topic": "写入 sync 假设到解析迭代",
-      "content": "写入 0.284→0.194，查询解析也降了，命中预测。但已接近协议地板（写入 floor 0.094），再优化空间小；GOGC=20 是这台机内存/CPU 权衡的值，换负载要重调。"
+      "content": "parseFloatFast 和 strconv 逐位一致（float_exact_test.go:68/83/106）、舍入边界对（:160），写入降、查询 parse 也降。但已接近地板，再优化空间小；GOGC=20 是这台机内存/CPU 权衡值，换负载要重调。"
     },
     {
       "id": "M92",
@@ -744,7 +746,7 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T12:41:32+08:00",
       "topic": "数值校验 fuzz 迭代",
-      "content": "题面要求拒绝 NaN、Infinity、维度不符和 float32 溢出。我预测当前解析对超出 float32 范围的十进制可能漏判——比如 1e40 解析成 float64 再转 float32 会变 Inf 但没被拒。设计 fuzz：随机生成边界十进制喂进去，看是否都按约定拒绝。"
+      "content": "题面要求拒 NaN/Inf/维度不符/float32 溢出（README:68）。types/value.go:426 ToFloat32 负责溢出判定。我预测边界十进制可能漏判——比如 1e40 转 float32 变 Inf 但是否被拒要看 :427 之后。value_test.go:184 的 TestParseVectorFloat32Semantics 专门测这个。跑。"
     },
     {
       "id": "M93",
@@ -752,7 +754,7 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T12:44:16+08:00",
       "topic": "数值校验 fuzz 迭代",
-      "content": "数值 fuzz E30，发现一个漏判。"
+      "content": "float32 语义测试 E30。"
     },
     {
       "id": "M94",
@@ -760,7 +762,7 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T12:46:17+08:00",
       "topic": "数值校验 fuzz 迭代",
-      "content": "复现了，1e40 被接受成 Inf，违反题面。修复：解析后检查是否有限且能无损表示为 float32，溢出返回约定错误。我预测修复后 1e40 被拒。迁到另外两类边界：维度不符（VECTOR(4) 喂 5 维）和 VARCHAR Unicode 长度（按字符数不是字节数），确认都按约定处理。修完重测。"
+      "content": "溢出/NaN/Inf 都拒、3.4028235e38 边界保留（value_test.go:190）。那迁到另外两类边界：维度不符（VECTOR(4) 喂 5 维）和 VARCHAR Unicode 按字符数（value.go:507 CharLen 用 RuneCount）。跑 ParseVector 参考对照 + 引擎 NaN 用例（engine_test.go:59）确认都按约定。"
     },
     {
       "id": "M95",
@@ -768,7 +770,7 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T12:48:25+08:00",
       "topic": "数值校验 fuzz 迭代",
-      "content": "numeric family 重测 E31。"
+      "content": "参考对照 + 引擎边界 E31。"
     },
     {
       "id": "M96",
@@ -776,7 +778,7 @@
       "thread": "codex-b410e23",
       "ts": "2026-11-10T12:50:40+08:00",
       "topic": "数值校验 fuzz 迭代",
-      "content": "溢出拒、维度拒、Unicode 按字符数都对。但 fuzz 只 2 种子 1004 请求，没穷尽所有十进制边界；float32 次正规数边界还没专门覆盖。"
+      "content": "维度拒、Unicode 按字符、NaN 报 invalid_vector，都对。但测试只覆盖构造的边界，没穷尽所有十进制；float32 次正规数边界还没专门 fuzz。"
     },
     {
       "id": "M97",
@@ -784,7 +786,7 @@
       "thread": "astra",
       "ts": "2026-11-10T12:53:02+08:00",
       "topic": "预分配实验的停止条件",
-      "content": "实验前先定停止条件：日志预分配 8MiB 这个方向，如果写入收益小于噪声、或 I/O 增加、或恢复风险无法证明，就停，不堆改动。我预测预分配省不了多少，顺序写本来就快、元数据开销小。当前版和预分配版交替各 5 轮，报告中位数和原始输出。"
+      "content": "实验前先定停止条件：日志预分配 8MiB 这方向，若写入收益小于噪声、或 I/O 增加、或恢复风险无法证明，就停不堆改动。当前 log.go:111 Append 是纯顺序追加、没有预分配。我预测预分配省不了多少。base 和 pre8 两个二进制交替各 5 轮 bench。"
     },
     {
       "id": "M98",
@@ -792,7 +794,7 @@
       "thread": "astra",
       "ts": "2026-11-10T12:55:31+08:00",
       "topic": "预分配实验的停止条件",
-      "content": "交替 A/B 5 轮 E32。"
+      "content": "交替 A/B E32。"
     },
     {
       "id": "M99",
@@ -800,7 +802,7 @@
       "thread": "astra",
       "ts": "2026-11-10T12:58:07+08:00",
       "topic": "预分配实验的停止条件",
-      "content": "触发停止条件了：预分配没超噪声收益、还略慢、sync 多一次。按我实验前定的规则终止，不合入。那把同一先定停止条件再实验的纪律迁到查询侧预分配候选缓冲：我预测查询缓冲预分配也无收益（地板主导），先定收益小于 0.005s 就停再测。"
+      "content": "触发停止条件：pre8 没超噪声收益还略慢。按实验前规则终止、不合入——现在 log.go 里确实没有预分配代码，方向没进主线。把同一纪律迁到查询侧候选缓冲预分配：先定收益小于 0.005s 就停再测。"
     },
     {
       "id": "M100",
@@ -808,7 +810,7 @@
       "thread": "astra",
       "ts": "2026-11-10T13:00:50+08:00",
       "topic": "预分配实验的停止条件",
-      "content": "query-prealloc E33。"
+      "content": "查询预分配 A/B E33。"
     },
     {
       "id": "M101",
@@ -816,7 +818,7 @@
       "thread": "astra",
       "ts": "2026-11-10T13:02:50+08:00",
       "topic": "预分配实验的停止条件",
-      "content": "查询预分配收益 0.002s 低于阈值，同样终止。反思下来，先定停止条件能避免在地板附近堆无收益改动。不过 A/B 是 macOS 同机对照，噪声阈值 0.005s 是经验值，平台机器噪声不同阈值要重定。"
+      "content": "查询预分配收益低于阈值，同样终止。反思：先定停止条件避免在地板附近堆无收益改动；git 里那几条 Revert 也是同类纪律。但 A/B 是同机对照、噪声阈值 0.005s 是经验值，平台机器噪声不同要重定。"
     },
     {
       "id": "M102",
@@ -824,481 +826,661 @@
       "thread": "opus",
       "ts": "2026-11-10T13:04:57+08:00",
       "topic": "按 CPU 配额选并行度",
-      "content": "扫描并行度不能按主机核数选，要按 cgroup CPU 配额。主机 80 核但容器可能只给 2 核，开 80 worker 只会过度并行抢配额。我预测按配额选 2 worker 端到端最优，1/2/4 对照里 4 不会比 2 快多少。读 cpu.max 设 GOMAXPROCS，测 w1/w2/w4。"
+      "content": "扫描并行度不能按主机核数选，要按 cgroup 配额。main.go:47 读 cgroupCPUs（memlimit.go:36 读 cpu.max）设 GOMAXPROCS；topk.go:302 scanWorkers 再按它切扫描。主机 80 核容器只给 2 核时开 80 worker 只会抢配额。"
     },
     {
       "id": "M103",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T13:07:11+08:00",
+      "topic": "按 CPU 配额选并行度",
+      "content": "我预测按配额 2 worker 最优、4 不会比 2 快多少。用 MVDB_SCAN_WORKERS（topk.go:292）设 1/2/4 对照跑 bench。"
+    },
+    {
+      "id": "M104",
+      "speaker": "agent",
+      "thread": "opus",
+      "ts": "2026-11-10T13:09:32+08:00",
       "topic": "按 CPU 配额选并行度",
       "content": "worker 对照 E34。"
     },
     {
-      "id": "M104",
-      "speaker": "student",
-      "thread": "opus",
-      "ts": "2026-11-10T13:09:32+08:00",
-      "topic": "按 CPU 配额选并行度",
-      "content": "w2 比 w1 快很多，w4 只比 w2 快 0.008s 但写入略慢、内存略增，取舍选 w2。那迁到 1 CPU 配额场景：我预测 1 核下 w2 反而比 w1 慢（切换开销），应该自动降到 w1。把 cpu.max 改成 1 核重测。"
-    },
-    {
       "id": "M105",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus",
       "ts": "2026-11-10T13:12:00+08:00",
       "topic": "按 CPU 配额选并行度",
-      "content": "1 CPU 配额 E35。"
+      "content": "w2 比 w1 快很多、w4 只快一点但写入略慢，取舍选 w2。迁到 1 CPU 配额：预测 1 核下 w2 反而比 w1 慢（切换开销），应自动降 w1。把容器限 1 核重测 1/2。"
     },
     {
       "id": "M106",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus",
       "ts": "2026-11-10T13:14:35+08:00",
       "topic": "按 CPU 配额选并行度",
-      "content": "1 核下 w2 确实更慢，自动选 w1 正确。反思：并行度是配额函数不是核数函数。不过只测了 1/2 核配额，4 核以上没测；查询地板占比高时并行收益本来就小。"
+      "content": "1 核配额 E35。"
     },
     {
       "id": "M107",
       "speaker": "student",
-      "thread": "opus5.5",
+      "thread": "opus",
       "ts": "2026-11-10T13:17:17+08:00",
-      "topic": "单日志与分离文件取舍",
-      "content": "取舍：单日志同时当 redo 和数据，好处是每批一次顺序写、无随机页写、恢复只扫一个文件；代价是 update/delete 留死版本、垃圾多了要 compaction。分离 WAL+数据文件则写放大但读更紧凑。我预测我们读多写少、benchmark 以插入为主，单日志 B 更小。测单日志的 B 和死版本比例。"
+      "topic": "按 CPU 配额选并行度",
+      "content": "1 核下 w2 更慢、自动选 w1 正确。反思：并行度是配额函数不是核数函数。但只测了 1/2 核，4 核以上没测；查询地板占比高时并行收益本来就小。"
     },
     {
       "id": "M108",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T13:20:06+08:00",
       "topic": "单日志与分离文件取舍",
-      "content": "单日志 I/O 与垃圾统计 E36。"
+      "content": "取舍：单日志 data.log 同时当 redo 和数据（README:74），好处每批一次顺序写、无随机页写、恢复只扫一个文件；代价 update/delete 留死版本、垃圾多了要 compaction。分离 WAL+数据则写放大但读紧凑。我预测插入为主时单日志 B 更小。测 bench 的 data_mb 和 io.stat。"
     },
     {
       "id": "M109",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T13:22:12+08:00",
       "topic": "单日志与分离文件取舍",
-      "content": "插入为主时死版本 0、B 就是数据量，单日志占优。那迁到 update-heavy 负载预测：如果反复 update 同一批行，死版本会累积、B 膨胀，compaction 触发后写放大。我预测 update 10 轮后 dead_version_ratio 显著上升、B 超过数据量。测 update-heavy。"
+      "content": "单日志 I/O E36。"
     },
     {
       "id": "M110",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "opus5.5",
       "ts": "2026-11-10T13:24:25+08:00",
       "topic": "单日志与分离文件取舍",
-      "content": "update-heavy 10 轮 E37。"
+      "content": "插入为主死版本 0、B 就是数据量，单日志占优。迁到 update-heavy：反复 update 同批行死版本累积、B 膨胀，compact.go:29 垃圾超 256MiB 且超 live 才重写。engine_test.go:167 TestCompaction 把 compactMinGarbage 调 1 逼出重写。预测 update 后 B 超数据量、compaction 后回落。跑。"
     },
     {
       "id": "M111",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "opus5.5",
       "ts": "2026-11-10T13:26:45+08:00",
       "topic": "单日志与分离文件取舍",
-      "content": "B 膨胀到 46MiB、死版本 82%，compaction 后回到 6.1MiB。反思：单日志适合插入主导的 benchmark，update 密集要付 compaction 代价。不过 compaction 阈值 256MiB 是经验值，且 compaction 期间的崩溃恢复这次没专门测。"
+      "content": "TestCompaction + update-heavy E37。"
     },
     {
       "id": "M112",
       "speaker": "student",
-      "thread": "codex-b410e23",
+      "thread": "opus5.5",
       "ts": "2026-11-10T13:29:12+08:00",
-      "topic": "冷启动离群值与中位数口径",
-      "content": "你拿单次 0.697s 说写入涨了 30%？我不信。7 次写入里第 1 次 0.770s、其他都 0.12s 左右，我判断第 1 次是冷启动——文件/页缓存初始化——离群值，不能用单次下结论。预测改用中位数后涨 30% 消失。重跑 7 次报 min/median/max。"
+      "topic": "单日志与分离文件取舍",
+      "content": "compaction 后 B 回落、重启和索引都对。反思：单日志适合插入主导 benchmark，update 密集付 compaction 代价。但阈值 256MiB 是经验值，compaction 期间崩溃恢复这次没专门测。"
     },
     {
       "id": "M113",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T13:31:46+08:00",
       "topic": "冷启动离群值与中位数口径",
-      "content": "7 次冷/warm 写入统计 E38。"
+      "content": "你拿单次 bench 说写入涨了 30%？我不信。bench.py 一次只跑一遍、没有中位数概念。我连跑 7 次发现第 1 次明显慢、其余接近，判断第 1 次是冷启动（文件/页缓存初始化）离群值。预测改用中位数后涨 30% 消失。连跑 7 次报 min/median/max。"
     },
     {
       "id": "M114",
-      "speaker": "student",
+      "speaker": "agent",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T13:34:27+08:00",
       "topic": "冷启动离群值与中位数口径",
-      "content": "中位数口径下 cold/warm 只差约 4%，涨 30% 是离群值造成的假结论。那把同一口径纪律迁到查询轮次：查询也必须 3 轮取中位数、不能拼不同轮最好的 T/B/M。我预测单轮最好值会比中位数乐观。对比单轮 best 和 3 轮 median。"
+      "content": "7 次统计 E38。"
     },
     {
       "id": "M115",
-      "speaker": "agent",
+      "speaker": "student",
       "thread": "codex-b410e23",
       "ts": "2026-11-10T13:37:15+08:00",
+      "topic": "冷启动离群值与中位数口径",
+      "content": "中位数口径下差异只有几个点，涨 30% 是离群值假结论。迁到查询轮次：查询也连跑 3 次取中位数、不能拼不同轮最好的 write/query/peak。预测单轮最好值比中位数乐观。对比单轮 best 和 3 轮 median。"
+    },
+    {
+      "id": "M116",
+      "speaker": "agent",
+      "thread": "codex-b410e23",
+      "ts": "2026-11-10T13:39:20+08:00",
       "topic": "冷启动离群值与中位数口径",
       "content": "查询 3 轮 E39。"
     },
     {
-      "id": "M116",
+      "id": "M117",
       "speaker": "student",
       "thread": "codex-b410e23",
-      "ts": "2026-11-10T13:39:20+08:00",
+      "ts": "2026-11-10T13:41:32+08:00",
       "topic": "冷启动离群值与中位数口径",
-      "content": "单轮最好 0.319 比中位数 0.327 乐观，E 高估约 2.5%，必须用中位数。反思：冷启动和机器负载会污染单次测量。不过这是 macOS 非空闲机的参考数据，不能外推 Linux cgroup；中位数也掩盖了尾延迟。"
+      "content": "单轮最好比中位数乐观、E 会高估，必须用中位数。反思：冷启动和机器负载污染单次测量。但这是 macOS 非空闲机参考数据（README:120），不能外推 Linux cgroup；中位数也掩盖尾延迟。"
     }
   ],
   "experiments": [
     {
       "id": "E01",
-      "topic": "公开用例与协议检查",
-      "command": "python3 protocol_check/run.py --command mvdb",
-      "output": "$ python3 protocol_check/run.py --command mvdb\npublic_cases: passed 20 failed 0\nprotocol_check: 20/20 ready_line=OK error_names=[duplicate_key,dimension_mismatch,unsupported_sql] mode_switch=exact|ann\nmysql_formal: 未执行（隐藏用例，平台侧）",
-      "environment": "Linux x86_64 容器; cgroup v2",
+      "topic": "官方协议检查",
+      "command": "python3 protocol_check/run.py --command '[\"./mvdb\",\"--data-dir\",\"{data_dir}\"]' --output /tmp/pc",
+      "output": "handshake {\"type\":\"ready\"} OK\npublic cases: 20/20 passed\nerror names: duplicate_key dimension_mismatch unsupported_sql\nmode switch exact|ann OK",
+      "environment": "Linux x86_64 容器; 官方 checker",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:121",
+        "internal/proto/proto_test.go:33",
+        "internal/types/errors.go:63"
+      ]
     },
     {
       "id": "E02",
-      "topic": "性能基准 recall 前置门禁",
-      "command": "python3 tools/bench.py --precheck-recall",
-      "output": "bench precheck: recall_unfiltered=1.0 recall_filtered=1.0 order_mismatch=0 dist_mismatch=0 -> 允许计时\nquery_s=0.327 write_s=0.210 E_estimate=valid",
-      "environment": "Linux x86_64 实验室同轮",
+      "topic": "bench recall 前置确认",
+      "command": "python3 tools/bench.py --bin ./mvdb",
+      "output": "{\"write_s\": 0.71, \"query_s\": 0.67, \"peak_rss_mb\": 26.1, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}",
+      "environment": "macOS arm64; reference-only (README.md:127)",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "tools/bench.py:118",
+        "tools/bench.py:119"
+      ]
     },
     {
       "id": "E03",
-      "topic": "查询协议地板测量",
-      "command": "python3 tools/bench.py --floor-ping",
-      "output": "floor_ping_s=0.148 floor_samesize_s=0.186\nT_query_s=0.327 T_unf_s=0.195 T_fil_s=0.131\nscan_est_s=0.079 parse_encode_est_s=0.062",
-      "environment": "Linux x86_64 实验室同轮",
+      "topic": "查询分阶段计时",
+      "command": "MVDB_PHASES=1 go test ./internal/engine -run TestPhaseBreakdown -v",
+      "output": "=== RUN   TestPhaseBreakdown\nPHASES queries=1000 parse_ms=62.0 exec_ms=327.0 unfiltered500_ms=195.0 filtered500_ms=131.0\n--- PASS: TestPhaseBreakdown (0.41s)",
+      "environment": "Linux x86_64; go test; MVDB_PHASES=1",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/query_phase_test.go:18",
+        "internal/engine/query_phase_test.go:92"
+      ]
     },
     {
       "id": "E04",
-      "topic": "写入耗时分解",
-      "command": "python3 tools/writebench.py --breakdown",
-      "output": "write_s=0.210 sync_calls=101 sync_s=0.030 sync_share=0.143\nparse_alloc_est_s=0.118 floor_samesize_s=0.094",
-      "environment": "Linux x86_64 实验室同轮",
+      "topic": "写入分阶段计时",
+      "command": "MVDB_PHASES=1 go test ./internal/engine -run TestWritePhases -v",
+      "output": "=== RUN   TestWritePhases\nWRITEPHASES batches=100 json_ms=18.0 parse_ms=118.0 exec_ms=160.0 sql_bytes=5441883\n--- PASS: TestWritePhases (0.30s)",
+      "environment": "Linux x86_64; go test; SyncNone",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/write_phase_test.go:19",
+        "internal/engine/write_phase_test.go:79"
+      ]
     },
     {
       "id": "E05",
-      "topic": "受控窗口加随机 kill",
-      "command": "python3 tools/crash_test.py --rounds 40 --seed 1..3",
-      "output": "seed1 ok: 40 rounds 4764 committed rows\nseed2 ok: 40 rounds 4978 committed rows\nseed3 ok: 40 rounds 5329 committed rows\ncontrolled: write_before->recovered=confirmed-100 fsync_after->recovered=confirmed",
+      "topic": "随机 kill -9 恢复",
+      "command": "python3 tools/crash_test.py --bin ./mvdb --rounds 40 --seed 1",
+      "output": "ok: 40 rounds, 4764 committed rows",
       "environment": "Linux x86_64; kill -9",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "tools/crash_test.py:139",
+        "tools/crash_test.py:55"
+      ]
     },
     {
       "id": "E06",
-      "topic": "恢复途中再次 kill",
-      "command": "python3 tools/crash_test.py --recovery-kill",
-      "output": "[recovery-kill] round=1 kill_stage=replaying_records final_recovered=1000 wtermsig=9\n[recovery-kill] round=5 kill_stage=truncating_tail final_recovered=1000 wtermsig=9\nrepeat_recovery: idempotent=true ghost_pk=0",
-      "environment": "Linux x86_64; kill -9",
+      "topic": "逐字节偏移崩溃恢复",
+      "command": "go test ./internal/engine -run TestCrashAtEveryOffset -v",
+      "output": "=== RUN   TestCrashAtEveryOffset\n--- PASS: TestCrashAtEveryOffset (4.02s)\nPASS\nok   minivectordb/internal/engine 4.02s",
+      "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/engine_test.go:109",
+        "internal/storage/log.go:196"
+      ]
     },
     {
       "id": "E07",
-      "topic": "事务读己之写与回滚",
-      "command": "go test ./internal/engine -run TestTxn",
-      "output": "=== RUN   TestTxn\n txn_read_your_writes: PASS (begin->update id=1->select sees new vec)\n rollback: PASS (content/visible_set/topk restored) O(1) overlay discard\n commit: PASS durable after ack\n--- PASS: TestTxn (0.02s)",
+      "topic": "事务原子性与回滚",
+      "command": "go test ./internal/engine -run TestStatementAtomicityAndTxn -v",
+      "output": "=== RUN   TestStatementAtomicityAndTxn\n--- PASS: TestStatementAtomicityAndTxn (0.03s)\nPASS\nok   minivectordb/internal/engine 0.03s",
       "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/txn.go:16",
+        "internal/engine/engine_test.go:50"
+      ]
     },
     {
       "id": "E08",
-      "topic": "多行 INSERT 语句原子性",
-      "command": "go test ./internal/engine -run TestStmtAtomic",
-      "output": "multi_insert_atomic: 5 rows, row4 duplicate_key -> statement rejected, rows_applied=0\nprior_stmt_in_txn: still committable=true\ntxn_after_failure: commit OK visible=expected",
+      "topic": "开事务下过滤 TopK 对参考",
+      "command": "go test ./internal/engine -run TestFilteredTopKMatchesReference -v",
+      "output": "=== RUN   TestFilteredTopKMatchesReference\n--- PASS: TestFilteredTopKMatchesReference (0.22s)\nPASS\nok   minivectordb/internal/engine 0.22s",
       "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/topk.go:132",
+        "internal/engine/topk_ref_test.go:18"
+      ]
     },
     {
       "id": "E09",
       "topic": "cgroup 峰值内存与 I/O",
-      "command": "cat memory.peak io.stat (cgroup v2)",
-      "output": "data_mib=5.58 rss_mib=4.2 memory.peak_mib=10.6\nio.stat rbytes=0 wbytes=5853184 B_mib=5.58\nnote: peak includes mapped file page cache",
-      "environment": "Linux x86_64; cgroup v2",
+      "command": "cat /sys/fs/cgroup/memory.peak /sys/fs/cgroup/io.stat",
+      "output": "11114906\nrbytes=0 wbytes=5441883 rios=0 wios=101",
+      "environment": "Linux x86_64; cgroup v2; 10k 行",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/storage/mmap_unix.go:27",
+        "cmd/minivectordb/main.go:39",
+        "tools/bench.py:98"
+      ]
     },
     {
       "id": "E10",
       "topic": "400k 行 256MiB 限额",
-      "command": "python3 tools/bench.py --rows 400000 --memory 256m",
-      "output": "rows=400000 data_mib=206 memory.peak_mib=211 limit_mib=256\noom_kill=0 restart_rows=400000 query_recall=1.0",
+      "command": "python3 tools/bench.py --bin ./mvdb --rows 400000  # under cgroup 256MiB",
+      "output": "{\"write_s\": 28.4, \"query_s\": 26.9, \"peak_rss_mb\": 61.0, \"data_mb\": 206.0, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}\nmemory.peak=221249536 limit=268435456 oom_kill=0",
       "environment": "Linux x86_64; cgroup v2 256MiB",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:41",
+        "cmd/minivectordb/memlimit.go:11"
+      ]
     },
     {
       "id": "E11",
-      "topic": "sync 计数与耗时",
-      "command": "strace -e fdatasync -c ./mvdb (write bench)",
-      "output": "sync_calls=101 sync_s=0.030 avg_sync_ms=0.297\nwrite_s=0.210 file_bytes=5441883 restart_rows=10000 restart_ok=true",
+      "topic": "fdatasync 计数与耗时",
+      "command": "strace -f -e trace=fdatasync -c ./mvdb --data-dir /tmp/d  # write bench",
+      "output": "% time     seconds  usecs/call     calls    errors syscall\n------ ----------- ----------- --------- --------- ----------------\n 14.3    0.030000         297       101           fdatasync",
       "environment": "Linux x86_64; ext4",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/storage/sync_linux.go:8",
+        "internal/storage/log.go:61"
+      ]
     },
     {
       "id": "E12",
-      "topic": "延迟 sync 故障注入",
-      "command": "python3 tools/fault_inject.py --fault delayed_sync",
-      "output": "fault=delayed_sync: probe=ack_before_sync expect=exit1 exit=1 FAIL: acked commit lost after kill\nnormal: ack_after_sync exit=0 PASS recovered=confirmed",
-      "environment": "Linux x86_64; kill -9",
+      "topic": "跳过 sync 的故障注入",
+      "command": "MVDB_SYNC=none python3 tools/crash_test.py --bin ./mvdb --rounds 20 --seed 1",
+      "output": "ok: 20 rounds, 2381 committed rows\nnote: kill -9 survives page cache; does NOT prove power-loss safety",
+      "environment": "Linux x86_64; kill -9; MVDB_SYNC=none",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:31",
+        "cmd/minivectordb/main.go:60"
+      ]
     },
     {
       "id": "E13",
       "topic": "gather 与单行内核差分",
-      "command": "python3 tools/difftest.py old new 20",
-      "output": "difftest seeds=20 requests=26000 mismatch=0\nbit_identical=true (gather batch vs one-row kernel)\nmax_abs_diff=0.0 order_mismatch=0",
+      "command": "go test ./internal/engine -run 'TestBatchedScanMatchesOneRowScan|TestKernelPathsAgree' -v",
+      "output": "=== RUN   TestBatchedScanMatchesOneRowScan\n--- PASS: TestBatchedScanMatchesOneRowScan (0.18s)\n=== RUN   TestKernelPathsAgree\n--- PASS: TestKernelPathsAgree (0.05s)\nPASS",
       "environment": "Linux x86_64; AVX2/FMA",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/l2_amd64.go:25",
+        "internal/engine/l2_gather_amd64.s:7",
+        "internal/engine/scan_batch_test.go:19"
+      ]
     },
     {
       "id": "E14",
-      "topic": "int8 保守下界一致性",
-      "command": "go test ./internal/engine -run TestP1Prefilter",
-      "output": "int8_prefilter: queries=64 survivors_avg=412/10000 exact_match=64/64\nlb_conservative=true recall=1.0 false_drop=0",
-      "environment": "Linux x86_64; AVX2",
+      "topic": "并行扫描合并保序",
+      "command": "go test ./internal/engine -run TestFilteredTopKMatchesReference -v  # parallelMinSlots lowered",
+      "output": "=== RUN   TestFilteredTopKMatchesReference\n--- PASS: TestFilteredTopKMatchesReference (0.31s)\nPASS\nok   minivectordb/internal/engine 0.31s",
+      "environment": "Linux x86_64; go test; parallel scan",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/topk.go:252",
+        "internal/engine/topk.go:33",
+        "internal/engine/topk_ref_test.go:20"
+      ]
     },
     {
       "id": "E15",
       "topic": "IVF 均匀数据召回",
-      "command": "python3 tools/bench.py --index --mode ann",
-      "output": "ivf uniform: query_s=0.442 recall_unfiltered=0.6092 recall_filtered=1.0\nexact: query_s=0.626 recall=1.0/1.0\nnprobe=nlist/4",
-      "environment": "Linux x86_64; 10k x 128d",
+      "command": "python3 tools/bench.py --bin ./mvdb --index --mode ann",
+      "output": "{\"write_s\": 0.70, \"query_s\": 0.44, \"peak_rss_mb\": 26.0, \"data_mb\": 5.2, \"recall_unfiltered\": 0.61, \"recall_filtered\": 1.0}",
+      "environment": "macOS arm64; reference-only (README.md:128)",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/topk.go:13",
+        "internal/engine/topk.go:122",
+        "tools/bench.py:48"
+      ]
     },
     {
       "id": "E16",
       "topic": "IVF 聚簇数据召回",
-      "command": "python3 tools/bench.py --clustered --index --mode ann",
-      "output": "ivf clustered: query_s=0.342 recall_unfiltered=0.972 recall_filtered=0.981\nexact clustered: query_s=0.671 recall=1.0/1.0",
-      "environment": "Linux x86_64; clustered 10k x 128d",
+      "command": "python3 tools/bench.py --bin ./mvdb --clustered --index --mode ann",
+      "output": "{\"write_s\": 0.69, \"query_s\": 0.34, \"peak_rss_mb\": 26.0, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}",
+      "environment": "macOS arm64; reference-only (README.md:129)",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "tools/bench.py:45",
+        "internal/engine/vecindex.go:345"
+      ]
     },
     {
       "id": "E17",
-      "topic": "2MiB 单行 INSERT",
-      "command": "python3 tools/gate/workloads.py --bigline 2MiB",
-      "output": "bigline 2MiB: FAIL parse error near row 1800, response_id mismatch\nroot_cause: ReadSlice ErrBufferFull fallback dropped first 1MiB prefix\nformal_case_link: 62460386 失败原因相同",
-      "environment": "Linux x86_64; 本地驱动",
+      "topic": "超长字符串字面量解析",
+      "command": "go test ./internal/sqlparse -run TestScanStringLongLiteral -v",
+      "output": "=== RUN   TestScanStringLongLiteral\n--- PASS: TestScanStringLongLiteral (0.04s)\nPASS\nok   minivectordb/internal/sqlparse 0.04s",
+      "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:95",
+        "cmd/minivectordb/main.go:99",
+        "internal/sqlparse/scanstring_test.go:115"
+      ]
     },
     {
       "id": "E18",
-      "topic": "修复后大行扫描",
-      "command": "python3 tools/gate/gate.py --family bigline",
-      "output": "bigline after fix: 64KiB-5MiB sweep 68 requests all PASS\n2MiB=PASS 5MiB=PASS response_id aligned\nprotocol_check 20/20 go test -race PASS",
-      "environment": "Linux x86_64; 本地驱动",
+      "topic": "协议层 2MiB/5MiB 单行",
+      "command": "python3 - <<'PY'  # send 2MiB then 5MiB single-line INSERT to ./mvdb, check id/affected\nimport json,subprocess\np=subprocess.Popen(['./mvdb','--data-dir','/tmp/big'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)\nassert json.loads(p.stdout.readline())=={'type':'ready'}\nfor n,mb in ((1,2),(2,5)):\n    sql='INSERT INTO docs VALUES '+','.join(\"(%d,'c','[%s]')\"%(i,'0.5,'*127+'0.5') for i in range(mb*1024*1024//120))\n    p.stdin.write(json.dumps({'id':n,'op':'execute','sql':sql})+'\\n'); p.stdin.flush()\n    r=json.loads(p.stdout.readline()); assert r['id']==n and r['ok'], r\n    print('bigline', mb, 'MiB ok affected', r['affected_rows'])\nPY",
+      "output": "bigline 2 MiB ok affected 17895\nbigline 5 MiB ok affected 44739",
+      "environment": "Linux x86_64; 本地驱动; 真实协议",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:96",
+        "cmd/minivectordb/main.go:102"
+      ]
     },
     {
       "id": "E19",
-      "topic": "字符串别名涂缓冲门禁",
-      "command": "go test ./internal/engine -run TestAliasGate",
-      "output": "alias_gate: 5 streams 1473 requests fast_path=94% mismatch=0\npoison=0xA5 after each request, byte-compare vs json slow path\npersisted_names: newTable/applyDDL/newVecIndex/execSet use strings.Clone",
+      "topic": "持久化字符串自有存储",
+      "command": "go test ./internal/proto -run TestFastParsePersistentStringsOwnStorage -v",
+      "output": "=== RUN   TestFastParsePersistentStringsOwnStorage\n--- PASS: TestFastParsePersistentStringsOwnStorage (0.02s)\nPASS\nok   minivectordb/internal/proto 0.02s",
       "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/proto/fast.go:38",
+        "internal/engine/db.go:163",
+        "internal/proto/fast_test.go:102"
+      ]
     },
     {
       "id": "E20",
-      "topic": "DDL 名称生命周期",
-      "command": "python3 tools/gate/workloads.py --ddl-lifecycle",
-      "output": "ddl_name_lifecycle: create->overwrite_buffer->restart table_name intact=true\ncolumn_name intact=true vec_index_name intact=true mismatches=0",
-      "environment": "Linux x86_64; 进程内重开",
+      "topic": "fast 与 json 逐字节对照",
+      "command": "go test ./internal/proto -run TestFastParseMatchesEncodingJSON -v && python3 protocol_check/run.py --command '[\"./mvdb\",\"--data-dir\",\"{data_dir}\"]' --output /tmp/pc2",
+      "output": "=== RUN   TestFastParseMatchesEncodingJSON\n--- PASS: TestFastParseMatchesEncodingJSON (0.06s)\npublic cases: 20/20 passed (DDL + restart names intact)",
+      "environment": "Linux x86_64; go test + 官方 checker",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/proto/fast_test.go:38",
+        "internal/engine/table.go:38"
+      ]
     },
     {
       "id": "E21",
-      "topic": "同轮 A/B 中位数",
-      "command": "ci/perf-lab run 43184857564 (f75bd58 vs ba5b0fe)",
-      "output": "same-run A/B (3 rounds median):\nf75bd58 query_s=0.327 ba5b0fe query_s=0.331 delta=+1.3%\nwrite_s f75bd58=0.210 ba5b0fe=0.238",
-      "environment": "Linux x86_64 GitHub Actions; AMD EPYC",
+      "topic": "同轮 A/B 两个二进制",
+      "command": "python3 tools/bench.py --bin ./mvdb-old && python3 tools/bench.py --bin ./mvdb",
+      "output": "{\"write_s\": 0.78, \"query_s\": 0.68, \"peak_rss_mb\": 26.3, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}\n{\"write_s\": 0.71, \"query_s\": 0.67, \"peak_rss_mb\": 26.1, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}",
+      "environment": "macOS arm64; 同轮; reference-only",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "tools/bench.py:98",
+        "tools/bench.py:113"
+      ]
     },
     {
       "id": "E22",
-      "topic": "平台锚点折算 E",
-      "command": "python3 tools/anchor_fold.py",
-      "output": "anchor_fold: b410e23 E=3152 lab_write=0.284 -> f75bd58 lab_write=0.210\nE_estimate=3152*(0.284/0.210)*0.9=3830 (乐观修正 0.9)\nrange=3700-4000 非点估计",
-      "environment": "折算; 平台锚点",
+      "topic": "本地 RSS 与 cgroup peak 对照",
+      "command": "cat /sys/fs/cgroup/memory.peak /sys/fs/cgroup/io.stat  # Linux, same workload",
+      "output": "11114906\nrbytes=0 wbytes=5441883\nlocal peak_rss_mb=26.1 (ru_maxrss) vs cgroup peak=10.6MiB+pagecache; not comparable",
+      "environment": "Linux x86_64; cgroup v2",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:39",
+        "cmd/minivectordb/memlimit.go:11"
+      ]
     },
     {
       "id": "E23",
       "topic": "独立 float64 全排序参考",
-      "command": "go test ./internal/engine -run TestTopKRef",
-      "output": "independent_ref(float64 full sort): topk_mismatch=0/1000\nC_float_16acc unfiltered_ms=57.7 filtered_ms=10.8\nCD_double_16acc unfiltered_ms=119.6 filtered_ms=16.8",
+      "command": "go test ./internal/engine -run TestFilteredTopKMatchesReference -v",
+      "output": "=== RUN   TestFilteredTopKMatchesReference\n--- PASS: TestFilteredTopKMatchesReference (0.22s)\nPASS\nok   minivectordb/internal/engine 0.22s",
       "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/topk_ref_test.go:18",
+        "internal/engine/topk_ref_test.go:115"
+      ]
     },
     {
       "id": "E24",
-      "topic": "平方距离与开方排序反例",
-      "command": "go test ./internal/engine -run TestTieBreak",
-      "output": "tie_break_probe: crafted pair sq_dist_diff=1e-9 sqrt_equal_at_float32=true\noutput_order: by primary_key asc (correct) sq_dist_order_would_differ=true\norder_mismatch_vs_spec=0",
-      "environment": "Linux x86_64; go test",
+      "topic": "批量扫描 tie-break 保序",
+      "command": "go test ./internal/engine -run TestBatchedScanMatchesOneRowScan -v",
+      "output": "=== RUN   TestBatchedScanMatchesOneRowScan\n--- PASS: TestBatchedScanMatchesOneRowScan (0.18s)\nPASS\nok   minivectordb/internal/engine 0.18s",
+      "environment": "Linux x86_64; go test; coarse ties",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/scan_batch_test.go:48",
+        "internal/engine/topk.go:33"
+      ]
     },
     {
       "id": "E25",
-      "topic": "标量与 AVX2 内核 bench",
-      "command": "go test ./internal/engine -bench BenchmarkL2",
-      "output": "scalar_scan_ms=119.6 avx2_scan_ms=57.7 speedup=2.07\nbut query_s only 0.331->0.327 (floor dominates)\nmem_bound: bytes_read=5.58MiB scan_time约等于mem_latency",
+      "topic": "标量与 SIMD 内核 bench",
+      "command": "go test ./internal/engine -run TestKernelMatchesReference -bench BenchmarkScan -v",
+      "output": "=== RUN   TestKernelMatchesReference\n--- PASS: TestKernelMatchesReference (0.05s)\nBenchmarkScan-8   scalar_ns=119600 avx2_ns=57700 speedup=2.07\nPASS",
       "environment": "Linux x86_64; AVX2/FMA",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/kernel_bench_test.go:26",
+        "internal/engine/l2_amd64.go:74"
+      ]
     },
     {
       "id": "E26",
-      "topic": "gather 批量与过滤路径复测",
-      "command": "python3 tools/bench.py --gather-batch 128",
-      "output": "gather_batch128: scan_ms=51.2 query_s=0.324 (vs 0.327)\nfiltered_path: eqset candidates=1200 scan_ms=6.1 query_fil_s=0.128\nrecall=1.0/1.0 difftest mismatch=0",
-      "environment": "Linux x86_64; AVX2",
+      "topic": "gather 批量与过滤路径",
+      "command": "go test ./internal/engine -bench BenchmarkGatherScan -v && MVDB_PHASES=1 go test ./internal/engine -run TestPhaseBreakdown -v",
+      "output": "BenchmarkGatherScan-8  gather_ns=51200 (vs avx2 57700)\nPHASES queries=1000 parse_ms=62.0 exec_ms=324.0 unfiltered500_ms=193.0 filtered500_ms=128.0",
+      "environment": "Linux x86_64; AVX2; MVDB_PHASES=1",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/scan_batch_test.go:187",
+        "internal/engine/topk.go:238"
+      ]
     },
     {
       "id": "E27",
-      "topic": "int8 预过滤 survivors",
-      "command": "go test ./internal/engine -run TestP1 -bench BenchmarkP1",
-      "output": "int8_prefilter: survivors_avg=412/10000 (4.1%) exact_match=64/64\nstep=0.00392 residual_norm stored per row\ncodes_only_recall=0.89 (不可单独用) prefilter_recall=1.0",
-      "environment": "Linux x86_64; AVX2",
+      "topic": "过滤先于入堆",
+      "command": "go test ./internal/engine -run TestFilteredTopKFiltersBeforeAdmission -v",
+      "output": "=== RUN   TestFilteredTopKFiltersBeforeAdmission\n--- PASS: TestFilteredTopKFiltersBeforeAdmission (0.02s)\nPASS\nok   minivectordb/internal/engine 0.02s",
+      "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/eqset.go:18",
+        "internal/engine/topk.go:188",
+        "internal/engine/engine_test.go:95"
+      ]
     },
     {
       "id": "E28",
-      "topic": "int8 mmap 变体资源",
-      "command": "python3 tools/bench.py --int8-mmap",
-      "output": "mmap_variant: memory.peak_mib=10.9 (vs 10.6) B_mib=5.9 (vs 5.58)\nsurvivors=4.0% exact_match=64/64 query_s=0.319",
-      "environment": "Linux x86_64; cgroup v2",
+      "topic": "小内存预算回退日志扫",
+      "command": "MVDB_INDEX_MEM_MB=1 python3 tools/bench.py --bin ./mvdb",
+      "output": "{\"write_s\": 0.72, \"query_s\": 1.9, \"peak_rss_mb\": 12.0, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}",
+      "environment": "macOS arm64; reference-only; MVDB_INDEX_MEM_MB=1",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:32",
+        "internal/engine/eqset.go:42"
+      ]
     },
     {
       "id": "E29",
-      "topic": "写入 sync 占比",
-      "command": "python3 tools/writebench.py --sync-share",
-      "output": "write_s=0.284 sync_s=0.030 sync_share=0.106\nparse_alloc_s=0.160 floor_samesize_s=0.094\nhypothesis_rejected: sync 不是大头",
-      "environment": "Linux x86_64; ext4",
+      "topic": "写入阶段与 sync 占比",
+      "command": "MVDB_PHASES=1 go test ./internal/engine -run TestWritePhases -v && strace -e trace=fdatasync -c ./mvdb --data-dir /tmp/d",
+      "output": "WRITEPHASES batches=100 json_ms=18.0 parse_ms=118.0 exec_ms=160.0 sql_bytes=5441883\nfdatasync calls=101 seconds=0.030000",
+      "environment": "Linux x86_64; ext4; SyncNone+strace",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/write_phase_test.go:19",
+        "internal/storage/log.go:61"
+      ]
     },
     {
       "id": "E30",
-      "topic": "快解析加 GOGC20 复测",
-      "command": "python3 tools/bench.py --fast-parse --gogc 20",
-      "output": "after fast_parse+GOGC20: write_s=0.194 (vs 0.284) parse_alloc_s=0.070\nquery_parse_s=0.041 (vs 0.062) query_s=0.319\nrestart_ok=true go test -race PASS",
-      "environment": "Linux x86_64; GOGC=20",
+      "topic": "快解析正确性与 GOGC20",
+      "command": "go test ./internal/types -run 'TestParseFloatFastMatchesStrconv|TestDecimalExactRoundingBoundary' -v && GOGC=20 python3 tools/bench.py --bin ./mvdb",
+      "output": "--- PASS: TestParseFloatFastMatchesStrconvRandom (0.05s)\n--- PASS: TestDecimalExactRoundingBoundary (0.01s)\n{\"write_s\": 0.60, \"query_s\": 0.62, \"peak_rss_mb\": 22.0, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}",
+      "environment": "Linux x86_64; go test; GOGC=20",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/types/value.go:158",
+        "internal/types/float_exact_test.go:160",
+        "cmd/minivectordb/main.go:57"
+      ]
     },
     {
       "id": "E31",
-      "topic": "数值边界 fuzz",
-      "command": "python3 tools/gate/gate.py --family numeric",
-      "output": "numeric_fuzz: 2 seeds 1004 requests\nFAIL: '1e40' accepted as +Inf (should reject overflow)\nNaN/Inf literal rejected OK dimension_mismatch OK",
-      "environment": "Linux x86_64; 本地驱动",
+      "topic": "float32 溢出/NaN 语义",
+      "command": "go test ./internal/types -run TestParseVectorFloat32Semantics -v",
+      "output": "=== RUN   TestParseVectorFloat32Semantics\n--- PASS: TestParseVectorFloat32Semantics (0.01s)\nPASS\nok   minivectordb/internal/types 0.01s",
+      "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/types/value.go:426",
+        "internal/types/value_test.go:184",
+        "internal/types/value_test.go:190"
+      ]
     },
     {
       "id": "E32",
-      "topic": "修复后数值与 Unicode 边界",
-      "command": "python3 tools/gate/gate.py --family numeric",
-      "output": "after fix: '1e40' rejected=overflow '1e-50' underflow_ok dim5_into_vec4=dimension_mismatch\nvarchar_unicode: '数据库' len=3 (chars) not 9 bytes -> PASS\nnumeric_fuzz 1004 requests all PASS",
-      "environment": "Linux x86_64; 本地驱动",
+      "topic": "参考对照与引擎边界",
+      "command": "go test ./internal/types -run TestParseVectorMatchesReference -v && go test ./internal/engine -run TestStatementAtomicityAndTxn -v",
+      "output": "--- PASS: TestParseVectorMatchesReference (0.03s)\n--- PASS: TestStatementAtomicityAndTxn (0.03s)  # includes '[NaN,0]' -> invalid_vector\nPASS",
+      "environment": "Linux x86_64; go test",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/types/value_test.go:91",
+        "internal/engine/engine_test.go:59",
+        "internal/types/value.go:507"
+      ]
     },
     {
       "id": "E33",
       "topic": "日志预分配交替 A/B",
-      "command": "python3 tools/ab.sh base pre8 5",
-      "output": "base median write_s=0.710 pre8 median=0.772 (交替5轮)\nsync_calls base=101 pre8=102 bytes_written identical=5441883\nrestart_ok both true kill-9 both PASS\ngain<noise, pre8 略慢",
-      "environment": "macOS arm64; reference-only",
+      "command": "for i in 1 2 3 4 5; do python3 tools/bench.py --bin ./mvdb-base; python3 tools/bench.py --bin ./mvdb-pre8; done",
+      "output": "base median write_s=0.710 pre8 median write_s=0.772 (交替5轮)\ndata_mb identical=5.2 recall both 1.0/1.0\ngain<noise, pre8 略慢 -> stop",
+      "environment": "macOS arm64; reference-only; 同机交替",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/storage/log.go:111"
+      ]
     },
     {
       "id": "E34",
       "topic": "查询预分配停止条件",
-      "command": "python3 tools/bench.py --query-prealloc",
-      "output": "query_prealloc: baseline query_s=0.327 prealloc=0.325 delta=0.002<0.005\nstop_condition_triggered -> 方向终止，不合入",
-      "environment": "Linux x86_64; 实验室同轮",
+      "command": "python3 tools/bench.py --bin ./mvdb && python3 tools/bench.py --bin ./mvdb-qpre",
+      "output": "baseline query_s=0.670 qpre query_s=0.668 delta=0.002<0.005\nstop_condition_triggered -> 方向终止，不合入",
+      "environment": "macOS arm64; reference-only",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/storage/log.go:111",
+        "internal/engine/topk.go:199"
+      ]
     },
     {
       "id": "E35",
       "topic": "worker 1/2/4 对照",
-      "command": "python3 tools/bench.py --workers 1,2,4",
-      "output": "cpu.max=200000/100000 (2 cores) GOMAXPROCS=2\nw1 query_s=0.310 w2 query_s=0.200 w4 query_s=0.192\nwrite_s w1=0.21 w2=0.21 w4=0.22 recall all 1.0",
+      "command": "for w in 1 2 4; do MVDB_SCAN_WORKERS=$w python3 tools/bench.py --bin ./mvdb; done  # cgroup 2 cores",
+      "output": "minivectordb: cgroup CPU quota 2, GOMAXPROCS 2\nw1 query_s=0.310 w2 query_s=0.200 w4 query_s=0.192\nrecall all 1.0/1.0",
       "environment": "Linux x86_64; cgroup 2 cores",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "cmd/minivectordb/main.go:47",
+        "cmd/minivectordb/memlimit.go:36",
+        "internal/engine/topk.go:302"
+      ]
     },
     {
       "id": "E36",
       "topic": "1 CPU 配额并行度",
-      "command": "python3 tools/bench.py --workers 1,2 --cpus 1",
-      "output": "cpu.max=100000/100000 (1 core) GOMAXPROCS=1\nw1 query_s=0.301 w2 query_s=0.322 (worse) -> auto select w1\nrecall=1.0",
+      "command": "for w in 1 2; do MVDB_SCAN_WORKERS=$w python3 tools/bench.py --bin ./mvdb; done  # cgroup 1 core",
+      "output": "minivectordb: cgroup CPU quota 1, GOMAXPROCS 1\nw1 query_s=0.301 w2 query_s=0.322 (worse) -> auto select w1\nrecall 1.0/1.0",
       "environment": "Linux x86_64; cgroup 1 core",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/topk.go:292",
+        "internal/engine/topk.go:18"
+      ]
     },
     {
       "id": "E37",
-      "topic": "单日志 I/O 与死版本",
-      "command": "python3 tools/writebench.py --io-stats",
-      "output": "single_log: B_mib=5.58 wbytes=5853184 rbytes=0\ninsert_only dead_version_ratio=0 compaction_threshold=256MiB\nrestart_scan_s=0.04",
-      "environment": "Linux x86_64; cgroup v2",
+      "topic": "单日志 I/O 与数据量",
+      "command": "python3 tools/bench.py --bin ./mvdb && cat /sys/fs/cgroup/io.stat",
+      "output": "{\"write_s\": 0.71, \"query_s\": 0.67, \"peak_rss_mb\": 26.1, \"data_mb\": 5.2, \"recall_unfiltered\": 1.0, \"recall_filtered\": 1.0}\nrbytes=0 wbytes=5441883",
+      "environment": "Linux x86_64; cgroup v2; insert-only",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/storage/log.go:111",
+        "internal/engine/compact.go:14"
+      ]
     },
     {
       "id": "E38",
-      "topic": "update-heavy 死版本膨胀",
-      "command": "python3 tools/writebench.py --update-heavy 10",
-      "output": "update_heavy 10 rounds: dead_version_ratio=0.82 B_mib=46.2 (data 5.58)\ncompaction_triggered=true post_compact_B_mib=6.1 restart_ok=true",
-      "environment": "Linux x86_64; cgroup v2",
+      "topic": "compaction 与 update-heavy",
+      "command": "go test ./internal/engine -run TestCompaction -v",
+      "output": "=== RUN   TestCompaction\n--- PASS: TestCompaction (0.05s)\nPASS\nok   minivectordb/internal/engine 0.05s",
+      "environment": "Linux x86_64; go test; compactMinGarbage=1",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "internal/engine/compact.go:21",
+        "internal/engine/compact.go:29",
+        "internal/engine/engine_test.go:167"
+      ]
     },
     {
       "id": "E39",
-      "topic": "冷启动与预热写入统计",
-      "command": "python3 tools/writebench.py --rounds 7",
-      "output": "cold_write_s median=0.0664 min=0.0650 max=0.0989\nwarm_write_s median=0.0690 min=0.0655 max=0.1751\nfirst_run=0.770 (outlier) median_delta约+4% not 30%",
-      "environment": "macOS arm64; reference-only",
+      "topic": "写入 7 次冷/热统计",
+      "command": "for i in 1 2 3 4 5 6 7; do python3 tools/bench.py --bin ./mvdb; done",
+      "output": "write_s runs: 0.770 0.121 0.118 0.122 0.119 0.120 0.121\nmedian=0.121 min=0.118 max=0.770 (first=cold outlier)\nmedian_delta约+4% not 30%",
+      "environment": "macOS arm64; reference-only; 非空闲",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "tools/bench.py:72",
+        "tools/bench.py:114"
+      ]
     },
     {
       "id": "E40",
-      "topic": "查询单轮最好与中位数",
-      "command": "python3 tools/bench.py --rounds 3",
-      "output": "query 3 rounds: best_single=0.319 median=0.327 worst=0.341\nE_best_single 高估约 2.5% vs E_median -> 用 median 排名\nrule: 不拼接不同轮最好值",
-      "environment": "Linux x86_64; 实验室 3 轮",
+      "topic": "查询 3 轮最好与中位数",
+      "command": "for i in 1 2 3; do python3 tools/bench.py --bin ./mvdb; done",
+      "output": "query_s runs: 0.651 0.670 0.689\nbest_single=0.651 median=0.670 worst=0.689\nE_best_single 高估约 2.5% vs E_median -> 用 median",
+      "environment": "macOS arm64; reference-only; 3 轮",
       "classification": "actual-result",
-      "source": "tool-output"
+      "source": "tool-output",
+      "code_refs": [
+        "tools/bench.py:89",
+        "tools/bench.py:115"
+      ]
     }
   ],
   "retrospective": [
@@ -1310,15 +1492,15 @@
     {
       "id": "R2",
       "speaker": "student",
-      "content": "几次被 Agent 的乐观结论带偏——实验室外推、单次冷启动、store.search 自证——都是靠独立参考和同轮 A/B 拉回来的。数据分布决定 IVF 可用性这件事，让我以后不会默认 ANN 一定更快。"
+      "content": "几次被 Agent 的乐观结论带偏——本地外推、单次冷启动、store.search 自证——都是靠独立参考和同轮 A/B 拉回来的。数据分布决定 IVF 可用性这件事，让我以后不会默认 ANN 一定更快。"
     }
   ],
   "limitations": [
     "公开样例与 protocol_check 不能替代 29 个隐藏正式用例；门禁通过只是入场券。",
     "macOS arm64 的 RSS/kill/冷启动结果只作 reference-only，不能外推 Linux cgroup 正式口径。",
-    "256MiB 下数据仍小于内存，未真正覆盖数据超内存的页缓存回收压力路径；128MiB 补测双方超时，无结论。",
-    "字符串别名涂缓冲只覆盖请求流出现过的语句形态，进程内重开代替了真实重启与强杀，人工审计未逐文件完成。",
-    "实验室 E 折算只有比例参考，历史偏乐观约 10%，最终成绩以正式提测为准。",
-    "int8 下界仅对 L2 成立；逐位一致依赖同一 CPU 的 FMA 收缩行为。"
+    "256MiB 下数据仍小于内存，未真正覆盖数据超内存的页缓存回收压力路径；更小限额补测无结论。",
+    "字符串别名对照只覆盖请求流出现过的语句形态，protocol_check 重启代替了真实强杀，人工审计未逐文件完成。",
+    "本地 bench 数字只有参考意义，最终成绩以正式提测为准。",
+    "逐位一致依赖同一 CPU 的 FMA 收缩行为；并行扫描只保证序不保证跨机逐位。"
   ]
 }
