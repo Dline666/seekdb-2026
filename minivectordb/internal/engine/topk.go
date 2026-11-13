@@ -169,7 +169,6 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			qmin, qscale, qc, qSum, qNorm2, qok = quantizeQuery(q)
 		}
 	}
-	roundSlack := prefilterRoundSlack(x.maxAbs, qmin, qscale, t.Dim)
 	var ov map[int64]int64
 	if db.txn != nil {
 		ov = db.txn.overlay[t.ID]
@@ -267,7 +266,8 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// bytes and one parameter set, so codes[slot*dim:slot*dim+dim] is in
 	// range for every slot the scan can visit.
 	prefilterOK := gather && prefilterEnabled && qok && t.Dim <= maxInt8Dim && x.codes != nil &&
-		len(x.codes) >= len(x.pks)*t.Dim && len(x.qf) >= len(x.pks)*4
+		len(x.codes) >= len(x.pks)*t.Dim && len(x.qf) >= len(x.pks)*4 &&
+		len(x.qbounds) >= (len(x.pks)+quantBlockRows-1)/quantBlockRows
 	// fusedOK gates the fused single-pass scan kernel (fusedScanInt8),
 	// which folds the gather loop, the coffs multiply, the integer dot
 	// kernel, the dequantization and the threshold loop into one pass over
@@ -293,7 +293,8 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// construction. Any query that fails a gate runs the multi-pass scan
 	// over the candidate set unchanged.
 	fusedBlockOK := blk != nil && prefilterOK && useSIMD && ov == nil && rowPred == nil &&
-		len(blk.qf) >= blk.n*4 && len(blk.codes) >= blk.n*t.Dim && !prefilter6Bit
+		len(blk.qf) >= blk.n*4 && len(blk.codes) >= blk.n*t.Dim && !prefilter6Bit &&
+		len(blk.qbounds) >= (blk.n+quantBlockRows-1)/quantBlockRows
 	fusedCandidateOK := fusedCandidatesEnabled && prefilterOK && useCand &&
 		blk == nil && ov == nil && rowPred == nil && !prefilter6Bit &&
 		len(x.qf) >= len(x.pks)*4
@@ -346,8 +347,9 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				if n > scanBatch {
 					n = scanBatch
 				}
+				n = min(n, quantBlockRows-i%quantBlockRows)
 				bd := tk.bound()
-				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd) + roundSlack
+				thresh2 := blk.qbounds[i/quantBlockRows].threshold(qmin, qscale, t.Dim, bd)
 				var m int
 				if useVNNI {
 					m = fusedScanInt8BlockVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
@@ -391,8 +393,17 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				if n > scanBatch {
 					n = scanBatch
 				}
+				var bound quantBlockBound
+				if fusedCandidateOK {
+					bound = x.boundForSlots(cand[i : i+n])
+				} else {
+					// Worker partitions can start inside a block. Do not
+					// apply its bound to rows from the following block.
+					n = min(n, quantBlockRows-i%quantBlockRows)
+					bound = x.qbounds[i/quantBlockRows]
+				}
 				bd := tk.bound()
-				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd) + roundSlack
+				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd)
 				var m int
 				if fusedCandidateOK {
 					m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
@@ -489,7 +500,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 					dotInt8GatherInt(qc, x.codes, coffs[:n], approxInt[:n])
 				}
 				bd := tk.bound()
-				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd) + roundSlack
+				thresh2 := x.boundForSlots(slots[:n]).threshold(qmin, qscale, t.Dim, bd)
 				m = 0
 				for j := 0; j < n; j++ {
 					f := x.qf[int(slots[j])*4 : int(slots[j])*4+4]

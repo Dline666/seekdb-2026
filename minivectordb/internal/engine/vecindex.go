@@ -49,9 +49,10 @@ type VecIndex struct {
 	// qp, so it is never stale relative to the codes.
 	codes       []byte
 	qf          []float64
-	maxScale    float32   // largest per-row quantization scale in the index; a stale larger value is safe (it only loosens the prefilter threshold)
-	maxAbs      float64   // upper bound on absolute dequantized coordinates; stale larger bounds are safe
-	qscratch    []float32 // reused decode buffer for quantizeSlot
+	qbounds     []quantBlockBound // conservative bounds for each quantBlockRows consecutive slots
+	maxScale    float32           // largest per-row quantization scale in the index; a stale larger value is safe (it only loosens the prefilter threshold)
+	maxAbs      float64           // upper bound on absolute dequantized coordinates; stale larger bounds are safe
+	qscratch    []float32         // reused decode buffer for quantizeSlot
 	noPrefilter bool
 
 	// gen changes whenever a slot changes; derived sets compare against it.
@@ -74,6 +75,7 @@ func newVecIndex(name string) *VecIndex {
 
 func (x *VecIndex) rebuild(db *DB, t *Table) {
 	x.invalidateSets()
+	x.qbounds = nil
 	x.maxAbs = 0
 	x.qscratch = nil
 	x.dim = t.Dim
@@ -90,7 +92,7 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 	// pays off for the batched scan (dim>=16).
 	// When it does not fit, the index still works and queries just run the
 	// exact scan.
-	x.noPrefilter = x.dim < 16 || x.dim > maxInt8Dim || int64(len(t.rows))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4 > budget
+	x.noPrefilter = x.dim < 16 || x.dim > maxInt8Dim || int64(len(t.rows))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4+quantBlockBytes(len(t.rows)) > budget
 	x.codes, x.qf, x.maxScale = nil, nil, 0
 	x.pks, x.off, x.free = nil, nil, nil
 	x.pos = make(map[int64]int32, len(t.rows))
@@ -103,6 +105,7 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 	if !x.noPrefilter {
 		x.codes = make([]byte, 0, len(t.rows)*x.dim)
 		x.qf = make([]float64, 0, len(t.rows)*4)
+		x.qbounds = make([]quantBlockBound, (len(t.rows)+quantBlockRows-1)/quantBlockRows)
 	}
 	// The slots follow the log order. The scan then walks the log from the
 	// oldest row to the newest and reads the mapped file sequentially; with
@@ -135,6 +138,7 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 		x.Disabled = true
 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
 		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
+		x.qbounds = nil
 		x.resetIVF()
 		return
 	}
@@ -142,8 +146,9 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	// push the codes past the budget. Dropping the codes only turns the
 	// prefilter off; the index itself keeps working.
 	if !x.has(pk) && !x.noPrefilter && x.dim >= 16 &&
-		int64(max(len(x.pks), x.live+1))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4 > budget {
+		int64(max(len(x.pks), x.live+1))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4+quantBlockBytes(max(len(x.pks), x.live+1)) > budget {
 		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, true, 0
+		x.qbounds = nil
 	}
 	s, ok := x.pos[pk]
 	if !ok {
@@ -181,6 +186,7 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	if x.derivedBytes() > budget {
 		x.resetIVF()
 		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale, x.maxAbs = nil, nil, nil, true, 0, 0
+		x.qbounds = nil
 		if x.derivedBytes() > budget {
 			x.Disabled = true
 			x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, nil, 0
@@ -217,9 +223,15 @@ func (x *VecIndex) quantizeSlot(db *DB, t *Table, s int32) {
 	// min + code*scale is bounded by |min| + 256*scale. Keep a
 	// conservative maximum for the absolute rounding error in the expanded
 	// squared distance; its magnitude can dwarf the final distance.
-	if bound := math.Abs(float64(qp.min)) + 256*float64(qp.scale); bound > x.maxAbs {
+	bound := math.Abs(float64(qp.min)) + 256*float64(qp.scale)
+	if bound > x.maxAbs {
 		x.maxAbs = bound
 	}
+	block := int(s) / quantBlockRows
+	for len(x.qbounds) <= block {
+		x.qbounds = append(x.qbounds, quantBlockBound{})
+	}
+	x.qbounds[block].add(qp.scale, bound)
 	x.qf[4*int(s)], x.qf[4*int(s)+1], x.qf[4*int(s)+2], x.qf[4*int(s)+3] = foldQparam(qp, x.dim)
 	if qp.scale > x.maxScale {
 		x.maxScale = qp.scale
@@ -253,7 +265,7 @@ func (x *VecIndex) invalidateSets() {
 func (x *VecIndex) derivedBytes() int64 {
 	bytes := int64(cap(x.pks)+cap(x.off)+cap(x.qf))*8 +
 		int64(cap(x.free)+cap(x.qscratch))*4 + int64(len(x.pos))*48 +
-		int64(cap(x.codes)) + x.catBytes + x.eqBytes
+		int64(cap(x.codes)) + int64(cap(x.qbounds))*16 + x.catBytes + x.eqBytes
 	bytes += int64(cap(x.cents)+cap(x.slotList))*4 + int64(cap(x.lists))*24
 	for _, list := range x.lists {
 		bytes += int64(cap(list)) * 4

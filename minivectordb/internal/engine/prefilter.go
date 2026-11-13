@@ -222,6 +222,50 @@ func dotInt8GatherIntScalar(qc []int16, codes []byte, offs []int64, out []int32)
 // distance cannot cover rounding of large intermediate terms.
 const prefilterEps = 1e-4
 
+// Each bound covers at most one scan batch. An extreme row may loosen the
+// prefilter in its own block, but must not disable pruning for the table.
+// Bounds only grow on mutation; retaining a deleted row's larger bound is
+// safe until the next index rebuild.
+const quantBlockRows = 128
+
+type quantBlockBound struct {
+	maxAbs   float64
+	maxScale float32
+}
+
+func (b *quantBlockBound) add(scale float32, abs float64) {
+	if scale > b.maxScale {
+		b.maxScale = scale
+	}
+	if abs > b.maxAbs {
+		b.maxAbs = abs
+	}
+}
+
+func (b quantBlockBound) threshold(qmin, qscale float32, dim int, bd float64) float64 {
+	return prefilterThreshold(b.maxScale+qscale, dim, bd) + prefilterRoundSlack(b.maxAbs, qmin, qscale, dim)
+}
+
+func quantBlockBytes(rows int) int64 {
+	return int64((rows+quantBlockRows-1)/quantBlockRows) * 16
+}
+
+// Slots are normally sorted, so repeated block lookups can be skipped.
+// The merge also remains correct for arbitrary slot order.
+func (x *VecIndex) boundForSlots(slots []int32) quantBlockBound {
+	var b quantBlockBound
+	prev := -1
+	for _, slot := range slots {
+		i := int(slot) / quantBlockRows
+		if i != prev {
+			part := x.qbounds[i]
+			b.add(part.maxScale, part.maxAbs)
+			prev = i
+		}
+	}
+	return b
+}
+
 // prefilterRoundSlack bounds rounding in the expanded squared distance.
 // If A and Q bound absolute dequantized row/query coordinates, every norm,
 // cross term and the sum of their absolute terms is O(dim*(A+Q)^2).
@@ -318,7 +362,7 @@ func approxDist2(qSum, qNorm2 float64, dot float64, qp qparam) float64 {
 // batch.
 //
 // Rigor: the caller passes the COMBINED scale S = maxScale + qscale,
-// where maxScale is the largest per-row scale over the whole index
+// where maxScale is an upper bound on every row scale in this scan batch
 // (maintained at INSERT time; a stale larger value is safe because it
 // only loosens the bound) and qscale is the query's quantization scale.
 // The per-element error is (scale+qscale)/2: the row contributes

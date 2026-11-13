@@ -25,7 +25,7 @@ func TestCategoryBudgetAndMutation(t *testing.T) {
 	db.vectorTopK(tbl, q, nil, 10, false, nil)
 	x := tbl.Index
 	x.eqSlots(db, tbl, 1, "c0")
-	db.opts.IndexMemBytes = x.derivedBytes() + 20*(32+48) + 258
+	db.opts.IndexMemBytes = x.derivedBytes() + 20*(32+48) + quantBlockBytes(20) + 258
 	if x.catBlockFor(db, tbl, 1, "c0") == nil {
 		t.Fatal("first category should fit")
 	}

@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"math"
 	"os"
 	"strings"
 	"sync/atomic"
@@ -116,12 +117,13 @@ func (x *VecIndex) eqSlots(db *DB, t *Table, col int, v string) ([]int32, bool) 
 // tombstone, and a transaction overlay disables the block path (the
 // overlay rows are not in the block).
 type catBlock struct {
-	gen   uint64
-	n     int
-	codes []byte    // n*dim uint8 codes, row-major
-	qf    []float64 // n*4 folded threshold constants (see foldQparam)
-	off   []int64   // log offset per row
-	pks   []int64   // primary key per row
+	gen     uint64
+	n       int
+	codes   []byte            // n*dim uint8 codes, row-major
+	qf      []float64         // n*4 folded threshold constants (see foldQparam)
+	off     []int64           // log offset per row
+	pks     []int64           // primary key per row
+	qbounds []quantBlockBound // bounds in this compacted block's row order
 }
 
 // catBlockFor returns the compacted block for column col = val, building it
@@ -155,7 +157,7 @@ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock 
 	dim := t.Dim
 	// Bound the copies across all values and all columns. The fixed charge
 	// also bounds empty/single-row categories and their map entries.
-	bytes := int64(len(cand))*(int64(dim)+48) + int64(len(val)) + 256
+	bytes := int64(len(cand))*(int64(dim)+48) + quantBlockBytes(len(cand)) + int64(len(val)) + 256
 	if x.derivedBytes()+bytes > db.indexBudget(x) {
 		return nil
 	}
@@ -164,11 +166,16 @@ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock 
 	b.qf = make([]float64, len(cand)*4)
 	b.off = make([]int64, len(cand))
 	b.pks = make([]int64, len(cand))
+	b.qbounds = make([]quantBlockBound, (len(cand)+quantBlockRows-1)/quantBlockRows)
 	for i, s := range cand {
 		copy(b.codes[i*dim:(i+1)*dim], x.codes[int(s)*dim:int(s)*dim+dim])
 		copy(b.qf[i*4:(i+1)*4], x.qf[int(s)*4:int(s)*4+4])
 		b.off[i] = x.off[s]
 		b.pks[i] = x.pks[s]
+		// m2=-2*min and s2=-2*scale are exact in float64, so the
+		// original per-row bounds need no extra retained parameters.
+		f := b.qf[i*4 : i*4+4]
+		b.qbounds[i/quantBlockRows].add(float32(-f[2]/2), math.Abs(f[0]/2)-128*f[2])
 	}
 	if x.cat == nil {
 		x.cat = map[int]map[string]*catBlock{}
