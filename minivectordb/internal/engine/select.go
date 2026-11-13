@@ -103,13 +103,30 @@ func (db *DB) execSelect(s *sp.Select) (*Result, error) {
 			want = limit + s.Offset
 		}
 	}
-	if want == 0 {
+	if limit == 0 || want == 0 {
 		return res, nil
 	}
 	var offs []int64
 	var dists []float64 // squared L2 distances, parallel to offs
 	ok := false
-	if len(keys) == 1 && keys[0].c.l2q != nil && !keys[0].desc && want <= 1<<20 {
+	pk, point := pointKey(t, s.Where)
+	if !point && s.Alias != "" {
+		// pointKey also accepts qualified primary keys. A local name view
+		// lets SELECT aliases reuse its integer-literal checks unchanged.
+		aliasTable := *t
+		aliasTable.Name = s.Alias
+		pk, point = pointKey(&aliasTable, s.Where)
+	}
+	if point {
+		// A primary-key equality admits at most one visible row. Keep the
+		// complete predicate: another conjunct may still reject that row.
+		// All output/order expressions were validated above, including when
+		// the lookup misses or OFFSET later removes the result.
+		ok = true
+		if off, found := db.lookup(t, pk); found && (pred == nil || pred(db.rowBytes(off))) {
+			offs = []int64{off}
+		}
+	} else if len(keys) == 1 && keys[0].c.l2q != nil && !keys[0].desc && want <= 1<<20 {
 		var eq *eqFilterSpec
 		if s.Where != nil {
 			if col, val, found := eqFilter(sc, s.Where); found {
@@ -261,6 +278,13 @@ func (h *candHeap) Pop() any {
 // scanSorted filters all visible rows and returns the first want offsets in
 // sort order. Without ORDER BY rows are returned in primary key order.
 func (db *DB) scanSorted(t *Table, pred func([]byte) bool, keys []sortKey, want int64) []int64 {
+	if pred == nil && (len(keys) == 0 || keys[0].c.col == t.PK && keys[0].c.kind == types.KInt) {
+		// The primary key is unique, so later sort keys cannot break a tie.
+		// Alias and ordinal resolution has already identified the actual
+		// column; an alias that shadows the primary key with another value
+		// therefore does not enter this path. No ORDER BY means PK ascending.
+		return db.scanPrimary(t, want, len(keys) > 0 && keys[0].desc)
+	}
 	less := lessCand(keys)
 	h := &candHeap{less: less}
 	bounded := want < int64(db.visibleCount(t))
@@ -295,4 +319,68 @@ func (db *DB) scanSorted(t *Table, pred func([]byte) bool, keys []sortKey, want 
 		out[i] = c.off
 	}
 	return out
+}
+
+type primaryRow struct {
+	pk, off int64
+}
+
+// scanPrimary orders the authoritative row offsets without touching log pages.
+// Flat values avoid per-row candidate/key allocations. A bounded query keeps
+// only want rows in a worst-first heap; the comparison uses no subtraction or
+// negation, so both BIGINT endpoints retain their normal ordering.
+func (db *DB) scanPrimary(t *Table, want int64, desc bool) []int64 {
+	n := int64(db.visibleCount(t))
+	limit := int(min(want, n))
+	if limit <= 0 {
+		return nil
+	}
+	before := func(a, b int64) bool {
+		if desc {
+			return a > b
+		}
+		return a < b
+	}
+	rows := make([]primaryRow, 0, limit)
+	bounded := want < n
+	db.forEach(t, func(pk, off int64) bool {
+		if !bounded {
+			rows = append(rows, primaryRow{pk, off})
+			return true
+		}
+		if len(rows) < limit {
+			rows = append(rows, primaryRow{pk, off})
+			for i := len(rows) - 1; i > 0; {
+				parent := (i - 1) / 2
+				if !before(rows[parent].pk, rows[i].pk) {
+					break
+				}
+				rows[parent], rows[i] = rows[i], rows[parent]
+				i = parent
+			}
+		} else if before(pk, rows[0].pk) {
+			rows[0] = primaryRow{pk, off}
+			for i := 0; ; {
+				child := 2*i + 1
+				if child >= len(rows) {
+					break
+				}
+				if child+1 < len(rows) && before(rows[child].pk, rows[child+1].pk) {
+					child++
+				}
+				if !before(rows[i].pk, rows[child].pk) {
+					break
+				}
+				rows[i], rows[child] = rows[child], rows[i]
+				i = child
+			}
+		}
+		return true
+	})
+	sort.Slice(rows, func(i, j int) bool { return before(rows[i].pk, rows[j].pk) })
+	offs := make([]int64, len(rows))
+	for i, row := range rows {
+		offs[i] = row.off
+	}
+	return offs
 }
