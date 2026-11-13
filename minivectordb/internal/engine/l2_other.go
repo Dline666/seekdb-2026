@@ -2,6 +2,10 @@
 
 package engine
 
+func fusedScanCandidates(qc []int16, x *VecIndex, slots []int32, qSum, qNorm2 float64, qmin, qscale float32, thresh2 float64, surv []int64) int {
+	return fusedScanCandidatesScalar(qc, x, slots, qSum, qNorm2, qmin, qscale, thresh2, surv)
+}
+
 // useSIMD is a variable only so tests can toggle it on every platform.
 var useSIMD = false
 

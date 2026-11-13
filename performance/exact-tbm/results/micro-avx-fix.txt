@@ -1,0 +1,11 @@
+goos: linux
+goarch: amd64
+pkg: minivectordb/internal/engine
+cpu: Intel(R) Core(TM) Ultra 5 125H
+BenchmarkHeFusedKernel100k/thresh=35-8         	     100	   2380426 ns/op
+BenchmarkHeFusedKernel100k/thresh=35-8         	     100	   2370636 ns/op
+BenchmarkHeFusedKernel100k/thresh=35-8         	     100	   2354270 ns/op
+BenchmarkHeFusedKernel100k/thresh=1e+18-8      	     100	   2353768 ns/op
+BenchmarkHeFusedKernel100k/thresh=1e+18-8      	     100	   2374134 ns/op
+BenchmarkHeFusedKernel100k/thresh=1e+18-8      	     100	   2318528 ns/op
+PASS

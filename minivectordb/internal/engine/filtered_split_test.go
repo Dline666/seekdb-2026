@@ -436,6 +436,9 @@ func sumDur(ds []time.Duration) int64 {
 // the block path (catBlocksEnabled=true) and the candidate-set multi-pass
 // path (false) and requires bit-identical offsets and distances.
 func TestCatBlockBitIdentical(t *testing.T) {
+	oldCandidates := fusedCandidatesEnabled
+	fusedCandidatesEnabled = false
+	defer func() { fusedCandidatesEnabled = oldCandidates }()
 	decompSetupT(t)
 	prefilterEnabled = true
 	tbl := decompDB.tables["docs"]

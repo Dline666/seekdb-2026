@@ -55,9 +55,10 @@ type VecIndex struct {
 	noPrefilter bool
 
 	// gen changes whenever a slot changes; derived sets compare against it.
-	gen uint64
-	eq  map[int]*eqSet
-	cat map[int]map[string]*catBlock
+	gen      uint64
+	eq       map[int]*eqSet
+	cat      map[int]map[string]*catBlock
+	catBytes int64
 }
 
 // indexBytesPerRow is the in-memory cost of one indexed row once the vectors
@@ -72,7 +73,7 @@ func newVecIndex(name string) *VecIndex {
 }
 
 func (x *VecIndex) rebuild(db *DB, t *Table) {
-	x.gen++
+	x.invalidateSets()
 	x.dim = t.Dim
 	x.Disabled = int64(len(t.rows))*indexBytesPerRow > db.opts.IndexMemBytes
 	if x.Disabled {
@@ -81,12 +82,12 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 		x.resetIVF()
 		return
 	}
-	// The prefilter needs dim+48 bytes per row (codes + parameters +
+	// The prefilter needs dim+56 bytes per row (codes + parameters +
 	// folded threshold constants) on top of the index itself, and only
 	// pays off for the batched scan (dim>=16).
 	// When it does not fit, the index still works and queries just run the
 	// exact scan.
-	x.noPrefilter = x.dim < 16 || int64(len(t.rows))*(int64(x.dim)+48) > db.opts.IndexMemBytes
+	x.noPrefilter = x.dim < 16 || int64(len(t.rows))*(indexBytesPerRow+int64(x.dim)+56) > db.opts.IndexMemBytes
 	x.codes, x.qp, x.qf, x.maxScale = nil, nil, nil, 0
 	x.pks, x.off, x.free = nil, nil, nil
 	x.pos = make(map[int64]int32, len(t.rows))
@@ -94,6 +95,13 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 	x.resetIVF()
 	x.pks = make([]int64, 0, len(t.rows))
 	x.off = make([]int64, 0, len(t.rows))
+	// Rebuild knows the final size. Repeated append growth otherwise retains
+	// several generations of large code/parameter arrays until the next GC.
+	if !x.noPrefilter {
+		x.codes = make([]byte, 0, len(t.rows)*x.dim)
+		x.qp = make([]qparam, 0, len(t.rows))
+		x.qf = make([]float64, 0, len(t.rows)*4)
+	}
 	// The slots follow the log order. The scan then walks the log from the
 	// oldest row to the newest and reads the mapped file sequentially; with
 	// an arbitrary order every row would be a separate random access.
@@ -119,7 +127,7 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	if x.Disabled {
 		return
 	}
-	x.gen++
+	x.invalidateSets()
 	if !x.has(pk) && int64(x.live+1)*indexBytesPerRow > db.opts.IndexMemBytes {
 		x.Disabled = true
 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
@@ -131,7 +139,7 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	// push the codes past the budget. Dropping the codes only turns the
 	// prefilter off; the index itself keeps working.
 	if !x.has(pk) && !x.noPrefilter && x.dim >= 16 &&
-		int64(x.live+1)*(int64(x.dim)+48) > db.opts.IndexMemBytes {
+		int64(max(len(x.pks), x.live+1))*(indexBytesPerRow+int64(x.dim)+56) > db.opts.IndexMemBytes {
 		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, true, 0
 	}
 	s, ok := x.pos[pk]
@@ -212,12 +220,28 @@ func (x *VecIndex) decode(db *DB, t *Table, off int64) []float32 {
 
 func (x *VecIndex) has(pk int64) bool { _, ok := x.pos[pk]; return ok }
 
+// Drop derived sets at the mutation, not when each individual value is next
+// queried. Otherwise stale categories keep their code copies alive forever.
+func (x *VecIndex) invalidateSets() {
+	x.gen++
+	x.eq, x.cat, x.catBytes = nil, nil, 0
+}
+
+// derivedBytes includes slice capacity, since append growth can retain more
+// storage than the number of live rows. Map cost remains an estimate, as in
+// indexBytesPerRow; category blocks must share this table's index budget.
+func (x *VecIndex) derivedBytes() int64 {
+	return int64(cap(x.pks)+cap(x.off)+cap(x.qf))*8 +
+		int64(cap(x.free)+cap(x.qscratch))*4 + int64(len(x.pos))*48 +
+		int64(cap(x.codes)) + int64(cap(x.qp))*24 + x.catBytes
+}
+
 func (x *VecIndex) remove(pk int64) {
 	s, ok := x.pos[pk]
 	if !ok {
 		return
 	}
-	x.gen++
+	x.invalidateSets()
 	delete(x.pos, pk)
 	if x.slotList != nil {
 		x.unlist(s)

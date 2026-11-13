@@ -117,16 +117,37 @@ func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
 	fresh := make(map[int64]struct{}, len(s.Rows))
 	row := make([]types.Value, len(t.Cols))
 	var enc []byte
+	// Reserve the fixed-width payload plus a small VARCHAR allowance. Rows
+	// in chs retain earlier backing arrays when enc grows, so avoiding that
+	// growth also reduces the live heap of a multi-row INSERT. Cap the eager
+	// reservation; large/variable-width statements still grow normally.
+	perRow := t.varBase + 8*len(t.Cols)
+	if len(s.Rows) <= (1<<20)/perRow {
+		enc = make([]byte, 0, len(s.Rows)*perRow)
+	}
 	for _, exprs := range s.Rows {
 		if len(exprs) != len(target) {
 			return nil, types.ErrColCount()
 		}
 		for j, e := range exprs {
-			c, err := sc.compile(e)
-			if err != nil {
-				return nil, err
+			// Literal VALUES need no compiled expression or captured closure.
+			// Keep the general evaluator for functions and other expressions.
+			var value types.Value
+			switch e := e.(type) {
+			case *sp.IntLit:
+				value = types.Int(e.V)
+			case *sp.FloatLit:
+				value = types.Float(e.V)
+			case *sp.StrLit:
+				value = types.Str(e.V)
+			default:
+				c, err := sc.compile(e)
+				if err != nil {
+					return nil, err
+				}
+				value = c.fn(nil)
 			}
-			v, err := coerce(t.Cols[target[j]], c.fn(nil))
+			v, err := coerce(t.Cols[target[j]], value)
 			if err != nil {
 				return nil, err
 			}

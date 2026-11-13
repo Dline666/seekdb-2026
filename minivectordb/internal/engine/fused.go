@@ -1,5 +1,19 @@
 package engine
 
+import "os"
+
+// The candidate kernel reads the existing quantized index directly instead
+// of retaining a second copy for each categorical value.
+var fusedCandidatesEnabled = os.Getenv("MVDB_NO_FUSED_CANDIDATES") == ""
+
+func fusedScanCandidatesScalar(qc []int16, x *VecIndex, slots []int32, qSum, qNorm2 float64, qmin, qscale float32, thresh2 float64, surv []int64) int {
+	n := 0
+	for _, s := range slots {
+		n += fusedScanInt8Scalar(qc, x, s, 1, qSum, qNorm2, qmin, qscale, thresh2, surv[2*n:])
+	}
+	return n
+}
+
 // fusedScanInt8Scalar is the portable reference for the fused single-pass
 // scan kernel (fusedScanInt8AVX2): over rows sequential slots starting at
 // baseSlot it computes the exact integer dot of the quantized query against

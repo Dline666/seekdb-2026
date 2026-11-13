@@ -63,6 +63,23 @@ func dotInt8GatherIntAVX2(q *int16, codes *byte, offs *int64, blocks, rows int, 
 //go:noescape
 func fusedScanInt8AVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qmin, qscale, thresh2 float64, baseSlot, rows, blocks, tail int, surv *int64) int
 
+// Same bound and survivor format as fusedScanInt8AVX2, over valid live
+// candidate slots in their supplied order. surv has room for 2*rows values.
+//go:noescape
+func fusedScanCandidatesAVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qmin, qscale, thresh2 float64, slots *int32, rows, blocks, tail int, surv *int64) int
+
+func fusedScanCandidates(qc []int16, x *VecIndex, slots []int32, qSum, qNorm2 float64, qmin, qscale float32, thresh2 float64, surv []int64) int {
+	if len(slots) == 0 {
+		return 0
+	}
+	if !useSIMD {
+		return fusedScanCandidatesScalar(qc, x, slots, qSum, qNorm2, qmin, qscale, thresh2, surv)
+	}
+	return fusedScanCandidatesAVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
+		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
+		&slots[0], len(slots), len(qc)/32, len(qc)%32, &surv[0])
+}
+
 // fusedScanInt8VNNI is the VNNI variant of fusedScanInt8AVX2: same
 // contract, but the integer dot uses one VPDPBUSD per 64 codes and the
 // query codes enter biased by -128 (qc8[i] = qc[i]-128, signed int8)
@@ -162,6 +179,7 @@ func fusedScanInt8BlockVNNI(qc8 []int8, codes []byte, pks, offs []int64, qf []fl
 		qSum, qNorm2, qminAdj, qscale, thresh2,
 		baseSlot, rows, blocks64, tail, &surv[0])
 }
+
 // fusedScanInt8 runs one fused scan batch over rows sequential slots
 // starting at baseSlot (see fusedScanInt8AVX2). When AVX2 is unavailable
 // it falls back to the portable scalar reference, which makes identical

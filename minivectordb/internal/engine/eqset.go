@@ -94,17 +94,9 @@ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock 
 	// the same buffer offset and mutate the key, so a lookup for the new
 	// value returns the old value's block (measured: c8's query returned
 	// c3's top-10 when both literals sat at offset 5018, and c1's
-	// returned c6's at 5020). Clone once; the lookup below is transient
-	// and needs no copy.
-	val = strings.Clone(val)
-	if x.cat == nil {
-		x.cat = map[int]map[string]*catBlock{}
-	}
+	// returned c6's at 5020). Clone only when inserting; a cache hit needs
+	// no allocation.
 	m := x.cat[col]
-	if m == nil {
-		m = map[string]*catBlock{}
-		x.cat[col] = m
-	}
 	if b := m[val]; b != nil && b.gen == x.gen {
 		return b
 	}
@@ -113,6 +105,12 @@ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock 
 		return nil
 	}
 	dim := t.Dim
+	// Bound the copies across all values and all columns. The fixed charge
+	// also bounds empty/single-row categories and their map entries.
+	bytes := int64(len(cand))*(int64(dim)+48) + int64(len(val)) + 256
+	if x.derivedBytes()+bytes > db.opts.IndexMemBytes {
+		return nil
+	}
 	b := &catBlock{gen: x.gen, n: len(cand)}
 	b.codes = make([]byte, len(cand)*dim)
 	b.qf = make([]float64, len(cand)*4)
@@ -124,7 +122,15 @@ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock 
 		b.off[i] = x.off[s]
 		b.pks[i] = x.pks[s]
 	}
-	m[val] = b
+	if x.cat == nil {
+		x.cat = map[int]map[string]*catBlock{}
+	}
+	if m == nil {
+		m = map[string]*catBlock{}
+		x.cat[col] = m
+	}
+	m[strings.Clone(val)] = b
+	x.catBytes += bytes
 	return b
 }
 

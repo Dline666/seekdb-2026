@@ -49,6 +49,19 @@ def vec(i):
     return [round(math.sin(i * 0.37) * 10, 3), round(math.cos(i * 0.11) * 10, 3), float(i % 7)]
 
 
+def stop(p):
+    p.kill()
+    p.wait()
+    # A killed reader can leave buffered bytes on stdin. Closing explicitly
+    # keeps that expected BrokenPipe out of Python's finalizer diagnostics.
+    for stream in (p.stdin, p.stdout):
+        if stream is not None:
+            try:
+                stream.close()
+            except BrokenPipeError:
+                pass
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bin", required=True)
@@ -60,12 +73,11 @@ def main():
     p = start(a.bin, d)
     send(p, "CREATE TABLE docs (id BIGINT PRIMARY KEY, tag VARCHAR(8), e VECTOR(3))")
     send(p, "CREATE VECTOR INDEX vi ON docs(e)")
-    p.kill()
-    p.wait()
+    stop(p)
     committed = {}       # id -> tag, acknowledged
     maybe = []           # list of dicts for unacknowledged statements/commits
     next_id = 1
-    for rnd in range(a.rounds):
+    for rnd in range(a.rounds + 1):
         p = start(a.bin, d)
         # Verify the previous round.
         got = send(p, "SELECT id, tag FROM docs")
@@ -90,6 +102,11 @@ def main():
             # Vectors are stored as float32, so distances match to ~1e-5.
             assert abs(r[1] - b[0]) < 1e-3, "round %d: topk mismatch %s vs %s" % (rnd, topk["rows"], brute)
             assert r[0] in committed
+
+        # Verify the final kill too, before reporting success.
+        if rnd == a.rounds:
+            stop(p)
+            break
 
         # Run a workload and kill it at a random time.
         killer = threading.Timer(rng.uniform(0.005, 0.08), lambda: os.kill(p.pid, signal.SIGKILL))
@@ -127,15 +144,13 @@ def main():
         except (BrokenPipeError, ValueError):
             pass
         killer.cancel()
-        p.kill()
-        p.wait()
+        stop(p)
         if rnd % 3 == 0:
             # Kill during recovery as well.
             p2 = subprocess.Popen([a.bin, "--data-dir", d], stdin=subprocess.PIPE,
                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             time.sleep(rng.uniform(0, 0.01))
-            p2.kill()
-            p2.wait()
+            stop(p2)
     print("ok: %d rounds, %d committed rows" % (a.rounds, len(committed)))
 
 

@@ -1,6 +1,8 @@
 package proto
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"unicode/utf8"
 	"unsafe"
@@ -27,24 +29,14 @@ func parseFast(b []byte) (*Request, bool) {
 		if i >= n || b[i] != '"' {
 			return "", false
 		}
-		j := i + 1
-		for j < n {
-			c := b[j]
-			if c == '"' {
-				if !utf8.Valid(b[i+1 : j]) {
-					// encoding/json would replace invalid bytes with U+FFFD.
-					return "", false
-				}
-				s := unsafe.String(&b[i+1], j-i-1)
-				i = j + 1
-				return s, true
-			}
-			if c == '\\' || c < 0x20 {
-				return "", false
-			}
-			j++
+		rest := b[i+1:]
+		j := bytes.IndexByte(rest, '"')
+		if j < 0 || bytes.IndexByte(rest[:j], '\\') >= 0 || !validStringBytes(rest[:j]) {
+			return "", false
 		}
-		return "", false
+		s := unsafe.String(&b[i+1], j)
+		i += j + 2
+		return s, true
 	}
 	ws()
 	if i >= n || b[i] != '{' {
@@ -145,4 +137,23 @@ func parseFast(b []byte) (*Request, bool) {
 		return nil, false
 	}
 	return &r, true
+}
+
+// validStringBytes skips eight printable ASCII bytes at a time. Non-ASCII
+// and short tails use the ordinary validation, including encoding/json's
+// requirement that the fast path reject invalid UTF-8 for its slow fallback.
+func validStringBytes(b []byte) bool {
+	for len(b) >= 8 {
+		w := binary.LittleEndian.Uint64(b)
+		if ((w-0x2020202020202020)|w)&0x8080808080808080 != 0 {
+			break
+		}
+		b = b[8:]
+	}
+	for _, c := range b {
+		if c < 0x20 {
+			return false
+		}
+	}
+	return utf8.Valid(b)
 }

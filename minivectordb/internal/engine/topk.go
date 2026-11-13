@@ -14,6 +14,7 @@ import (
 // fusedBatches counts the batches the fused single-pass scan kernel has
 // run (diagnostic for tests: it proves the fused branch was taken).
 var fusedBatches atomic.Int64
+var fusedCandidateBatches atomic.Int64
 
 // dbgScanGatherRows / dbgScanExactRows / dbgPrefilterRuns are diagnostics
 // for the multi-pass scan (worker h-b): rows gathered into batches, rows
@@ -23,9 +24,9 @@ var dbgScanGatherRows, dbgScanExactRows, dbgPrefilterRuns atomic.Int64
 
 const ivfMinRows = 200000
 
-// parallelMinSlots is the smallest index for which the exact scan is split
-// across goroutines; below it the coordination costs more than it saves.
-// A variable so tests can force either path.
+// parallelMinSlots is the minimum scan work for multiple goroutines. Full
+// distance rows count once; the cheaper fused path scales by code width
+// below. A variable so tests can force either path.
 var parallelMinSlots = 4096
 
 // scanBatch is the number of rows whose distances one kernel call computes.
@@ -234,7 +235,12 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// candidate rows, in the same order, so n and the multi-pass fallback
 	// are unchanged when the block path is unavailable.
 	var blk *catBlock
-	if useCand && eq != nil && eq.covers && ov == nil {
+	// Small candidate sets already fit in cache. Compacting another copy
+	// there adds to peak memory with little query benefit. Also avoid
+	// building copies for modes that cannot use the fused block kernel.
+	if useCand && eq != nil && eq.covers && ov == nil &&
+		prefilterEnabled && useSIMD && !prefilter6Bit && n*t.Dim >= 256<<10 &&
+		(!fusedCandidatesEnabled || useVNNI) {
 		blk = x.catBlockFor(db, t, eq.col, eq.val)
 	}
 	if blk != nil {
@@ -280,6 +286,16 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// over the candidate set unchanged.
 	fusedBlockOK := blk != nil && prefilterOK && useSIMD && ov == nil && rowPred == nil &&
 		len(blk.qf) >= blk.n*4 && len(blk.codes) >= blk.n*t.Dim && !prefilter6Bit
+	fusedCandidateOK := fusedCandidatesEnabled && prefilterOK && useCand &&
+		blk == nil && ov == nil && rowPred == nil && !prefilter6Bit &&
+		len(x.qf) >= len(x.pks)*4
+	// The fused integer scan does much less work per row. Estimate its
+	// parallel work in 512-byte units, keeping small scans on the caller
+	// while retaining parallelism for larger row counts or dimensions.
+	scanWork := n
+	if fusedOK || fusedBlockOK || fusedCandidateOK {
+		scanWork = n * t.Dim / 512
+	}
 	scan := func(tk *topK, lo, hi int) {
 		if !gather {
 			for i := lo; i < hi; i++ {
@@ -345,7 +361,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			}
 			return
 		}
-		if fusedOK {
+		if fusedOK || fusedCandidateOK {
 			// Fused single-pass scan: one kernel call per batch returns
 			// the survivors' (row offset, primary key) pairs directly;
 			// the exact kernel runs on the survivors and admits them in
@@ -370,12 +386,17 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				bd := tk.bound()
 				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd)
 				var m int
-				if useVNNI {
+				if fusedCandidateOK {
+					m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+					fusedCandidateBatches.Add(1)
+				} else if useVNNI {
 					m = fusedScanVNNI(qc8, x, int32(i), n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
 				} else {
 					m = fusedScanInt8(qc, x, int32(i), n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
 				}
-				fusedBatches.Add(1)
+				if fusedOK {
+					fusedBatches.Add(1)
+				}
 				for j := 0; j < m; j++ {
 					soff[j] = surv[2*j] + vecOff
 					spk[j] = surv[2*j+1]
@@ -487,7 +508,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				visit(tk, s)
 			}
 		}
-	} else if workers := scanWorkers(n); workers > 1 {
+	} else if workers := scanWorkers(scanWork); workers > 1 {
 		parts := make([]*topK, workers)
 		var wg sync.WaitGroup
 		for w := 0; w < workers; w++ {

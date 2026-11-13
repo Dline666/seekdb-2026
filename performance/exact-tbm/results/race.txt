@@ -1,0 +1,2 @@
+ok  	minivectordb/internal/engine	3.999s
+ok  	minivectordb/internal/proto	1.109s

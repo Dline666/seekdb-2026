@@ -152,3 +152,32 @@ func BenchmarkParseLargeRequest(b *testing.B) {
 		}
 	}
 }
+
+// Exercise every byte at both word boundaries and interior positions. This
+// catches a skipped control byte, escape or malformed UTF-8 in a long SQL
+// field while comparing accepted requests with the standard JSON decoder.
+func TestFastParseLongStringBytes(t *testing.T) {
+	for pos := 0; pos < 32; pos++ {
+		for c := 0; c < 256; c++ {
+			sql := bytes.Repeat([]byte("a"), 80)
+			sql[24+pos] = byte(c)
+			line := append([]byte(`{"id":1,"op":"execute","sql":"`), sql...)
+			line = append(line, []byte(`","search_mode":"exact"}`)...)
+			if got, ok := parseFast(line); ok {
+				want, err := slowParse(line)
+				if err != nil || !same(got, want) {
+					t.Fatalf("byte %x at %d: accepted incompatible JSON", c, pos)
+				}
+			}
+		}
+	}
+	for pad := 0; pad < 16; pad++ {
+		sql := string(bytes.Repeat([]byte("a"), pad)) + "中文🙂" + string(bytes.Repeat([]byte("z"), 80))
+		line, _ := json.Marshal(map[string]any{"id": 1, "op": "execute", "sql": sql})
+		got, ok := parseFast(line)
+		want, err := slowParse(line)
+		if !ok || err != nil || !same(got, want) {
+			t.Fatalf("valid UTF-8 rejected at padding %d", pad)
+		}
+	}
+}
