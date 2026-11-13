@@ -29,7 +29,7 @@ func main() {
 	dataDir := flag.String("data-dir", envOr("MVDB_DATA_DIR", "/data"), "data directory")
 	mode := flag.String("mode", envOr("MVDB_SEARCH_MODE", "exact"), "default vector search mode when a request has no search_mode: exact or ann")
 	sync := flag.String("sync", envOr("MVDB_SYNC", "fdatasync"), "commit durability: fdatasync or none")
-	indexMB := flag.Int64("index-mem-mb", envInt("MVDB_INDEX_MEM_MB", 256), "memory budget for in-memory vectors per table")
+	indexMB := flag.Int64("index-mem-mb", envInt("MVDB_INDEX_MEM_MB", 256), "memory budget for derived vector indexes across all tables")
 	flag.Parse()
 
 	logf := func(format string, a ...any) { fmt.Fprintf(os.Stderr, "minivectordb: "+format+"\n", a...) }

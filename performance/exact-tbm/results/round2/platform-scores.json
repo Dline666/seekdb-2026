@@ -1,0 +1,13 @@
+{
+  "source": "https://open.oceanbase.com/train/TestRecord?questionId=600081",
+  "read_date": "2026-11-14",
+  "method": "Read existing logged-in result drawers through Windows UI Automation",
+  "metric_label": "性能原始分",
+  "records": [
+    {"commit": "d7ed759aea89e32207822ef55d65d0231ebc32cc", "score": 2673.741166},
+    {"commit": "b44b5b4e764912a356ecaeb13452392166806585", "score": 3839.799451},
+    {"commit": "89f6d54809f901ca2612ee27d9036340b97cb8e9", "score": 1775.591344}
+  ],
+  "detail_message": "性能评测完成；原始指标 E = <score>",
+  "limitations": "The detail drawers do not expose T/B/M, fixed baseline metrics, workload configuration, or a conversion to the bounded E in the public rules. No submission was made."
+}

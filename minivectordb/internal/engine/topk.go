@@ -157,11 +157,19 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// still answers it). With prefilter6Bit the query is quantized to
 	// 6-bit codes instead (quantizeQuery6 + VPMADDUBSW kernel); qscale is
 	// then the 6-bit scale and the threshold uses maxScale+qscale.
-	qmin, qscale, qc, qSum, qNorm2, qok := quantizeQuery(q)
+	var qmin, qscale float32
+	var qSum, qNorm2 float64
+	var qok bool
+	var qc []int16
 	var qc6 []int8
-	if prefilter6Bit {
-		qmin, qscale, qc6, qSum, qNorm2, qok = quantizeQuery6(q)
+	if prefilterEnabled && x.codes != nil && t.Dim <= maxInt8Dim {
+		if prefilter6Bit {
+			qmin, qscale, qc6, qSum, qNorm2, qok = quantizeQuery6(q)
+		} else {
+			qmin, qscale, qc, qSum, qNorm2, qok = quantizeQuery(q)
+		}
 	}
+	roundSlack := prefilterRoundSlack(x.maxAbs, qmin, qscale, t.Dim)
 	var ov map[int64]int64
 	if db.txn != nil {
 		ov = db.txn.overlay[t.ID]
@@ -185,7 +193,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	vecOff := int64(t.vecOff)
 	visit := func(tk *topK, s int32) {
 		pk := x.pks[s]
-		if pk == tombstone {
+		if x.off[s] == deleted {
 			return
 		}
 		if ov != nil {
@@ -258,8 +266,8 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// memory-safety net for the kernel: every live slot must own dim code
 	// bytes and one parameter set, so codes[slot*dim:slot*dim+dim] is in
 	// range for every slot the scan can visit.
-	prefilterOK := gather && prefilterEnabled && qok && x.codes != nil &&
-		len(x.codes) >= len(x.pks)*t.Dim && len(x.qp) >= len(x.pks)
+	prefilterOK := gather && prefilterEnabled && qok && t.Dim <= maxInt8Dim && x.codes != nil &&
+		len(x.codes) >= len(x.pks)*t.Dim && len(x.qf) >= len(x.pks)*4
 	// fusedOK gates the fused single-pass scan kernel (fusedScanInt8),
 	// which folds the gather loop, the coffs multiply, the integer dot
 	// kernel, the dequantization and the threshold loop into one pass over
@@ -339,7 +347,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 					n = scanBatch
 				}
 				bd := tk.bound()
-				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd)
+				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd) + roundSlack
 				var m int
 				if useVNNI {
 					m = fusedScanInt8BlockVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
@@ -384,7 +392,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 					n = scanBatch
 				}
 				bd := tk.bound()
-				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd)
+				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd) + roundSlack
 				var m int
 				if fusedCandidateOK {
 					m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
@@ -429,7 +437,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 					s = int32(i)
 				}
 				pk := x.pks[s]
-				if pk == tombstone {
+				if x.off[s] == deleted {
 					continue
 				}
 				if ov != nil {
@@ -481,12 +489,11 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 					dotInt8GatherInt(qc, x.codes, coffs[:n], approxInt[:n])
 				}
 				bd := tk.bound()
-				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd)
+				thresh2 := prefilterThreshold(x.maxScale+qscale, t.Dim, bd) + roundSlack
 				m = 0
 				for j := 0; j < n; j++ {
-					qp := x.qp[slots[j]]
-					dot := float64(qmin)*float64(qp.sumC) + float64(qscale)*float64(approxInt[j])
-					if approxDist2(qSum, qNorm2, dot, qp) > thresh2 {
+					f := x.qf[int(slots[j])*4 : int(slots[j])*4+4]
+					if foldDist2(qSum, qNorm2, qmin, qscale, approxInt[j], f[0], f[1], f[2], f[3]) > thresh2 {
 						continue
 					}
 					offs[m], pks[m], rows[m] = offs[j], pks[j], rows[j]

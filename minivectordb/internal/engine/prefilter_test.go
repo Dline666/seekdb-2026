@@ -753,8 +753,8 @@ func testPrefilterScan(t *testing.T, dim int) {
 	if idx == nil || idx.codes == nil {
 		t.Fatalf("dim %d: prefilter codes not built", dim)
 	}
-	if len(idx.codes) != len(idx.pks)*dim || len(idx.qp) != len(idx.pks) {
-		t.Fatalf("dim %d: codes %d qp %d for %d slots", dim, len(idx.codes), len(idx.qp), len(idx.pks))
+	if len(idx.codes) != len(idx.pks)*dim || len(idx.qf) != len(idx.pks)*4 {
+		t.Fatalf("dim %d: codes %d qf %d for %d slots", dim, len(idx.codes), len(idx.qf), len(idx.pks))
 	}
 	for i := 0; i < 60; i++ {
 		id := int64(rng.Intn(n) + 1)

@@ -17,9 +17,21 @@ const logName = "data.log"
 type Options struct {
 	Sync       storage.SyncMode
 	SearchMode string // "exact" or "ann"
-	// IndexMemBytes caps the in-memory vector copy per table.
+	// IndexMemBytes budgets derived vector indexes across all tables.
 	IndexMemBytes int64
 	Logf          func(format string, a ...any)
+}
+
+// indexBudget is the remaining aggregate allowance for x. Retained slice
+// capacities and estimated map costs of other indexes share this budget.
+func (db *DB) indexBudget(x *VecIndex) int64 {
+	n := db.opts.IndexMemBytes
+	for _, t := range db.byID {
+		if t.Index != nil && t.Index != x {
+			n -= t.Index.derivedBytes()
+		}
+	}
+	return max(n, 0)
 }
 
 type DB struct {

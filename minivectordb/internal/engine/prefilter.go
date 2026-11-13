@@ -18,6 +18,10 @@ var prefilterEnabled = os.Getenv("MVDB_NO_PREFILTER") == ""
 // the prefilter bound is looser and fewer rows are skipped.
 var prefilter6Bit = os.Getenv("MVDB_PREFILTER_6BIT") != ""
 
+// The AVX2 dot accumulator is signed int32. Larger accepted VECTOR
+// dimensions use the exact float64 kernel instead of allowing wraparound.
+const maxInt8Dim = math.MaxInt32 / (255 * 255)
+
 // qparam holds the per-row affine quantization parameters of one stored
 // vector, plus the two sums the approximate distance needs. Codes are
 // uint8 in [0,255]: code[i] = round((v[i]-min)/scale), so the dequantized
@@ -32,9 +36,8 @@ var prefilter6Bit = os.Getenv("MVDB_PREFILTER_6BIT") != ""
 //	cRow = dim*min² + 2*scale*min*sumC + scale²*sumC2.
 //
 // cRow is computed once at INSERT time in float64. It is exact up to the
-// float64 rounding of that one sum, which differs from the per-query
-// expansion by a few ulps — far below the prefilterEps slack in the
-// bound (see approxDist2).
+// float64 rounding of that one sum. The absolute allowance in
+// prefilterRoundSlack covers cancellation between large terms.
 type qparam struct {
 	min   float32
 	scale float32
@@ -213,15 +216,35 @@ func dotInt8GatherIntScalar(qc []int16, codes []byte, offs []int64, out []int32)
 	}
 }
 
-// prefilterEps is the relative slack in the error bound covering float
-// rounding in the kernel dot product, the dhat2 expansion and the
-// quantization itself. It is validated empirically by TestPrefilterBound.
+// prefilterEps covers relative quantization/bound arithmetic error.
+// Cancellation in the expanded squared norms needs a separate absolute
+// allowance (prefilterRoundSlack); a relative allowance on a near-zero
+// distance cannot cover rounding of large intermediate terms.
 const prefilterEps = 1e-4
 
-// foldQparam precomputes the per-row constants the fused scan's threshold
-// pass needs, in SoA layout (four parallel slices on VecIndex, one entry
-// per slot), so the pass can load 4 rows' worth of one constant with a
-// single vector load and does no per-row constant arithmetic at query time:
+// prefilterRoundSlack bounds rounding in the expanded squared distance.
+// If A and Q bound absolute dequantized row/query coordinates, every norm,
+// cross term and the sum of their absolute terms is O(dim*(A+Q)^2).
+// Query accumulation uses O(dim) float64 operations; the row expansion and
+// VNNI bias correction add a fixed number. The conservative 64*(dim+16)*u
+// factor bounds these rounding errors, with u=2^-52 (twice unit roundoff).
+// At supported dimensions it dominates the usual gamma_n error factor.
+// The allowance is added after the quantization threshold: a true survivor
+// can have computed dhat2 at most this much above its real-arithmetic value.
+// Non-finite bounds yield +Inf, so pruning falls back to exact verification.
+func prefilterRoundSlack(maxAbs float64, qmin, qscale float32, dim int) float64 {
+	qabs := math.Abs(float64(qmin)) + 256*float64(qscale)
+	a := maxAbs + qabs
+	slack := (64 * 0x1p-52) * float64(dim+16) * float64(dim) * a * a
+	if math.IsNaN(slack) || math.IsInf(slack, 0) {
+		return math.Inf(1)
+	}
+	return math.Nextafter(slack, math.Inf(1))
+}
+
+// foldQparam precomputes four float64 constants per slot, shared by both
+// fused and multi-pass scans. VecIndex retains only these folded constants;
+// the temporary qparam is discarded after quantization.
 //
 //	dhat2 = qNorm2 + m2*qSum + cRow + qmin*t2 + qscale*s2*intDot
 //
@@ -231,7 +254,7 @@ const prefilterEps = 1e-4
 // dot = qmin*sumC + qscale*intDot. All four constants are float64: m2 and
 // s2 are exact (a multiply by -2 is exact), t2 and cRow differ from the
 // unfolded expansion by a few float64 ulps — the same argument as the C_row
-// fold — far below the prefilterEps slack (1e-4 relative). (Storing them
+// fold — covered by prefilterRoundSlack. (Storing them
 // as float32 would NOT do: the rounding of t2, amplified by |qmin|, reaches
 // ~1e-5 relative on mixed-magnitude data — still inside the bound's
 // empirical headroom, but no longer a few ulps, so float64 it is.)
@@ -277,9 +300,8 @@ func foldDist2(qSum, qNorm2 float64, qmin, qscale float32, intDot int32, m2, t2,
 //
 // where cRow = dim*min² + 2*scale*min*sumC + scale²*sumC2 is folded once
 // at INSERT time (see qparam). The folded form differs from the unfolded
-// expansion only by float64 rounding of that one sum — a few ulps, far
-// below the prefilterEps slack in the bound — so the threshold proof and
-// the empirical bound validation (TestPrefilterBound) are unaffected.
+// expansion only by float64 rounding of that one sum, covered by the
+// absolute allowance in prefilterRoundSlack.
 func approxDist2(qSum, qNorm2 float64, dot float64, qp qparam) float64 {
 	mn := float64(qp.min)
 	s := float64(qp.scale)

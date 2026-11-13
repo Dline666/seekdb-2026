@@ -1,0 +1,37 @@
+{
+  "method": "S_d7 + (S_v4-S_d7)*(E_candidate-E_d7)/(E_v4-E_d7)",
+  "interpretation": "Unvalidated linear extrapolation around two observed commits; not an official formula, confidence interval, or guarantee.",
+  "limitations": "Unknown platform T/B/M, fixed baseline, CPU and workload. Changing the local reference changes the extrapolation; the third historical commit is an out-of-fit check.",
+  "scenarios": [
+    {
+      "rows": 10000,
+      "local_reference": "kernel2",
+      "candidate_score_scenario": 4022.565736757228,
+      "previous_candidate_scenario": 4029.033634234236,
+      "third_anchor_actual": 1775.591344,
+      "third_anchor_predicted": 2328.5017731611283,
+      "third_anchor_error": 552.9104291611284
+    },
+    {
+      "rows": 10000,
+      "local_reference": "v4",
+      "candidate_score_scenario": 4238.867138613371,
+      "previous_candidate_scenario": 4247.210577392267,
+      "third_anchor_actual": 1775.591344,
+      "third_anchor_predicted": 2327.340908272012,
+      "third_anchor_error": 551.7495642720119
+    },
+    {
+      "rows": 100000,
+      "local_reference": "kernel2",
+      "candidate_score_scenario": 4680.0908391250405,
+      "previous_candidate_scenario": 4658.86009784718
+    },
+    {
+      "rows": 100000,
+      "local_reference": "v4",
+      "candidate_score_scenario": 5124.761833411709,
+      "previous_candidate_scenario": 5097.557882986863
+    }
+  ]
+}

@@ -48,9 +48,9 @@ type VecIndex struct {
 	// reads all four with one cursor. It is built and reset exactly with
 	// qp, so it is never stale relative to the codes.
 	codes       []byte
-	qp          []qparam
 	qf          []float64
 	maxScale    float32   // largest per-row quantization scale in the index; a stale larger value is safe (it only loosens the prefilter threshold)
+	maxAbs      float64   // upper bound on absolute dequantized coordinates; stale larger bounds are safe
 	qscratch    []float32 // reused decode buffer for quantizeSlot
 	noPrefilter bool
 
@@ -59,6 +59,8 @@ type VecIndex struct {
 	eq       map[int]*eqSet
 	cat      map[int]map[string]*catBlock
 	catBytes int64
+	eqBytes  int64
+	eqFull   bool
 }
 
 // indexBytesPerRow is the in-memory cost of one indexed row once the vectors
@@ -66,29 +68,30 @@ type VecIndex struct {
 // primary key map entry.
 const indexBytesPerRow = 64
 
-const tombstone int64 = math.MinInt64
-
 func newVecIndex(name string) *VecIndex {
 	return &VecIndex{Name: strings.Clone(name), pos: map[int64]int32{}}
 }
 
 func (x *VecIndex) rebuild(db *DB, t *Table) {
 	x.invalidateSets()
+	x.maxAbs = 0
+	x.qscratch = nil
 	x.dim = t.Dim
-	x.Disabled = int64(len(t.rows))*indexBytesPerRow > db.opts.IndexMemBytes
+	budget := db.indexBudget(x)
+	x.Disabled = int64(len(t.rows))*indexBytesPerRow > budget
 	if x.Disabled {
 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
-		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
+		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
 		x.resetIVF()
 		return
 	}
-	// The prefilter needs dim+56 bytes per row (codes + parameters +
-	// folded threshold constants) on top of the index itself, and only
+	// The prefilter needs dim+32 bytes per row (codes + folded threshold
+	// constants) on top of the index itself, and only
 	// pays off for the batched scan (dim>=16).
 	// When it does not fit, the index still works and queries just run the
 	// exact scan.
-	x.noPrefilter = x.dim < 16 || int64(len(t.rows))*(indexBytesPerRow+int64(x.dim)+56) > db.opts.IndexMemBytes
-	x.codes, x.qp, x.qf, x.maxScale = nil, nil, nil, 0
+	x.noPrefilter = x.dim < 16 || x.dim > maxInt8Dim || int64(len(t.rows))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4 > budget
+	x.codes, x.qf, x.maxScale = nil, nil, 0
 	x.pks, x.off, x.free = nil, nil, nil
 	x.pos = make(map[int64]int32, len(t.rows))
 	x.live = 0
@@ -99,7 +102,6 @@ func (x *VecIndex) rebuild(db *DB, t *Table) {
 	// several generations of large code/parameter arrays until the next GC.
 	if !x.noPrefilter {
 		x.codes = make([]byte, 0, len(t.rows)*x.dim)
-		x.qp = make([]qparam, 0, len(t.rows))
 		x.qf = make([]float64, 0, len(t.rows)*4)
 	}
 	// The slots follow the log order. The scan then walks the log from the
@@ -128,10 +130,11 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 		return
 	}
 	x.invalidateSets()
-	if !x.has(pk) && int64(x.live+1)*indexBytesPerRow > db.opts.IndexMemBytes {
+	budget := db.indexBudget(x)
+	if !x.has(pk) && int64(x.live+1)*indexBytesPerRow > budget {
 		x.Disabled = true
 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
-		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
+		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
 		x.resetIVF()
 		return
 	}
@@ -139,8 +142,8 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 	// push the codes past the budget. Dropping the codes only turns the
 	// prefilter off; the index itself keeps working.
 	if !x.has(pk) && !x.noPrefilter && x.dim >= 16 &&
-		int64(max(len(x.pks), x.live+1))*(indexBytesPerRow+int64(x.dim)+56) > db.opts.IndexMemBytes {
-		x.codes, x.qp, x.qf, x.noPrefilter, x.maxScale = nil, nil, nil, true, 0
+		int64(max(len(x.pks), x.live+1))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4 > budget {
+		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, true, 0
 	}
 	s, ok := x.pos[pk]
 	if !ok {
@@ -156,7 +159,6 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 			}
 			if !x.noPrefilter && x.dim >= 16 {
 				x.codes = append(x.codes, make([]byte, x.dim)...)
-				x.qp = append(x.qp, qparam{})
 				x.qf = append(x.qf, 0, 0, 0, 0)
 			}
 		}
@@ -172,6 +174,19 @@ func (x *VecIndex) upsert(db *DB, t *Table, pk, off int64) {
 		c := x.nearestCentroidBytes(db, t, off)
 		x.lists[c] = append(x.lists[c], s)
 		x.slotList[s] = int32(c)
+	}
+	// append capacity and map overhead may exceed the row-count estimate.
+	// Drop optional quantization first; if slots alone do not fit, use the
+	// generic scan over the authoritative table map.
+	if x.derivedBytes() > budget {
+		x.resetIVF()
+		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale, x.maxAbs = nil, nil, nil, true, 0, 0
+		if x.derivedBytes() > budget {
+			x.Disabled = true
+			x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, nil, 0
+			x.resetIVF()
+			return
+		}
 	}
 }
 
@@ -189,8 +204,7 @@ func (x *VecIndex) quantizeSlot(db *DB, t *Table, s int32) {
 	if want := (int(s) + 1) * x.dim; len(x.codes) < want {
 		x.codes = append(x.codes, make([]byte, want-len(x.codes))...)
 	}
-	for len(x.qp) <= int(s) {
-		x.qp = append(x.qp, qparam{})
+	for len(x.qf) < (int(s)+1)*4 {
 		x.qf = append(x.qf, 0, 0, 0, 0)
 	}
 	if len(x.qscratch) < x.dim {
@@ -199,10 +213,16 @@ func (x *VecIndex) quantizeSlot(db *DB, t *Table, s int32) {
 	v := x.qscratch[:x.dim]
 	x.decodeInto(v, db, t, x.off[s])
 	base := int(s) * x.dim
-	x.qp[s] = quantizeRow(v, x.codes[base:base+x.dim])
-	x.qf[4*int(s)], x.qf[4*int(s)+1], x.qf[4*int(s)+2], x.qf[4*int(s)+3] = foldQparam(x.qp[s], x.dim)
-	if x.qp[s].scale > x.maxScale {
-		x.maxScale = x.qp[s].scale
+	qp := quantizeRow(v, x.codes[base:base+x.dim])
+	// min + code*scale is bounded by |min| + 256*scale. Keep a
+	// conservative maximum for the absolute rounding error in the expanded
+	// squared distance; its magnitude can dwarf the final distance.
+	if bound := math.Abs(float64(qp.min)) + 256*float64(qp.scale); bound > x.maxAbs {
+		x.maxAbs = bound
+	}
+	x.qf[4*int(s)], x.qf[4*int(s)+1], x.qf[4*int(s)+2], x.qf[4*int(s)+3] = foldQparam(qp, x.dim)
+	if qp.scale > x.maxScale {
+		x.maxScale = qp.scale
 	}
 }
 
@@ -224,16 +244,21 @@ func (x *VecIndex) has(pk int64) bool { _, ok := x.pos[pk]; return ok }
 // queried. Otherwise stale categories keep their code copies alive forever.
 func (x *VecIndex) invalidateSets() {
 	x.gen++
-	x.eq, x.cat, x.catBytes = nil, nil, 0
+	x.eq, x.cat, x.catBytes, x.eqBytes, x.eqFull = nil, nil, 0, 0, false
 }
 
 // derivedBytes includes slice capacity, since append growth can retain more
 // storage than the number of live rows. Map cost remains an estimate, as in
-// indexBytesPerRow; category blocks must share this table's index budget.
+// indexBytesPerRow; all tables and category blocks share one index budget.
 func (x *VecIndex) derivedBytes() int64 {
-	return int64(cap(x.pks)+cap(x.off)+cap(x.qf))*8 +
+	bytes := int64(cap(x.pks)+cap(x.off)+cap(x.qf))*8 +
 		int64(cap(x.free)+cap(x.qscratch))*4 + int64(len(x.pos))*48 +
-		int64(cap(x.codes)) + int64(cap(x.qp))*24 + x.catBytes
+		int64(cap(x.codes)) + x.catBytes + x.eqBytes
+	bytes += int64(cap(x.cents)+cap(x.slotList))*4 + int64(cap(x.lists))*24
+	for _, list := range x.lists {
+		bytes += int64(cap(list)) * 4
+	}
+	return bytes
 }
 
 func (x *VecIndex) remove(pk int64) {
@@ -246,7 +271,9 @@ func (x *VecIndex) remove(pk int64) {
 	if x.slotList != nil {
 		x.unlist(s)
 	}
-	x.pks[s] = tombstone
+	// Committed row offsets are non-negative. Keep deletion state here so
+	// every int64 value, including math.MinInt64, remains a valid key.
+	x.off[s] = deleted
 	x.free = append(x.free, s)
 	x.live--
 }
@@ -371,9 +398,16 @@ func (x *VecIndex) trainIVF(db *DB, t *Table) {
 	if nlist > 4096 {
 		nlist = 4096
 	}
+	// Include training scratch as well as the retained IVF arrays. If the
+	// optional partition does not fit, ANN can still use the exact scan.
+	need := int64(nlist)*int64(x.dim)*12 + int64(nlist)*40 +
+		int64(len(x.pks))*32 + int64(x.dim)*4
+	if need > db.indexBudget(x)-x.derivedBytes() {
+		return
+	}
 	slots := make([]int32, 0, x.live)
-	for s, pk := range x.pks {
-		if pk != tombstone {
+	for s := range x.pks {
+		if x.off[s] != deleted {
 			slots = append(slots, int32(s))
 		}
 	}
@@ -434,6 +468,9 @@ func (x *VecIndex) trainIVF(db *DB, t *Table) {
 		x.slotList[s] = int32(c)
 	}
 	x.ivfBuilt = x.live
+	if x.derivedBytes() > db.indexBudget(x) {
+		x.resetIVF()
+	}
 }
 
 // nprobe is deliberately generous: recall must stay >= 0.95 even on

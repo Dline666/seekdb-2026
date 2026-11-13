@@ -25,7 +25,12 @@ var fusedBlockBatches atomic.Int64
 // index changes (gen), so it needs no maintenance on the write path.
 type eqSet struct {
 	gen uint64
-	m   map[string][]int32
+	m   map[string]*eqGroup
+}
+
+type eqGroup struct {
+	slots []int32
+	n     int
 }
 
 // eqSlots returns the slots whose column col equals v. The second result is
@@ -39,17 +44,60 @@ func (x *VecIndex) eqSlots(db *DB, t *Table, col int, v string) ([]int32, bool) 
 	}
 	e := x.eq[col]
 	if e == nil || e.gen != x.gen {
-		e = &eqSet{gen: x.gen, m: map[string][]int32{}}
-		for s, pk := range x.pks {
-			if pk == tombstone {
+		if x.eqFull {
+			return nil, false
+		}
+		// Reserve the slot array and charge owned strings, groups and map
+		// growth before allocating them. Stop once the shared budget is used.
+		available := db.indexBudget(x) - x.derivedBytes()
+		bytes := int64(x.live)*4 + 128
+		if bytes > available {
+			x.eqFull = true
+			return nil, false
+		}
+		e = &eqSet{gen: x.gen, m: map[string]*eqGroup{}}
+		for s := range x.pks {
+			if x.off[s] == deleted {
 				continue
 			}
-			k := string(t.varBytes(db.rowBytes(x.off[s]), col))
-			e.m[k] = append(e.m[k], int32(s))
+			key := t.varBytes(db.rowBytes(x.off[s]), col)
+			g := e.m[string(key)] // transient map lookup does not copy the string
+			if g == nil {
+				bytes += int64(len(key)) + 96
+				if bytes > available {
+					x.eqFull = true
+					return nil, false
+				}
+				g = &eqGroup{}
+				e.m[string(key)] = g
+			}
+			g.n++
+		}
+		// One exact-size allocation replaces repeated growth of every value's
+		// slice. Fill in slot order so all existing exact ordering is retained.
+		slots := make([]int32, x.live)
+		at := 0
+		for _, g := range e.m {
+			end := at + g.n
+			g.slots = slots[at:end:end]
+			g.n = 0
+			at = end
+		}
+		for s := range x.pks {
+			if x.off[s] == deleted {
+				continue
+			}
+			g := e.m[string(t.varBytes(db.rowBytes(x.off[s]), col))]
+			g.slots[g.n] = int32(s)
+			g.n++
 		}
 		x.eq[col] = e
+		x.eqBytes += bytes
 	}
-	return e.m[v], true
+	if g := e.m[v]; g != nil {
+		return g.slots, true
+	}
+	return nil, true
 }
 
 // catBlock is a compacted, category-major copy of one equality value's
@@ -108,7 +156,7 @@ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock 
 	// Bound the copies across all values and all columns. The fixed charge
 	// also bounds empty/single-row categories and their map entries.
 	bytes := int64(len(cand))*(int64(dim)+48) + int64(len(val)) + 256
-	if x.derivedBytes()+bytes > db.opts.IndexMemBytes {
+	if x.derivedBytes()+bytes > db.indexBudget(x) {
 		return nil
 	}
 	b := &catBlock{gen: x.gen, n: len(cand)}
