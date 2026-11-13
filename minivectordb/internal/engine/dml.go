@@ -3,6 +3,7 @@ package engine
 import (
 	"bytes"
 	"math"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -228,17 +229,22 @@ func pointKey(t *Table, e sp.Expr) (int64, bool) {
 	return 0, false
 }
 
+type updateSet struct {
+	col int
+	c   *compiled
+}
+
+// Keep statement planning bounded when an UPDATE touches a large part of a
+// table. Tests lower this threshold to exercise the same path on small rows.
+var updateStreamBytes = 8 << 20
+
 func (db *DB) execUpdate(s *sp.Update) (*Result, error) {
 	t, err := db.table(s.Table)
 	if err != nil {
 		return nil, err
 	}
 	sc := &scope{t: t}
-	type set struct {
-		col int
-		c   *compiled
-	}
-	sets := make([]set, 0, len(s.Sets))
+	sets := make([]updateSet, 0, len(s.Sets))
 	for _, a := range s.Sets {
 		i := t.colIndex(a.Col)
 		if i < 0 {
@@ -251,11 +257,14 @@ func (db *DB) execUpdate(s *sp.Update) (*Result, error) {
 		if i == t.PK {
 			return nil, types.ErrPKUpdate()
 		}
-		sets = append(sets, set{i, c})
+		sets = append(sets, updateSet{i, c})
 	}
 	pks, offs, serr := db.match(t, s.Where, sc)
 	if serr != nil {
 		return nil, serr
+	}
+	if int64(len(offs))*int64(t.varBase) > int64(updateStreamBytes) {
+		return db.streamUpdate(t, offs, sets)
 	}
 	chs := make([]change, 0, len(pks))
 	var enc []byte
@@ -273,6 +282,11 @@ func (db *DB) execUpdate(s *sp.Update) (*Result, error) {
 		}
 		start := len(enc)
 		enc = t.encode(enc, next)
+		// Variable-width columns can make the actual payload much larger
+		// than the fixed-width estimate. Switch before retaining more rows.
+		if len(enc) > updateStreamBytes {
+			return db.streamUpdate(t, offs, sets)
+		}
 		nb := enc[start:len(enc):len(enc)]
 		if bytes.Equal(nb, db.rowBytes(offs[k])) {
 			continue // unchanged row: counted as matched, nothing to write
@@ -283,6 +297,58 @@ func (db *DB) execUpdate(s *sp.Update) (*Result, error) {
 		return nil, ioErr(err)
 	}
 	return &Result{Affected: int64(len(pks)), HasAffected: true}, nil
+}
+
+func (db *DB) streamUpdate(t *Table, offs []int64, sets []updateSet) (*Result, error) {
+	// Keep the pre-statement offsets fixed across both passes, including
+	// an explicit transaction's earlier writes. Sorting avoids random page
+	// reads when the working set is larger than memory.
+	sort.Slice(offs, func(i, j int) bool { return offs[i] < offs[j] })
+	for _, off := range offs {
+		old := db.rowBytes(off)
+		for _, st := range sets {
+			if _, err := coerce(t.Cols[st.col], st.c.fn(old)); err != nil {
+				return nil, err
+			}
+		}
+	}
+	// All supported expressions are deterministic functions of this row
+	// (constants, columns, comparisons, vector construction and L2). The
+	// validation pass therefore catches every SQL error before any write.
+	// Storage failures are fatal, exactly as on the planned write path.
+	tx := db.txn
+	autocommit := tx == nil
+	if autocommit {
+		tx = db.newTxn()
+	}
+	var enc []byte
+	for _, off := range offs {
+		old := db.rowBytes(off)
+		pk := rowPK(old)
+		row := t.decode(old)
+		for _, st := range sets {
+			v, err := coerce(t.Cols[st.col], st.c.fn(old))
+			if err != nil {
+				// A second-pass error would violate the determinism invariant;
+				// never let a partially written statement be committed later.
+				return nil, ioErr(err)
+			}
+			row[st.col] = v
+		}
+		enc = t.encode(enc[:0], row)
+		if bytes.Equal(enc, old) {
+			continue
+		}
+		if err := db.apply(tx, []change{{t: t, pk: pk, row: enc}}); err != nil {
+			return nil, ioErr(err)
+		}
+	}
+	if autocommit {
+		if err := db.commitTxn(tx); err != nil {
+			return nil, ioErr(err)
+		}
+	}
+	return &Result{Affected: int64(len(offs)), HasAffected: true}, nil
 }
 
 func (db *DB) execDelete(s *sp.Delete) (*Result, error) {
