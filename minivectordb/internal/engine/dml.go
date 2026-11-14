@@ -13,6 +13,10 @@ import (
 
 // coerce converts a value to the storage type of column c.
 func coerce(c types.Column, v types.Value) (types.Value, *types.SQLError) {
+	return coerceVectorInto(c, v, nil)
+}
+
+func coerceVectorInto(c types.Column, v types.Value, scratch []float32) (types.Value, *types.SQLError) {
 	switch c.Type {
 	case types.TBigint:
 		switch v.K {
@@ -57,7 +61,7 @@ func coerce(c types.Column, v types.Value) (types.Value, *types.SQLError) {
 			vec = v.V
 		case types.KStr:
 			var err *types.SQLError
-			if vec, err = types.ParseVector(v.S); err != nil {
+			if vec, err = types.ParseVectorInto(v.S, scratch); err != nil {
 				return v, err
 			}
 		default:
@@ -117,6 +121,10 @@ func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
 	chs := make([]change, 0, len(s.Rows))
 	fresh := make(map[int64]struct{}, len(s.Rows))
 	row := make([]types.Value, len(t.Cols))
+	// A table has at most one vector column, and encode copies it before the
+	// next row. This buffer belongs only to this statement; expressions that
+	// already return a vector keep ownership of their own backing arrays.
+	var vectorScratch []float32
 	var enc []byte
 	// Reserve the fixed-width payload plus a small VARCHAR allowance. Rows
 	// in chs retain earlier backing arrays when enc grows, so avoiding that
@@ -148,11 +156,15 @@ func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
 				}
 				value = c.fn(nil)
 			}
-			v, err := coerce(t.Cols[target[j]], value)
+			col := target[j]
+			v, err := coerceVectorInto(t.Cols[col], value, vectorScratch)
 			if err != nil {
 				return nil, err
 			}
-			row[target[j]] = v
+			if value.K == types.KStr && v.K == types.KVec {
+				vectorScratch = v.V
+			}
+			row[col] = v
 		}
 		pk := row[t.PK].I
 		if _, dup := fresh[pk]; dup {

@@ -63,15 +63,29 @@ func trimSpace(s string) string {
 // ParseVector parses '[a, b, ...]' into float32 values, rejecting NaN, Inf,
 // overflow and malformed numbers.
 func ParseVector(s string) ([]float32, *SQLError) {
+	return ParseVectorInto(s, nil)
+}
+
+// ParseVectorInto has the same conversion and validation as ParseVector,
+// reusing dst from its beginning. The result may alias dst; even a failed
+// parse may overwrite its backing array. Callers must finish consuming the
+// previous result before reusing that buffer.
+func ParseVectorInto(s string, dst []float32) ([]float32, *SQLError) {
 	t := trimSpace(s)
 	if len(t) < 2 || t[0] != '[' || t[len(t)-1] != ']' {
 		return nil, ErrVectorFormat(s)
 	}
 	body := trimSpace(t[1 : len(t)-1])
 	if body == "" {
+		if dst != nil {
+			return dst[:0], nil
+		}
 		return []float32{}, nil
 	}
-	out := make([]float32, 0, strings.Count(body, ",")+1)
+	if dst == nil {
+		dst = make([]float32, 0, strings.Count(body, ",")+1)
+	}
+	out := dst[:0]
 	for len(body) > 0 {
 		i := strings.IndexByte(body, ',')
 		var part string

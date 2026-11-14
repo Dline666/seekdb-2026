@@ -84,6 +84,29 @@ func checkAgainstReference(t *testing.T, in string) {
 	got, gotErr := ParseVector(in)
 	want, wantErr := parseVectorReference(in)
 	sameResult(t, in, got, gotErr, want, wantErr)
+	// Dirty, undersized and oversized buffers must preserve every reference
+	// bit and error, including when append grows the backing array.
+	for _, capacity := range []int{0, 1, 1024} {
+		dst := make([]float32, capacity)
+		for i := range dst {
+			dst[i] = float32(math.NaN())
+		}
+		got, gotErr = ParseVectorInto(in, dst)
+		sameResult(t, in, got, gotErr, want, wantErr)
+	}
+}
+
+func TestParseVectorIntoRepeatedReuse(t *testing.T) {
+	var dst []float32
+	for _, in := range []string{"[1,2,3]", "[]", "[-0,3.4028235e38]",
+		"[1,2,oops]", "[7]", "[1e-50,-1e-50,9,10,11]", " [  ] ", "[12]"} {
+		got, err := ParseVectorInto(in, dst)
+		want, wantErr := parseVectorReference(in)
+		sameResult(t, in, got, err, want, wantErr)
+		if err == nil {
+			dst = got
+		}
+	}
 }
 
 // TestParseVectorMatchesReference compares ParseVector with the original
