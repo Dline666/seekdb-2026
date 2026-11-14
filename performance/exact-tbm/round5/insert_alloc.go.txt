@@ -1,0 +1,35 @@
+package engine
+
+import (
+    "fmt"
+    "runtime"
+    "strings"
+    "testing"
+)
+
+// Mechanism diagnostic only: excludes SQL construction and uses SyncNone.
+// This is cumulative allocation per 100-row statement, not cgroup M or T/B/M.
+func TestRound5InsertAlloc(t *testing.T) {
+    db := open(t, t.TempDir())
+    defer db.Close()
+    mustExec(t, db, "CREATE TABLE docs(id BIGINT PRIMARY KEY,c VARCHAR(16),e VECTOR(128))")
+    var rows []string
+    for id := 1; id <= 100; id++ {
+        v := make([]float32, 128)
+        for j := range v { v[j] = float32(id*129+j)/32768 }
+        rows = append(rows, fmt.Sprintf("(%d,'c1','%s')", id, vectorText(v)))
+    }
+    sql := "INSERT INTO docs VALUES " + strings.Join(rows, ",")
+    iteration := func() {
+        mustExec(t, db, "BEGIN")
+        mustExec(t, db, sql)
+        mustExec(t, db, "ROLLBACK")
+    }
+    allocs := testing.AllocsPerRun(100, iteration)
+    runtime.GC()
+    var before, after runtime.MemStats
+    runtime.ReadMemStats(&before)
+    for i := 0; i < 100; i++ { iteration() }
+    runtime.ReadMemStats(&after)
+    t.Logf("rows=100 dim=128 allocations_per_statement=%.0f bytes_per_statement=%.0f", allocs, float64(after.TotalAlloc-before.TotalAlloc)/100)
+}

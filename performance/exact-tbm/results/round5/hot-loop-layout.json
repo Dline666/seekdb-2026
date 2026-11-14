@@ -1,0 +1,5396 @@
+[
+  {
+    "binary": "base",
+    "symbol": "fusedScanInt8AVXVNNI",
+    "instructions": [
+      {
+        "address": "50a880",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50a885",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "4c 8b 4c 24 68       \tmov    0x68(%rsp),%r9"
+      },
+      {
+        "address": "50a88a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4c 8b 5c 24 70       \tmov    0x70(%rsp),%r11"
+      },
+      {
+        "address": "50a88f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50a892",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "48 c1 e1 05          \tshl    $0x5,%rcx"
+      },
+      {
+        "address": "50a896",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "4c 01 d9             \tadd    %r11,%rcx"
+      },
+      {
+        "address": "50a899",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a89e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 0f af c1          \timul   %rcx,%rax"
+      },
+      {
+        "address": "50a8a2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "48 8b 7c 24 10       \tmov    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50a8a7",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "48 01 c7             \tadd    %rax,%rdi"
+      },
+      {
+        "address": "50a8aa",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a8af",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "48 c1 e0 03          \tshl    $0x3,%rax"
+      },
+      {
+        "address": "50a8b3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "4c 8b 6c 24 18       \tmov    0x18(%rsp),%r13"
+      },
+      {
+        "address": "50a8b8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "49 01 c5             \tadd    %rax,%r13"
+      },
+      {
+        "address": "50a8bb",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "4c 8b 74 24 20       \tmov    0x20(%rsp),%r14"
+      },
+      {
+        "address": "50a8c0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "49 01 c6             \tadd    %rax,%r14"
+      },
+      {
+        "address": "50a8c3",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "4d 29 ee             \tsub    %r13,%r14"
+      },
+      {
+        "address": "50a8c6",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a8cb",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "48 c1 e0 05          \tshl    $0x5,%rax"
+      },
+      {
+        "address": "50a8cf",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "4c 8b 7c 24 28       \tmov    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50a8d4",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "49 01 c7             \tadd    %rax,%r15"
+      },
+      {
+        "address": "50a8d7",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c5 7b 10 64 24 30    \tvmovsd 0x30(%rsp),%xmm12"
+      },
+      {
+        "address": "50a8dd",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "c5 7b 10 6c 24 38    \tvmovsd 0x38(%rsp),%xmm13"
+      },
+      {
+        "address": "50a8e3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "c5 7b 10 74 24 40    \tvmovsd 0x40(%rsp),%xmm14"
+      },
+      {
+        "address": "50a8e9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c5 7b 10 7c 24 48    \tvmovsd 0x48(%rsp),%xmm15"
+      },
+      {
+        "address": "50a8ef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c5 7b 10 5c 24 50    \tvmovsd 0x50(%rsp),%xmm11"
+      },
+      {
+        "address": "50a8f5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "4c 8b 54 24 60       \tmov    0x60(%rsp),%r10"
+      },
+      {
+        "address": "50a8fa",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 8b 44 24 78       \tmov    0x78(%rsp),%rax"
+      },
+      {
+        "address": "50a8ff",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50a902",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "0f 84 36 01 00 00    \tje     50aa3e <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1be>"
+      },
+      {
+        "address": "50a908",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50a90b",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50a90e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50a913",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50a918",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50a91c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "7c 42                \tjl     50a960 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xe0>"
+      },
+      {
+        "address": "50a91e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50a922",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a927",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50a92c",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50a932",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 fe 6f 67 40       \tvmovdqu 0x40(%rdi),%ymm4"
+      },
+      {
+        "address": "50a937",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "c4 62 5d 50 46 40    \t{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a93d",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50a942",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "c4 62 4d 50 4e 60    \t{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50a948",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50a94f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50a956",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "48 83 e9 04          \tsub    $0x4,%rcx"
+      },
+      {
+        "address": "50a95a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50a95e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "7d be                \tjge    50a91e <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x9e>"
+      },
+      {
+        "address": "50a960",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "48 83 f9 02          \tcmp    $0x2,%rcx"
+      },
+      {
+        "address": "50a964",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "7c 22                \tjl     50a988 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x108>"
+      },
+      {
+        "address": "50a966",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50a96a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a96f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50a974",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50a97a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 83 c6 40          \tadd    $0x40,%rsi"
+      },
+      {
+        "address": "50a97e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50a982",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "48 83 e9 02          \tsub    $0x2,%rcx"
+      },
+      {
+        "address": "50a986",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "eb d8                \tjmp    50a960 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xe0>"
+      },
+      {
+        "address": "50a988",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "48 85 c9             \ttest   %rcx,%rcx"
+      },
+      {
+        "address": "50a98b",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "74 11                \tje     50a99e <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x11e>"
+      },
+      {
+        "address": "50a98d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50a991",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a996",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "48 83 c6 20          \tadd    $0x20,%rsi"
+      },
+      {
+        "address": "50a99a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "48 83 c7 20          \tadd    $0x20,%rdi"
+      },
+      {
+        "address": "50a99e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50a9a3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50a9a9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50a9ad",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50a9b3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50a9b7",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50a9bd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50a9c1",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50a9c5",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50a9c8",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "74 1b                \tje     50a9e5 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x165>"
+      },
+      {
+        "address": "50a9ca",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4d 89 dc             \tmov    %r11,%r12"
+      },
+      {
+        "address": "50a9cd",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "0f be 1e             \tmovsbl (%rsi),%ebx"
+      },
+      {
+        "address": "50a9d0",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "0f b6 17             \tmovzbl (%rdi),%edx"
+      },
+      {
+        "address": "50a9d3",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "0f af da             \timul   %edx,%ebx"
+      },
+      {
+        "address": "50a9d6",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "01 d9                \tadd    %ebx,%ecx"
+      },
+      {
+        "address": "50a9d8",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "48 83 c6 01          \tadd    $0x1,%rsi"
+      },
+      {
+        "address": "50a9dc",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "48 83 c7 01          \tadd    $0x1,%rdi"
+      },
+      {
+        "address": "50a9e0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "49 ff cc             \tdec    %r12"
+      },
+      {
+        "address": "50a9e3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "75 e8                \tjne    50a9cd <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x14d>"
+      },
+      {
+        "address": "50a9e5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50a9e9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50a9ee",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50a9f3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50a9f9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50a9ff",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aa03",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50aa09",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50aa0d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aa12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50aa17",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "77 14                \tja     50aa2d <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1ad>"
+      },
+      {
+        "address": "50aa19",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "4b 8b 5c 35 00       \tmov    0x0(%r13,%r14,1),%rbx"
+      },
+      {
+        "address": "50aa1e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 89 18             \tmov    %rbx,(%rax)"
+      },
+      {
+        "address": "50aa21",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "49 8b 5d 00          \tmov    0x0(%r13),%rbx"
+      },
+      {
+        "address": "50aa25",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 89 58 08          \tmov    %rbx,0x8(%rax)"
+      },
+      {
+        "address": "50aa29",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50aa2d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50aa31",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "49 83 c7 20          \tadd    $0x20,%r15"
+      },
+      {
+        "address": "50aa35",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50aa38",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "0f 85 ca fe ff ff    \tjne    50a908 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x88>"
+      },
+      {
+        "address": "50aa3e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "48 8b 4c 24 78       \tmov    0x78(%rsp),%rcx"
+      },
+      {
+        "address": "50aa43",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "48 29 c8             \tsub    %rcx,%rax"
+      },
+      {
+        "address": "50aa46",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "48 c1 e8 04          \tshr    $0x4,%rax"
+      },
+      {
+        "address": "50aa4a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "48 89 84 24 80 00 00 \tmov    %rax,0x80(%rsp)"
+      },
+      {
+        "address": "50aa51",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "00 "
+      },
+      {
+        "address": "50aa52",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50aa55",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  },
+  {
+    "binary": "base",
+    "symbol": "fusedScanCandidatesAVXVNNI",
+    "instructions": [
+      {
+        "address": "50aa60",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50aa65",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "4c 8b 4c 24 68       \tmov    0x68(%rsp),%r9"
+      },
+      {
+        "address": "50aa6a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "4d 89 ce             \tmov    %r9,%r14"
+      },
+      {
+        "address": "50aa6d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "49 c1 e6 05          \tshl    $0x5,%r14"
+      },
+      {
+        "address": "50aa71",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "4c 8b 5c 24 70       \tmov    0x70(%rsp),%r11"
+      },
+      {
+        "address": "50aa76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "4d 01 de             \tadd    %r11,%r14"
+      },
+      {
+        "address": "50aa79",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "4c 8b 6c 24 58       \tmov    0x58(%rsp),%r13"
+      },
+      {
+        "address": "50aa7e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "c5 7b 10 64 24 30    \tvmovsd 0x30(%rsp),%xmm12"
+      },
+      {
+        "address": "50aa84",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c5 7b 10 6c 24 38    \tvmovsd 0x38(%rsp),%xmm13"
+      },
+      {
+        "address": "50aa8a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c5 7b 10 74 24 40    \tvmovsd 0x40(%rsp),%xmm14"
+      },
+      {
+        "address": "50aa90",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c5 7b 10 7c 24 48    \tvmovsd 0x48(%rsp),%xmm15"
+      },
+      {
+        "address": "50aa96",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "c5 7b 10 5c 24 50    \tvmovsd 0x50(%rsp),%xmm11"
+      },
+      {
+        "address": "50aa9c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "4c 8b 54 24 60       \tmov    0x60(%rsp),%r10"
+      },
+      {
+        "address": "50aaa1",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "48 8b 44 24 78       \tmov    0x78(%rsp),%rax"
+      },
+      {
+        "address": "50aaa6",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50aaa9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "0f 84 5b 01 00 00    \tje     50ac0a <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1aa>"
+      },
+      {
+        "address": "50aaaf",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50aab3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "48 89 df             \tmov    %rbx,%rdi"
+      },
+      {
+        "address": "50aab6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "49 0f af fe          \timul   %r14,%rdi"
+      },
+      {
+        "address": "50aaba",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 03 7c 24 10       \tadd    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50aabf",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "49 89 df             \tmov    %rbx,%r15"
+      },
+      {
+        "address": "50aac2",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "49 c1 e7 05          \tshl    $0x5,%r15"
+      },
+      {
+        "address": "50aac6",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "4c 03 7c 24 28       \tadd    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50aacb",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50aace",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50aad1",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50aad6",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50aadb",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50aadf",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "7c 42                \tjl     50ab23 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xc3>"
+      },
+      {
+        "address": "50aae1",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50aae5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50aaea",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50aaef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50aaf5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c5 fe 6f 67 40       \tvmovdqu 0x40(%rdi),%ymm4"
+      },
+      {
+        "address": "50aafa",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "c4 62 5d 50 46 40    \t{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ab00",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50ab05",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "c4 62 4d 50 4e 60    \t{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50ab0b",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50ab12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50ab19",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 83 e9 04          \tsub    $0x4,%rcx"
+      },
+      {
+        "address": "50ab1d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50ab21",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "7d be                \tjge    50aae1 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x81>"
+      },
+      {
+        "address": "50ab23",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "48 83 f9 02          \tcmp    $0x2,%rcx"
+      },
+      {
+        "address": "50ab27",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "7c 22                \tjl     50ab4b <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xeb>"
+      },
+      {
+        "address": "50ab29",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50ab2d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ab32",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50ab37",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50ab3d",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "48 83 c6 40          \tadd    $0x40,%rsi"
+      },
+      {
+        "address": "50ab41",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50ab45",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "48 83 e9 02          \tsub    $0x2,%rcx"
+      },
+      {
+        "address": "50ab49",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "eb d8                \tjmp    50ab23 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xc3>"
+      },
+      {
+        "address": "50ab4b",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "48 85 c9             \ttest   %rcx,%rcx"
+      },
+      {
+        "address": "50ab4e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "74 11                \tje     50ab61 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x101>"
+      },
+      {
+        "address": "50ab50",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50ab54",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ab59",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 83 c6 20          \tadd    $0x20,%rsi"
+      },
+      {
+        "address": "50ab5d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "48 83 c7 20          \tadd    $0x20,%rdi"
+      },
+      {
+        "address": "50ab61",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50ab66",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50ab6c",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ab70",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ab76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ab7a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ab80",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ab84",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50ab88",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50ab8b",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "74 1b                \tje     50aba8 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x148>"
+      },
+      {
+        "address": "50ab8d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "4d 89 dc             \tmov    %r11,%r12"
+      },
+      {
+        "address": "50ab90",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "0f be 1e             \tmovsbl (%rsi),%ebx"
+      },
+      {
+        "address": "50ab93",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "0f b6 17             \tmovzbl (%rdi),%edx"
+      },
+      {
+        "address": "50ab96",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "0f af da             \timul   %edx,%ebx"
+      },
+      {
+        "address": "50ab99",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "01 d9                \tadd    %ebx,%ecx"
+      },
+      {
+        "address": "50ab9b",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "48 83 c6 01          \tadd    $0x1,%rsi"
+      },
+      {
+        "address": "50ab9f",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "48 83 c7 01          \tadd    $0x1,%rdi"
+      },
+      {
+        "address": "50aba3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "49 ff cc             \tdec    %r12"
+      },
+      {
+        "address": "50aba6",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "75 e8                \tjne    50ab90 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x130>"
+      },
+      {
+        "address": "50aba8",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50abac",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50abb1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50abb6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50abbc",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50abc2",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50abc6",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50abcc",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50abd0",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50abd5",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50abda",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "77 21                \tja     50abfd <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x19d>"
+      },
+      {
+        "address": "50abdc",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50abe0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "48 8b 54 24 20       \tmov    0x20(%rsp),%rdx"
+      },
+      {
+        "address": "50abe5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50abe9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 89 10             \tmov    %rdx,(%rax)"
+      },
+      {
+        "address": "50abec",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "48 8b 54 24 18       \tmov    0x18(%rsp),%rdx"
+      },
+      {
+        "address": "50abf1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50abf5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "48 89 50 08          \tmov    %rdx,0x8(%rax)"
+      },
+      {
+        "address": "50abf9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50abfd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "49 83 c5 04          \tadd    $0x4,%r13"
+      },
+      {
+        "address": "50ac01",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50ac04",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "0f 85 a5 fe ff ff    \tjne    50aaaf <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x4f>"
+      },
+      {
+        "address": "50ac0a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "48 8b 4c 24 78       \tmov    0x78(%rsp),%rcx"
+      },
+      {
+        "address": "50ac0f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "48 29 c8             \tsub    %rcx,%rax"
+      },
+      {
+        "address": "50ac12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "48 c1 e8 04          \tshr    $0x4,%rax"
+      },
+      {
+        "address": "50ac16",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "48 89 84 24 80 00 00 \tmov    %rax,0x80(%rsp)"
+      },
+      {
+        "address": "50ac1d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "00 "
+      },
+      {
+        "address": "50ac1e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50ac21",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  },
+  {
+    "binary": "base",
+    "symbol": "l2sqGatherAVX2",
+    "instructions": [
+      {
+        "address": "50af40",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50af45",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "4c 8b 64 24 10       \tmov    0x10(%rsp),%r12"
+      },
+      {
+        "address": "50af4a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4c 8b 6c 24 18       \tmov    0x18(%rsp),%r13"
+      },
+      {
+        "address": "50af4f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "4c 8b 4c 24 20       \tmov    0x20(%rsp),%r9"
+      },
+      {
+        "address": "50af54",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "4c 8b 54 24 28       \tmov    0x28(%rsp),%r10"
+      },
+      {
+        "address": "50af59",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "4c 8b 5c 24 30       \tmov    0x30(%rsp),%r11"
+      },
+      {
+        "address": "50af5e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50af61",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "0f 84 97 00 00 00    \tje     50affe <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0xbe>"
+      },
+      {
+        "address": "50af67",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50af6a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "4c 89 e7             \tmov    %r12,%rdi"
+      },
+      {
+        "address": "50af6d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "49 03 7d 00          \tadd    0x0(%r13),%rdi"
+      },
+      {
+        "address": "50af71",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50af74",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c5 fd 57 c0          \tvxorpd %ymm0,%ymm0,%ymm0"
+      },
+      {
+        "address": "50af78",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "c5 f5 57 c9          \tvxorpd %ymm1,%ymm1,%ymm1"
+      },
+      {
+        "address": "50af7c",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "c5 ed 57 d2          \tvxorpd %ymm2,%ymm2,%ymm2"
+      },
+      {
+        "address": "50af80",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 e5 57 db          \tvxorpd %ymm3,%ymm3,%ymm3"
+      },
+      {
+        "address": "50af84",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c5 fc 5a 27          \tvcvtps2pd (%rdi),%ymm4"
+      },
+      {
+        "address": "50af88",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "c5 fc 5a 6f 10       \tvcvtps2pd 0x10(%rdi),%ymm5"
+      },
+      {
+        "address": "50af8d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c5 fc 5a 77 20       \tvcvtps2pd 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50af92",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c5 fc 5a 7f 30       \tvcvtps2pd 0x30(%rdi),%ymm7"
+      },
+      {
+        "address": "50af97",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c5 dd 5c 26          \tvsubpd (%rsi),%ymm4,%ymm4"
+      },
+      {
+        "address": "50af9b",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "c5 d5 5c 6e 20       \tvsubpd 0x20(%rsi),%ymm5,%ymm5"
+      },
+      {
+        "address": "50afa0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c5 cd 5c 76 40       \tvsubpd 0x40(%rsi),%ymm6,%ymm6"
+      },
+      {
+        "address": "50afa5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c5 c5 5c 7e 60       \tvsubpd 0x60(%rsi),%ymm7,%ymm7"
+      },
+      {
+        "address": "50afaa",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c4 e2 dd b8 c4       \tvfmadd231pd %ymm4,%ymm4,%ymm0"
+      },
+      {
+        "address": "50afaf",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c4 e2 d5 b8 cd       \tvfmadd231pd %ymm5,%ymm5,%ymm1"
+      },
+      {
+        "address": "50afb4",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c4 e2 cd b8 d6       \tvfmadd231pd %ymm6,%ymm6,%ymm2"
+      },
+      {
+        "address": "50afb9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "c4 e2 c5 b8 df       \tvfmadd231pd %ymm7,%ymm7,%ymm3"
+      },
+      {
+        "address": "50afbe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50afc5",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50afc9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "48 ff c9             \tdec    %rcx"
+      },
+      {
+        "address": "50afcc",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "75 b6                \tjne    50af84 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x44>"
+      },
+      {
+        "address": "50afce",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "c5 fd 58 c1          \tvaddpd %ymm1,%ymm0,%ymm0"
+      },
+      {
+        "address": "50afd2",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c5 ed 58 d3          \tvaddpd %ymm3,%ymm2,%ymm2"
+      },
+      {
+        "address": "50afd6",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "c5 fd 58 c2          \tvaddpd %ymm2,%ymm0,%ymm0"
+      },
+      {
+        "address": "50afda",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "c4 e3 7d 19 c1 01    \tvextractf128 $0x1,%ymm0,%xmm1"
+      },
+      {
+        "address": "50afe0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c5 f9 58 c1          \tvaddpd %xmm1,%xmm0,%xmm0"
+      },
+      {
+        "address": "50afe4",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 f9 7c c0          \tvhaddpd %xmm0,%xmm0,%xmm0"
+      },
+      {
+        "address": "50afe8",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "c4 c1 7b 11 03       \tvmovsd %xmm0,(%r11)"
+      },
+      {
+        "address": "50afed",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "49 83 c3 08          \tadd    $0x8,%r11"
+      },
+      {
+        "address": "50aff1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50aff5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50aff8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "0f 85 69 ff ff ff    \tjne    50af67 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x27>"
+      },
+      {
+        "address": "50affe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50b001",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  },
+  {
+    "binary": "preload",
+    "symbol": "fusedScanInt8AVXVNNI",
+    "instructions": [
+      {
+        "address": "50a880",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50a885",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "4c 8b 4c 24 68       \tmov    0x68(%rsp),%r9"
+      },
+      {
+        "address": "50a88a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4c 8b 5c 24 70       \tmov    0x70(%rsp),%r11"
+      },
+      {
+        "address": "50a88f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50a892",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "48 c1 e1 05          \tshl    $0x5,%rcx"
+      },
+      {
+        "address": "50a896",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "4c 01 d9             \tadd    %r11,%rcx"
+      },
+      {
+        "address": "50a899",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a89e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 0f af c1          \timul   %rcx,%rax"
+      },
+      {
+        "address": "50a8a2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "48 8b 7c 24 10       \tmov    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50a8a7",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "48 01 c7             \tadd    %rax,%rdi"
+      },
+      {
+        "address": "50a8aa",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a8af",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "48 c1 e0 03          \tshl    $0x3,%rax"
+      },
+      {
+        "address": "50a8b3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "4c 8b 6c 24 18       \tmov    0x18(%rsp),%r13"
+      },
+      {
+        "address": "50a8b8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "49 01 c5             \tadd    %rax,%r13"
+      },
+      {
+        "address": "50a8bb",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "4c 8b 74 24 20       \tmov    0x20(%rsp),%r14"
+      },
+      {
+        "address": "50a8c0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "49 01 c6             \tadd    %rax,%r14"
+      },
+      {
+        "address": "50a8c3",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "4d 29 ee             \tsub    %r13,%r14"
+      },
+      {
+        "address": "50a8c6",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a8cb",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "48 c1 e0 05          \tshl    $0x5,%rax"
+      },
+      {
+        "address": "50a8cf",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "4c 8b 7c 24 28       \tmov    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50a8d4",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "49 01 c7             \tadd    %rax,%r15"
+      },
+      {
+        "address": "50a8d7",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c5 7b 10 64 24 30    \tvmovsd 0x30(%rsp),%xmm12"
+      },
+      {
+        "address": "50a8dd",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "c5 7b 10 6c 24 38    \tvmovsd 0x38(%rsp),%xmm13"
+      },
+      {
+        "address": "50a8e3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "c5 7b 10 74 24 40    \tvmovsd 0x40(%rsp),%xmm14"
+      },
+      {
+        "address": "50a8e9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c5 7b 10 7c 24 48    \tvmovsd 0x48(%rsp),%xmm15"
+      },
+      {
+        "address": "50a8ef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c5 7b 10 5c 24 50    \tvmovsd 0x50(%rsp),%xmm11"
+      },
+      {
+        "address": "50a8f5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "4c 8b 54 24 60       \tmov    0x60(%rsp),%r10"
+      },
+      {
+        "address": "50a8fa",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 8b 44 24 78       \tmov    0x78(%rsp),%rax"
+      },
+      {
+        "address": "50a8ff",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50a902",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "0f 84 45 01 00 00    \tje     50aa4d <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1cd>"
+      },
+      {
+        "address": "50a908",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "49 83 f9 04          \tcmp    $0x4,%r9"
+      },
+      {
+        "address": "50a90c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "75 09                \tjne    50a917 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x97>"
+      },
+      {
+        "address": "50a90e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50a911",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "0f 84 4e 01 00 00    \tje     50aa65 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1e5>"
+      },
+      {
+        "address": "50a917",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50a91a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50a91d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50a922",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50a927",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50a92b",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "7c 42                \tjl     50a96f <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xef>"
+      },
+      {
+        "address": "50a92d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50a931",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a936",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50a93b",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50a941",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c5 fe 6f 67 40       \tvmovdqu 0x40(%rdi),%ymm4"
+      },
+      {
+        "address": "50a946",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "c4 62 5d 50 46 40    \t{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a94c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50a951",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "c4 62 4d 50 4e 60    \t{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50a957",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50a95e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50a965",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 83 e9 04          \tsub    $0x4,%rcx"
+      },
+      {
+        "address": "50a969",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50a96d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "7d be                \tjge    50a92d <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xad>"
+      },
+      {
+        "address": "50a96f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "48 83 f9 02          \tcmp    $0x2,%rcx"
+      },
+      {
+        "address": "50a973",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "7c 22                \tjl     50a997 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x117>"
+      },
+      {
+        "address": "50a975",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50a979",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a97e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50a983",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50a989",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "48 83 c6 40          \tadd    $0x40,%rsi"
+      },
+      {
+        "address": "50a98d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50a991",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "48 83 e9 02          \tsub    $0x2,%rcx"
+      },
+      {
+        "address": "50a995",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "eb d8                \tjmp    50a96f <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xef>"
+      },
+      {
+        "address": "50a997",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "48 85 c9             \ttest   %rcx,%rcx"
+      },
+      {
+        "address": "50a99a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "74 11                \tje     50a9ad <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x12d>"
+      },
+      {
+        "address": "50a99c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50a9a0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50a9a5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 83 c6 20          \tadd    $0x20,%rsi"
+      },
+      {
+        "address": "50a9a9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 83 c7 20          \tadd    $0x20,%rdi"
+      },
+      {
+        "address": "50a9ad",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50a9b2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50a9b8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50a9bc",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50a9c2",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50a9c6",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50a9cc",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50a9d0",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50a9d4",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50a9d7",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "74 1b                \tje     50a9f4 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x174>"
+      },
+      {
+        "address": "50a9d9",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "4d 89 dc             \tmov    %r11,%r12"
+      },
+      {
+        "address": "50a9dc",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "0f be 1e             \tmovsbl (%rsi),%ebx"
+      },
+      {
+        "address": "50a9df",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "0f b6 17             \tmovzbl (%rdi),%edx"
+      },
+      {
+        "address": "50a9e2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "0f af da             \timul   %edx,%ebx"
+      },
+      {
+        "address": "50a9e5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "01 d9                \tadd    %ebx,%ecx"
+      },
+      {
+        "address": "50a9e7",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "48 83 c6 01          \tadd    $0x1,%rsi"
+      },
+      {
+        "address": "50a9eb",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "48 83 c7 01          \tadd    $0x1,%rdi"
+      },
+      {
+        "address": "50a9ef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "49 ff cc             \tdec    %r12"
+      },
+      {
+        "address": "50a9f2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "75 e8                \tjne    50a9dc <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x15c>"
+      },
+      {
+        "address": "50a9f4",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50a9f8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50a9fd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aa02",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50aa08",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50aa0e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aa12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50aa18",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50aa1c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aa21",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50aa26",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "77 14                \tja     50aa3c <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1bc>"
+      },
+      {
+        "address": "50aa28",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "4b 8b 5c 35 00       \tmov    0x0(%r13,%r14,1),%rbx"
+      },
+      {
+        "address": "50aa2d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "48 89 18             \tmov    %rbx,(%rax)"
+      },
+      {
+        "address": "50aa30",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "49 8b 5d 00          \tmov    0x0(%r13),%rbx"
+      },
+      {
+        "address": "50aa34",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "48 89 58 08          \tmov    %rbx,0x8(%rax)"
+      },
+      {
+        "address": "50aa38",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50aa3c",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50aa40",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "49 83 c7 20          \tadd    $0x20,%r15"
+      },
+      {
+        "address": "50aa44",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50aa47",
+        "mod32": 7,
+        "mod64": 7,
+        "instruction": "0f 85 ca fe ff ff    \tjne    50a917 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x97>"
+      },
+      {
+        "address": "50aa4d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "48 8b 4c 24 78       \tmov    0x78(%rsp),%rcx"
+      },
+      {
+        "address": "50aa52",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "48 29 c8             \tsub    %rcx,%rax"
+      },
+      {
+        "address": "50aa55",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "48 c1 e8 04          \tshr    $0x4,%rax"
+      },
+      {
+        "address": "50aa59",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 89 84 24 80 00 00 \tmov    %rax,0x80(%rsp)"
+      },
+      {
+        "address": "50aa60",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "00 "
+      },
+      {
+        "address": "50aa61",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50aa64",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c3                   \tret"
+      },
+      {
+        "address": "50aa65",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c4 c1 7e 6f 00       \tvmovdqu (%r8),%ymm0"
+      },
+      {
+        "address": "50aa6a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c4 c1 7e 6f 50 20    \tvmovdqu 0x20(%r8),%ymm2"
+      },
+      {
+        "address": "50aa70",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c4 c1 7e 6f 58 40    \tvmovdqu 0x40(%r8),%ymm3"
+      },
+      {
+        "address": "50aa76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c4 c1 7e 6f 60 60    \tvmovdqu 0x60(%r8),%ymm4"
+      },
+      {
+        "address": "50aa7c",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50aa81",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50aa86",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "c5 fe 6f 2f          \tvmovdqu (%rdi),%ymm5"
+      },
+      {
+        "address": "50aa8a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c4 62 55 50 c0       \t{vex} vpdpbusd %ymm0,%ymm5,%ymm8"
+      },
+      {
+        "address": "50aa8f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50aa94",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c4 62 4d 50 ca       \t{vex} vpdpbusd %ymm2,%ymm6,%ymm9"
+      },
+      {
+        "address": "50aa99",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "c5 fe 6f 6f 40       \tvmovdqu 0x40(%rdi),%ymm5"
+      },
+      {
+        "address": "50aa9e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c4 62 55 50 c3       \t{vex} vpdpbusd %ymm3,%ymm5,%ymm8"
+      },
+      {
+        "address": "50aaa3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50aaa8",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "c4 62 4d 50 cc       \t{vex} vpdpbusd %ymm4,%ymm6,%ymm9"
+      },
+      {
+        "address": "50aaad",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50aab4",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50aab9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50aabf",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50aac3",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50aac9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50aacd",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50aad3",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50aad7",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50aadb",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50aadf",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50aae4",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aae9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50aaef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50aaf5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aaf9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50aaff",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50ab03",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50ab08",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50ab0d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "77 14                \tja     50ab23 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x2a3>"
+      },
+      {
+        "address": "50ab0f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "4b 8b 5c 35 00       \tmov    0x0(%r13,%r14,1),%rbx"
+      },
+      {
+        "address": "50ab14",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "48 89 18             \tmov    %rbx,(%rax)"
+      },
+      {
+        "address": "50ab17",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "49 8b 5d 00          \tmov    0x0(%r13),%rbx"
+      },
+      {
+        "address": "50ab1b",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "48 89 58 08          \tmov    %rbx,0x8(%rax)"
+      },
+      {
+        "address": "50ab1f",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50ab23",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50ab27",
+        "mod32": 7,
+        "mod64": 39,
+        "instruction": "49 83 c7 20          \tadd    $0x20,%r15"
+      },
+      {
+        "address": "50ab2b",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50ab2e",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "0f 85 48 ff ff ff    \tjne    50aa7c <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1fc>"
+      },
+      {
+        "address": "50ab34",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "e9 14 ff ff ff       \tjmp    50aa4d <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1cd>"
+      }
+    ]
+  },
+  {
+    "binary": "preload",
+    "symbol": "fusedScanCandidatesAVXVNNI",
+    "instructions": [
+      {
+        "address": "50ab40",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50ab45",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "4c 8b 4c 24 68       \tmov    0x68(%rsp),%r9"
+      },
+      {
+        "address": "50ab4a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4d 89 ce             \tmov    %r9,%r14"
+      },
+      {
+        "address": "50ab4d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 c1 e6 05          \tshl    $0x5,%r14"
+      },
+      {
+        "address": "50ab51",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "4c 8b 5c 24 70       \tmov    0x70(%rsp),%r11"
+      },
+      {
+        "address": "50ab56",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "4d 01 de             \tadd    %r11,%r14"
+      },
+      {
+        "address": "50ab59",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "4c 8b 6c 24 58       \tmov    0x58(%rsp),%r13"
+      },
+      {
+        "address": "50ab5e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c5 7b 10 64 24 30    \tvmovsd 0x30(%rsp),%xmm12"
+      },
+      {
+        "address": "50ab64",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 7b 10 6c 24 38    \tvmovsd 0x38(%rsp),%xmm13"
+      },
+      {
+        "address": "50ab6a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c5 7b 10 74 24 40    \tvmovsd 0x40(%rsp),%xmm14"
+      },
+      {
+        "address": "50ab70",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c5 7b 10 7c 24 48    \tvmovsd 0x48(%rsp),%xmm15"
+      },
+      {
+        "address": "50ab76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 7b 10 5c 24 50    \tvmovsd 0x50(%rsp),%xmm11"
+      },
+      {
+        "address": "50ab7c",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "4c 8b 54 24 60       \tmov    0x60(%rsp),%r10"
+      },
+      {
+        "address": "50ab81",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "48 8b 44 24 78       \tmov    0x78(%rsp),%rax"
+      },
+      {
+        "address": "50ab86",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50ab89",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "0f 84 6a 01 00 00    \tje     50acf9 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1b9>"
+      },
+      {
+        "address": "50ab8f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "49 83 f9 04          \tcmp    $0x4,%r9"
+      },
+      {
+        "address": "50ab93",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "75 09                \tjne    50ab9e <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x5e>"
+      },
+      {
+        "address": "50ab95",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50ab98",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "0f 84 73 01 00 00    \tje     50ad11 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1d1>"
+      },
+      {
+        "address": "50ab9e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50aba2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "48 89 df             \tmov    %rbx,%rdi"
+      },
+      {
+        "address": "50aba5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "49 0f af fe          \timul   %r14,%rdi"
+      },
+      {
+        "address": "50aba9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 03 7c 24 10       \tadd    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50abae",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "49 89 df             \tmov    %rbx,%r15"
+      },
+      {
+        "address": "50abb1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "49 c1 e7 05          \tshl    $0x5,%r15"
+      },
+      {
+        "address": "50abb5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "4c 03 7c 24 28       \tadd    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50abba",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50abbd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50abc0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50abc5",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50abca",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50abce",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "7c 42                \tjl     50ac12 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xd2>"
+      },
+      {
+        "address": "50abd0",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50abd4",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50abd9",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50abde",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50abe4",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 fe 6f 67 40       \tvmovdqu 0x40(%rdi),%ymm4"
+      },
+      {
+        "address": "50abe9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c4 62 5d 50 46 40    \t{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50abef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50abf4",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c4 62 4d 50 4e 60    \t{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50abfa",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50ac01",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50ac08",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "48 83 e9 04          \tsub    $0x4,%rcx"
+      },
+      {
+        "address": "50ac0c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50ac10",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "7d be                \tjge    50abd0 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x90>"
+      },
+      {
+        "address": "50ac12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "48 83 f9 02          \tcmp    $0x2,%rcx"
+      },
+      {
+        "address": "50ac16",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "7c 22                \tjl     50ac3a <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xfa>"
+      },
+      {
+        "address": "50ac18",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50ac1c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ac21",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50ac26",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50ac2c",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "48 83 c6 40          \tadd    $0x40,%rsi"
+      },
+      {
+        "address": "50ac30",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50ac34",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "48 83 e9 02          \tsub    $0x2,%rcx"
+      },
+      {
+        "address": "50ac38",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "eb d8                \tjmp    50ac12 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xd2>"
+      },
+      {
+        "address": "50ac3a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 85 c9             \ttest   %rcx,%rcx"
+      },
+      {
+        "address": "50ac3d",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "74 11                \tje     50ac50 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x110>"
+      },
+      {
+        "address": "50ac3f",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50ac43",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ac48",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "48 83 c6 20          \tadd    $0x20,%rsi"
+      },
+      {
+        "address": "50ac4c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "48 83 c7 20          \tadd    $0x20,%rdi"
+      },
+      {
+        "address": "50ac50",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50ac55",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50ac5b",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ac5f",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ac65",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ac69",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ac6f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ac73",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50ac77",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50ac7a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "74 1b                \tje     50ac97 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x157>"
+      },
+      {
+        "address": "50ac7c",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "4d 89 dc             \tmov    %r11,%r12"
+      },
+      {
+        "address": "50ac7f",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "0f be 1e             \tmovsbl (%rsi),%ebx"
+      },
+      {
+        "address": "50ac82",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "0f b6 17             \tmovzbl (%rdi),%edx"
+      },
+      {
+        "address": "50ac85",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "0f af da             \timul   %edx,%ebx"
+      },
+      {
+        "address": "50ac88",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "01 d9                \tadd    %ebx,%ecx"
+      },
+      {
+        "address": "50ac8a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "48 83 c6 01          \tadd    $0x1,%rsi"
+      },
+      {
+        "address": "50ac8e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "48 83 c7 01          \tadd    $0x1,%rdi"
+      },
+      {
+        "address": "50ac92",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "49 ff cc             \tdec    %r12"
+      },
+      {
+        "address": "50ac95",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "75 e8                \tjne    50ac7f <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x13f>"
+      },
+      {
+        "address": "50ac97",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50ac9b",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50aca0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aca5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50acab",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50acb1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50acb5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50acbb",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50acbf",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50acc4",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50acc9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "77 21                \tja     50acec <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1ac>"
+      },
+      {
+        "address": "50accb",
+        "mod32": 11,
+        "mod64": 11,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50accf",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "48 8b 54 24 20       \tmov    0x20(%rsp),%rdx"
+      },
+      {
+        "address": "50acd4",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50acd8",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "48 89 10             \tmov    %rdx,(%rax)"
+      },
+      {
+        "address": "50acdb",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "48 8b 54 24 18       \tmov    0x18(%rsp),%rdx"
+      },
+      {
+        "address": "50ace0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50ace4",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "48 89 50 08          \tmov    %rdx,0x8(%rax)"
+      },
+      {
+        "address": "50ace8",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50acec",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "49 83 c5 04          \tadd    $0x4,%r13"
+      },
+      {
+        "address": "50acf0",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50acf3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "0f 85 a5 fe ff ff    \tjne    50ab9e <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x5e>"
+      },
+      {
+        "address": "50acf9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "48 8b 4c 24 78       \tmov    0x78(%rsp),%rcx"
+      },
+      {
+        "address": "50acfe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "48 29 c8             \tsub    %rcx,%rax"
+      },
+      {
+        "address": "50ad01",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "48 c1 e8 04          \tshr    $0x4,%rax"
+      },
+      {
+        "address": "50ad05",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "48 89 84 24 80 00 00 \tmov    %rax,0x80(%rsp)"
+      },
+      {
+        "address": "50ad0c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "00 "
+      },
+      {
+        "address": "50ad0d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50ad10",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c3                   \tret"
+      },
+      {
+        "address": "50ad11",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "c4 c1 7e 6f 00       \tvmovdqu (%r8),%ymm0"
+      },
+      {
+        "address": "50ad16",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "c4 c1 7e 6f 50 20    \tvmovdqu 0x20(%r8),%ymm2"
+      },
+      {
+        "address": "50ad1c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c4 c1 7e 6f 58 40    \tvmovdqu 0x40(%r8),%ymm3"
+      },
+      {
+        "address": "50ad22",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "c4 c1 7e 6f 60 60    \tvmovdqu 0x60(%r8),%ymm4"
+      },
+      {
+        "address": "50ad28",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50ad2c",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "48 89 df             \tmov    %rbx,%rdi"
+      },
+      {
+        "address": "50ad2f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "48 c1 e7 07          \tshl    $0x7,%rdi"
+      },
+      {
+        "address": "50ad33",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "48 03 7c 24 10       \tadd    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50ad38",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "49 89 df             \tmov    %rbx,%r15"
+      },
+      {
+        "address": "50ad3b",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "49 c1 e7 05          \tshl    $0x5,%r15"
+      },
+      {
+        "address": "50ad3f",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "4c 03 7c 24 28       \tadd    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50ad44",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50ad49",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50ad4e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "c5 fe 6f 2f          \tvmovdqu (%rdi),%ymm5"
+      },
+      {
+        "address": "50ad52",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c4 62 55 50 c0       \t{vex} vpdpbusd %ymm0,%ymm5,%ymm8"
+      },
+      {
+        "address": "50ad57",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50ad5c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c4 62 4d 50 ca       \t{vex} vpdpbusd %ymm2,%ymm6,%ymm9"
+      },
+      {
+        "address": "50ad61",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c5 fe 6f 6f 40       \tvmovdqu 0x40(%rdi),%ymm5"
+      },
+      {
+        "address": "50ad66",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "c4 62 55 50 c3       \t{vex} vpdpbusd %ymm3,%ymm5,%ymm8"
+      },
+      {
+        "address": "50ad6b",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50ad70",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c4 62 4d 50 cc       \t{vex} vpdpbusd %ymm4,%ymm6,%ymm9"
+      },
+      {
+        "address": "50ad75",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50ad7a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50ad80",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ad84",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ad8a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ad8e",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ad94",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ad98",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50ad9c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50ada0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50ada5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50adaa",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50adb0",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50adb6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50adba",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50adc0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50adc4",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50adc9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50adce",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "77 21                \tja     50adf1 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x2b1>"
+      },
+      {
+        "address": "50add0",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50add4",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "48 8b 54 24 20       \tmov    0x20(%rsp),%rdx"
+      },
+      {
+        "address": "50add9",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50addd",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "48 89 10             \tmov    %rdx,(%rax)"
+      },
+      {
+        "address": "50ade0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "48 8b 54 24 18       \tmov    0x18(%rsp),%rdx"
+      },
+      {
+        "address": "50ade5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50ade9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 89 50 08          \tmov    %rdx,0x8(%rax)"
+      },
+      {
+        "address": "50aded",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50adf1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "49 83 c5 04          \tadd    $0x4,%r13"
+      },
+      {
+        "address": "50adf5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50adf8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "0f 85 2a ff ff ff    \tjne    50ad28 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1e8>"
+      },
+      {
+        "address": "50adfe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "e9 f6 fe ff ff       \tjmp    50acf9 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1b9>"
+      }
+    ]
+  },
+  {
+    "binary": "preload",
+    "symbol": "l2sqGatherAVX2",
+    "instructions": [
+      {
+        "address": "50b120",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50b125",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "4c 8b 64 24 10       \tmov    0x10(%rsp),%r12"
+      },
+      {
+        "address": "50b12a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "4c 8b 6c 24 18       \tmov    0x18(%rsp),%r13"
+      },
+      {
+        "address": "50b12f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "4c 8b 4c 24 20       \tmov    0x20(%rsp),%r9"
+      },
+      {
+        "address": "50b134",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "4c 8b 54 24 28       \tmov    0x28(%rsp),%r10"
+      },
+      {
+        "address": "50b139",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "4c 8b 5c 24 30       \tmov    0x30(%rsp),%r11"
+      },
+      {
+        "address": "50b13e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50b141",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "0f 84 97 00 00 00    \tje     50b1de <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0xbe>"
+      },
+      {
+        "address": "50b147",
+        "mod32": 7,
+        "mod64": 7,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50b14a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4c 89 e7             \tmov    %r12,%rdi"
+      },
+      {
+        "address": "50b14d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 03 7d 00          \tadd    0x0(%r13),%rdi"
+      },
+      {
+        "address": "50b151",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50b154",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c5 fd 57 c0          \tvxorpd %ymm0,%ymm0,%ymm0"
+      },
+      {
+        "address": "50b158",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "c5 f5 57 c9          \tvxorpd %ymm1,%ymm1,%ymm1"
+      },
+      {
+        "address": "50b15c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c5 ed 57 d2          \tvxorpd %ymm2,%ymm2,%ymm2"
+      },
+      {
+        "address": "50b160",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c5 e5 57 db          \tvxorpd %ymm3,%ymm3,%ymm3"
+      },
+      {
+        "address": "50b164",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 fc 5a 27          \tvcvtps2pd (%rdi),%ymm4"
+      },
+      {
+        "address": "50b168",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "c5 fc 5a 6f 10       \tvcvtps2pd 0x10(%rdi),%ymm5"
+      },
+      {
+        "address": "50b16d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c5 fc 5a 77 20       \tvcvtps2pd 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50b172",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 fc 5a 7f 30       \tvcvtps2pd 0x30(%rdi),%ymm7"
+      },
+      {
+        "address": "50b177",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "c5 dd 5c 26          \tvsubpd (%rsi),%ymm4,%ymm4"
+      },
+      {
+        "address": "50b17b",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "c5 d5 5c 6e 20       \tvsubpd 0x20(%rsi),%ymm5,%ymm5"
+      },
+      {
+        "address": "50b180",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 cd 5c 76 40       \tvsubpd 0x40(%rsi),%ymm6,%ymm6"
+      },
+      {
+        "address": "50b185",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "c5 c5 5c 7e 60       \tvsubpd 0x60(%rsi),%ymm7,%ymm7"
+      },
+      {
+        "address": "50b18a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c4 e2 dd b8 c4       \tvfmadd231pd %ymm4,%ymm4,%ymm0"
+      },
+      {
+        "address": "50b18f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "c4 e2 d5 b8 cd       \tvfmadd231pd %ymm5,%ymm5,%ymm1"
+      },
+      {
+        "address": "50b194",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c4 e2 cd b8 d6       \tvfmadd231pd %ymm6,%ymm6,%ymm2"
+      },
+      {
+        "address": "50b199",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "c4 e2 c5 b8 df       \tvfmadd231pd %ymm7,%ymm7,%ymm3"
+      },
+      {
+        "address": "50b19e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50b1a5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50b1a9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 ff c9             \tdec    %rcx"
+      },
+      {
+        "address": "50b1ac",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "75 b6                \tjne    50b164 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x44>"
+      },
+      {
+        "address": "50b1ae",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "c5 fd 58 c1          \tvaddpd %ymm1,%ymm0,%ymm0"
+      },
+      {
+        "address": "50b1b2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 ed 58 d3          \tvaddpd %ymm3,%ymm2,%ymm2"
+      },
+      {
+        "address": "50b1b6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 fd 58 c2          \tvaddpd %ymm2,%ymm0,%ymm0"
+      },
+      {
+        "address": "50b1ba",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "c4 e3 7d 19 c1 01    \tvextractf128 $0x1,%ymm0,%xmm1"
+      },
+      {
+        "address": "50b1c0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 f9 58 c1          \tvaddpd %xmm1,%xmm0,%xmm0"
+      },
+      {
+        "address": "50b1c4",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c5 f9 7c c0          \tvhaddpd %xmm0,%xmm0,%xmm0"
+      },
+      {
+        "address": "50b1c8",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "c4 c1 7b 11 03       \tvmovsd %xmm0,(%r11)"
+      },
+      {
+        "address": "50b1cd",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 83 c3 08          \tadd    $0x8,%r11"
+      },
+      {
+        "address": "50b1d1",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50b1d5",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50b1d8",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "0f 85 69 ff ff ff    \tjne    50b147 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x27>"
+      },
+      {
+        "address": "50b1de",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50b1e1",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  },
+  {
+    "binary": "scratch",
+    "symbol": "fusedScanInt8AVXVNNI",
+    "instructions": [
+      {
+        "address": "50a960",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50a965",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "4c 8b 4c 24 68       \tmov    0x68(%rsp),%r9"
+      },
+      {
+        "address": "50a96a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "4c 8b 5c 24 70       \tmov    0x70(%rsp),%r11"
+      },
+      {
+        "address": "50a96f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50a972",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "48 c1 e1 05          \tshl    $0x5,%rcx"
+      },
+      {
+        "address": "50a976",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "4c 01 d9             \tadd    %r11,%rcx"
+      },
+      {
+        "address": "50a979",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a97e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "48 0f af c1          \timul   %rcx,%rax"
+      },
+      {
+        "address": "50a982",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "48 8b 7c 24 10       \tmov    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50a987",
+        "mod32": 7,
+        "mod64": 7,
+        "instruction": "48 01 c7             \tadd    %rax,%rdi"
+      },
+      {
+        "address": "50a98a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a98f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "48 c1 e0 03          \tshl    $0x3,%rax"
+      },
+      {
+        "address": "50a993",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "4c 8b 6c 24 18       \tmov    0x18(%rsp),%r13"
+      },
+      {
+        "address": "50a998",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "49 01 c5             \tadd    %rax,%r13"
+      },
+      {
+        "address": "50a99b",
+        "mod32": 27,
+        "mod64": 27,
+        "instruction": "4c 8b 74 24 20       \tmov    0x20(%rsp),%r14"
+      },
+      {
+        "address": "50a9a0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "49 01 c6             \tadd    %rax,%r14"
+      },
+      {
+        "address": "50a9a3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "4d 29 ee             \tsub    %r13,%r14"
+      },
+      {
+        "address": "50a9a6",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "48 8b 44 24 58       \tmov    0x58(%rsp),%rax"
+      },
+      {
+        "address": "50a9ab",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "48 c1 e0 05          \tshl    $0x5,%rax"
+      },
+      {
+        "address": "50a9af",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "4c 8b 7c 24 28       \tmov    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50a9b4",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "49 01 c7             \tadd    %rax,%r15"
+      },
+      {
+        "address": "50a9b7",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "c5 7b 10 64 24 30    \tvmovsd 0x30(%rsp),%xmm12"
+      },
+      {
+        "address": "50a9bd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "c5 7b 10 6c 24 38    \tvmovsd 0x38(%rsp),%xmm13"
+      },
+      {
+        "address": "50a9c3",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c5 7b 10 74 24 40    \tvmovsd 0x40(%rsp),%xmm14"
+      },
+      {
+        "address": "50a9c9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c5 7b 10 7c 24 48    \tvmovsd 0x48(%rsp),%xmm15"
+      },
+      {
+        "address": "50a9cf",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "c5 7b 10 5c 24 50    \tvmovsd 0x50(%rsp),%xmm11"
+      },
+      {
+        "address": "50a9d5",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "4c 8b 54 24 60       \tmov    0x60(%rsp),%r10"
+      },
+      {
+        "address": "50a9da",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "48 8b 44 24 78       \tmov    0x78(%rsp),%rax"
+      },
+      {
+        "address": "50a9df",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50a9e2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "0f 84 36 01 00 00    \tje     50ab1e <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1be>"
+      },
+      {
+        "address": "50a9e8",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50a9eb",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50a9ee",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50a9f3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50a9f8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50a9fc",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "7c 42                \tjl     50aa40 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xe0>"
+      },
+      {
+        "address": "50a9fe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50aa02",
+        "mod32": 2,
+        "mod64": 2,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50aa07",
+        "mod32": 7,
+        "mod64": 7,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50aa0c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50aa12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c5 fe 6f 67 40       \tvmovdqu 0x40(%rdi),%ymm4"
+      },
+      {
+        "address": "50aa17",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c4 62 5d 50 46 40    \t{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50aa1d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50aa22",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "c4 62 4d 50 4e 60    \t{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50aa28",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50aa2f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50aa36",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "48 83 e9 04          \tsub    $0x4,%rcx"
+      },
+      {
+        "address": "50aa3a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50aa3e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "7d be                \tjge    50a9fe <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x9e>"
+      },
+      {
+        "address": "50aa40",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "48 83 f9 02          \tcmp    $0x2,%rcx"
+      },
+      {
+        "address": "50aa44",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "7c 22                \tjl     50aa68 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x108>"
+      },
+      {
+        "address": "50aa46",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50aa4a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50aa4f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50aa54",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50aa5a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "48 83 c6 40          \tadd    $0x40,%rsi"
+      },
+      {
+        "address": "50aa5e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50aa62",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "48 83 e9 02          \tsub    $0x2,%rcx"
+      },
+      {
+        "address": "50aa66",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "eb d8                \tjmp    50aa40 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xe0>"
+      },
+      {
+        "address": "50aa68",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "48 85 c9             \ttest   %rcx,%rcx"
+      },
+      {
+        "address": "50aa6b",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "74 11                \tje     50aa7e <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x11e>"
+      },
+      {
+        "address": "50aa6d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50aa71",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50aa76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "48 83 c6 20          \tadd    $0x20,%rsi"
+      },
+      {
+        "address": "50aa7a",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "48 83 c7 20          \tadd    $0x20,%rdi"
+      },
+      {
+        "address": "50aa7e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50aa83",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50aa89",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50aa8d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50aa93",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50aa97",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50aa9d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50aaa1",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50aaa5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50aaa8",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "74 1b                \tje     50aac5 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x165>"
+      },
+      {
+        "address": "50aaaa",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "4d 89 dc             \tmov    %r11,%r12"
+      },
+      {
+        "address": "50aaad",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "0f be 1e             \tmovsbl (%rsi),%ebx"
+      },
+      {
+        "address": "50aab0",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "0f b6 17             \tmovzbl (%rdi),%edx"
+      },
+      {
+        "address": "50aab3",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "0f af da             \timul   %edx,%ebx"
+      },
+      {
+        "address": "50aab6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "01 d9                \tadd    %ebx,%ecx"
+      },
+      {
+        "address": "50aab8",
+        "mod32": 24,
+        "mod64": 56,
+        "instruction": "48 83 c6 01          \tadd    $0x1,%rsi"
+      },
+      {
+        "address": "50aabc",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "48 83 c7 01          \tadd    $0x1,%rdi"
+      },
+      {
+        "address": "50aac0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "49 ff cc             \tdec    %r12"
+      },
+      {
+        "address": "50aac3",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "75 e8                \tjne    50aaad <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x14d>"
+      },
+      {
+        "address": "50aac5",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50aac9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50aace",
+        "mod32": 14,
+        "mod64": 14,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aad3",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50aad9",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50aadf",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aae3",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50aae9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50aaed",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aaf2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50aaf7",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "77 14                \tja     50ab0d <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x1ad>"
+      },
+      {
+        "address": "50aaf9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "4b 8b 5c 35 00       \tmov    0x0(%r13,%r14,1),%rbx"
+      },
+      {
+        "address": "50aafe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "48 89 18             \tmov    %rbx,(%rax)"
+      },
+      {
+        "address": "50ab01",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "49 8b 5d 00          \tmov    0x0(%r13),%rbx"
+      },
+      {
+        "address": "50ab05",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "48 89 58 08          \tmov    %rbx,0x8(%rax)"
+      },
+      {
+        "address": "50ab09",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50ab0d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50ab11",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "49 83 c7 20          \tadd    $0x20,%r15"
+      },
+      {
+        "address": "50ab15",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50ab18",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "0f 85 ca fe ff ff    \tjne    50a9e8 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x88>"
+      },
+      {
+        "address": "50ab1e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 8b 4c 24 78       \tmov    0x78(%rsp),%rcx"
+      },
+      {
+        "address": "50ab23",
+        "mod32": 3,
+        "mod64": 35,
+        "instruction": "48 29 c8             \tsub    %rcx,%rax"
+      },
+      {
+        "address": "50ab26",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "48 c1 e8 04          \tshr    $0x4,%rax"
+      },
+      {
+        "address": "50ab2a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "48 89 84 24 80 00 00 \tmov    %rax,0x80(%rsp)"
+      },
+      {
+        "address": "50ab31",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "00 "
+      },
+      {
+        "address": "50ab32",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50ab35",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  },
+  {
+    "binary": "scratch",
+    "symbol": "fusedScanCandidatesAVXVNNI",
+    "instructions": [
+      {
+        "address": "50ab40",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50ab45",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "4c 8b 4c 24 68       \tmov    0x68(%rsp),%r9"
+      },
+      {
+        "address": "50ab4a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4d 89 ce             \tmov    %r9,%r14"
+      },
+      {
+        "address": "50ab4d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 c1 e6 05          \tshl    $0x5,%r14"
+      },
+      {
+        "address": "50ab51",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "4c 8b 5c 24 70       \tmov    0x70(%rsp),%r11"
+      },
+      {
+        "address": "50ab56",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "4d 01 de             \tadd    %r11,%r14"
+      },
+      {
+        "address": "50ab59",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "4c 8b 6c 24 58       \tmov    0x58(%rsp),%r13"
+      },
+      {
+        "address": "50ab5e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c5 7b 10 64 24 30    \tvmovsd 0x30(%rsp),%xmm12"
+      },
+      {
+        "address": "50ab64",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 7b 10 6c 24 38    \tvmovsd 0x38(%rsp),%xmm13"
+      },
+      {
+        "address": "50ab6a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "c5 7b 10 74 24 40    \tvmovsd 0x40(%rsp),%xmm14"
+      },
+      {
+        "address": "50ab70",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c5 7b 10 7c 24 48    \tvmovsd 0x48(%rsp),%xmm15"
+      },
+      {
+        "address": "50ab76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 7b 10 5c 24 50    \tvmovsd 0x50(%rsp),%xmm11"
+      },
+      {
+        "address": "50ab7c",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "4c 8b 54 24 60       \tmov    0x60(%rsp),%r10"
+      },
+      {
+        "address": "50ab81",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "48 8b 44 24 78       \tmov    0x78(%rsp),%rax"
+      },
+      {
+        "address": "50ab86",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50ab89",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "0f 84 5b 01 00 00    \tje     50acea <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1aa>"
+      },
+      {
+        "address": "50ab8f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50ab93",
+        "mod32": 19,
+        "mod64": 19,
+        "instruction": "48 89 df             \tmov    %rbx,%rdi"
+      },
+      {
+        "address": "50ab96",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "49 0f af fe          \timul   %r14,%rdi"
+      },
+      {
+        "address": "50ab9a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "48 03 7c 24 10       \tadd    0x10(%rsp),%rdi"
+      },
+      {
+        "address": "50ab9f",
+        "mod32": 31,
+        "mod64": 31,
+        "instruction": "49 89 df             \tmov    %rbx,%r15"
+      },
+      {
+        "address": "50aba2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "49 c1 e7 05          \tshl    $0x5,%r15"
+      },
+      {
+        "address": "50aba6",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "4c 03 7c 24 28       \tadd    0x28(%rsp),%r15"
+      },
+      {
+        "address": "50abab",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50abae",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50abb1",
+        "mod32": 17,
+        "mod64": 49,
+        "instruction": "c4 41 3d ef c0       \tvpxor  %ymm8,%ymm8,%ymm8"
+      },
+      {
+        "address": "50abb6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c4 41 35 ef c9       \tvpxor  %ymm9,%ymm9,%ymm9"
+      },
+      {
+        "address": "50abbb",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50abbf",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "7c 42                \tjl     50ac03 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xc3>"
+      },
+      {
+        "address": "50abc1",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50abc5",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50abca",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50abcf",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50abd5",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "c5 fe 6f 67 40       \tvmovdqu 0x40(%rdi),%ymm4"
+      },
+      {
+        "address": "50abda",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "c4 62 5d 50 46 40    \t{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50abe0",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c5 fe 6f 77 60       \tvmovdqu 0x60(%rdi),%ymm6"
+      },
+      {
+        "address": "50abe5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "c4 62 4d 50 4e 60    \t{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50abeb",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50abf2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "48 81 c7 80 00 00 00 \tadd    $0x80,%rdi"
+      },
+      {
+        "address": "50abf9",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "48 83 e9 04          \tsub    $0x4,%rcx"
+      },
+      {
+        "address": "50abfd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "48 83 f9 04          \tcmp    $0x4,%rcx"
+      },
+      {
+        "address": "50ac01",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "7d be                \tjge    50abc1 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x81>"
+      },
+      {
+        "address": "50ac03",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "48 83 f9 02          \tcmp    $0x2,%rcx"
+      },
+      {
+        "address": "50ac07",
+        "mod32": 7,
+        "mod64": 7,
+        "instruction": "7c 22                \tjl     50ac2b <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xeb>"
+      },
+      {
+        "address": "50ac09",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50ac0d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ac12",
+        "mod32": 18,
+        "mod64": 18,
+        "instruction": "c5 fe 6f 77 20       \tvmovdqu 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50ac17",
+        "mod32": 23,
+        "mod64": 23,
+        "instruction": "c4 62 4d 50 4e 20    \t{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9"
+      },
+      {
+        "address": "50ac1d",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "48 83 c6 40          \tadd    $0x40,%rsi"
+      },
+      {
+        "address": "50ac21",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50ac25",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 83 e9 02          \tsub    $0x2,%rcx"
+      },
+      {
+        "address": "50ac29",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "eb d8                \tjmp    50ac03 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xc3>"
+      },
+      {
+        "address": "50ac2b",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "48 85 c9             \ttest   %rcx,%rcx"
+      },
+      {
+        "address": "50ac2e",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "74 11                \tje     50ac41 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x101>"
+      },
+      {
+        "address": "50ac30",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c5 fe 6f 27          \tvmovdqu (%rdi),%ymm4"
+      },
+      {
+        "address": "50ac34",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "c4 62 5d 50 06       \t{vex} vpdpbusd (%rsi),%ymm4,%ymm8"
+      },
+      {
+        "address": "50ac39",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "48 83 c6 20          \tadd    $0x20,%rsi"
+      },
+      {
+        "address": "50ac3d",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "48 83 c7 20          \tadd    $0x20,%rdi"
+      },
+      {
+        "address": "50ac41",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c4 41 3d fe c1       \tvpaddd %ymm9,%ymm8,%ymm8"
+      },
+      {
+        "address": "50ac46",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "c4 63 7d 19 c1 01    \tvextractf128 $0x1,%ymm8,%xmm1"
+      },
+      {
+        "address": "50ac4c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ac50",
+        "mod32": 16,
+        "mod64": 16,
+        "instruction": "c4 c1 79 70 c8 4e    \tvpshufd $0x4e,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ac56",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ac5a",
+        "mod32": 26,
+        "mod64": 26,
+        "instruction": "c4 c1 79 70 c8 b1    \tvpshufd $0xb1,%xmm8,%xmm1"
+      },
+      {
+        "address": "50ac60",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c5 39 fe c1          \tvpaddd %xmm1,%xmm8,%xmm8"
+      },
+      {
+        "address": "50ac64",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 79 7e c1          \tvmovd  %xmm8,%ecx"
+      },
+      {
+        "address": "50ac68",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "4d 85 db             \ttest   %r11,%r11"
+      },
+      {
+        "address": "50ac6b",
+        "mod32": 11,
+        "mod64": 43,
+        "instruction": "74 1b                \tje     50ac88 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x148>"
+      },
+      {
+        "address": "50ac6d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "4d 89 dc             \tmov    %r11,%r12"
+      },
+      {
+        "address": "50ac70",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "0f be 1e             \tmovsbl (%rsi),%ebx"
+      },
+      {
+        "address": "50ac73",
+        "mod32": 19,
+        "mod64": 51,
+        "instruction": "0f b6 17             \tmovzbl (%rdi),%edx"
+      },
+      {
+        "address": "50ac76",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "0f af da             \timul   %edx,%ebx"
+      },
+      {
+        "address": "50ac79",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "01 d9                \tadd    %ebx,%ecx"
+      },
+      {
+        "address": "50ac7b",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "48 83 c6 01          \tadd    $0x1,%rsi"
+      },
+      {
+        "address": "50ac7f",
+        "mod32": 31,
+        "mod64": 63,
+        "instruction": "48 83 c7 01          \tadd    $0x1,%rdi"
+      },
+      {
+        "address": "50ac83",
+        "mod32": 3,
+        "mod64": 3,
+        "instruction": "49 ff cc             \tdec    %r12"
+      },
+      {
+        "address": "50ac86",
+        "mod32": 6,
+        "mod64": 6,
+        "instruction": "75 e8                \tjne    50ac70 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x130>"
+      },
+      {
+        "address": "50ac88",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "c5 d3 2a e9          \tvcvtsi2sd %ecx,%xmm5,%xmm5"
+      },
+      {
+        "address": "50ac8c",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "c4 c1 1b 59 37       \tvmulsd (%r15),%xmm12,%xmm6"
+      },
+      {
+        "address": "50ac91",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "c4 c1 4b 58 f5       \tvaddsd %xmm13,%xmm6,%xmm6"
+      },
+      {
+        "address": "50ac96",
+        "mod32": 22,
+        "mod64": 22,
+        "instruction": "c4 c1 4b 58 77 18    \tvaddsd 0x18(%r15),%xmm6,%xmm6"
+      },
+      {
+        "address": "50ac9c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c4 c1 0b 59 7f 08    \tvmulsd 0x8(%r15),%xmm14,%xmm7"
+      },
+      {
+        "address": "50aca2",
+        "mod32": 2,
+        "mod64": 34,
+        "instruction": "c5 cb 58 f7          \tvaddsd %xmm7,%xmm6,%xmm6"
+      },
+      {
+        "address": "50aca6",
+        "mod32": 6,
+        "mod64": 38,
+        "instruction": "c4 41 03 59 57 10    \tvmulsd 0x10(%r15),%xmm15,%xmm10"
+      },
+      {
+        "address": "50acac",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "c5 2b 59 d5          \tvmulsd %xmm5,%xmm10,%xmm10"
+      },
+      {
+        "address": "50acb0",
+        "mod32": 16,
+        "mod64": 48,
+        "instruction": "c4 c1 4b 58 f2       \tvaddsd %xmm10,%xmm6,%xmm6"
+      },
+      {
+        "address": "50acb5",
+        "mod32": 21,
+        "mod64": 53,
+        "instruction": "c4 c1 79 2e f3       \tvucomisd %xmm11,%xmm6"
+      },
+      {
+        "address": "50acba",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "77 21                \tja     50acdd <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x19d>"
+      },
+      {
+        "address": "50acbc",
+        "mod32": 28,
+        "mod64": 60,
+        "instruction": "41 8b 5d 00          \tmov    0x0(%r13),%ebx"
+      },
+      {
+        "address": "50acc0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "48 8b 54 24 20       \tmov    0x20(%rsp),%rdx"
+      },
+      {
+        "address": "50acc5",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50acc9",
+        "mod32": 9,
+        "mod64": 9,
+        "instruction": "48 89 10             \tmov    %rdx,(%rax)"
+      },
+      {
+        "address": "50accc",
+        "mod32": 12,
+        "mod64": 12,
+        "instruction": "48 8b 54 24 18       \tmov    0x18(%rsp),%rdx"
+      },
+      {
+        "address": "50acd1",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "48 8b 14 da          \tmov    (%rdx,%rbx,8),%rdx"
+      },
+      {
+        "address": "50acd5",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "48 89 50 08          \tmov    %rdx,0x8(%rax)"
+      },
+      {
+        "address": "50acd9",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "48 83 c0 10          \tadd    $0x10,%rax"
+      },
+      {
+        "address": "50acdd",
+        "mod32": 29,
+        "mod64": 29,
+        "instruction": "49 83 c5 04          \tadd    $0x4,%r13"
+      },
+      {
+        "address": "50ace1",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50ace4",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "0f 85 a5 fe ff ff    \tjne    50ab8f <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x4f>"
+      },
+      {
+        "address": "50acea",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "48 8b 4c 24 78       \tmov    0x78(%rsp),%rcx"
+      },
+      {
+        "address": "50acef",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "48 29 c8             \tsub    %rcx,%rax"
+      },
+      {
+        "address": "50acf2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "48 c1 e8 04          \tshr    $0x4,%rax"
+      },
+      {
+        "address": "50acf6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "48 89 84 24 80 00 00 \tmov    %rax,0x80(%rsp)"
+      },
+      {
+        "address": "50acfd",
+        "mod32": 29,
+        "mod64": 61,
+        "instruction": "00 "
+      },
+      {
+        "address": "50acfe",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50ad01",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  },
+  {
+    "binary": "scratch",
+    "symbol": "l2sqGatherAVX2",
+    "instructions": [
+      {
+        "address": "50b020",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "4c 8b 44 24 08       \tmov    0x8(%rsp),%r8"
+      },
+      {
+        "address": "50b025",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "4c 8b 64 24 10       \tmov    0x10(%rsp),%r12"
+      },
+      {
+        "address": "50b02a",
+        "mod32": 10,
+        "mod64": 42,
+        "instruction": "4c 8b 6c 24 18       \tmov    0x18(%rsp),%r13"
+      },
+      {
+        "address": "50b02f",
+        "mod32": 15,
+        "mod64": 47,
+        "instruction": "4c 8b 4c 24 20       \tmov    0x20(%rsp),%r9"
+      },
+      {
+        "address": "50b034",
+        "mod32": 20,
+        "mod64": 52,
+        "instruction": "4c 8b 54 24 28       \tmov    0x28(%rsp),%r10"
+      },
+      {
+        "address": "50b039",
+        "mod32": 25,
+        "mod64": 57,
+        "instruction": "4c 8b 5c 24 30       \tmov    0x30(%rsp),%r11"
+      },
+      {
+        "address": "50b03e",
+        "mod32": 30,
+        "mod64": 62,
+        "instruction": "4d 85 d2             \ttest   %r10,%r10"
+      },
+      {
+        "address": "50b041",
+        "mod32": 1,
+        "mod64": 1,
+        "instruction": "0f 84 97 00 00 00    \tje     50b0de <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0xbe>"
+      },
+      {
+        "address": "50b047",
+        "mod32": 7,
+        "mod64": 7,
+        "instruction": "4c 89 c6             \tmov    %r8,%rsi"
+      },
+      {
+        "address": "50b04a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "4c 89 e7             \tmov    %r12,%rdi"
+      },
+      {
+        "address": "50b04d",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 03 7d 00          \tadd    0x0(%r13),%rdi"
+      },
+      {
+        "address": "50b051",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "4c 89 c9             \tmov    %r9,%rcx"
+      },
+      {
+        "address": "50b054",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c5 fd 57 c0          \tvxorpd %ymm0,%ymm0,%ymm0"
+      },
+      {
+        "address": "50b058",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "c5 f5 57 c9          \tvxorpd %ymm1,%ymm1,%ymm1"
+      },
+      {
+        "address": "50b05c",
+        "mod32": 28,
+        "mod64": 28,
+        "instruction": "c5 ed 57 d2          \tvxorpd %ymm2,%ymm2,%ymm2"
+      },
+      {
+        "address": "50b060",
+        "mod32": 0,
+        "mod64": 32,
+        "instruction": "c5 e5 57 db          \tvxorpd %ymm3,%ymm3,%ymm3"
+      },
+      {
+        "address": "50b064",
+        "mod32": 4,
+        "mod64": 36,
+        "instruction": "c5 fc 5a 27          \tvcvtps2pd (%rdi),%ymm4"
+      },
+      {
+        "address": "50b068",
+        "mod32": 8,
+        "mod64": 40,
+        "instruction": "c5 fc 5a 6f 10       \tvcvtps2pd 0x10(%rdi),%ymm5"
+      },
+      {
+        "address": "50b06d",
+        "mod32": 13,
+        "mod64": 45,
+        "instruction": "c5 fc 5a 77 20       \tvcvtps2pd 0x20(%rdi),%ymm6"
+      },
+      {
+        "address": "50b072",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 fc 5a 7f 30       \tvcvtps2pd 0x30(%rdi),%ymm7"
+      },
+      {
+        "address": "50b077",
+        "mod32": 23,
+        "mod64": 55,
+        "instruction": "c5 dd 5c 26          \tvsubpd (%rsi),%ymm4,%ymm4"
+      },
+      {
+        "address": "50b07b",
+        "mod32": 27,
+        "mod64": 59,
+        "instruction": "c5 d5 5c 6e 20       \tvsubpd 0x20(%rsi),%ymm5,%ymm5"
+      },
+      {
+        "address": "50b080",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 cd 5c 76 40       \tvsubpd 0x40(%rsi),%ymm6,%ymm6"
+      },
+      {
+        "address": "50b085",
+        "mod32": 5,
+        "mod64": 5,
+        "instruction": "c5 c5 5c 7e 60       \tvsubpd 0x60(%rsi),%ymm7,%ymm7"
+      },
+      {
+        "address": "50b08a",
+        "mod32": 10,
+        "mod64": 10,
+        "instruction": "c4 e2 dd b8 c4       \tvfmadd231pd %ymm4,%ymm4,%ymm0"
+      },
+      {
+        "address": "50b08f",
+        "mod32": 15,
+        "mod64": 15,
+        "instruction": "c4 e2 d5 b8 cd       \tvfmadd231pd %ymm5,%ymm5,%ymm1"
+      },
+      {
+        "address": "50b094",
+        "mod32": 20,
+        "mod64": 20,
+        "instruction": "c4 e2 cd b8 d6       \tvfmadd231pd %ymm6,%ymm6,%ymm2"
+      },
+      {
+        "address": "50b099",
+        "mod32": 25,
+        "mod64": 25,
+        "instruction": "c4 e2 c5 b8 df       \tvfmadd231pd %ymm7,%ymm7,%ymm3"
+      },
+      {
+        "address": "50b09e",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "48 81 c6 80 00 00 00 \tadd    $0x80,%rsi"
+      },
+      {
+        "address": "50b0a5",
+        "mod32": 5,
+        "mod64": 37,
+        "instruction": "48 83 c7 40          \tadd    $0x40,%rdi"
+      },
+      {
+        "address": "50b0a9",
+        "mod32": 9,
+        "mod64": 41,
+        "instruction": "48 ff c9             \tdec    %rcx"
+      },
+      {
+        "address": "50b0ac",
+        "mod32": 12,
+        "mod64": 44,
+        "instruction": "75 b6                \tjne    50b064 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x44>"
+      },
+      {
+        "address": "50b0ae",
+        "mod32": 14,
+        "mod64": 46,
+        "instruction": "c5 fd 58 c1          \tvaddpd %ymm1,%ymm0,%ymm0"
+      },
+      {
+        "address": "50b0b2",
+        "mod32": 18,
+        "mod64": 50,
+        "instruction": "c5 ed 58 d3          \tvaddpd %ymm3,%ymm2,%ymm2"
+      },
+      {
+        "address": "50b0b6",
+        "mod32": 22,
+        "mod64": 54,
+        "instruction": "c5 fd 58 c2          \tvaddpd %ymm2,%ymm0,%ymm0"
+      },
+      {
+        "address": "50b0ba",
+        "mod32": 26,
+        "mod64": 58,
+        "instruction": "c4 e3 7d 19 c1 01    \tvextractf128 $0x1,%ymm0,%xmm1"
+      },
+      {
+        "address": "50b0c0",
+        "mod32": 0,
+        "mod64": 0,
+        "instruction": "c5 f9 58 c1          \tvaddpd %xmm1,%xmm0,%xmm0"
+      },
+      {
+        "address": "50b0c4",
+        "mod32": 4,
+        "mod64": 4,
+        "instruction": "c5 f9 7c c0          \tvhaddpd %xmm0,%xmm0,%xmm0"
+      },
+      {
+        "address": "50b0c8",
+        "mod32": 8,
+        "mod64": 8,
+        "instruction": "c4 c1 7b 11 03       \tvmovsd %xmm0,(%r11)"
+      },
+      {
+        "address": "50b0cd",
+        "mod32": 13,
+        "mod64": 13,
+        "instruction": "49 83 c3 08          \tadd    $0x8,%r11"
+      },
+      {
+        "address": "50b0d1",
+        "mod32": 17,
+        "mod64": 17,
+        "instruction": "49 83 c5 08          \tadd    $0x8,%r13"
+      },
+      {
+        "address": "50b0d5",
+        "mod32": 21,
+        "mod64": 21,
+        "instruction": "49 ff ca             \tdec    %r10"
+      },
+      {
+        "address": "50b0d8",
+        "mod32": 24,
+        "mod64": 24,
+        "instruction": "0f 85 69 ff ff ff    \tjne    50b047 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x27>"
+      },
+      {
+        "address": "50b0de",
+        "mod32": 30,
+        "mod64": 30,
+        "instruction": "c5 f8 77             \tvzeroupper"
+      },
+      {
+        "address": "50b0e1",
+        "mod32": 1,
+        "mod64": 33,
+        "instruction": "c3                   \tret"
+      }
+    ]
+  }
+]

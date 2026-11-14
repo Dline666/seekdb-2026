@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "build", "-trimpath", "-o", "/tmp/seekdb-round5/bin/sqlcompare", "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/sqlcompare/main.go"], "cwd": "None", "start": 1794618869.6615152}
+{"exit_code": 0, "wall_s": 0.5370988845825195}

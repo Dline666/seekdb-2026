@@ -1,0 +1,7 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/engine", "-run", "^TestRound5InsertAlloc$", "-count=1", "-v"], "cwd": "/tmp/seekdb-round5/scratch-alloc/minivectordb", "start": 1794618237.8900485}
+=== RUN   TestRound5InsertAlloc
+    round5_alloc_test.go:34: rows=100 dim=128 allocations_per_statement=1162 bytes_per_statement=184676
+--- PASS: TestRound5InsertAlloc (0.10s)
+PASS
+ok  	minivectordb/internal/engine	0.099s
+{"exit_code": 0, "wall_s": 1.4695029258728027}

@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "-c", "-o", "/tmp/seekdb-round5/bin/preload-tests", "./internal/engine"], "cwd": "/tmp/seekdb-round5/preload/minivectordb", "start": 1794617775.2207825}
+{"exit_code": 0, "wall_s": 1.5759608745574951}

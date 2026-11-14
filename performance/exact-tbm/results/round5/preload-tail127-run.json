@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/tmp/seekdb-round5/bin/tbm",
+    "-bins",
+    "base,preload",
+    "-bin-dir",
+    "/tmp/seekdb-round5/bin",
+    "-rows",
+    "10000",
+    "-dim",
+    "127",
+    "-queries",
+    "1000",
+    "-rounds",
+    "5",
+    "-data",
+    "uniform"
+  ],
+  "exit_code": 0,
+  "start": 1794617920.398449,
+  "wall_s": 7.966385841369629
+}

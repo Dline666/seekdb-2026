@@ -1,0 +1,22 @@
+diff --git a/minivectordb/internal/engine/fused_avxvnni_amd64.s b/minivectordb/internal/engine/fused_avxvnni_amd64.s
+index 5bd74c3..3d29c93 100644
+--- a/minivectordb/internal/engine/fused_avxvnni_amd64.s
++++ b/minivectordb/internal/engine/fused_avxvnni_amd64.s
+@@ -96,6 +96,9 @@ reduce:
+ 	TESTQ R11, R11
+ 	JZ epilogue
+ 	MOVQ R11, R12
++	// Keep this 24-byte scalar loop within one instruction-fetch block,
++	// independently of code layout changes in unrelated Go functions.
++	PCALIGN $32
+ tailLoop:
+ 	MOVBLSX 0(SI), BX
+ 	MOVBLZX 0(DI), DX
+@@ -217,6 +220,7 @@ reduce:
+ 	TESTQ R11, R11
+ 	JZ epilogue
+ 	MOVQ R11, R12
++	PCALIGN $32
+ tailLoop:
+ 	MOVBLSX 0(SI), BX
+ 	MOVBLZX 0(DI), DX

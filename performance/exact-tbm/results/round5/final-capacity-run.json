@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/tmp/seekdb-round5/bin/sqlcompare",
+    "-bins",
+    "/tmp/seekdb-round5/bin/final",
+    "-fixture",
+    "/tmp/seekdb-round3-stress-final/db/data.log",
+    "-work-dir",
+    "/tmp/seekdb-round5/final-large-private",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-rounds",
+    "1",
+    "-census-rounds",
+    "1"
+  ],
+  "exit_code": 0,
+  "wall_s": 35.97670269012451
+}

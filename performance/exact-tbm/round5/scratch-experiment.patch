@@ -1,0 +1,122 @@
+diff --git a/minivectordb/internal/engine/dml.go b/minivectordb/internal/engine/dml.go
+index 2508900..562d83d 100644
+--- a/minivectordb/internal/engine/dml.go
++++ b/minivectordb/internal/engine/dml.go
+@@ -13,6 +13,10 @@ import (
+ 
+ // coerce converts a value to the storage type of column c.
+ func coerce(c types.Column, v types.Value) (types.Value, *types.SQLError) {
++	return coerceVectorInto(c, v, nil)
++}
++
++func coerceVectorInto(c types.Column, v types.Value, scratch []float32) (types.Value, *types.SQLError) {
+ 	switch c.Type {
+ 	case types.TBigint:
+ 		switch v.K {
+@@ -57,7 +61,7 @@ func coerce(c types.Column, v types.Value) (types.Value, *types.SQLError) {
+ 			vec = v.V
+ 		case types.KStr:
+ 			var err *types.SQLError
+-			if vec, err = types.ParseVector(v.S); err != nil {
++			if vec, err = types.ParseVectorInto(v.S, scratch); err != nil {
+ 				return v, err
+ 			}
+ 		default:
+@@ -117,6 +121,10 @@ func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
+ 	chs := make([]change, 0, len(s.Rows))
+ 	fresh := make(map[int64]struct{}, len(s.Rows))
+ 	row := make([]types.Value, len(t.Cols))
++	// A table has at most one vector column, and encode copies it before the
++	// next row. This buffer belongs only to this statement; expressions that
++	// already return a vector keep ownership of their own backing arrays.
++	var vectorScratch []float32
+ 	var enc []byte
+ 	// Reserve the fixed-width payload plus a small VARCHAR allowance. Rows
+ 	// in chs retain earlier backing arrays when enc grows, so avoiding that
+@@ -148,11 +156,15 @@ func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
+ 				}
+ 				value = c.fn(nil)
+ 			}
+-			v, err := coerce(t.Cols[target[j]], value)
++			col := target[j]
++			v, err := coerceVectorInto(t.Cols[col], value, vectorScratch)
+ 			if err != nil {
+ 				return nil, err
+ 			}
+-			row[target[j]] = v
++			if value.K == types.KStr && v.K == types.KVec {
++				vectorScratch = v.V
++			}
++			row[col] = v
+ 		}
+ 		pk := row[t.PK].I
+ 		if _, dup := fresh[pk]; dup {
+diff --git a/minivectordb/internal/types/value.go b/minivectordb/internal/types/value.go
+index 6479f73..a9ab4ac 100644
+--- a/minivectordb/internal/types/value.go
++++ b/minivectordb/internal/types/value.go
+@@ -63,15 +63,29 @@ func trimSpace(s string) string {
+ // ParseVector parses '[a, b, ...]' into float32 values, rejecting NaN, Inf,
+ // overflow and malformed numbers.
+ func ParseVector(s string) ([]float32, *SQLError) {
++	return ParseVectorInto(s, nil)
++}
++
++// ParseVectorInto has the same conversion and validation as ParseVector,
++// reusing dst from its beginning. The result may alias dst; even a failed
++// parse may overwrite its backing array. Callers must finish consuming the
++// previous result before reusing that buffer.
++func ParseVectorInto(s string, dst []float32) ([]float32, *SQLError) {
+ 	t := trimSpace(s)
+ 	if len(t) < 2 || t[0] != '[' || t[len(t)-1] != ']' {
+ 		return nil, ErrVectorFormat(s)
+ 	}
+ 	body := trimSpace(t[1 : len(t)-1])
+ 	if body == "" {
++		if dst != nil {
++			return dst[:0], nil
++		}
+ 		return []float32{}, nil
+ 	}
+-	out := make([]float32, 0, strings.Count(body, ",")+1)
++	if dst == nil {
++		dst = make([]float32, 0, strings.Count(body, ",")+1)
++	}
++	out := dst[:0]
+ 	for len(body) > 0 {
+ 		i := strings.IndexByte(body, ',')
+ 		var part string
+diff --git a/minivectordb/internal/types/value_test.go b/minivectordb/internal/types/value_test.go
+index 77637fe..677150a 100644
+--- a/minivectordb/internal/types/value_test.go
++++ b/minivectordb/internal/types/value_test.go
+@@ -84,6 +84,29 @@ func checkAgainstReference(t *testing.T, in string) {
+ 	got, gotErr := ParseVector(in)
+ 	want, wantErr := parseVectorReference(in)
+ 	sameResult(t, in, got, gotErr, want, wantErr)
++	// Dirty, undersized and oversized buffers must preserve every reference
++	// bit and error, including when append grows the backing array.
++	for _, capacity := range []int{0, 1, 1024} {
++		dst := make([]float32, capacity)
++		for i := range dst {
++			dst[i] = float32(math.NaN())
++		}
++		got, gotErr = ParseVectorInto(in, dst)
++		sameResult(t, in, got, gotErr, want, wantErr)
++	}
++}
++
++func TestParseVectorIntoRepeatedReuse(t *testing.T) {
++	var dst []float32
++	for _, in := range []string{"[1,2,3]", "[]", "[-0,3.4028235e38]",
++		"[1,2,oops]", "[7]", "[1e-50,-1e-50,9,10,11]", " [  ] ", "[12]"} {
++		got, err := ParseVectorInto(in, dst)
++		want, wantErr := parseVectorReference(in)
++		sameResult(t, in, got, err, want, wantErr)
++		if err == nil {
++			dst = got
++		}
++	}
+ }
+ 
+ // TestParseVectorMatchesReference compares ParseVector with the original

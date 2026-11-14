@@ -1,0 +1,169 @@
+
+/tmp/seekdb-round5/bin/preload-symbols:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000050ab40 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0>:
+  50ab40:	4c 8b 44 24 08       	mov    0x8(%rsp),%r8
+  50ab45:	4c 8b 4c 24 68       	mov    0x68(%rsp),%r9
+  50ab4a:	4d 89 ce             	mov    %r9,%r14
+  50ab4d:	49 c1 e6 05          	shl    $0x5,%r14
+  50ab51:	4c 8b 5c 24 70       	mov    0x70(%rsp),%r11
+  50ab56:	4d 01 de             	add    %r11,%r14
+  50ab59:	4c 8b 6c 24 58       	mov    0x58(%rsp),%r13
+  50ab5e:	c5 7b 10 64 24 30    	vmovsd 0x30(%rsp),%xmm12
+  50ab64:	c5 7b 10 6c 24 38    	vmovsd 0x38(%rsp),%xmm13
+  50ab6a:	c5 7b 10 74 24 40    	vmovsd 0x40(%rsp),%xmm14
+  50ab70:	c5 7b 10 7c 24 48    	vmovsd 0x48(%rsp),%xmm15
+  50ab76:	c5 7b 10 5c 24 50    	vmovsd 0x50(%rsp),%xmm11
+  50ab7c:	4c 8b 54 24 60       	mov    0x60(%rsp),%r10
+  50ab81:	48 8b 44 24 78       	mov    0x78(%rsp),%rax
+  50ab86:	4d 85 d2             	test   %r10,%r10
+  50ab89:	0f 84 6a 01 00 00    	je     50acf9 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1b9>
+  50ab8f:	49 83 f9 04          	cmp    $0x4,%r9
+  50ab93:	75 09                	jne    50ab9e <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x5e>
+  50ab95:	4d 85 db             	test   %r11,%r11
+  50ab98:	0f 84 73 01 00 00    	je     50ad11 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1d1>
+  50ab9e:	41 8b 5d 00          	mov    0x0(%r13),%ebx
+  50aba2:	48 89 df             	mov    %rbx,%rdi
+  50aba5:	49 0f af fe          	imul   %r14,%rdi
+  50aba9:	48 03 7c 24 10       	add    0x10(%rsp),%rdi
+  50abae:	49 89 df             	mov    %rbx,%r15
+  50abb1:	49 c1 e7 05          	shl    $0x5,%r15
+  50abb5:	4c 03 7c 24 28       	add    0x28(%rsp),%r15
+  50abba:	4c 89 c6             	mov    %r8,%rsi
+  50abbd:	4c 89 c9             	mov    %r9,%rcx
+  50abc0:	c4 41 3d ef c0       	vpxor  %ymm8,%ymm8,%ymm8
+  50abc5:	c4 41 35 ef c9       	vpxor  %ymm9,%ymm9,%ymm9
+  50abca:	48 83 f9 04          	cmp    $0x4,%rcx
+  50abce:	7c 42                	jl     50ac12 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xd2>
+  50abd0:	c5 fe 6f 27          	vmovdqu (%rdi),%ymm4
+  50abd4:	c4 62 5d 50 06       	{vex} vpdpbusd (%rsi),%ymm4,%ymm8
+  50abd9:	c5 fe 6f 77 20       	vmovdqu 0x20(%rdi),%ymm6
+  50abde:	c4 62 4d 50 4e 20    	{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9
+  50abe4:	c5 fe 6f 67 40       	vmovdqu 0x40(%rdi),%ymm4
+  50abe9:	c4 62 5d 50 46 40    	{vex} vpdpbusd 0x40(%rsi),%ymm4,%ymm8
+  50abef:	c5 fe 6f 77 60       	vmovdqu 0x60(%rdi),%ymm6
+  50abf4:	c4 62 4d 50 4e 60    	{vex} vpdpbusd 0x60(%rsi),%ymm6,%ymm9
+  50abfa:	48 81 c6 80 00 00 00 	add    $0x80,%rsi
+  50ac01:	48 81 c7 80 00 00 00 	add    $0x80,%rdi
+  50ac08:	48 83 e9 04          	sub    $0x4,%rcx
+  50ac0c:	48 83 f9 04          	cmp    $0x4,%rcx
+  50ac10:	7d be                	jge    50abd0 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x90>
+  50ac12:	48 83 f9 02          	cmp    $0x2,%rcx
+  50ac16:	7c 22                	jl     50ac3a <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xfa>
+  50ac18:	c5 fe 6f 27          	vmovdqu (%rdi),%ymm4
+  50ac1c:	c4 62 5d 50 06       	{vex} vpdpbusd (%rsi),%ymm4,%ymm8
+  50ac21:	c5 fe 6f 77 20       	vmovdqu 0x20(%rdi),%ymm6
+  50ac26:	c4 62 4d 50 4e 20    	{vex} vpdpbusd 0x20(%rsi),%ymm6,%ymm9
+  50ac2c:	48 83 c6 40          	add    $0x40,%rsi
+  50ac30:	48 83 c7 40          	add    $0x40,%rdi
+  50ac34:	48 83 e9 02          	sub    $0x2,%rcx
+  50ac38:	eb d8                	jmp    50ac12 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xd2>
+  50ac3a:	48 85 c9             	test   %rcx,%rcx
+  50ac3d:	74 11                	je     50ac50 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x110>
+  50ac3f:	c5 fe 6f 27          	vmovdqu (%rdi),%ymm4
+  50ac43:	c4 62 5d 50 06       	{vex} vpdpbusd (%rsi),%ymm4,%ymm8
+  50ac48:	48 83 c6 20          	add    $0x20,%rsi
+  50ac4c:	48 83 c7 20          	add    $0x20,%rdi
+  50ac50:	c4 41 3d fe c1       	vpaddd %ymm9,%ymm8,%ymm8
+  50ac55:	c4 63 7d 19 c1 01    	vextractf128 $0x1,%ymm8,%xmm1
+  50ac5b:	c5 39 fe c1          	vpaddd %xmm1,%xmm8,%xmm8
+  50ac5f:	c4 c1 79 70 c8 4e    	vpshufd $0x4e,%xmm8,%xmm1
+  50ac65:	c5 39 fe c1          	vpaddd %xmm1,%xmm8,%xmm8
+  50ac69:	c4 c1 79 70 c8 b1    	vpshufd $0xb1,%xmm8,%xmm1
+  50ac6f:	c5 39 fe c1          	vpaddd %xmm1,%xmm8,%xmm8
+  50ac73:	c5 79 7e c1          	vmovd  %xmm8,%ecx
+  50ac77:	4d 85 db             	test   %r11,%r11
+  50ac7a:	74 1b                	je     50ac97 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x157>
+  50ac7c:	4d 89 dc             	mov    %r11,%r12
+  50ac7f:	0f be 1e             	movsbl (%rsi),%ebx
+  50ac82:	0f b6 17             	movzbl (%rdi),%edx
+  50ac85:	0f af da             	imul   %edx,%ebx
+  50ac88:	01 d9                	add    %ebx,%ecx
+  50ac8a:	48 83 c6 01          	add    $0x1,%rsi
+  50ac8e:	48 83 c7 01          	add    $0x1,%rdi
+  50ac92:	49 ff cc             	dec    %r12
+  50ac95:	75 e8                	jne    50ac7f <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x13f>
+  50ac97:	c5 d3 2a e9          	vcvtsi2sd %ecx,%xmm5,%xmm5
+  50ac9b:	c4 c1 1b 59 37       	vmulsd (%r15),%xmm12,%xmm6
+  50aca0:	c4 c1 4b 58 f5       	vaddsd %xmm13,%xmm6,%xmm6
+  50aca5:	c4 c1 4b 58 77 18    	vaddsd 0x18(%r15),%xmm6,%xmm6
+  50acab:	c4 c1 0b 59 7f 08    	vmulsd 0x8(%r15),%xmm14,%xmm7
+  50acb1:	c5 cb 58 f7          	vaddsd %xmm7,%xmm6,%xmm6
+  50acb5:	c4 41 03 59 57 10    	vmulsd 0x10(%r15),%xmm15,%xmm10
+  50acbb:	c5 2b 59 d5          	vmulsd %xmm5,%xmm10,%xmm10
+  50acbf:	c4 c1 4b 58 f2       	vaddsd %xmm10,%xmm6,%xmm6
+  50acc4:	c4 c1 79 2e f3       	vucomisd %xmm11,%xmm6
+  50acc9:	77 21                	ja     50acec <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1ac>
+  50accb:	41 8b 5d 00          	mov    0x0(%r13),%ebx
+  50accf:	48 8b 54 24 20       	mov    0x20(%rsp),%rdx
+  50acd4:	48 8b 14 da          	mov    (%rdx,%rbx,8),%rdx
+  50acd8:	48 89 10             	mov    %rdx,(%rax)
+  50acdb:	48 8b 54 24 18       	mov    0x18(%rsp),%rdx
+  50ace0:	48 8b 14 da          	mov    (%rdx,%rbx,8),%rdx
+  50ace4:	48 89 50 08          	mov    %rdx,0x8(%rax)
+  50ace8:	48 83 c0 10          	add    $0x10,%rax
+  50acec:	49 83 c5 04          	add    $0x4,%r13
+  50acf0:	49 ff ca             	dec    %r10
+  50acf3:	0f 85 a5 fe ff ff    	jne    50ab9e <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x5e>
+  50acf9:	48 8b 4c 24 78       	mov    0x78(%rsp),%rcx
+  50acfe:	48 29 c8             	sub    %rcx,%rax
+  50ad01:	48 c1 e8 04          	shr    $0x4,%rax
+  50ad05:	48 89 84 24 80 00 00 	mov    %rax,0x80(%rsp)
+  50ad0c:	00 
+  50ad0d:	c5 f8 77             	vzeroupper
+  50ad10:	c3                   	ret
+  50ad11:	c4 c1 7e 6f 00       	vmovdqu (%r8),%ymm0
+  50ad16:	c4 c1 7e 6f 50 20    	vmovdqu 0x20(%r8),%ymm2
+  50ad1c:	c4 c1 7e 6f 58 40    	vmovdqu 0x40(%r8),%ymm3
+  50ad22:	c4 c1 7e 6f 60 60    	vmovdqu 0x60(%r8),%ymm4
+  50ad28:	41 8b 5d 00          	mov    0x0(%r13),%ebx
+  50ad2c:	48 89 df             	mov    %rbx,%rdi
+  50ad2f:	48 c1 e7 07          	shl    $0x7,%rdi
+  50ad33:	48 03 7c 24 10       	add    0x10(%rsp),%rdi
+  50ad38:	49 89 df             	mov    %rbx,%r15
+  50ad3b:	49 c1 e7 05          	shl    $0x5,%r15
+  50ad3f:	4c 03 7c 24 28       	add    0x28(%rsp),%r15
+  50ad44:	c4 41 3d ef c0       	vpxor  %ymm8,%ymm8,%ymm8
+  50ad49:	c4 41 35 ef c9       	vpxor  %ymm9,%ymm9,%ymm9
+  50ad4e:	c5 fe 6f 2f          	vmovdqu (%rdi),%ymm5
+  50ad52:	c4 62 55 50 c0       	{vex} vpdpbusd %ymm0,%ymm5,%ymm8
+  50ad57:	c5 fe 6f 77 20       	vmovdqu 0x20(%rdi),%ymm6
+  50ad5c:	c4 62 4d 50 ca       	{vex} vpdpbusd %ymm2,%ymm6,%ymm9
+  50ad61:	c5 fe 6f 6f 40       	vmovdqu 0x40(%rdi),%ymm5
+  50ad66:	c4 62 55 50 c3       	{vex} vpdpbusd %ymm3,%ymm5,%ymm8
+  50ad6b:	c5 fe 6f 77 60       	vmovdqu 0x60(%rdi),%ymm6
+  50ad70:	c4 62 4d 50 cc       	{vex} vpdpbusd %ymm4,%ymm6,%ymm9
+  50ad75:	c4 41 3d fe c1       	vpaddd %ymm9,%ymm8,%ymm8
+  50ad7a:	c4 63 7d 19 c1 01    	vextractf128 $0x1,%ymm8,%xmm1
+  50ad80:	c5 39 fe c1          	vpaddd %xmm1,%xmm8,%xmm8
+  50ad84:	c4 c1 79 70 c8 4e    	vpshufd $0x4e,%xmm8,%xmm1
+  50ad8a:	c5 39 fe c1          	vpaddd %xmm1,%xmm8,%xmm8
+  50ad8e:	c4 c1 79 70 c8 b1    	vpshufd $0xb1,%xmm8,%xmm1
+  50ad94:	c5 39 fe c1          	vpaddd %xmm1,%xmm8,%xmm8
+  50ad98:	c5 79 7e c1          	vmovd  %xmm8,%ecx
+  50ad9c:	c5 d3 2a e9          	vcvtsi2sd %ecx,%xmm5,%xmm5
+  50ada0:	c4 c1 1b 59 37       	vmulsd (%r15),%xmm12,%xmm6
+  50ada5:	c4 c1 4b 58 f5       	vaddsd %xmm13,%xmm6,%xmm6
+  50adaa:	c4 c1 4b 58 77 18    	vaddsd 0x18(%r15),%xmm6,%xmm6
+  50adb0:	c4 c1 0b 59 7f 08    	vmulsd 0x8(%r15),%xmm14,%xmm7
+  50adb6:	c5 cb 58 f7          	vaddsd %xmm7,%xmm6,%xmm6
+  50adba:	c4 41 03 59 57 10    	vmulsd 0x10(%r15),%xmm15,%xmm10
+  50adc0:	c5 2b 59 d5          	vmulsd %xmm5,%xmm10,%xmm10
+  50adc4:	c4 c1 4b 58 f2       	vaddsd %xmm10,%xmm6,%xmm6
+  50adc9:	c4 c1 79 2e f3       	vucomisd %xmm11,%xmm6
+  50adce:	77 21                	ja     50adf1 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x2b1>
+  50add0:	41 8b 5d 00          	mov    0x0(%r13),%ebx
+  50add4:	48 8b 54 24 20       	mov    0x20(%rsp),%rdx
+  50add9:	48 8b 14 da          	mov    (%rdx,%rbx,8),%rdx
+  50addd:	48 89 10             	mov    %rdx,(%rax)
+  50ade0:	48 8b 54 24 18       	mov    0x18(%rsp),%rdx
+  50ade5:	48 8b 14 da          	mov    (%rdx,%rbx,8),%rdx
+  50ade9:	48 89 50 08          	mov    %rdx,0x8(%rax)
+  50aded:	48 83 c0 10          	add    $0x10,%rax
+  50adf1:	49 83 c5 04          	add    $0x4,%r13
+  50adf5:	49 ff ca             	dec    %r10
+  50adf8:	0f 85 2a ff ff ff    	jne    50ad28 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1e8>
+  50adfe:	e9 f6 fe ff ff       	jmp    50acf9 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x1b9>

@@ -1,0 +1,26 @@
+{
+  "baseline_commit": "fb6cd8b81f07a537d99f6dd34fc34c29b1ff9835",
+  "branch": "perf/exact-round5",
+  "build_environment": {
+    "GOROOT": "/tmp/seekdb-round3-go",
+    "CGO_ENABLED": "0",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "GOMAXPROCS": "2",
+    "GOGC": "20",
+    "MVDB_SYNC": "fdatasync"
+  },
+  "compiler": "go version go1.22.2 linux/amd64",
+  "kernel": "6.18.58.1-microsoft-standard-WSL2",
+  "cpu_info": "processor\t: 0\nvendor_id\t: GenuineIntel\ncpu family\t: 6\nmodel\t\t: 170\nmodel name\t: Intel(R) Core(TM) Ultra 5 125H\nstepping\t: 4\nmicrocode\t: 0xffffffff\ncpu MHz\t\t: 2995.200\ncache size\t: 18432 KB\nphysical id\t: 0\nsiblings\t: 8\ncore id\t\t: 0\ncpu cores\t: 4\napicid\t\t: 0\ninitial apicid\t: 0\nfpu\t\t: yes\nfpu_exception\t: yes\ncpuid level\t: 28\nwp\t\t: yes\nflags\t\t: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves avx_vnni vnmi umip waitpkg gfni vaes vpclmulqdq rdpid movdiri movdir64b fsrm md_clear serialize ibt flush_l1d arch_capabilities\nvmx flags\t: vnmi invvpid ept_x_only ept_ad ept_1gb tsc_offset vtpr ept vpid unrestricted_guest ept_mode_based_exec tsc_scaling usr_wait_pause\nbugs\t\t: spectre_v1 spectre_v2 spec_store_bypass swapgs retbleed eibrs_pbrsb bhi spectre_v2_user\nbogomips\t: 5990.40\nclflush size\t: 64\ncache_alignment\t: 64\naddress sizes\t: 46 bits physical, 48 bits virtual\npower management:",
+  "cgroup": {
+    "cpu.max": "200000 100000",
+    "memory.max": 2147483648,
+    "memory.swap.max": 0,
+    "pids.max": 128
+  },
+  "official_submissions": 0,
+  "pushed": false,
+  "policy": "one performance workload at a time; independent truth outside cgroup"
+}

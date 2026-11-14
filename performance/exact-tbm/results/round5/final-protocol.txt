@@ -1,0 +1,23 @@
+{"argv": ["python3", "/mnt/c/Users/27372/seekdb-review-avx-fix/protocol_check/run.py", "--command", "[\"/tmp/seekdb-round5/bin/final\", \"--data-dir\", \"{data_dir}\", \"--sync\", \"fdatasync\"]", "--output", "/tmp/seekdb-round5/final-protocol"], "cwd": "None", "start": 1794618869.211387}
+sql_crud: PASS 
+sql_comparisons: PASS 
+sql_ordering: PASS 
+sql_empty: PASS 
+sql_primary_key: PASS 
+sql_unicode: PASS 
+sql_bigint: PASS 
+sql_unsupported: PASS 
+storage_restart: PASS 
+vector_euclidean: PASS 
+transaction_commit: PASS 
+transaction_rollback: PASS 
+storage_mutations: PASS 
+storage_multiple_tables: PASS 
+vector_ties_and_filter: PASS 
+vector_float32: PASS 
+vector_index_maintenance: PASS 
+transaction_failed_insert: PASS 
+transaction_autocommit_atomic: PASS 
+transaction_shutdown_rollback: PASS 
+Report: /tmp/seekdb-round5/final-protocol/result.json
+{"exit_code": 0, "wall_s": 0.4499366283416748}

@@ -1,0 +1,454 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./...", "-count=1", "-v"], "cwd": "/tmp/seekdb-round5/final/minivectordb", "start": 1794618433.743651}
+?   	minivectordb/cmd/minivectordb	[no test files]
+=== RUN   TestAVXVNNIGate
+=== RUN   TestAVXVNNIGate/ymm-only
+=== RUN   TestAVXVNNIGate/zmm-optional
+=== RUN   TestAVXVNNIGate/no-leaf7
+=== RUN   TestAVXVNNIGate/no-fma
+=== RUN   TestAVXVNNIGate/no-osxsave
+=== RUN   TestAVXVNNIGate/no-avx
+=== RUN   TestAVXVNNIGate/no-xmm
+=== RUN   TestAVXVNNIGate/no-ymm
+=== RUN   TestAVXVNNIGate/no-avx2
+=== RUN   TestAVXVNNIGate/no-subleaf1
+=== RUN   TestAVXVNNIGate/no-avx-vnni
+--- PASS: TestAVXVNNIGate (0.00s)
+    --- PASS: TestAVXVNNIGate/ymm-only (0.00s)
+    --- PASS: TestAVXVNNIGate/zmm-optional (0.00s)
+    --- PASS: TestAVXVNNIGate/no-leaf7 (0.00s)
+    --- PASS: TestAVXVNNIGate/no-fma (0.00s)
+    --- PASS: TestAVXVNNIGate/no-osxsave (0.00s)
+    --- PASS: TestAVXVNNIGate/no-avx (0.00s)
+    --- PASS: TestAVXVNNIGate/no-xmm (0.00s)
+    --- PASS: TestAVXVNNIGate/no-ymm (0.00s)
+    --- PASS: TestAVXVNNIGate/no-avx2 (0.00s)
+    --- PASS: TestAVXVNNIGate/no-subleaf1 (0.00s)
+    --- PASS: TestAVXVNNIGate/no-avx-vnni (0.00s)
+=== RUN   TestAVXVNNIEnvOverrides
+=== RUN   TestAVXVNNIEnvOverrides/MVDB_NO_SIMD
+=== RUN   TestAVXVNNIEnvOverrides/MVDB_NO_VNNI
+=== RUN   TestAVXVNNIEnvOverrides/MVDB_NO_AVXVNNI
+--- PASS: TestAVXVNNIEnvOverrides (0.00s)
+    --- PASS: TestAVXVNNIEnvOverrides/MVDB_NO_SIMD (0.00s)
+    --- PASS: TestAVXVNNIEnvOverrides/MVDB_NO_VNNI (0.00s)
+    --- PASS: TestAVXVNNIEnvOverrides/MVDB_NO_AVXVNNI (0.00s)
+=== RUN   TestAVXVNNIIntegerDot
+=== RUN   TestAVXVNNIIntegerDot/1/negative
+=== RUN   TestAVXVNNIIntegerDot/1/positive
+=== RUN   TestAVXVNNIIntegerDot/1/mixed
+=== RUN   TestAVXVNNIIntegerDot/1/random
+=== RUN   TestAVXVNNIIntegerDot/16/negative
+=== RUN   TestAVXVNNIIntegerDot/16/positive
+=== RUN   TestAVXVNNIIntegerDot/16/mixed
+=== RUN   TestAVXVNNIIntegerDot/16/random
+=== RUN   TestAVXVNNIIntegerDot/17/negative
+=== RUN   TestAVXVNNIIntegerDot/17/positive
+=== RUN   TestAVXVNNIIntegerDot/17/mixed
+=== RUN   TestAVXVNNIIntegerDot/17/random
+=== RUN   TestAVXVNNIIntegerDot/31/negative
+=== RUN   TestAVXVNNIIntegerDot/31/positive
+=== RUN   TestAVXVNNIIntegerDot/31/mixed
+=== RUN   TestAVXVNNIIntegerDot/31/random
+=== RUN   TestAVXVNNIIntegerDot/32/negative
+=== RUN   TestAVXVNNIIntegerDot/32/positive
+=== RUN   TestAVXVNNIIntegerDot/32/mixed
+=== RUN   TestAVXVNNIIntegerDot/32/random
+=== RUN   TestAVXVNNIIntegerDot/33/negative
+=== RUN   TestAVXVNNIIntegerDot/33/positive
+=== RUN   TestAVXVNNIIntegerDot/33/mixed
+=== RUN   TestAVXVNNIIntegerDot/33/random
+=== RUN   TestAVXVNNIIntegerDot/63/negative
+=== RUN   TestAVXVNNIIntegerDot/63/positive
+=== RUN   TestAVXVNNIIntegerDot/63/mixed
+=== RUN   TestAVXVNNIIntegerDot/63/random
+=== RUN   TestAVXVNNIIntegerDot/64/negative
+=== RUN   TestAVXVNNIIntegerDot/64/positive
+=== RUN   TestAVXVNNIIntegerDot/64/mixed
+=== RUN   TestAVXVNNIIntegerDot/64/random
+=== RUN   TestAVXVNNIIntegerDot/65/negative
+=== RUN   TestAVXVNNIIntegerDot/65/positive
+=== RUN   TestAVXVNNIIntegerDot/65/mixed
+=== RUN   TestAVXVNNIIntegerDot/65/random
+=== RUN   TestAVXVNNIIntegerDot/127/negative
+=== RUN   TestAVXVNNIIntegerDot/127/positive
+=== RUN   TestAVXVNNIIntegerDot/127/mixed
+=== RUN   TestAVXVNNIIntegerDot/127/random
+=== RUN   TestAVXVNNIIntegerDot/128/negative
+=== RUN   TestAVXVNNIIntegerDot/128/positive
+=== RUN   TestAVXVNNIIntegerDot/128/mixed
+=== RUN   TestAVXVNNIIntegerDot/128/random
+=== RUN   TestAVXVNNIIntegerDot/129/negative
+=== RUN   TestAVXVNNIIntegerDot/129/positive
+=== RUN   TestAVXVNNIIntegerDot/129/mixed
+=== RUN   TestAVXVNNIIntegerDot/129/random
+=== RUN   TestAVXVNNIIntegerDot/255/negative
+=== RUN   TestAVXVNNIIntegerDot/255/positive
+=== RUN   TestAVXVNNIIntegerDot/255/mixed
+=== RUN   TestAVXVNNIIntegerDot/255/random
+=== RUN   TestAVXVNNIIntegerDot/256/negative
+=== RUN   TestAVXVNNIIntegerDot/256/positive
+=== RUN   TestAVXVNNIIntegerDot/256/mixed
+=== RUN   TestAVXVNNIIntegerDot/256/random
+=== RUN   TestAVXVNNIIntegerDot/257/negative
+=== RUN   TestAVXVNNIIntegerDot/257/positive
+=== RUN   TestAVXVNNIIntegerDot/257/mixed
+=== RUN   TestAVXVNNIIntegerDot/257/random
+=== RUN   TestAVXVNNIIntegerDot/1024/negative
+=== RUN   TestAVXVNNIIntegerDot/1024/positive
+=== RUN   TestAVXVNNIIntegerDot/1024/mixed
+=== RUN   TestAVXVNNIIntegerDot/1024/random
+=== RUN   TestAVXVNNIIntegerDot/33025/negative
+=== RUN   TestAVXVNNIIntegerDot/33025/positive
+=== RUN   TestAVXVNNIIntegerDot/33025/mixed
+=== RUN   TestAVXVNNIIntegerDot/33025/random
+--- PASS: TestAVXVNNIIntegerDot (0.03s)
+    --- PASS: TestAVXVNNIIntegerDot/1/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/random (0.00s)
+=== RUN   TestAVXVNNIFoldedScalar
+--- PASS: TestAVXVNNIFoldedScalar (0.00s)
+=== RUN   TestBlockBoundsExactAfterMutation
+    block_bound_test.go:106: initial
+    block_bound_test.go:116: updated large constant
+    block_bound_test.go:120: deleted
+    block_bound_test.go:124: reused slot
+    block_bound_test.go:130: transaction overlay
+    block_bound_test.go:133: rollback
+    block_bound_test.go:138: recovered
+    block_bound_test.go:142: independent random query
+--- PASS: TestBlockBoundsExactAfterMutation (0.23s)
+=== RUN   TestBlockBoundsIsolateOutlier
+--- PASS: TestBlockBoundsIsolateOutlier (0.01s)
+=== RUN   TestCategoryBudgetAndMutation
+--- PASS: TestCategoryBudgetAndMutation (0.00s)
+=== RUN   TestPrefilterSharesIndexBudget
+--- PASS: TestPrefilterSharesIndexBudget (0.00s)
+=== RUN   TestEqualityBudgetHighCardinality
+--- PASS: TestEqualityBudgetHighCardinality (0.00s)
+=== RUN   TestAggregateIndexBudget
+--- PASS: TestAggregateIndexBudget (0.00s)
+=== RUN   TestCompactionCleanLogDoesNotMapRows
+--- PASS: TestCompactionCleanLogDoesNotMapRows (0.00s)
+=== RUN   TestCompactionThresholdBoundaries
+=== RUN   TestCompactionThresholdBoundaries/below_live
+=== RUN   TestCompactionThresholdBoundaries/equal_live
+=== RUN   TestCompactionThresholdBoundaries/below_minimum
+=== RUN   TestCompactionThresholdBoundaries/equal_minimum
+--- PASS: TestCompactionThresholdBoundaries (0.01s)
+    --- PASS: TestCompactionThresholdBoundaries/below_live (0.00s)
+    --- PASS: TestCompactionThresholdBoundaries/equal_live (0.00s)
+    --- PASS: TestCompactionThresholdBoundaries/below_minimum (0.00s)
+    --- PASS: TestCompactionThresholdBoundaries/equal_minimum (0.00s)
+=== RUN   TestStatementAtomicityAndTxn
+--- PASS: TestStatementAtomicityAndTxn (0.00s)
+=== RUN   TestFilteredTopKFiltersBeforeAdmission
+--- PASS: TestFilteredTopKFiltersBeforeAdmission (0.00s)
+=== RUN   TestCrashAtEveryOffset
+--- PASS: TestCrashAtEveryOffset (1.34s)
+=== RUN   TestCompaction
+--- PASS: TestCompaction (0.01s)
+=== RUN   TestMinimumPrimaryKeyTopK
+=== RUN   TestMinimumPrimaryKeyTopK/2
+=== RUN   TestMinimumPrimaryKeyTopK/128
+--- PASS: TestMinimumPrimaryKeyTopK (0.00s)
+    --- PASS: TestMinimumPrimaryKeyTopK/2 (0.00s)
+    --- PASS: TestMinimumPrimaryKeyTopK/128 (0.00s)
+=== RUN   TestCancellationSafeTopK
+--- PASS: TestCancellationSafeTopK (0.05s)
+=== RUN   TestAbsoluteRoundingAllowance
+--- PASS: TestAbsoluteRoundingAllowance (0.00s)
+=== RUN   TestLargeDimensionExactFallback
+--- PASS: TestLargeDimensionExactFallback (0.08s)
+=== RUN   TestFilteredScanDirect
+    filtered_split_test.go:105: direct filtered returns 10 rows, sql filtered returns 10 rows
+    filtered_split_test.go:137: DIRECT vectorTopK filtered   (n=200): median 383.155µs mean 407.413µs p90 512.822µs
+    filtered_split_test.go:138: DIRECT vectorTopK unfiltered (n=200): median 1.092906ms mean 1.145711ms p90 1.373348ms
+    filtered_split_test.go:139: DIRECT ratio filtered/unfiltered median: 0.351
+    filtered_split_test.go:140: DIRECT projected bench total 500+500: 0.777 s
+--- PASS: TestFilteredScanDirect (6.25s)
+=== RUN   TestFilteredVsUnfilteredSplit
+    filtered_split_test.go:201: first filtered query (incl one-time eqSet build): 433.509µs
+    filtered_split_test.go:202: filtered   (n=100): median 453.633µs mean 472.335µs p90 556.073µs
+    filtered_split_test.go:203: unfiltered (n=100): median 1.136934ms mean 1.177088ms p90 1.433746ms
+    filtered_split_test.go:204: ratio filtered/unfiltered median: 0.399
+    filtered_split_test.go:205: projected bench total for 500+500: filtered 0.236 s + unfiltered 0.589 s = 0.825 s
+--- PASS: TestFilteredVsUnfilteredSplit (0.17s)
+=== RUN   TestFilteredProfile
+    filtered_split_test.go:238: profile written (3000 filtered vectorTopK calls)
+--- PASS: TestFilteredProfile (1.20s)
+=== RUN   TestUnfilteredProfile
+    filtered_split_test.go:261: profile written (3000 unfiltered vectorTopK calls)
+--- PASS: TestUnfilteredProfile (3.82s)
+=== RUN   TestFilteredSurvivors
+    filtered_split_test.go:290: filtered: gathered 0/query, exact 0/query (NaN% survive), prefilter batches 0/query
+    filtered_split_test.go:293: unfiltered (multi-pass only if fused off; fused normally takes this path): gathered 0/query, exact 0/query (NaN% survive), prefilter batches 0/query
+    filtered_split_test.go:295: fusedBatches total: 2666380
+--- PASS: TestFilteredSurvivors (0.13s)
+=== RUN   TestFused10kSequential
+    filtered_split_test.go:401: realistic bd=32.0384 thresh2=32.7609
+    filtered_split_test.go:422: fused 10k sequential tight: median 59.384µs mean 66.851µs survivors 3/query
+    filtered_split_test.go:422: fused 10k sequential inf: median 65.019µs mean 67.679µs survivors 10000/query
+--- PASS: TestFused10kSequential (0.03s)
+=== RUN   TestCatBlockBitIdentical
+--- PASS: TestCatBlockBitIdentical (0.04s)
+=== RUN   TestCatBlockEmptyCategory
+--- PASS: TestCatBlockEmptyCategory (0.00s)
+=== RUN   TestFusedBlockVsScalar
+--- PASS: TestFusedBlockVsScalar (0.01s)
+=== RUN   TestFusedBlockVNNIVsScalar
+    filtered_split_test.go:589: no AVX512_VNNI on this CPU; VNNI block path cannot run
+--- SKIP: TestFusedBlockVNNIVsScalar (0.00s)
+=== RUN   TestCatBlockBuildCost
+    filtered_split_test.go:669: eqSet build (pre-existing): 1.159µs; catBlock build for 9951 rows: 1.908655ms
+    filtered_split_test.go:676: cached catBlock lookup: 448ns
+--- PASS: TestCatBlockBuildCost (0.00s)
+=== RUN   TestNonCoveringFilterFallsBack
+--- PASS: TestNonCoveringFilterFallsBack (0.00s)
+=== RUN   TestCatBlockKeyOwnsBytes
+--- PASS: TestCatBlockKeyOwnsBytes (0.00s)
+=== RUN   TestFusedCandidatesMatchScalar
+--- PASS: TestFusedCandidatesMatchScalar (0.02s)
+=== RUN   TestFusedCandidatesExactAfterMutation
+--- PASS: TestFusedCandidatesExactAfterMutation (0.00s)
+=== RUN   TestFusedScanVsScalar
+--- PASS: TestFusedScanVsScalar (0.01s)
+=== RUN   TestFusedScanRawAsm
+--- PASS: TestFusedScanRawAsm (0.00s)
+=== RUN   TestFusedScanEndToEnd
+--- PASS: TestFusedScanEndToEnd (0.24s)
+=== RUN   TestFusedScanVNNIVsScalar
+    he_vnni_test.go:31: no AVX512_VNNI on this CPU; VNNI kernel cannot run
+--- SKIP: TestFusedScanVNNIVsScalar (0.00s)
+=== RUN   TestFusedScanVNNIAll255
+    he_vnni_test.go:103: no AVX512_VNNI on this CPU
+--- SKIP: TestFusedScanVNNIAll255 (0.00s)
+=== RUN   TestFusedScanVNNIEndToEnd
+    he_vnni_test.go:166: no AVX512_VNNI on this CPU
+--- SKIP: TestFusedScanVNNIEndToEnd (0.00s)
+=== RUN   TestInsertScratchValuesAtomicityAndRecovery
+=== RUN   TestInsertScratchValuesAtomicityAndRecovery/1
+=== RUN   TestInsertScratchValuesAtomicityAndRecovery/127
+=== RUN   TestInsertScratchValuesAtomicityAndRecovery/128
+=== RUN   TestInsertScratchValuesAtomicityAndRecovery/256
+=== RUN   TestInsertScratchValuesAtomicityAndRecovery/1024
+--- PASS: TestInsertScratchValuesAtomicityAndRecovery (0.10s)
+    --- PASS: TestInsertScratchValuesAtomicityAndRecovery/1 (0.01s)
+    --- PASS: TestInsertScratchValuesAtomicityAndRecovery/127 (0.01s)
+    --- PASS: TestInsertScratchValuesAtomicityAndRecovery/128 (0.01s)
+    --- PASS: TestInsertScratchValuesAtomicityAndRecovery/256 (0.02s)
+    --- PASS: TestInsertScratchValuesAtomicityAndRecovery/1024 (0.05s)
+=== RUN   TestKernelMatchesReference
+    kernel_bench_test.go:47: useSIMD=true
+--- PASS: TestKernelMatchesReference (0.02s)
+=== RUN   TestKernelPathsAgree
+--- PASS: TestKernelPathsAgree (0.00s)
+=== RUN   TestDotInt8KernelVsScalar
+--- PASS: TestDotInt8KernelVsScalar (0.00s)
+=== RUN   TestDotInt8KernelIntVsScalar
+--- PASS: TestDotInt8KernelIntVsScalar (0.00s)
+=== RUN   TestDotInt8KernelInt6VsScalar
+--- PASS: TestDotInt8KernelInt6VsScalar (0.00s)
+=== RUN   TestDotInt8KernelIntAVX512VsAVX2
+    prefilter_test.go:234: CPU/OS lacks AVX-512, AVX-512 kernel not in use
+--- SKIP: TestDotInt8KernelIntAVX512VsAVX2 (0.00s)
+=== RUN   TestHasAVX512EnvOverride
+--- PASS: TestHasAVX512EnvOverride (0.00s)
+=== RUN   TestPrefilterBound
+    prefilter_test.go:454: 126000 cases, worst |exact-approx|/bound = 0.379 (constant dim 16)
+    prefilter_test.go:506: uniform dim 256: 10th distance 35.03, prefilter skips 983/1000 rows
+--- PASS: TestPrefilterBound (0.58s)
+=== RUN   TestPrefilterBound6Bit
+    prefilter_test.go:603: 6-bit bound validation: 48000 cases, worst |exact-approx|/bound = 0.333 (uniform01 dim 16)
+--- PASS: TestPrefilterBound6Bit (0.21s)
+=== RUN   TestPrefilterThreshold
+    prefilter_test.go:689: uniform01 dim 16 bd 1.07: threshold drops 1988/2000, approxBound drops 1989/2000
+    prefilter_test.go:689: uniform01 dim 16 bd 2.7: threshold drops 953/2000, approxBound drops 957/2000
+    prefilter_test.go:689: normal1 dim 16 bd 13.3: threshold drops 1988/2000, approxBound drops 1989/2000
+    prefilter_test.go:689: normal1 dim 16 bd 34.3: threshold drops 915/2000, approxBound drops 948/2000
+    prefilter_test.go:689: normal1e3 dim 16 bd 9.02e+06: threshold drops 1984/2000, approxBound drops 1985/2000
+    prefilter_test.go:689: normal1e3 dim 16 bd 2.49e+07: threshold drops 922/2000, approxBound drops 948/2000
+    prefilter_test.go:689: mixed dim 16 bd 1.01e+06: threshold drops 1990/2000, approxBound drops 1990/2000
+    prefilter_test.go:689: mixed dim 16 bd 4.76e+06: threshold drops 909/2000, approxBound drops 964/2000
+    prefilter_test.go:689: uniform01 dim 31 bd 3.03: threshold drops 1986/2000, approxBound drops 1986/2000
+    prefilter_test.go:689: uniform01 dim 31 bd 5.45: threshold drops 915/2000, approxBound drops 918/2000
+    prefilter_test.go:689: normal1 dim 31 bd 30.1: threshold drops 1985/2000, approxBound drops 1987/2000
+    prefilter_test.go:689: normal1 dim 31 bd 57.9: threshold drops 870/2000, approxBound drops 912/2000
+    prefilter_test.go:689: normal1e3 dim 31 bd 2.78e+07: threshold drops 1982/2000, approxBound drops 1984/2000
+    prefilter_test.go:689: normal1e3 dim 31 bd 5.3e+07: threshold drops 882/2000, approxBound drops 910/2000
+    prefilter_test.go:689: mixed dim 31 bd 8.26e+06: threshold drops 1983/2000, approxBound drops 1985/2000
+    prefilter_test.go:689: mixed dim 31 bd 1.6e+07: threshold drops 835/2000, approxBound drops 892/2000
+    prefilter_test.go:689: uniform01 dim 128 bd 15.3: threshold drops 1988/2000, approxBound drops 1988/2000
+    prefilter_test.go:689: uniform01 dim 128 bd 20.6: threshold drops 833/2000, approxBound drops 834/2000
+    prefilter_test.go:689: normal1 dim 128 bd 193: threshold drops 1966/2000, approxBound drops 1972/2000
+    prefilter_test.go:689: normal1 dim 128 bd 255: threshold drops 731/2000, approxBound drops 776/2000
+    prefilter_test.go:689: normal1e3 dim 128 bd 1.72e+08: threshold drops 1972/2000, approxBound drops 1977/2000
+    prefilter_test.go:689: normal1e3 dim 128 bd 2.36e+08: threshold drops 791/2000, approxBound drops 831/2000
+    prefilter_test.go:689: mixed dim 128 bd 2.78e+07: threshold drops 1953/2000, approxBound drops 1972/2000
+    prefilter_test.go:689: mixed dim 128 bd 4.31e+07: threshold drops 694/2000, approxBound drops 762/2000
+    prefilter_test.go:689: uniform01 dim 256 bd 36.1: threshold drops 1984/2000, approxBound drops 1984/2000
+    prefilter_test.go:689: uniform01 dim 256 bd 43.5: threshold drops 798/2000, approxBound drops 798/2000
+    prefilter_test.go:689: normal1 dim 256 bd 397: threshold drops 1960/2000, approxBound drops 1967/2000
+    prefilter_test.go:689: normal1 dim 256 bd 489: threshold drops 630/2000, approxBound drops 679/2000
+    prefilter_test.go:689: normal1e3 dim 256 bd 4.07e+08: threshold drops 1962/2000, approxBound drops 1965/2000
+    prefilter_test.go:689: normal1e3 dim 256 bd 4.96e+08: threshold drops 608/2000, approxBound drops 674/2000
+    prefilter_test.go:689: mixed dim 256 bd 4.07e+07: threshold drops 1940/2000, approxBound drops 1967/2000
+    prefilter_test.go:689: mixed dim 256 bd 6.3e+07: threshold drops 567/2000, approxBound drops 666/2000
+--- PASS: TestPrefilterThreshold (0.10s)
+=== RUN   TestPrefilterMatchesExactScan
+--- PASS: TestPrefilterMatchesExactScan (0.18s)
+=== RUN   TestPrefilterLargeLine
+--- PASS: TestPrefilterLargeLine (0.03s)
+=== RUN   TestFoldMatchesApproxDist2
+    prefilter_test.go:1044: 66000 cases, worst |folded-unfolded|/scale = 2.08e-14 (mixed dim 31)
+--- PASS: TestFoldMatchesApproxDist2 (0.31s)
+=== RUN   TestPhaseBreakdown
+    query_phase_test.go:20: set MVDB_PHASES=1
+--- SKIP: TestPhaseBreakdown (0.00s)
+=== RUN   TestBatchedScanMatchesOneRowScan
+--- PASS: TestBatchedScanMatchesOneRowScan (0.31s)
+=== RUN   TestSelectPrimaryAliasesAndLimits
+--- PASS: TestSelectPrimaryAliasesAndLimits (0.00s)
+=== RUN   TestSelectPrimaryBoundedOrder
+--- PASS: TestSelectPrimaryBoundedOrder (0.00s)
+=== RUN   TestSelectPointAndPrimaryTransactionVisibility
+--- PASS: TestSelectPointAndPrimaryTransactionVisibility (0.00s)
+=== RUN   TestSelectPrimaryPlanningDoesNotReadLog
+--- PASS: TestSelectPrimaryPlanningDoesNotReadLog (0.00s)
+=== RUN   TestFilteredTopKMatchesReference
+--- PASS: TestFilteredTopKMatchesReference (0.03s)
+=== RUN   TestStreamingUpdateFlushesTransactionRows
+=== RUN   TestStreamingUpdateFlushesTransactionRows/rollback
+=== RUN   TestStreamingUpdateFlushesTransactionRows/commit
+--- PASS: TestStreamingUpdateFlushesTransactionRows (0.30s)
+    --- PASS: TestStreamingUpdateFlushesTransactionRows/rollback (0.15s)
+    --- PASS: TestStreamingUpdateFlushesTransactionRows/commit (0.15s)
+=== RUN   TestStreamingUpdateLateErrorPreservesTransaction
+--- PASS: TestStreamingUpdateLateErrorPreservesTransaction (0.00s)
+=== RUN   TestStreamingUpdateDurabilityAndOldValues
+--- PASS: TestStreamingUpdateDurabilityAndOldValues (0.01s)
+=== RUN   TestThreadedTopKDistances
+--- PASS: TestThreadedTopKDistances (0.10s)
+=== RUN   TestWritePhases
+    write_phase_test.go:21: set MVDB_PHASES=1
+--- SKIP: TestWritePhases (0.00s)
+PASS
+ok  	minivectordb/internal/engine	16.009s
+=== RUN   TestFastParseMatchesEncodingJSON
+--- PASS: TestFastParseMatchesEncodingJSON (0.01s)
+=== RUN   TestFastParsePersistentStringsOwnStorage
+--- PASS: TestFastParsePersistentStringsOwnStorage (0.00s)
+=== RUN   TestFastParseLongStringBytes
+--- PASS: TestFastParseLongStringBytes (0.01s)
+=== RUN   TestReady
+--- PASS: TestReady (0.00s)
+=== RUN   TestRequestIDEchoedVerbatim
+--- PASS: TestRequestIDEchoedVerbatim (0.00s)
+=== RUN   TestResultShapes
+--- PASS: TestResultShapes (0.00s)
+PASS
+ok  	minivectordb/internal/proto	0.019s
+?   	minivectordb/internal/storage	[no test files]
+=== RUN   TestScanString
+--- PASS: TestScanString (0.00s)
+=== RUN   TestScanStringMatchesReference
+--- PASS: TestScanStringMatchesReference (0.06s)
+=== RUN   TestScanStringLongLiteral
+--- PASS: TestScanStringLongLiteral (0.00s)
+PASS
+ok  	minivectordb/internal/sqlparse	0.064s
+=== RUN   TestParseFloatFastMatchesStrconvRandom
+--- PASS: TestParseFloatFastMatchesStrconvRandom (1.26s)
+=== RUN   TestParseFloatFastMatchesStrconvDigits
+--- PASS: TestParseFloatFastMatchesStrconvDigits (0.00s)
+=== RUN   TestParseFloatFastMatchesStrconvExponents
+--- PASS: TestParseFloatFastMatchesStrconvExponents (0.00s)
+=== RUN   TestParseFloatFastWorkloadLiterals
+--- PASS: TestParseFloatFastWorkloadLiterals (0.21s)
+=== RUN   TestParseFloatFastLongExponent
+--- PASS: TestParseFloatFastLongExponent (0.00s)
+=== RUN   TestDecimalExactRoundingBoundary
+--- PASS: TestDecimalExactRoundingBoundary (0.00s)
+=== RUN   TestDecimalExactCarryToFiftyThreeBits
+--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)
+=== RUN   TestParseVectorIntoRepeatedReuse
+--- PASS: TestParseVectorIntoRepeatedReuse (0.00s)
+=== RUN   TestParseVectorMatchesReference
+--- PASS: TestParseVectorMatchesReference (0.05s)
+=== RUN   TestParseVectorFloat32Semantics
+--- PASS: TestParseVectorFloat32Semantics (0.00s)
+=== RUN   TestEightDigitsBlock
+--- PASS: TestEightDigitsBlock (0.00s)
+=== RUN   TestParseFloatFastMatchesStrconv
+--- PASS: TestParseFloatFastMatchesStrconv (0.03s)
+=== RUN   TestTrimSpaceMatchesStdlib
+--- PASS: TestTrimSpaceMatchesStdlib (0.02s)
+=== RUN   TestVectorByteRoundTripPreservesBits
+--- PASS: TestVectorByteRoundTripPreservesBits (0.00s)
+PASS
+ok  	minivectordb/internal/types	1.569s
+{"exit_code": 0, "wall_s": 20.20952796936035}

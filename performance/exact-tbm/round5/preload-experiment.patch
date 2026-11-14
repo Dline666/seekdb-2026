@@ -1,0 +1,161 @@
+diff --git a/minivectordb/internal/engine/fused_avxvnni_amd64.s b/minivectordb/internal/engine/fused_avxvnni_amd64.s
+index 5bd74c3..5fce03b 100644
+--- a/minivectordb/internal/engine/fused_avxvnni_amd64.s
++++ b/minivectordb/internal/engine/fused_avxvnni_amd64.s
+@@ -3,7 +3,8 @@
+ // Go 1.22 emits EVEX for its VPDPBUSD mnemonic, even with YMM operands.
+ // The explicit instruction bytes below are VEX.256, requiring AVX-VNNI
+ // and YMM state only. unsigned row codes are the register source, signed
+-// query bytes the memory source. Both kernels use exact int32 dots and
++// query bytes the memory source (or preloaded registers at dimension 128).
++// Both kernels use exact int32 dots and
+ // the existing VNNI folded-distance epilogue, with no saturating sums.
+ // Verify their disassembly before executing on a host without AVX512.
+ 
+@@ -39,6 +40,10 @@ TEXT ·fusedScanInt8AVXVNNI(SB), NOSPLIT, $0-128
+ 	MOVQ surv+112(FP), AX
+ 	TESTQ R10, R10
+ 	JZ done
++	CMPQ R9, $4
++	JNE row
++	TESTQ R11, R11
++	JZ preload128
+ row:
+ 	MOVQ R8, SI
+ 	MOVQ R9, CX
+@@ -135,6 +140,60 @@ done:
+ 	VZEROUPPER
+ 	RET
+ 
++preload128:
++	// These four query registers survive the reduction and float64 fold.
++	VMOVDQU 0(R8), Y0
++	VMOVDQU 32(R8), Y2
++	VMOVDQU 64(R8), Y3
++	VMOVDQU 96(R8), Y4
++row128:
++	VPXOR Y8, Y8, Y8
++	VPXOR Y9, Y9, Y9
++	VMOVDQU 0(DI), Y5
++	// VPDPBUSD Y0, Y5, Y8 (VEX.256).
++	BYTE $0xC4; BYTE $0x62; BYTE $0x55; BYTE $0x50; BYTE $0xC0
++	VMOVDQU 32(DI), Y6
++	// VPDPBUSD Y2, Y6, Y9.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0xCA
++	VMOVDQU 64(DI), Y5
++	// VPDPBUSD Y3, Y5, Y8.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x55; BYTE $0x50; BYTE $0xC3
++	VMOVDQU 96(DI), Y6
++	// VPDPBUSD Y4, Y6, Y9.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0xCC
++	ADDQ $128, DI
++	VPADDD Y9, Y8, Y8
++	VEXTRACTF128 $1, Y8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0x4E, X8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0xB1, X8, X1
++	VPADDD X1, X8, X8
++	VMOVD X8, CX
++	// Keep the generic path's exact operation order and unordered compare.
++	VCVTSI2SDL CX, X5, X5
++	VMULSD 0(R15), X12, X6
++	VADDSD X13, X6, X6
++	VADDSD 24(R15), X6, X6
++	VMULSD 8(R15), X14, X7
++	VADDSD X7, X6, X6
++	VMULSD 16(R15), X15, X10
++	VMULSD X5, X10, X10
++	VADDSD X10, X6, X6
++	VUCOMISD X11, X6
++	JA next128
++	MOVQ 0(R13)(R14*1), BX
++	MOVQ BX, 0(AX)
++	MOVQ 0(R13), BX
++	MOVQ BX, 8(AX)
++	ADDQ $16, AX
++next128:
++	ADDQ $8, R13
++	ADDQ $32, R15
++	DECQ R10
++	JNZ row128
++	JMP done
++
+ 
+ TEXT ·fusedScanCandidatesAVXVNNI(SB), NOSPLIT, $0-128
+ 	MOVQ qc8+0(FP), R8
+@@ -153,6 +212,10 @@ TEXT ·fusedScanCandidatesAVXVNNI(SB), NOSPLIT, $0-128
+ 	MOVQ surv+112(FP), AX
+ 	TESTQ R10, R10
+ 	JZ done
++	CMPQ R9, $4
++	JNE row
++	TESTQ R11, R11
++	JZ preload128
+ row:
+ 	MOVL 0(R13), BX
+ 	MOVQ BX, DI
+@@ -257,3 +320,63 @@ done:
+ 	MOVQ AX, ret+120(FP)
+ 	VZEROUPPER
+ 	RET
++
++preload128:
++	VMOVDQU 0(R8), Y0
++	VMOVDQU 32(R8), Y2
++	VMOVDQU 64(R8), Y3
++	VMOVDQU 96(R8), Y4
++row128:
++	MOVL 0(R13), BX
++	MOVQ BX, DI
++	SHLQ $7, DI
++	ADDQ codes+8(FP), DI
++	MOVQ BX, R15
++	SHLQ $5, R15
++	ADDQ qf+32(FP), R15
++	VPXOR Y8, Y8, Y8
++	VPXOR Y9, Y9, Y9
++	VMOVDQU 0(DI), Y5
++	// VPDPBUSD Y0, Y5, Y8 (VEX.256).
++	BYTE $0xC4; BYTE $0x62; BYTE $0x55; BYTE $0x50; BYTE $0xC0
++	VMOVDQU 32(DI), Y6
++	// VPDPBUSD Y2, Y6, Y9.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0xCA
++	VMOVDQU 64(DI), Y5
++	// VPDPBUSD Y3, Y5, Y8.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x55; BYTE $0x50; BYTE $0xC3
++	VMOVDQU 96(DI), Y6
++	// VPDPBUSD Y4, Y6, Y9.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0xCC
++	VPADDD Y9, Y8, Y8
++	VEXTRACTF128 $1, Y8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0x4E, X8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0xB1, X8, X1
++	VPADDD X1, X8, X8
++	VMOVD X8, CX
++	VCVTSI2SDL CX, X5, X5
++	VMULSD 0(R15), X12, X6
++	VADDSD X13, X6, X6
++	VADDSD 24(R15), X6, X6
++	VMULSD 8(R15), X14, X7
++	VADDSD X7, X6, X6
++	VMULSD 16(R15), X15, X10
++	VMULSD X5, X10, X10
++	VADDSD X10, X6, X6
++	VUCOMISD X11, X6
++	JA next128
++	MOVL 0(R13), BX
++	MOVQ offs+24(FP), DX
++	MOVQ 0(DX)(BX*8), DX
++	MOVQ DX, 0(AX)
++	MOVQ pks+16(FP), DX
++	MOVQ 0(DX)(BX*8), DX
++	MOVQ DX, 8(AX)
++	ADDQ $16, AX
++next128:
++	ADDQ $4, R13
++	DECQ R10
++	JNZ row128
++	JMP done

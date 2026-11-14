@@ -1,0 +1,52 @@
+
+/tmp/seekdb-round5/bin/base-symbols:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000050af40 <minivectordb/internal/engine.l2sqGatherAVX2.abi0>:
+  50af40:	4c 8b 44 24 08       	mov    0x8(%rsp),%r8
+  50af45:	4c 8b 64 24 10       	mov    0x10(%rsp),%r12
+  50af4a:	4c 8b 6c 24 18       	mov    0x18(%rsp),%r13
+  50af4f:	4c 8b 4c 24 20       	mov    0x20(%rsp),%r9
+  50af54:	4c 8b 54 24 28       	mov    0x28(%rsp),%r10
+  50af59:	4c 8b 5c 24 30       	mov    0x30(%rsp),%r11
+  50af5e:	4d 85 d2             	test   %r10,%r10
+  50af61:	0f 84 97 00 00 00    	je     50affe <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0xbe>
+  50af67:	4c 89 c6             	mov    %r8,%rsi
+  50af6a:	4c 89 e7             	mov    %r12,%rdi
+  50af6d:	49 03 7d 00          	add    0x0(%r13),%rdi
+  50af71:	4c 89 c9             	mov    %r9,%rcx
+  50af74:	c5 fd 57 c0          	vxorpd %ymm0,%ymm0,%ymm0
+  50af78:	c5 f5 57 c9          	vxorpd %ymm1,%ymm1,%ymm1
+  50af7c:	c5 ed 57 d2          	vxorpd %ymm2,%ymm2,%ymm2
+  50af80:	c5 e5 57 db          	vxorpd %ymm3,%ymm3,%ymm3
+  50af84:	c5 fc 5a 27          	vcvtps2pd (%rdi),%ymm4
+  50af88:	c5 fc 5a 6f 10       	vcvtps2pd 0x10(%rdi),%ymm5
+  50af8d:	c5 fc 5a 77 20       	vcvtps2pd 0x20(%rdi),%ymm6
+  50af92:	c5 fc 5a 7f 30       	vcvtps2pd 0x30(%rdi),%ymm7
+  50af97:	c5 dd 5c 26          	vsubpd (%rsi),%ymm4,%ymm4
+  50af9b:	c5 d5 5c 6e 20       	vsubpd 0x20(%rsi),%ymm5,%ymm5
+  50afa0:	c5 cd 5c 76 40       	vsubpd 0x40(%rsi),%ymm6,%ymm6
+  50afa5:	c5 c5 5c 7e 60       	vsubpd 0x60(%rsi),%ymm7,%ymm7
+  50afaa:	c4 e2 dd b8 c4       	vfmadd231pd %ymm4,%ymm4,%ymm0
+  50afaf:	c4 e2 d5 b8 cd       	vfmadd231pd %ymm5,%ymm5,%ymm1
+  50afb4:	c4 e2 cd b8 d6       	vfmadd231pd %ymm6,%ymm6,%ymm2
+  50afb9:	c4 e2 c5 b8 df       	vfmadd231pd %ymm7,%ymm7,%ymm3
+  50afbe:	48 81 c6 80 00 00 00 	add    $0x80,%rsi
+  50afc5:	48 83 c7 40          	add    $0x40,%rdi
+  50afc9:	48 ff c9             	dec    %rcx
+  50afcc:	75 b6                	jne    50af84 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x44>
+  50afce:	c5 fd 58 c1          	vaddpd %ymm1,%ymm0,%ymm0
+  50afd2:	c5 ed 58 d3          	vaddpd %ymm3,%ymm2,%ymm2
+  50afd6:	c5 fd 58 c2          	vaddpd %ymm2,%ymm0,%ymm0
+  50afda:	c4 e3 7d 19 c1 01    	vextractf128 $0x1,%ymm0,%xmm1
+  50afe0:	c5 f9 58 c1          	vaddpd %xmm1,%xmm0,%xmm0
+  50afe4:	c5 f9 7c c0          	vhaddpd %xmm0,%xmm0,%xmm0
+  50afe8:	c4 c1 7b 11 03       	vmovsd %xmm0,(%r11)
+  50afed:	49 83 c3 08          	add    $0x8,%r11
+  50aff1:	49 83 c5 08          	add    $0x8,%r13
+  50aff5:	49 ff ca             	dec    %r10
+  50aff8:	0f 85 69 ff ff ff    	jne    50af67 <minivectordb/internal/engine.l2sqGatherAVX2.abi0+0x27>
+  50affe:	c5 f8 77             	vzeroupper
+  50b001:	c3                   	ret

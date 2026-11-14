@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "build", "-trimpath", "-o", "/tmp/seekdb-round5/bin/align-symbols", "./cmd/minivectordb"], "cwd": "/tmp/seekdb-round5/align/minivectordb", "start": 1794618924.4775593}
+{"exit_code": 0, "wall_s": 0.6181557178497314}
