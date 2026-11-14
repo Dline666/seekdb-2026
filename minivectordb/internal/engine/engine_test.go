@@ -211,3 +211,52 @@ func TestCompaction(t *testing.T) {
 	}
 	db.Close()
 }
+
+func TestVectorIndexAfterTopKQuery(t *testing.T) {
+	db := open(t, t.TempDir())
+	mustExec(t, db, "CREATE TABLE docs (id BIGINT PRIMARY KEY, e VECTOR(2))")
+	mustExec(t, db, "INSERT INTO docs VALUES (1,'[0,0]'),(2,'[3,4]'),(3,'[6,8]')")
+
+	// The TopK query builds the implicit index.
+	mustExec(t, db, "SELECT id FROM docs ORDER BY L2_DISTANCE(e, '[0,0]') LIMIT 2")
+	tbl := db.tables["docs"]
+	if tbl.Index == nil {
+		t.Fatal("the TopK query did not build an implicit index")
+	}
+	if tbl.Index.Explicit {
+		t.Fatal("the implicit index must not be explicit")
+	}
+
+	// Creating the explicit index afterwards must work.
+	mustExec(t, db, "CREATE VECTOR INDEX vi ON docs(e)")
+	if tbl.Index == nil || !tbl.Index.Explicit {
+		t.Fatal("CREATE VECTOR INDEX after a TopK query did not produce an explicit index")
+	}
+
+	// A second CREATE on the same table is a genuine duplicate now.
+	_, err := db.Exec("CREATE VECTOR INDEX vi ON docs(e)")
+	if err == nil {
+		t.Fatal("a second CREATE VECTOR INDEX must be a duplicate")
+	}
+	if got := errName(err); got != "duplicate_index" {
+		t.Fatalf("duplicate index error = %q, want duplicate_index", got)
+	}
+
+	// The query still answers the same way after the index exists.
+	r := mustExec(t, db, "SELECT id FROM docs ORDER BY L2_DISTANCE(e, '[0,0]') LIMIT 2")
+	if len(r.Rows) != 2 || r.Rows[0][0].I != 1 {
+		t.Fatalf("TopK after CREATE VECTOR INDEX = %+v", r.Rows)
+	}
+}
+
+func TestVectorIndexIfNotExistsAfterTopKQuery(t *testing.T) {
+	db := open(t, t.TempDir())
+	mustExec(t, db, "CREATE TABLE docs (id BIGINT PRIMARY KEY, e VECTOR(2))")
+	mustExec(t, db, "INSERT INTO docs VALUES (1,'[0,0]'),(2,'[3,4]')")
+	mustExec(t, db, "SELECT id FROM docs ORDER BY L2_DISTANCE(e, '[0,0]') LIMIT 1")
+	mustExec(t, db, "CREATE VECTOR INDEX IF NOT EXISTS vi ON docs(e)")
+	tbl := db.tables["docs"]
+	if tbl.Index == nil || !tbl.Index.Explicit {
+		t.Fatal("CREATE VECTOR INDEX IF NOT EXISTS left the table without an explicit index")
+	}
+}
