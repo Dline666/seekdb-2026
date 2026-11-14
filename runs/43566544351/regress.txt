@@ -1,0 +1,15 @@
+== b44b5b4e764912a356ecaeb13452392166806585
+protocol_check passed=True pass=20/20
+ok: 40 rounds, 35429 committed rows
+ok: 40 rounds, 37095 committed rows
+ok: 40 rounds, 35642 committed rows
+== e3d67a821851a6a08866270c9ba6dc454c3d02e9
+protocol_check passed=True pass=20/20
+ok: 40 rounds, 38223 committed rows
+ok: 40 rounds, 41458 committed rows
+ok: 40 rounds, 38482 committed rows
+== 33485b53c039a6cc3d2c4fa5b40d064365cf6eee
+protocol_check passed=True pass=20/20
+ok: 40 rounds, 38139 committed rows
+ok: 40 rounds, 42712 committed rows
+ok: 40 rounds, 38120 committed rows
