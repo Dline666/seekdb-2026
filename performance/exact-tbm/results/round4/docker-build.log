@@ -1,0 +1,50 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  541.2kB
+Step 1/14 : FROM ubuntu:24.04 AS build
+ ---> 7da97f743f39
+Step 2/14 : ENV DEBIAN_FRONTEND=noninteractive
+ ---> Using cache
+ ---> a40da7a79030
+Step 3/14 : RUN (apt-get update || (sed -i 's#http://\(archive\|security\).ubuntu.com#http://mirrors.aliyun.com#g'         /etc/apt/sources.list.d/ubuntu.sources && apt-get update)) &&     apt-get install -y --no-install-recommends golang-1.22-go &&     rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> cb3fed81e542
+Step 4/14 : ENV PATH=/usr/lib/go-1.22/bin:$PATH CGO_ENABLED=0 GOOS=linux GOARCH=amd64     GOPROXY=off GOTOOLCHAIN=local GOFLAGS=-trimpath
+ ---> Using cache
+ ---> 0650810caff9
+Step 5/14 : WORKDIR /src
+ ---> Using cache
+ ---> 0787c3c4b04b
+Step 6/14 : COPY minivectordb/ ./
+ ---> b9b2d0a0e982
+Step 7/14 : RUN go build -ldflags="-s -w" -o /out/minivectordb ./cmd/minivectordb
+ ---> Running in 000b78e45128
+ ---> Removed intermediate container 000b78e45128
+ ---> bcca82d6195b
+Step 8/14 : FROM ubuntu:24.04
+ ---> 7da97f743f39
+Step 9/14 : WORKDIR /app
+ ---> Using cache
+ ---> 2fb5ebd70449
+Step 10/14 : COPY --from=build /out/minivectordb /app/minivectordb
+ ---> 8bf9c609c9ae
+Step 11/14 : RUN chmod 755 /app/minivectordb && mkdir -p /data
+ ---> Running in 47ed32f6928d
+ ---> Removed intermediate container 47ed32f6928d
+ ---> a578832eb1b7
+Step 12/14 : VOLUME ["/data"]
+ ---> Running in d28a809129ee
+ ---> Removed intermediate container d28a809129ee
+ ---> de11198565e2
+Step 13/14 : ENTRYPOINT ["/app/minivectordb"]
+ ---> Running in 319c3159147e
+ ---> Removed intermediate container 319c3159147e
+ ---> 623ca006bd0a
+Step 14/14 : CMD ["--data-dir", "/data"]
+ ---> Running in a5a0d495412c
+ ---> Removed intermediate container a5a0d495412c
+ ---> 1bb6eb3ae5ad
+Successfully built 1bb6eb3ae5ad
+Successfully tagged seekdb-exact:round4

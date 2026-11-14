@@ -1,0 +1,202 @@
+
+/tmp/seekdb-round4-bin/vnni-tests:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000005a8ea0 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0>:
+  5a8ea0:	4c 8b 44 24 08       	mov    r8,QWORD PTR [rsp+0x8]
+  5a8ea5:	4c 8b 4c 24 68       	mov    r9,QWORD PTR [rsp+0x68]
+  5a8eaa:	4c 8b 5c 24 70       	mov    r11,QWORD PTR [rsp+0x70]
+  5a8eaf:	4c 89 c9             	mov    rcx,r9
+  5a8eb2:	48 c1 e1 05          	shl    rcx,0x5
+  5a8eb6:	4c 01 d9             	add    rcx,r11
+  5a8eb9:	48 8b 44 24 58       	mov    rax,QWORD PTR [rsp+0x58]
+  5a8ebe:	48 0f af c1          	imul   rax,rcx
+  5a8ec2:	48 8b 7c 24 10       	mov    rdi,QWORD PTR [rsp+0x10]
+  5a8ec7:	48 01 c7             	add    rdi,rax
+  5a8eca:	48 8b 44 24 58       	mov    rax,QWORD PTR [rsp+0x58]
+  5a8ecf:	48 c1 e0 03          	shl    rax,0x3
+  5a8ed3:	4c 8b 6c 24 18       	mov    r13,QWORD PTR [rsp+0x18]
+  5a8ed8:	49 01 c5             	add    r13,rax
+  5a8edb:	4c 8b 74 24 20       	mov    r14,QWORD PTR [rsp+0x20]
+  5a8ee0:	49 01 c6             	add    r14,rax
+  5a8ee3:	4d 29 ee             	sub    r14,r13
+  5a8ee6:	48 8b 44 24 58       	mov    rax,QWORD PTR [rsp+0x58]
+  5a8eeb:	48 c1 e0 05          	shl    rax,0x5
+  5a8eef:	4c 8b 7c 24 28       	mov    r15,QWORD PTR [rsp+0x28]
+  5a8ef4:	49 01 c7             	add    r15,rax
+  5a8ef7:	c5 7b 10 64 24 30    	vmovsd xmm12,QWORD PTR [rsp+0x30]
+  5a8efd:	c5 7b 10 6c 24 38    	vmovsd xmm13,QWORD PTR [rsp+0x38]
+  5a8f03:	c5 7b 10 74 24 40    	vmovsd xmm14,QWORD PTR [rsp+0x40]
+  5a8f09:	c5 7b 10 7c 24 48    	vmovsd xmm15,QWORD PTR [rsp+0x48]
+  5a8f0f:	c5 7b 10 5c 24 50    	vmovsd xmm11,QWORD PTR [rsp+0x50]
+  5a8f15:	4c 8b 54 24 60       	mov    r10,QWORD PTR [rsp+0x60]
+  5a8f1a:	48 8b 44 24 78       	mov    rax,QWORD PTR [rsp+0x78]
+  5a8f1f:	4d 85 d2             	test   r10,r10
+  5a8f22:	0f 84 ee 00 00 00    	je     5a9016 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x176>
+  5a8f28:	4c 89 c6             	mov    rsi,r8
+  5a8f2b:	4c 89 c9             	mov    rcx,r9
+  5a8f2e:	c4 41 3d ef c0       	vpxor  ymm8,ymm8,ymm8
+  5a8f33:	c4 41 35 ef c9       	vpxor  ymm9,ymm9,ymm9
+  5a8f38:	48 83 f9 02          	cmp    rcx,0x2
+  5a8f3c:	7c 22                	jl     5a8f60 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xc0>
+  5a8f3e:	c5 fe 6f 27          	vmovdqu ymm4,YMMWORD PTR [rdi]
+  5a8f42:	c4 62 5d 50 06       	{vex} vpdpbusd ymm8,ymm4,YMMWORD PTR [rsi]
+  5a8f47:	c5 fe 6f 77 20       	vmovdqu ymm6,YMMWORD PTR [rdi+0x20]
+  5a8f4c:	c4 62 4d 50 4e 20    	{vex} vpdpbusd ymm9,ymm6,YMMWORD PTR [rsi+0x20]
+  5a8f52:	48 83 c6 40          	add    rsi,0x40
+  5a8f56:	48 83 c7 40          	add    rdi,0x40
+  5a8f5a:	48 83 e9 02          	sub    rcx,0x2
+  5a8f5e:	eb d8                	jmp    5a8f38 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x98>
+  5a8f60:	48 85 c9             	test   rcx,rcx
+  5a8f63:	74 11                	je     5a8f76 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0xd6>
+  5a8f65:	c5 fe 6f 27          	vmovdqu ymm4,YMMWORD PTR [rdi]
+  5a8f69:	c4 62 5d 50 06       	{vex} vpdpbusd ymm8,ymm4,YMMWORD PTR [rsi]
+  5a8f6e:	48 83 c6 20          	add    rsi,0x20
+  5a8f72:	48 83 c7 20          	add    rdi,0x20
+  5a8f76:	c4 41 3d fe c1       	vpaddd ymm8,ymm8,ymm9
+  5a8f7b:	c4 63 7d 19 c1 01    	vextractf128 xmm1,ymm8,0x1
+  5a8f81:	c5 39 fe c1          	vpaddd xmm8,xmm8,xmm1
+  5a8f85:	c4 c1 79 70 c8 4e    	vpshufd xmm1,xmm8,0x4e
+  5a8f8b:	c5 39 fe c1          	vpaddd xmm8,xmm8,xmm1
+  5a8f8f:	c4 c1 79 70 c8 b1    	vpshufd xmm1,xmm8,0xb1
+  5a8f95:	c5 39 fe c1          	vpaddd xmm8,xmm8,xmm1
+  5a8f99:	c5 79 7e c1          	vmovd  ecx,xmm8
+  5a8f9d:	4d 85 db             	test   r11,r11
+  5a8fa0:	74 1b                	je     5a8fbd <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x11d>
+  5a8fa2:	4d 89 dc             	mov    r12,r11
+  5a8fa5:	0f be 1e             	movsx  ebx,BYTE PTR [rsi]
+  5a8fa8:	0f b6 17             	movzx  edx,BYTE PTR [rdi]
+  5a8fab:	0f af da             	imul   ebx,edx
+  5a8fae:	01 d9                	add    ecx,ebx
+  5a8fb0:	48 83 c6 01          	add    rsi,0x1
+  5a8fb4:	48 83 c7 01          	add    rdi,0x1
+  5a8fb8:	49 ff cc             	dec    r12
+  5a8fbb:	75 e8                	jne    5a8fa5 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x105>
+  5a8fbd:	c5 d3 2a e9          	vcvtsi2sd xmm5,xmm5,ecx
+  5a8fc1:	c4 c1 1b 59 37       	vmulsd xmm6,xmm12,QWORD PTR [r15]
+  5a8fc6:	c4 c1 4b 58 f5       	vaddsd xmm6,xmm6,xmm13
+  5a8fcb:	c4 c1 4b 58 77 18    	vaddsd xmm6,xmm6,QWORD PTR [r15+0x18]
+  5a8fd1:	c4 c1 0b 59 7f 08    	vmulsd xmm7,xmm14,QWORD PTR [r15+0x8]
+  5a8fd7:	c5 cb 58 f7          	vaddsd xmm6,xmm6,xmm7
+  5a8fdb:	c4 41 03 59 57 10    	vmulsd xmm10,xmm15,QWORD PTR [r15+0x10]
+  5a8fe1:	c5 2b 59 d5          	vmulsd xmm10,xmm10,xmm5
+  5a8fe5:	c4 c1 4b 58 f2       	vaddsd xmm6,xmm6,xmm10
+  5a8fea:	c4 c1 79 2e f3       	vucomisd xmm6,xmm11
+  5a8fef:	77 14                	ja     5a9005 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x165>
+  5a8ff1:	4b 8b 5c 35 00       	mov    rbx,QWORD PTR [r13+r14*1+0x0]
+  5a8ff6:	48 89 18             	mov    QWORD PTR [rax],rbx
+  5a8ff9:	49 8b 5d 00          	mov    rbx,QWORD PTR [r13+0x0]
+  5a8ffd:	48 89 58 08          	mov    QWORD PTR [rax+0x8],rbx
+  5a9001:	48 83 c0 10          	add    rax,0x10
+  5a9005:	49 83 c5 08          	add    r13,0x8
+  5a9009:	49 83 c7 20          	add    r15,0x20
+  5a900d:	49 ff ca             	dec    r10
+  5a9010:	0f 85 12 ff ff ff    	jne    5a8f28 <minivectordb/internal/engine.fusedScanInt8AVXVNNI.abi0+0x88>
+  5a9016:	48 8b 4c 24 78       	mov    rcx,QWORD PTR [rsp+0x78]
+  5a901b:	48 29 c8             	sub    rax,rcx
+  5a901e:	48 c1 e8 04          	shr    rax,0x4
+  5a9022:	48 89 84 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rax
+  5a9029:	00 
+  5a902a:	c5 f8 77             	vzeroupper
+  5a902d:	c3                   	ret
+
+
+/tmp/seekdb-round4-bin/vnni-tests:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+00000000005a9040 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0>:
+  5a9040:	4c 8b 44 24 08       	mov    r8,QWORD PTR [rsp+0x8]
+  5a9045:	4c 8b 4c 24 68       	mov    r9,QWORD PTR [rsp+0x68]
+  5a904a:	4d 89 ce             	mov    r14,r9
+  5a904d:	49 c1 e6 05          	shl    r14,0x5
+  5a9051:	4c 8b 5c 24 70       	mov    r11,QWORD PTR [rsp+0x70]
+  5a9056:	4d 01 de             	add    r14,r11
+  5a9059:	4c 8b 6c 24 58       	mov    r13,QWORD PTR [rsp+0x58]
+  5a905e:	c5 7b 10 64 24 30    	vmovsd xmm12,QWORD PTR [rsp+0x30]
+  5a9064:	c5 7b 10 6c 24 38    	vmovsd xmm13,QWORD PTR [rsp+0x38]
+  5a906a:	c5 7b 10 74 24 40    	vmovsd xmm14,QWORD PTR [rsp+0x40]
+  5a9070:	c5 7b 10 7c 24 48    	vmovsd xmm15,QWORD PTR [rsp+0x48]
+  5a9076:	c5 7b 10 5c 24 50    	vmovsd xmm11,QWORD PTR [rsp+0x50]
+  5a907c:	4c 8b 54 24 60       	mov    r10,QWORD PTR [rsp+0x60]
+  5a9081:	48 8b 44 24 78       	mov    rax,QWORD PTR [rsp+0x78]
+  5a9086:	4d 85 d2             	test   r10,r10
+  5a9089:	0f 84 13 01 00 00    	je     5a91a2 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x162>
+  5a908f:	41 8b 5d 00          	mov    ebx,DWORD PTR [r13+0x0]
+  5a9093:	48 89 df             	mov    rdi,rbx
+  5a9096:	49 0f af fe          	imul   rdi,r14
+  5a909a:	48 03 7c 24 10       	add    rdi,QWORD PTR [rsp+0x10]
+  5a909f:	49 89 df             	mov    r15,rbx
+  5a90a2:	49 c1 e7 05          	shl    r15,0x5
+  5a90a6:	4c 03 7c 24 28       	add    r15,QWORD PTR [rsp+0x28]
+  5a90ab:	4c 89 c6             	mov    rsi,r8
+  5a90ae:	4c 89 c9             	mov    rcx,r9
+  5a90b1:	c4 41 3d ef c0       	vpxor  ymm8,ymm8,ymm8
+  5a90b6:	c4 41 35 ef c9       	vpxor  ymm9,ymm9,ymm9
+  5a90bb:	48 83 f9 02          	cmp    rcx,0x2
+  5a90bf:	7c 22                	jl     5a90e3 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xa3>
+  5a90c1:	c5 fe 6f 27          	vmovdqu ymm4,YMMWORD PTR [rdi]
+  5a90c5:	c4 62 5d 50 06       	{vex} vpdpbusd ymm8,ymm4,YMMWORD PTR [rsi]
+  5a90ca:	c5 fe 6f 77 20       	vmovdqu ymm6,YMMWORD PTR [rdi+0x20]
+  5a90cf:	c4 62 4d 50 4e 20    	{vex} vpdpbusd ymm9,ymm6,YMMWORD PTR [rsi+0x20]
+  5a90d5:	48 83 c6 40          	add    rsi,0x40
+  5a90d9:	48 83 c7 40          	add    rdi,0x40
+  5a90dd:	48 83 e9 02          	sub    rcx,0x2
+  5a90e1:	eb d8                	jmp    5a90bb <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x7b>
+  5a90e3:	48 85 c9             	test   rcx,rcx
+  5a90e6:	74 11                	je     5a90f9 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xb9>
+  5a90e8:	c5 fe 6f 27          	vmovdqu ymm4,YMMWORD PTR [rdi]
+  5a90ec:	c4 62 5d 50 06       	{vex} vpdpbusd ymm8,ymm4,YMMWORD PTR [rsi]
+  5a90f1:	48 83 c6 20          	add    rsi,0x20
+  5a90f5:	48 83 c7 20          	add    rdi,0x20
+  5a90f9:	c4 41 3d fe c1       	vpaddd ymm8,ymm8,ymm9
+  5a90fe:	c4 63 7d 19 c1 01    	vextractf128 xmm1,ymm8,0x1
+  5a9104:	c5 39 fe c1          	vpaddd xmm8,xmm8,xmm1
+  5a9108:	c4 c1 79 70 c8 4e    	vpshufd xmm1,xmm8,0x4e
+  5a910e:	c5 39 fe c1          	vpaddd xmm8,xmm8,xmm1
+  5a9112:	c4 c1 79 70 c8 b1    	vpshufd xmm1,xmm8,0xb1
+  5a9118:	c5 39 fe c1          	vpaddd xmm8,xmm8,xmm1
+  5a911c:	c5 79 7e c1          	vmovd  ecx,xmm8
+  5a9120:	4d 85 db             	test   r11,r11
+  5a9123:	74 1b                	je     5a9140 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x100>
+  5a9125:	4d 89 dc             	mov    r12,r11
+  5a9128:	0f be 1e             	movsx  ebx,BYTE PTR [rsi]
+  5a912b:	0f b6 17             	movzx  edx,BYTE PTR [rdi]
+  5a912e:	0f af da             	imul   ebx,edx
+  5a9131:	01 d9                	add    ecx,ebx
+  5a9133:	48 83 c6 01          	add    rsi,0x1
+  5a9137:	48 83 c7 01          	add    rdi,0x1
+  5a913b:	49 ff cc             	dec    r12
+  5a913e:	75 e8                	jne    5a9128 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0xe8>
+  5a9140:	c5 d3 2a e9          	vcvtsi2sd xmm5,xmm5,ecx
+  5a9144:	c4 c1 1b 59 37       	vmulsd xmm6,xmm12,QWORD PTR [r15]
+  5a9149:	c4 c1 4b 58 f5       	vaddsd xmm6,xmm6,xmm13
+  5a914e:	c4 c1 4b 58 77 18    	vaddsd xmm6,xmm6,QWORD PTR [r15+0x18]
+  5a9154:	c4 c1 0b 59 7f 08    	vmulsd xmm7,xmm14,QWORD PTR [r15+0x8]
+  5a915a:	c5 cb 58 f7          	vaddsd xmm6,xmm6,xmm7
+  5a915e:	c4 41 03 59 57 10    	vmulsd xmm10,xmm15,QWORD PTR [r15+0x10]
+  5a9164:	c5 2b 59 d5          	vmulsd xmm10,xmm10,xmm5
+  5a9168:	c4 c1 4b 58 f2       	vaddsd xmm6,xmm6,xmm10
+  5a916d:	c4 c1 79 2e f3       	vucomisd xmm6,xmm11
+  5a9172:	77 21                	ja     5a9195 <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x155>
+  5a9174:	41 8b 5d 00          	mov    ebx,DWORD PTR [r13+0x0]
+  5a9178:	48 8b 54 24 20       	mov    rdx,QWORD PTR [rsp+0x20]
+  5a917d:	48 8b 14 da          	mov    rdx,QWORD PTR [rdx+rbx*8]
+  5a9181:	48 89 10             	mov    QWORD PTR [rax],rdx
+  5a9184:	48 8b 54 24 18       	mov    rdx,QWORD PTR [rsp+0x18]
+  5a9189:	48 8b 14 da          	mov    rdx,QWORD PTR [rdx+rbx*8]
+  5a918d:	48 89 50 08          	mov    QWORD PTR [rax+0x8],rdx
+  5a9191:	48 83 c0 10          	add    rax,0x10
+  5a9195:	49 83 c5 04          	add    r13,0x4
+  5a9199:	49 ff ca             	dec    r10
+  5a919c:	0f 85 ed fe ff ff    	jne    5a908f <minivectordb/internal/engine.fusedScanCandidatesAVXVNNI.abi0+0x4f>
+  5a91a2:	48 8b 4c 24 78       	mov    rcx,QWORD PTR [rsp+0x78]
+  5a91a7:	48 29 c8             	sub    rax,rcx
+  5a91aa:	48 c1 e8 04          	shr    rax,0x4
+  5a91ae:	48 89 84 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rax
+  5a91b5:	00 
+  5a91b6:	c5 f8 77             	vzeroupper
+  5a91b9:	c3                   	ret

@@ -1,0 +1,7 @@
+# minivectordb/internal/engine
+internal/engine/topk.go:250:31: undefined: useVNNI
+internal/engine/topk.go:328:6: undefined: useVNNI
+internal/engine/topk.go:354:8: undefined: useVNNI
+internal/engine/topk.go:355:10: undefined: fusedScanInt8BlockVNNI
+internal/engine/topk.go:411:15: undefined: useVNNI
+internal/engine/topk.go:412:10: undefined: fusedScanVNNI

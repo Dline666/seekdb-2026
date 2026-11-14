@@ -1,0 +1,6 @@
+goos: linux
+goarch: amd64
+pkg: minivectordb/internal/engine
+cpu: Intel(R) Core(TM) Ultra 5 125H
+BenchmarkQueryProfile-2   	      20	  45349940 ns/op
+PASS

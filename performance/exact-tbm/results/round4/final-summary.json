@@ -1,0 +1,360 @@
+[
+  {
+    "rows": 10000,
+    "dim": 127,
+    "queries": 500,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.192927907,
+      "b_bytes": 5812224,
+      "m_bytes": 9998336,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.113310303,
+      "b_bytes": 5812224,
+      "m_bytes": 12169216,
+      "warmup_s": 0.021988407,
+      "rounds": 3
+    },
+    "checked_queries": 1500,
+    "response_hashes": [
+      "8f28ada75e2d34de"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.4999583586124222,
+      "rounds": [
+        0.4999583586124222,
+        0.5009760788989055,
+        0.4938970960522868
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 127,
+    "queries": 500,
+    "seed": 7,
+    "data": "uniform",
+    "name": "final",
+    "write": {
+      "t_s": 0.200573891,
+      "b_bytes": 5812224,
+      "m_bytes": 10207232,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.082290273,
+      "b_bytes": 5812224,
+      "m_bytes": 13352960,
+      "warmup_s": 0.021893474,
+      "rounds": 3
+    },
+    "checked_queries": 1500,
+    "response_hashes": [
+      "8f28ada75e2d34de"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5277441942726254,
+      "rounds": [
+        0.5287201546300047,
+        0.5127566614145456,
+        0.5277441942726254
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.206408971,
+      "b_bytes": 5853184,
+      "m_bytes": 10203136,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.318624624,
+      "b_bytes": 5853184,
+      "m_bytes": 13017088,
+      "warmup_s": 0.02355592,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.501374832355166,
+      "rounds": [
+        0.4838694712320024,
+        0.5019563264784215,
+        0.5034595902209946,
+        0.501374832355166,
+        0.4990392479695613
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "final",
+    "write": {
+      "t_s": 0.202360624,
+      "b_bytes": 5853184,
+      "m_bytes": 10190848,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.297683867,
+      "b_bytes": 5853184,
+      "m_bytes": 13201408,
+      "warmup_s": 0.022520927,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5072873891513833,
+      "rounds": [
+        0.49741378351861487,
+        0.5053938389509448,
+        0.5082820981114987,
+        0.509442783186649,
+        0.5072873891513833
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 1024,
+    "queries": 200,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.838483348,
+      "b_bytes": 41693184,
+      "m_bytes": 53936128,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.103562024,
+      "b_bytes": 41693184,
+      "m_bytes": 61034496,
+      "warmup_s": 0.150918387,
+      "rounds": 3
+    },
+    "checked_queries": 600,
+    "response_hashes": [
+      "983fcb7df48d6fe5"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5004936563741967,
+      "rounds": [
+        0.5011823794045934,
+        0.5004936563741967,
+        0.4901363372509938
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 1024,
+    "queries": 200,
+    "seed": 7,
+    "data": "uniform",
+    "name": "final",
+    "write": {
+      "t_s": 0.842882421,
+      "b_bytes": 41693184,
+      "m_bytes": 53915648,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.092336527,
+      "b_bytes": 41693184,
+      "m_bytes": 61227008,
+      "warmup_s": 0.150909405,
+      "rounds": 3
+    },
+    "checked_queries": 600,
+    "response_hashes": [
+      "983fcb7df48d6fe5"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.4982895545928316,
+      "rounds": [
+        0.5131182015116414,
+        0.4943748394060638,
+        0.4982895545928316
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "outlier",
+    "name": "base",
+    "write": {
+      "t_s": 2.853481468,
+      "b_bytes": 109711360,
+      "m_bytes": 116625408,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.288171978,
+      "b_bytes": 109711360,
+      "m_bytes": 152293376,
+      "warmup_s": 0.42142073,
+      "rounds": 3
+    },
+    "checked_queries": 900,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.4999907204417069,
+      "rounds": [
+        0.5021743184858487,
+        0.4999907204417069,
+        0.49354288617705594
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "outlier",
+    "name": "final",
+    "write": {
+      "t_s": 2.850307078,
+      "b_bytes": 109711360,
+      "m_bytes": 116412416,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.253965311,
+      "b_bytes": 109711360,
+      "m_bytes": 152076288,
+      "warmup_s": 0.421031585,
+      "rounds": 3
+    },
+    "checked_queries": 900,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.510398945775452,
+      "rounds": [
+        0.5063033313903056,
+        0.510398945775452,
+        0.514017855779292
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 600,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 2.843403801,
+      "b_bytes": 109711360,
+      "m_bytes": 116432896,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.576422985,
+      "b_bytes": 109711360,
+      "m_bytes": 155713536,
+      "warmup_s": 0.419485365,
+      "rounds": 5
+    },
+    "checked_queries": 3000,
+    "response_hashes": [
+      "3023d53c89eca564"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.507559399591128,
+      "rounds": [
+        0.5005561909287101,
+        0.5077311156335277,
+        0.4957446474580718,
+        0.507559399591128,
+        0.5082817111273368
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 600,
+    "seed": 7,
+    "data": "uniform",
+    "name": "final",
+    "write": {
+      "t_s": 2.87694215,
+      "b_bytes": 109711360,
+      "m_bytes": 116527104,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.51848967,
+      "b_bytes": 109711360,
+      "m_bytes": 156282880,
+      "warmup_s": 0.420662167,
+      "rounds": 5
+    },
+    "checked_queries": 3000,
+    "response_hashes": [
+      "3023d53c89eca564"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5190121779677214,
+      "rounds": [
+        0.5196263754715399,
+        0.5209025878266528,
+        0.5190121779677214,
+        0.5129948395178545,
+        0.5170161807660164
+      ]
+    }
+  }
+]

@@ -1,0 +1,5 @@
+# Preserve tool-emitted spacing in raw diagnostics and patch context lines.
+protocol-docker-run.txt whitespace=-blank-at-eol
+*-disassembly.txt whitespace=-blank-at-eol
+*.log whitespace=-blank-at-eol
+*.patch -whitespace

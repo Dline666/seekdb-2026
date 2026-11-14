@@ -1,0 +1,76 @@
+[
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.206371188,
+      "b_bytes": 5853184,
+      "m_bytes": 10240000,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.321765073,
+      "b_bytes": 5853184,
+      "m_bytes": 12845056,
+      "warmup_s": 0.022334776,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.49914951454244716,
+      "rounds": [
+        0.4929412180435266,
+        0.49914951454244716,
+        0.4964915373089783,
+        0.5019651025375927,
+        0.5030070172285269
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "seed",
+    "write": {
+      "t_s": 0.204651719,
+      "b_bytes": 5853184,
+      "m_bytes": 10043392,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.322562038,
+      "b_bytes": 5853184,
+      "m_bytes": 13004800,
+      "warmup_s": 0.0222548,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5003175759713289,
+      "rounds": [
+        0.5023121540854789,
+        0.5003175759713289,
+        0.49981204157003417,
+        0.5038160417836991,
+        0.4989842783633449
+      ]
+    }
+  }
+]

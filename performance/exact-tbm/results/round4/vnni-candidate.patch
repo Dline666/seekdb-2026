@@ -1,0 +1,596 @@
+--- /dev/null
++++ b/minivectordb/internal/engine/avxvnni_amd64_test.go
+@@ -0,0 +1,219 @@
++package engine
++
++import (
++	"fmt"
++	"math"
++	"math/rand"
++	"slices"
++	"testing"
++)
++
++func TestAVXVNNIGate(t *testing.T) {
++	const required = 1<<12 | 1<<27 | 1<<28
++	for _, tc := range []struct {
++		name                           string
++		maxLeaf, c1, xcr, sub, b7, a71 uint32
++		want, readXCR, readSubleaf     bool
++	}{
++		{"ymm-only", 7, required, 6, 1, 1 << 5, 1 << 4, true, true, true},
++		{"zmm-optional", 7, required, 0xe6, 1, 1 << 5, 1 << 4, true, true, true},
++		{"no-leaf7", 6, required, 6, 1, 1 << 5, 1 << 4, false, false, false},
++		{"no-fma", 7, required &^ (1 << 12), 6, 1, 1 << 5, 1 << 4, false, false, false},
++		{"no-osxsave", 7, required &^ (1 << 27), 6, 1, 1 << 5, 1 << 4, false, false, false},
++		{"no-avx", 7, required &^ (1 << 28), 6, 1, 1 << 5, 1 << 4, false, false, false},
++		{"no-xmm", 7, required, 4, 1, 1 << 5, 1 << 4, false, true, false},
++		{"no-ymm", 7, required, 2, 1, 1 << 5, 1 << 4, false, true, false},
++		{"no-avx2", 7, required, 6, 1, 0, 1 << 4, false, true, false},
++		{"no-subleaf1", 7, required, 6, 0, 1 << 5, 1 << 4, false, true, false},
++		{"no-avx-vnni", 7, required, 6, 1, 1 << 5, 0, false, true, true},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			readXCR, readSubleaf := false, false
++			id := func(leaf, subleaf uint32) (uint32, uint32, uint32, uint32) {
++				switch {
++				case leaf == 0 && subleaf == 0:
++					return tc.maxLeaf, 0, 0, 0
++				case leaf == 1 && subleaf == 0:
++					return 0, 0, tc.c1, 0
++				case leaf == 7 && subleaf == 0:
++					return tc.sub, tc.b7, 0, 0
++				case leaf == 7 && subleaf == 1:
++					readSubleaf = true
++					return tc.a71, 0, 0, 0
++				default:
++					t.Fatalf("unexpected CPUID(%d,%d)", leaf, subleaf)
++					return 0, 0, 0, 0
++				}
++			}
++			got := avxVNNISupported(id, func() uint32 { readXCR = true; return tc.xcr })
++			if got != tc.want || readXCR != tc.readXCR || readSubleaf != tc.readSubleaf {
++				t.Fatalf("got support/xcr/subleaf=%v/%v/%v, want %v/%v/%v", got, readXCR, readSubleaf, tc.want, tc.readXCR, tc.readSubleaf)
++			}
++		})
++	}
++}
++
++func TestAVXVNNIEnvOverrides(t *testing.T) {
++	before := hasAVXVNNI()
++	t.Setenv("MVDB_NO_AVX512", "1")
++	if hasAVXVNNI() != before {
++		t.Fatal("disabling AVX512 changed the independent AVX-VNNI gate")
++	}
++	for _, key := range []string{"MVDB_NO_SIMD", "MVDB_NO_VNNI", "MVDB_NO_AVXVNNI"} {
++		t.Run(key, func(t *testing.T) {
++			t.Setenv(key, "1")
++			if hasAVXVNNI() {
++				t.Fatalf("AVX-VNNI enabled with %s=1", key)
++			}
++		})
++	}
++}
++
++// Compare the actual signed dot and the same biased float64 association.
++// The unbiased AVX2 fold can differ by ulps; final exact results, rather
++// than arbitrary-threshold equality with that fold, are the contract.
++func avxVNNIDistance(qc8 []int8, x *VecIndex, slot int32, qSum, qNorm2, qminAdj, qscale float64) float64 {
++	var dot int32
++	for j, q := range qc8 {
++		dot += int32(q) * int32(x.codes[int(slot)*x.dim+j])
++	}
++	f := x.qf[4*int(slot):]
++	d := f[0] * qSum
++	d += qNorm2
++	d += f[3]
++	d += f[1] * qminAdj
++	p := f[2] * qscale
++	p *= float64(dot)
++	return d + p
++}
++
++func avxVNNIScalar(qc8 []int8, x *VecIndex, slots []int32, qSum, qNorm2, qminAdj, qscale, threshold float64) []int64 {
++	var out []int64
++	for _, slot := range slots {
++		d := avxVNNIDistance(qc8, x, slot, qSum, qNorm2, qminAdj, qscale)
++		if !(d > threshold) {
++			out = append(out, x.off[slot], x.pks[slot])
++		}
++	}
++	return out
++}
++
++func checkAVXVNNIKernels(t *testing.T, qc8 []int8, x *VecIndex, qSum, qNorm2, qminAdj, qscale float64, thresholds []float64) {
++	t.Helper()
++	for _, mode := range []string{"sequential", "candidates"} {
++		slots := make([]int32, len(x.pks)-3)
++		for i := range slots {
++			slots[i] = int32(i + 3)
++		}
++		if mode == "candidates" {
++			// Non-contiguous, reversed and repeated candidates preserve their
++			// supplied order. Include slots at both ends of the arrays.
++			slots = []int32{int32(len(x.pks) - 1), 0, 4, 4, 2, 12, 3}
++		}
++		for _, threshold := range thresholds {
++			want := avxVNNIScalar(qc8, x, slots, qSum, qNorm2, qminAdj, qscale, threshold)
++			got := make([]int64, 2*len(slots)+2)
++			got[len(got)-2], got[len(got)-1] = -101, -103
++			var n int
++			if mode == "sequential" {
++				n = fusedScanAVXVNNI(qc8, x, 3, len(slots), qSum, qNorm2, qminAdj, qscale, threshold, got)
++			} else {
++				n = fusedScanCandidateAVXVNNI(qc8, x, slots, qSum, qNorm2, qminAdj, qscale, threshold, got)
++			}
++			if n < 0 || n > len(slots) || !slices.Equal(got[:2*n], want) {
++				t.Fatalf("%s dim=%d threshold=%g: got count %d, want %v", mode, len(qc8), threshold, n, want)
++			}
++			if got[len(got)-2] != -101 || got[len(got)-1] != -103 {
++				t.Fatal("survivor buffer overwrite")
++			}
++		}
++	}
++}
++
++func TestAVXVNNIIntegerDot(t *testing.T) {
++	if !hasAVXVNNI() {
++		t.Skip("AVX-VNNI unavailable")
++	}
++	rng := rand.New(rand.NewSource(4801))
++	for _, dim := range []int{1, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 1024, maxInt8Dim} {
++		x := &VecIndex{dim: dim, pks: make([]int64, 17), off: make([]int64, 17), codes: make([]byte, 17*dim), qf: make([]float64, 17*4)}
++		for s := range x.pks {
++			x.pks[s], x.off[s], x.qf[4*s+2] = int64(100-s), int64(1000*s), 1
++			for j := 0; j < dim; j++ {
++				x.codes[s*dim+j] = byte(rng.Intn(256))
++				if s%3 == 0 {
++					x.codes[s*dim+j] = 255
++				}
++			}
++		}
++		for _, pattern := range []string{"negative", "positive", "mixed", "random"} {
++			qc8 := make([]int8, dim)
++			for j := range qc8 {
++				switch pattern {
++				case "negative":
++					qc8[j] = -128
++				case "positive":
++					qc8[j] = 127
++				case "mixed":
++					qc8[j] = int8((j%2)*255 - 128)
++				case "random":
++					qc8[j] = int8(rng.Intn(256) - 128)
++				}
++			}
++			var dot int32
++			for j, q := range qc8 {
++				dot += int32(q) * int32(x.codes[3*dim+j])
++			}
++			thresholds := []float64{math.Inf(-1), -1, 0, 1, float64(dot) - 1, float64(dot), float64(dot) + 1, math.Inf(1), math.NaN()}
++			t.Run(fmt.Sprintf("%d/%s", dim, pattern), func(t *testing.T) {
++				checkAVXVNNIKernels(t, qc8, x, 0, 0, 0, 1, thresholds)
++			})
++		}
++	}
++	if fusedScanInt8AVXVNNI(nil, nil, nil, nil, nil, 0, 0, 0, 0, 0, 0, 0, 0, 0, nil) != 0 ||
++		fusedScanCandidatesAVXVNNI(nil, nil, nil, nil, nil, 0, 0, 0, 0, 0, nil, 0, 0, 0, nil) != 0 {
++		t.Fatal("empty raw scan produced survivors")
++	}
++	if fusedScanAVXVNNI(nil, &VecIndex{}, 0, 0, 0, 0, 0, 0, 0, nil) != 0 ||
++		fusedScanCandidateAVXVNNI(nil, &VecIndex{}, nil, 0, 0, 0, 0, 0, nil) != 0 {
++		t.Fatal("empty scan produced survivors")
++	}
++}
++
++func TestAVXVNNIFoldedScalar(t *testing.T) {
++	if !hasAVXVNNI() {
++		t.Skip("AVX-VNNI unavailable")
++	}
++	rng := rand.New(rand.NewSource(4802))
++	for _, dim := range []int{17, 32, 33, 64, 127, 128, 129, 256, 257, 1024} {
++		x := &VecIndex{dim: dim, pks: make([]int64, 17), off: make([]int64, 17), codes: make([]byte, 17*dim), qf: make([]float64, 17*4)}
++		for s := range x.pks {
++			v := make([]float32, dim)
++			for j := range v {
++				v[j] = rng.Float32()*4 - 2
++			}
++			qp := quantizeRow(v, x.codes[s*dim:(s+1)*dim])
++			x.qf[4*s], x.qf[4*s+1], x.qf[4*s+2], x.qf[4*s+3] = foldQparam(qp, dim)
++			x.pks[s], x.off[s] = int64(100-s), int64(1000*s)
++		}
++		q := make([]float32, dim)
++		for j := range q {
++			q[j] = rng.Float32()*4 - 2
++		}
++		qmin, qscale, qc, sum, norm, ok := quantizeQuery(q)
++		if !ok {
++			t.Fatal("finite query rejected")
++		}
++		qc8, qminAdj := heBiasQuery(qc, qmin, qscale)
++		thresholds := []float64{-1, 0, 5, 35, 200, 1000, 1e6, math.Inf(1), math.NaN()}
++		for _, slot := range []int32{0, 3, 8, 16} {
++			d := avxVNNIDistance(qc8, x, slot, sum, norm, qminAdj, float64(qscale))
++			thresholds = append(thresholds, math.Nextafter(d, math.Inf(-1)), d, math.Nextafter(d, math.Inf(1)))
++		}
++		checkAVXVNNIKernels(t, qc8, x, sum, norm, qminAdj, float64(qscale), thresholds)
++		// Exceptional folded intermediates must fall through to exact
++		// verification whenever the scalar comparison is unordered.
++		x.qf[4*3+3], x.qf[4*4+3] = math.NaN(), math.Inf(1)
++		checkAVXVNNIKernels(t, qc8, x, sum, norm, qminAdj, float64(qscale), []float64{0, 35, math.Inf(1), math.NaN()})
++	}
++}
+--- /dev/null
++++ b/minivectordb/internal/engine/fused_avxvnni_amd64.go
+@@ -0,0 +1,70 @@
++package engine
++
++import "os"
++
++// AVX-VNNI uses VEX-encoded 256-bit instructions and needs only XMM/YMM
++// OS state. It is independent of AVX512-VNNI and does not enable category
++// code copies. Keep the AVX2/FMA requirements of the surrounding scan.
++func avxVNNISupported(id func(uint32, uint32) (uint32, uint32, uint32, uint32), xcr0 func() uint32) bool {
++	maxLeaf, _, _, _ := id(0, 0)
++	if maxLeaf < 7 {
++		return false
++	}
++	_, _, c1, _ := id(1, 0)
++	const required = 1<<12 | 1<<27 | 1<<28 // FMA, OSXSAVE, AVX
++	if c1&required != required {
++		return false
++	}
++	if xcr0()&6 != 6 {
++		return false
++	}
++	maxSubleaf, b7, _, _ := id(7, 0)
++	if b7&(1<<5) == 0 || maxSubleaf < 1 { // AVX2 and CPUID subleaf 1
++		return false
++	}
++	a71, _, _, _ := id(7, 1)
++	return a71&(1<<4) != 0 // AVX-VNNI
++}
++
++func hasAVXVNNI() bool {
++	if os.Getenv("MVDB_NO_SIMD") != "" || os.Getenv("MVDB_NO_VNNI") != "" || os.Getenv("MVDB_NO_AVXVNNI") != "" {
++		return false
++	}
++	return avxVNNISupported(cpuid, xgetbv0)
++}
++
++var useAVXVNNI = hasAVXVNNI()
++
++// The query is biased by -128, with the same qminAdj correction and
++// conservative floating-point allowance as the AVX512-VNNI path. Integer
++// accumulation is exact. Only the final folded-distance association can
++// differ from the unshifted AVX2 reference; survivors still get exact L2.
++// blocks counts 32-byte blocks and tail is at most 31 elements.
++//
++//go:noescape
++func fusedScanInt8AVXVNNI(qc8 *int8, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qminAdj, qscale, thresh2 float64, baseSlot, rows, blocks, tail int, surv *int64) int
++
++//go:noescape
++func fusedScanCandidatesAVXVNNI(qc8 *int8, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qminAdj, qscale, thresh2 float64, slots *int32, rows, blocks, tail int, surv *int64) int
++
++func fusedScanAVXVNNI(qc8 []int8, x *VecIndex, baseSlot int32, rows int, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
++	return fusedScanBlockAVXVNNI(qc8, x.codes, x.pks, x.off, x.qf, int(baseSlot), rows, qSum, qNorm2, qminAdj, qscale, thresh2, surv)
++}
++
++func fusedScanBlockAVXVNNI(qc8 []int8, codes []byte, pks, offs []int64, qf []float64, baseSlot, rows int, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
++	if rows == 0 {
++		return 0
++	}
++	return fusedScanInt8AVXVNNI(&qc8[0], &codes[0], &pks[0], &offs[0], &qf[0],
++		qSum, qNorm2, qminAdj, qscale, thresh2,
++		baseSlot, rows, len(qc8)/32, len(qc8)%32, &surv[0])
++}
++
++func fusedScanCandidateAVXVNNI(qc8 []int8, x *VecIndex, slots []int32, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
++	if len(slots) == 0 {
++		return 0
++	}
++	return fusedScanCandidatesAVXVNNI(&qc8[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
++		qSum, qNorm2, qminAdj, qscale, thresh2,
++		&slots[0], len(slots), len(qc8)/32, len(qc8)%32, &surv[0])
++}
+--- /dev/null
++++ b/minivectordb/internal/engine/fused_avxvnni_amd64.s
+@@ -0,0 +1,219 @@
++#include "textflag.h"
++
++// Go 1.22 emits EVEX for its VPDPBUSD mnemonic, even with YMM operands.
++// The explicit instruction bytes below are VEX.256, requiring AVX-VNNI
++// and YMM state only. unsigned row codes are the register source, signed
++// query bytes the memory source. Both kernels use exact int32 dots and
++// the existing VNNI folded-distance epilogue, with no saturating sums.
++// Verify their disassembly before executing on a host without AVX512.
++
++TEXT ·fusedScanInt8AVXVNNI(SB), NOSPLIT, $0-128
++	MOVQ qc8+0(FP), R8
++	MOVQ blocks+96(FP), R9
++	MOVQ tail+104(FP), R11
++	MOVQ R9, CX
++	SHLQ $5, CX
++	ADDQ R11, CX
++	MOVQ baseSlot+80(FP), AX
++	IMULQ CX, AX
++	MOVQ codes+8(FP), DI
++	ADDQ AX, DI
++	// pks/offs cursors start at baseSlot; qf cursor at baseSlot*4 float64s.
++	MOVQ baseSlot+80(FP), AX
++	SHLQ $3, AX
++	MOVQ pks+16(FP), R13
++	ADDQ AX, R13
++	MOVQ offs+24(FP), R14
++	ADDQ AX, R14
++	SUBQ R13, R14 // R14 = offs-pks delta (constant: both cursors +8/row)
++	MOVQ baseSlot+80(FP), AX
++	SHLQ $5, AX
++	MOVQ qf+32(FP), R15
++	ADDQ AX, R15
++	VMOVSD qSum+40(FP), X12
++	VMOVSD qNorm2+48(FP), X13
++	VMOVSD qminAdj+56(FP), X14
++	VMOVSD qscale+64(FP), X15
++	VMOVSD thresh2+72(FP), X11
++	MOVQ rows+88(FP), R10
++	MOVQ surv+112(FP), AX
++	TESTQ R10, R10
++	JZ done
++row:
++	MOVQ R8, SI
++	MOVQ R9, CX
++	VPXOR Y8, Y8, Y8
++	VPXOR Y9, Y9, Y9
++pairloop:
++	CMPQ CX, $2
++	JL single
++	VMOVDQU 0(DI), Y4
++	// VEX.256.66.0F38.W0 50 /r: VPDPBUSD 0(SI), Y4, Y8.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x06
++	VMOVDQU 32(DI), Y6
++	// VPDPBUSD 32(SI), Y6, Y9, with the same VEX-only encoding.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0x4E; BYTE $0x20
++	ADDQ $64, SI
++	ADDQ $64, DI
++	SUBQ $2, CX
++	JMP pairloop
++single:
++	TESTQ CX, CX
++	JZ reduce
++	VMOVDQU 0(DI), Y4
++	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x06
++	ADDQ $32, SI
++	ADDQ $32, DI
++reduce:
++	VPADDD Y9, Y8, Y8
++	VEXTRACTF128 $1, Y8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0x4E, X8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0xB1, X8, X1
++	VPADDD X1, X8, X8
++	VMOVD X8, CX
++	TESTQ R11, R11
++	JZ epilogue
++	MOVQ R11, R12
++tailLoop:
++	MOVBLSX 0(SI), BX
++	MOVBLZX 0(DI), DX
++	IMULL DX, BX
++	ADDL BX, CX
++	ADDQ $1, SI
++	ADDQ $1, DI
++	DECQ R12
++	JNZ tailLoop
++epilogue:
++	VCVTSI2SDL CX, X5, X5
++	VMULSD 0(R15), X12, X6
++	VADDSD X13, X6, X6
++	VADDSD 24(R15), X6, X6
++	VMULSD 8(R15), X14, X7
++	VADDSD X7, X6, X6
++	VMULSD 16(R15), X15, X10
++	VMULSD X5, X10, X10
++	VADDSD X10, X6, X6
++	VUCOMISD X11, X6
++	JA next
++	MOVQ 0(R13)(R14*1), BX
++	MOVQ BX, 0(AX)
++	MOVQ 0(R13), BX
++	MOVQ BX, 8(AX)
++	ADDQ $16, AX
++next:
++	ADDQ $8, R13
++	ADDQ $32, R15
++	DECQ R10
++	JNZ row
++done:
++	MOVQ surv+112(FP), CX
++	SUBQ CX, AX
++	SHRQ $4, AX
++	MOVQ AX, ret+120(FP)
++	VZEROUPPER
++	RET
++
++
++TEXT ·fusedScanCandidatesAVXVNNI(SB), NOSPLIT, $0-128
++	MOVQ qc8+0(FP), R8
++	MOVQ blocks+96(FP), R9
++	MOVQ R9, R14
++	SHLQ $5, R14
++	MOVQ tail+104(FP), R11
++	ADDQ R11, R14
++	MOVQ slots+80(FP), R13
++	VMOVSD qSum+40(FP), X12
++	VMOVSD qNorm2+48(FP), X13
++	VMOVSD qminAdj+56(FP), X14
++	VMOVSD qscale+64(FP), X15
++	VMOVSD thresh2+72(FP), X11
++	MOVQ rows+88(FP), R10
++	MOVQ surv+112(FP), AX
++	TESTQ R10, R10
++	JZ done
++row:
++	MOVL 0(R13), BX
++	MOVQ BX, DI
++	IMULQ R14, DI
++	ADDQ codes+8(FP), DI
++	MOVQ BX, R15
++	SHLQ $5, R15
++	ADDQ qf+32(FP), R15
++	MOVQ R8, SI
++	MOVQ R9, CX
++	VPXOR Y8, Y8, Y8
++	VPXOR Y9, Y9, Y9
++pairloop:
++	CMPQ CX, $2
++	JL single
++	VMOVDQU 0(DI), Y4
++	// VEX.256.66.0F38.W0 50 /r: VPDPBUSD 0(SI), Y4, Y8.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x06
++	VMOVDQU 32(DI), Y6
++	// VPDPBUSD 32(SI), Y6, Y9, with the same VEX-only encoding.
++	BYTE $0xC4; BYTE $0x62; BYTE $0x4D; BYTE $0x50; BYTE $0x4E; BYTE $0x20
++	ADDQ $64, SI
++	ADDQ $64, DI
++	SUBQ $2, CX
++	JMP pairloop
++single:
++	TESTQ CX, CX
++	JZ reduce
++	VMOVDQU 0(DI), Y4
++	BYTE $0xC4; BYTE $0x62; BYTE $0x5D; BYTE $0x50; BYTE $0x06
++	ADDQ $32, SI
++	ADDQ $32, DI
++reduce:
++	VPADDD Y9, Y8, Y8
++	VEXTRACTF128 $1, Y8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0x4E, X8, X1
++	VPADDD X1, X8, X8
++	VPSHUFD $0xB1, X8, X1
++	VPADDD X1, X8, X8
++	VMOVD X8, CX
++	TESTQ R11, R11
++	JZ epilogue
++	MOVQ R11, R12
++tailLoop:
++	MOVBLSX 0(SI), BX
++	MOVBLZX 0(DI), DX
++	IMULL DX, BX
++	ADDL BX, CX
++	ADDQ $1, SI
++	ADDQ $1, DI
++	DECQ R12
++	JNZ tailLoop
++epilogue:
++	VCVTSI2SDL CX, X5, X5
++	VMULSD 0(R15), X12, X6
++	VADDSD X13, X6, X6
++	VADDSD 24(R15), X6, X6
++	VMULSD 8(R15), X14, X7
++	VADDSD X7, X6, X6
++	VMULSD 16(R15), X15, X10
++	VMULSD X5, X10, X10
++	VADDSD X10, X6, X6
++	VUCOMISD X11, X6
++	JA next
++	MOVL 0(R13), BX
++	MOVQ offs+24(FP), DX
++	MOVQ 0(DX)(BX*8), DX
++	MOVQ DX, 0(AX)
++	MOVQ pks+16(FP), DX
++	MOVQ 0(DX)(BX*8), DX
++	MOVQ DX, 8(AX)
++	ADDQ $16, AX
++next:
++	ADDQ $4, R13
++	DECQ R10
++	JNZ row
++done:
++	MOVQ surv+112(FP), CX
++	SUBQ CX, AX
++	SHRQ $4, AX
++	MOVQ AX, ret+120(FP)
++	VZEROUPPER
++	RET
+--- /dev/null
++++ b/minivectordb/internal/engine/fused_avxvnni_other.go
+@@ -0,0 +1,17 @@
++//go:build !amd64
++
++package engine
++
++var useAVXVNNI = false
++
++func fusedScanAVXVNNI(qc8 []int8, x *VecIndex, baseSlot int32, rows int, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
++	panic("AVX-VNNI is unavailable on this platform")
++}
++
++func fusedScanBlockAVXVNNI(qc8 []int8, codes []byte, pks, offs []int64, qf []float64, baseSlot, rows int, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
++	panic("AVX-VNNI is unavailable on this platform")
++}
++
++func fusedScanCandidateAVXVNNI(qc8 []int8, x *VecIndex, slots []int32, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
++	panic("AVX-VNNI is unavailable on this platform")
++}
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -316,16 +316,16 @@
+ 			}
+ 			return
+ 		}
+-		// With AVX512_VNNI the VPDPBUSD kernel runs instead of the
++		// With AVX512-VNNI or AVX-VNNI the VPDPBUSD kernel replaces the
+ 		// AVX2 one, in both the unfiltered fused branch and the
+ 		// block branch below: the biased query codes (qc8) and the
+-		// bias-absorbing qmin (qminAdj) are built once per query
+-		// here, not per batch. See fusedScanInt8VNNI.
++		// bias-absorbing qmin (qminAdj) are built once
++		// per worker here, not per batch. See fusedScanInt8VNNI.
+ 		var qc8 []int8
+ 		var qminAdj float64
+ 		// Built only when a fused branch will actually use them; the
+ 		// multi-pass path below never touches qc8/qminAdj.
+-		if useVNNI && (fusedBlockOK || fusedOK) {
++		if (useVNNI || useAVXVNNI) && (fusedBlockOK || fusedOK) || useAVXVNNI && fusedCandidateOK {
+ 			qc8 = make([]int8, len(qc))
+ 			for i, c := range qc {
+ 				qc8[i] = int8(c - 128)
+@@ -353,6 +353,8 @@
+ 				var m int
+ 				if useVNNI {
+ 					m = fusedScanInt8BlockVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
++				} else if useAVXVNNI {
++					m = fusedScanBlockAVXVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+ 				} else {
+ 					m = fusedScanInt8Block(qc, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+ 				}
+@@ -383,7 +385,7 @@
+ 			// kernel keeps every row (the dot work for that first batch
+ 			// is the only cost of fusing the prefilter in).
+ 			//
+-			// qc8/qminAdj (VNNI) are built once per query above and
++			// qc8/qminAdj (VNNI) are built once per worker above and
+ 			// shared with the block branch.
+ 			var surv [2 * scanBatch]int64
+ 			var soff, spk [scanBatch]int64
+@@ -406,10 +408,16 @@
+ 				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd)
+ 				var m int
+ 				if fusedCandidateOK {
+-					m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
++					if useAVXVNNI {
++						m = fusedScanCandidateAVXVNNI(qc8, x, cand[i:i+n], qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
++					} else {
++						m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
++					}
+ 					fusedCandidateBatches.Add(1)
+ 				} else if useVNNI {
+ 					m = fusedScanVNNI(qc8, x, int32(i), n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
++				} else if useAVXVNNI {
++					m = fusedScanAVXVNNI(qc8, x, int32(i), n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+ 				} else {
+ 					m = fusedScanInt8(qc, x, int32(i), n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+ 				}

@@ -1,0 +1,9 @@
+6535372ed1dae468838f87bbc435ec66a63be049894c7d7d08539157dd6b86c3  /tmp/seekdb-round4-bin/base
+24af6b8b9c03f6c042f3b16e381719105c186ce7a9cf87465e920788d608286d  /tmp/seekdb-round4-bin/sql
+96f938970e062446608e57d3d45712a522591d207e323064d501646f1af76846  /tmp/seekdb-round4-bin/atomic
+1edbd626a51911955e85eaadca639501417a9e5fe28c6c178bbe6ecb2731905d  /tmp/seekdb-round4-bin/seed
+b5e2851441e6ed37da7ef81db7cd805f1d128fc0ff3d59bf0e7532e2964a531b  /tmp/seekdb-round4-bin/vnni
+2b0e262495bd00684c7501877a2d0f18dc92553fa86aaf6d3989db20b3ccb7ba  /tmp/seekdb-round4-bin/vnniwide
+f45727b61cda9da39dacaa147c3aa57ac9c0d5f4e5cee86d1d5fe2f6ed4e30e0  /tmp/seekdb-round4-bin/final
+7321bb2e55caeeb077772954108b31aa06e3bf865134f4862af05ff930e4784a  /tmp/seekdb-round4-bin/sqlcompare
+5abc7d0340db97a71ff8e9f9f8c76062424f6cda90a6bfcf2335ef8930305d05  /tmp/seekdb-round3-bin/tbm-bench

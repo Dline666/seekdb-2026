@@ -1,0 +1,203 @@
+=== RUN   TestAVXVNNIGate
+=== RUN   TestAVXVNNIGate/ymm-only
+=== RUN   TestAVXVNNIGate/zmm-optional
+=== RUN   TestAVXVNNIGate/no-leaf7
+=== RUN   TestAVXVNNIGate/no-fma
+=== RUN   TestAVXVNNIGate/no-osxsave
+=== RUN   TestAVXVNNIGate/no-avx
+=== RUN   TestAVXVNNIGate/no-xmm
+=== RUN   TestAVXVNNIGate/no-ymm
+=== RUN   TestAVXVNNIGate/no-avx2
+=== RUN   TestAVXVNNIGate/no-subleaf1
+=== RUN   TestAVXVNNIGate/no-avx-vnni
+--- PASS: TestAVXVNNIGate (0.00s)
+    --- PASS: TestAVXVNNIGate/ymm-only (0.00s)
+    --- PASS: TestAVXVNNIGate/zmm-optional (0.00s)
+    --- PASS: TestAVXVNNIGate/no-leaf7 (0.00s)
+    --- PASS: TestAVXVNNIGate/no-fma (0.00s)
+    --- PASS: TestAVXVNNIGate/no-osxsave (0.00s)
+    --- PASS: TestAVXVNNIGate/no-avx (0.00s)
+    --- PASS: TestAVXVNNIGate/no-xmm (0.00s)
+    --- PASS: TestAVXVNNIGate/no-ymm (0.00s)
+    --- PASS: TestAVXVNNIGate/no-avx2 (0.00s)
+    --- PASS: TestAVXVNNIGate/no-subleaf1 (0.00s)
+    --- PASS: TestAVXVNNIGate/no-avx-vnni (0.00s)
+=== RUN   TestAVXVNNIEnvOverrides
+=== RUN   TestAVXVNNIEnvOverrides/MVDB_NO_SIMD
+=== RUN   TestAVXVNNIEnvOverrides/MVDB_NO_VNNI
+=== RUN   TestAVXVNNIEnvOverrides/MVDB_NO_AVXVNNI
+--- PASS: TestAVXVNNIEnvOverrides (0.00s)
+    --- PASS: TestAVXVNNIEnvOverrides/MVDB_NO_SIMD (0.00s)
+    --- PASS: TestAVXVNNIEnvOverrides/MVDB_NO_VNNI (0.00s)
+    --- PASS: TestAVXVNNIEnvOverrides/MVDB_NO_AVXVNNI (0.00s)
+=== RUN   TestAVXVNNIIntegerDot
+=== RUN   TestAVXVNNIIntegerDot/1/negative
+=== RUN   TestAVXVNNIIntegerDot/1/positive
+=== RUN   TestAVXVNNIIntegerDot/1/mixed
+=== RUN   TestAVXVNNIIntegerDot/1/random
+=== RUN   TestAVXVNNIIntegerDot/16/negative
+=== RUN   TestAVXVNNIIntegerDot/16/positive
+=== RUN   TestAVXVNNIIntegerDot/16/mixed
+=== RUN   TestAVXVNNIIntegerDot/16/random
+=== RUN   TestAVXVNNIIntegerDot/17/negative
+=== RUN   TestAVXVNNIIntegerDot/17/positive
+=== RUN   TestAVXVNNIIntegerDot/17/mixed
+=== RUN   TestAVXVNNIIntegerDot/17/random
+=== RUN   TestAVXVNNIIntegerDot/31/negative
+=== RUN   TestAVXVNNIIntegerDot/31/positive
+=== RUN   TestAVXVNNIIntegerDot/31/mixed
+=== RUN   TestAVXVNNIIntegerDot/31/random
+=== RUN   TestAVXVNNIIntegerDot/32/negative
+=== RUN   TestAVXVNNIIntegerDot/32/positive
+=== RUN   TestAVXVNNIIntegerDot/32/mixed
+=== RUN   TestAVXVNNIIntegerDot/32/random
+=== RUN   TestAVXVNNIIntegerDot/33/negative
+=== RUN   TestAVXVNNIIntegerDot/33/positive
+=== RUN   TestAVXVNNIIntegerDot/33/mixed
+=== RUN   TestAVXVNNIIntegerDot/33/random
+=== RUN   TestAVXVNNIIntegerDot/63/negative
+=== RUN   TestAVXVNNIIntegerDot/63/positive
+=== RUN   TestAVXVNNIIntegerDot/63/mixed
+=== RUN   TestAVXVNNIIntegerDot/63/random
+=== RUN   TestAVXVNNIIntegerDot/64/negative
+=== RUN   TestAVXVNNIIntegerDot/64/positive
+=== RUN   TestAVXVNNIIntegerDot/64/mixed
+=== RUN   TestAVXVNNIIntegerDot/64/random
+=== RUN   TestAVXVNNIIntegerDot/65/negative
+=== RUN   TestAVXVNNIIntegerDot/65/positive
+=== RUN   TestAVXVNNIIntegerDot/65/mixed
+=== RUN   TestAVXVNNIIntegerDot/65/random
+=== RUN   TestAVXVNNIIntegerDot/127/negative
+=== RUN   TestAVXVNNIIntegerDot/127/positive
+=== RUN   TestAVXVNNIIntegerDot/127/mixed
+=== RUN   TestAVXVNNIIntegerDot/127/random
+=== RUN   TestAVXVNNIIntegerDot/128/negative
+=== RUN   TestAVXVNNIIntegerDot/128/positive
+=== RUN   TestAVXVNNIIntegerDot/128/mixed
+=== RUN   TestAVXVNNIIntegerDot/128/random
+=== RUN   TestAVXVNNIIntegerDot/129/negative
+=== RUN   TestAVXVNNIIntegerDot/129/positive
+=== RUN   TestAVXVNNIIntegerDot/129/mixed
+=== RUN   TestAVXVNNIIntegerDot/129/random
+=== RUN   TestAVXVNNIIntegerDot/255/negative
+=== RUN   TestAVXVNNIIntegerDot/255/positive
+=== RUN   TestAVXVNNIIntegerDot/255/mixed
+=== RUN   TestAVXVNNIIntegerDot/255/random
+=== RUN   TestAVXVNNIIntegerDot/256/negative
+=== RUN   TestAVXVNNIIntegerDot/256/positive
+=== RUN   TestAVXVNNIIntegerDot/256/mixed
+=== RUN   TestAVXVNNIIntegerDot/256/random
+=== RUN   TestAVXVNNIIntegerDot/257/negative
+=== RUN   TestAVXVNNIIntegerDot/257/positive
+=== RUN   TestAVXVNNIIntegerDot/257/mixed
+=== RUN   TestAVXVNNIIntegerDot/257/random
+=== RUN   TestAVXVNNIIntegerDot/1024/negative
+=== RUN   TestAVXVNNIIntegerDot/1024/positive
+=== RUN   TestAVXVNNIIntegerDot/1024/mixed
+=== RUN   TestAVXVNNIIntegerDot/1024/random
+=== RUN   TestAVXVNNIIntegerDot/33025/negative
+=== RUN   TestAVXVNNIIntegerDot/33025/positive
+=== RUN   TestAVXVNNIIntegerDot/33025/mixed
+=== RUN   TestAVXVNNIIntegerDot/33025/random
+--- PASS: TestAVXVNNIIntegerDot (0.02s)
+    --- PASS: TestAVXVNNIIntegerDot/1/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/16/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/17/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/31/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/32/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/63/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/64/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/65/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/127/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/128/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/129/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/255/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/256/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/257/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/1024/random (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/negative (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/positive (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/mixed (0.00s)
+    --- PASS: TestAVXVNNIIntegerDot/33025/random (0.00s)
+=== RUN   TestAVXVNNIFoldedScalar
+--- PASS: TestAVXVNNIFoldedScalar (0.00s)
+=== RUN   TestBlockBoundsExactAfterMutation
+    block_bound_test.go:106: initial
+    block_bound_test.go:116: updated large constant
+    block_bound_test.go:120: deleted
+    block_bound_test.go:124: reused slot
+    block_bound_test.go:130: transaction overlay
+    block_bound_test.go:133: rollback
+    block_bound_test.go:138: recovered
+    block_bound_test.go:142: independent random query
+--- PASS: TestBlockBoundsExactAfterMutation (0.21s)
+=== RUN   TestBlockBoundsIsolateOutlier
+--- PASS: TestBlockBoundsIsolateOutlier (0.01s)
+=== RUN   TestCatBlockBitIdentical
+--- PASS: TestCatBlockBitIdentical (5.55s)
+=== RUN   TestCatBlockEmptyCategory
+--- PASS: TestCatBlockEmptyCategory (0.00s)
+=== RUN   TestNonCoveringFilterFallsBack
+--- PASS: TestNonCoveringFilterFallsBack (0.00s)
+=== RUN   TestFusedCandidatesExactAfterMutation
+--- PASS: TestFusedCandidatesExactAfterMutation (0.00s)
+=== RUN   TestFusedScanEndToEnd
+--- PASS: TestFusedScanEndToEnd (0.26s)
+=== RUN   TestPrefilterMatchesExactScan
+--- PASS: TestPrefilterMatchesExactScan (0.18s)
+=== RUN   TestBatchedScanMatchesOneRowScan
+--- PASS: TestBatchedScanMatchesOneRowScan (0.30s)
+=== RUN   TestFilteredTopKMatchesReference
+--- PASS: TestFilteredTopKMatchesReference (0.03s)
+=== RUN   TestThreadedTopKDistances
+--- PASS: TestThreadedTopKDistances (0.10s)
+PASS

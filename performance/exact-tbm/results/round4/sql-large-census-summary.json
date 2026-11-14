@@ -1,0 +1,166 @@
+[
+  {
+    "suite": "census",
+    "name": "base",
+    "rows": 550000,
+    "dim": 1024,
+    "fixture_model": "round3_final_all_c9",
+    "extended_cases": false,
+    "rounds": 1,
+    "sql_sha256": "794c0b55db42676a33983506ed52cb438f53e472c65ceeab65634d683d2f36a1",
+    "single_diagnostic": true,
+    "fewer_than_three_rounds": true,
+    "reference_checked": 1,
+    "reference_rows_checked": 549997,
+    "reference_bad": 0,
+    "query_only": {
+      "label": "query-only service phase",
+      "is_complete_driver_wall_clock": false,
+      "median": {
+        "t_s": 551.704022298,
+        "b_bytes": 834217586688,
+        "m_bytes": 2147487744
+      },
+      "runs": [
+        {
+          "round": 0,
+          "position": 0,
+          "t_s": 551.704022298,
+          "b_bytes": 834217586688,
+          "m_bytes": 2147487744
+        }
+      ],
+      "stage_E": {
+        "baseline": "base",
+        "reference_rounds": [
+          0
+        ],
+        "fixed_reference_metrics": {
+          "t_s": 551.704022298,
+          "b_bytes": 834217586688,
+          "m_bytes": 2147487744
+        },
+        "median": 0.5,
+        "runs": [
+          0.5
+        ]
+      }
+    },
+    "measured_stage_total": {
+      "label": "startup + query + shutdown service-stage sum",
+      "is_complete_driver_wall_clock": false,
+      "median": {
+        "t_s": 554.225039916,
+        "b_bytes": 838531559424,
+        "m_bytes": 2147487744
+      },
+      "runs": [
+        {
+          "round": 0,
+          "position": 0,
+          "t_s": 554.225039916,
+          "b_bytes": 838531559424,
+          "m_bytes": 2147487744
+        }
+      ],
+      "stage_E": {
+        "baseline": "base",
+        "reference_rounds": [
+          0
+        ],
+        "fixed_reference_metrics": {
+          "t_s": 554.225039916,
+          "b_bytes": 838531559424,
+          "m_bytes": 2147487744
+        },
+        "median": 0.5,
+        "runs": [
+          0.5
+        ]
+      }
+    },
+    "note": "Local SQL-stage E only; not the ordinary write/query overall E or a platform score. The startup + query + shutdown service-stage sum adds T/B and takes max M; it excludes fixture preparation, cold-cache eviction, and external truth generation/validation, and is not the complete driver's wall clock. Single census pair is diagnostic, not a stable speedup estimate."
+  },
+  {
+    "suite": "census",
+    "name": "sql",
+    "rows": 550000,
+    "dim": 1024,
+    "fixture_model": "round3_final_all_c9",
+    "extended_cases": false,
+    "rounds": 1,
+    "sql_sha256": "794c0b55db42676a33983506ed52cb438f53e472c65ceeab65634d683d2f36a1",
+    "single_diagnostic": true,
+    "fewer_than_three_rounds": true,
+    "reference_checked": 1,
+    "reference_rows_checked": 549997,
+    "reference_bad": 0,
+    "query_only": {
+      "label": "query-only service phase",
+      "is_complete_driver_wall_clock": false,
+      "median": {
+        "t_s": 8.989106329,
+        "b_bytes": 4348690432,
+        "m_bytes": 2147483648
+      },
+      "runs": [
+        {
+          "round": 0,
+          "position": 1,
+          "t_s": 8.989106329,
+          "b_bytes": 4348690432,
+          "m_bytes": 2147483648
+        }
+      ],
+      "stage_E": {
+        "baseline": "base",
+        "reference_rounds": [
+          0
+        ],
+        "fixed_reference_metrics": {
+          "t_s": 551.704022298,
+          "b_bytes": 834217586688,
+          "m_bytes": 2147487744
+        },
+        "median": 0.8893423600105713,
+        "runs": [
+          0.8893423600105713
+        ]
+      }
+    },
+    "measured_stage_total": {
+      "label": "startup + query + shutdown service-stage sum",
+      "is_complete_driver_wall_clock": false,
+      "median": {
+        "t_s": 11.090084429,
+        "b_bytes": 8662663168,
+        "m_bytes": 2147483648
+      },
+      "runs": [
+        {
+          "round": 0,
+          "position": 1,
+          "t_s": 11.090084429,
+          "b_bytes": 8662663168,
+          "m_bytes": 2147483648
+        }
+      ],
+      "stage_E": {
+        "baseline": "base",
+        "reference_rounds": [
+          0
+        ],
+        "fixed_reference_metrics": {
+          "t_s": 554.225039916,
+          "b_bytes": 838531559424,
+          "m_bytes": 2147487744
+        },
+        "median": 0.8861832931010788,
+        "runs": [
+          0.8861832931010788
+        ]
+      }
+    },
+    "note": "Local SQL-stage E only; not the ordinary write/query overall E or a platform score. The startup + query + shutdown service-stage sum adds T/B and takes max M; it excludes fixture preparation, cold-cache eviction, and external truth generation/validation, and is not the complete driver's wall clock. Single census pair is diagnostic, not a stable speedup estimate."
+  }
+]

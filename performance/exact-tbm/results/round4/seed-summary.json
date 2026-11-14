@@ -1,0 +1,150 @@
+[
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.206371188,
+      "b_bytes": 5853184,
+      "m_bytes": 10240000,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.321765073,
+      "b_bytes": 5853184,
+      "m_bytes": 12845056,
+      "warmup_s": 0.022334776,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.49914951454244716,
+      "rounds": [
+        0.4929412180435266,
+        0.49914951454244716,
+        0.4964915373089783,
+        0.5019651025375927,
+        0.5030070172285269
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "seed",
+    "write": {
+      "t_s": 0.204651719,
+      "b_bytes": 5853184,
+      "m_bytes": 10043392,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.322562038,
+      "b_bytes": 5853184,
+      "m_bytes": 13004800,
+      "warmup_s": 0.0222548,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5003175759713289,
+      "rounds": [
+        0.5023121540854789,
+        0.5003175759713289,
+        0.49981204157003417,
+        0.5038160417836991,
+        0.4989842783633449
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 600,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 2.701383881,
+      "b_bytes": 109711360,
+      "m_bytes": 116539392,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.578619745,
+      "b_bytes": 109711360,
+      "m_bytes": 155934720,
+      "warmup_s": 0.424289658,
+      "rounds": 5
+    },
+    "checked_queries": 3000,
+    "response_hashes": [
+      "3023d53c89eca564"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5001273281557349,
+      "rounds": [
+        0.5005762660620796,
+        0.4890075326120288,
+        0.5003370352244049,
+        0.5001273281557349,
+        0.5001201644334293
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 600,
+    "seed": 7,
+    "data": "uniform",
+    "name": "seed",
+    "write": {
+      "t_s": 2.766433311,
+      "b_bytes": 109711360,
+      "m_bytes": 116346880,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.575095742,
+      "b_bytes": 109711360,
+      "m_bytes": 155799552,
+      "warmup_s": 0.42026897,
+      "rounds": 5
+    },
+    "checked_queries": 3000,
+    "response_hashes": [
+      "3023d53c89eca564"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.49989526283181357,
+      "rounds": [
+        0.5009648469536934,
+        0.5003423506714633,
+        0.49989526283181357,
+        0.49836268551857277,
+        0.4942584718682131
+      ]
+    }
+  }
+]

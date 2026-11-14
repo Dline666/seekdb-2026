@@ -1,0 +1,103 @@
+File: engine.test
+Type: cpu
+Time: Nov 14, 2026 at 7:14am (CST)
+Duration: 904.64ms, Total samples = 810ms (89.54%)
+Showing nodes accounting for 810ms, 100% of 810ms total
+      flat  flat%   sum%        cum   cum%
+     430ms 53.09% 53.09%      430ms 53.09%  minivectordb/internal/engine.fusedScanInt8AVX2
+      30ms  3.70% 56.79%       30ms  3.70%  minivectordb/internal/engine.l2sqGatherAVX2
+      30ms  3.70% 60.49%       60ms  7.41%  runtime.mallocgc
+      20ms  2.47% 62.96%      510ms 62.96%  minivectordb/internal/engine.(*DB).vectorTopK.func2
+      20ms  2.47% 65.43%       20ms  2.47%  minivectordb/internal/engine.prefilterThreshold (inline)
+      20ms  2.47% 67.90%       20ms  2.47%  minivectordb/internal/engine.quantizeQuery
+      20ms  2.47% 70.37%       50ms  6.17%  minivectordb/internal/types.ParseVector
+      20ms  2.47% 72.84%       20ms  2.47%  runtime.futex
+      20ms  2.47% 75.31%       20ms  2.47%  strconv.ryuDigits32
+      20ms  2.47% 77.78%       20ms  2.47%  strings.EqualFold
+      10ms  1.23% 79.01%       10ms  1.23%  container/heap.down
+      10ms  1.23% 80.25%       60ms  7.41%  fmt.(*fmt).fmtFloat
+      10ms  1.23% 81.48%       20ms  2.47%  fmt.(*pp).free
+      10ms  1.23% 82.72%      100ms 12.35%  fmt.Fprintf
+      10ms  1.23% 83.95%       10ms  1.23%  math.Float64bits (inline)
+      10ms  1.23% 85.19%       20ms  2.47%  minivectordb/internal/engine.(*VecIndex).quantizeSlot
+      10ms  1.23% 86.42%       10ms  1.23%  minivectordb/internal/types.decimalToFloat
+      10ms  1.23% 87.65%       20ms  2.47%  minivectordb/internal/types.parseFloatFast
+      10ms  1.23% 88.89%       10ms  1.23%  minivectordb/internal/types.trimSpace
+      10ms  1.23% 90.12%       10ms  1.23%  runtime.(*mspan).base (inline)
+      10ms  1.23% 91.36%       10ms  1.23%  runtime.(*mspan).init
+      10ms  1.23% 92.59%       10ms  1.23%  runtime.findObject
+      10ms  1.23% 93.83%       10ms  1.23%  runtime.nextFreeFast (inline)
+      10ms  1.23% 95.06%       50ms  6.17%  strconv.genericFtoa
+      10ms  1.23% 96.30%       10ms  1.23%  strconv.mulByLog10Log2 (inline)
+      10ms  1.23% 97.53%       30ms  3.70%  strconv.ryuDigits
+      10ms  1.23% 98.77%       10ms  1.23%  sync.(*Pool).Get
+      10ms  1.23%   100%       10ms  1.23%  sync.(*Pool).pin
+         0     0%   100%       10ms  1.23%  container/heap.Fix
+         0     0%   100%       60ms  7.41%  fmt.(*pp).doPrintf
+         0     0%   100%       60ms  7.41%  fmt.(*pp).fmtFloat
+         0     0%   100%       60ms  7.41%  fmt.(*pp).printArg
+         0     0%   100%       10ms  1.23%  fmt.newPrinter
+         0     0%   100%       10ms  1.23%  math.Round (inline)
+         0     0%   100%      640ms 79.01%  minivectordb/internal/engine.(*DB).Exec
+         0     0%   100%      620ms 76.54%  minivectordb/internal/engine.(*DB).execSelect
+         0     0%   100%       10ms  1.23%  minivectordb/internal/engine.(*DB).orderKeys
+         0     0%   100%      620ms 76.54%  minivectordb/internal/engine.(*DB).run
+         0     0%   100%      550ms 67.90%  minivectordb/internal/engine.(*DB).vectorTopK
+         0     0%   100%       20ms  2.47%  minivectordb/internal/engine.(*VecIndex).rebuild
+         0     0%   100%       20ms  2.47%  minivectordb/internal/engine.(*VecIndex).upsert
+         0     0%   100%       50ms  6.17%  minivectordb/internal/engine.(*scope).compile
+         0     0%   100%       50ms  6.17%  minivectordb/internal/engine.(*scope).compileFunc
+         0     0%   100%       50ms  6.17%  minivectordb/internal/engine.(*scope).vectorArg
+         0     0%   100%       10ms  1.23%  minivectordb/internal/engine.(*topK).admit
+         0     0%   100%      780ms 96.30%  minivectordb/internal/engine.BenchmarkQueryProfile
+         0     0%   100%      430ms 53.09%  minivectordb/internal/engine.fusedScanInt8
+         0     0%   100%       30ms  3.70%  minivectordb/internal/engine.l2sqGatherBytes
+         0     0%   100%       20ms  2.47%  minivectordb/internal/engine.quantBlockBound.threshold
+         0     0%   100%       10ms  1.23%  minivectordb/internal/engine.quantizeRow
+         0     0%   100%      140ms 17.28%  minivectordb/internal/engine.vectorText
+         0     0%   100%       10ms  1.23%  minivectordb/internal/sqlparse.(*parser).acceptKw
+         0     0%   100%       10ms  1.23%  minivectordb/internal/sqlparse.(*parser).isKw (inline)
+         0     0%   100%       10ms  1.23%  minivectordb/internal/sqlparse.(*parser).selectStmt
+         0     0%   100%       10ms  1.23%  minivectordb/internal/sqlparse.(*parser).statement
+         0     0%   100%       10ms  1.23%  minivectordb/internal/sqlparse.Lex
+         0     0%   100%       20ms  2.47%  minivectordb/internal/sqlparse.Parse
+         0     0%   100%       10ms  1.23%  runtime.(*mcache).nextFree
+         0     0%   100%       10ms  1.23%  runtime.(*mcache).refill
+         0     0%   100%       10ms  1.23%  runtime.(*mcentral).cacheSpan
+         0     0%   100%       10ms  1.23%  runtime.(*mcentral).grow
+         0     0%   100%       10ms  1.23%  runtime.(*mheap).alloc
+         0     0%   100%       10ms  1.23%  runtime.(*mheap).alloc.func1
+         0     0%   100%       10ms  1.23%  runtime.(*mheap).allocSpan
+         0     0%   100%       10ms  1.23%  runtime.(*mheap).initSpan
+         0     0%   100%       10ms  1.23%  runtime.(*mspan).heapBits
+         0     0%   100%       10ms  1.23%  runtime.(*mspan).writeHeapBitsSmall
+         0     0%   100%       40ms  4.94%  runtime.convT64
+         0     0%   100%       10ms  1.23%  runtime.findRunnable
+         0     0%   100%       10ms  1.23%  runtime.forEachP (inline)
+         0     0%   100%       10ms  1.23%  runtime.forEachPInternal
+         0     0%   100%       20ms  2.47%  runtime.futexsleep
+         0     0%   100%       20ms  2.47%  runtime.gcBgMarkWorker
+         0     0%   100%       10ms  1.23%  runtime.gcBgMarkWorker.func2
+         0     0%   100%       10ms  1.23%  runtime.gcDrain
+         0     0%   100%       10ms  1.23%  runtime.gcDrainMarkWorkerFractional (inline)
+         0     0%   100%       10ms  1.23%  runtime.gcMarkDone
+         0     0%   100%       10ms  1.23%  runtime.gcMarkDone.forEachP.func5
+         0     0%   100%       10ms  1.23%  runtime.growslice
+         0     0%   100%       10ms  1.23%  runtime.heapSetType
+         0     0%   100%       10ms  1.23%  runtime.mPark (inline)
+         0     0%   100%       10ms  1.23%  runtime.makeslice
+         0     0%   100%       10ms  1.23%  runtime.mcall
+         0     0%   100%       10ms  1.23%  runtime.notesleep
+         0     0%   100%       10ms  1.23%  runtime.notetsleep
+         0     0%   100%       10ms  1.23%  runtime.notetsleep_internal
+         0     0%   100%       10ms  1.23%  runtime.park_m
+         0     0%   100%       10ms  1.23%  runtime.scanobject
+         0     0%   100%       10ms  1.23%  runtime.schedule
+         0     0%   100%       10ms  1.23%  runtime.stopm
+         0     0%   100%       30ms  3.70%  runtime.systemstack
+         0     0%   100%       50ms  6.17%  strconv.AppendFloat (inline)
+         0     0%   100%       10ms  1.23%  strconv.mult128bitPow10
+         0     0%   100%       40ms  4.94%  strconv.ryuFtoaShortest
+         0     0%   100%       10ms  1.23%  sync.(*Pool).Put
+         0     0%   100%      780ms 96.30%  testing.(*B).launch
+         0     0%   100%      780ms 96.30%  testing.(*B).runN

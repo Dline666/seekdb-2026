@@ -1,0 +1,72 @@
+[
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 2.982054623,
+      "b_bytes": 109711360,
+      "m_bytes": 116428800,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.290323059,
+      "b_bytes": 109711360,
+      "m_bytes": 152145920,
+      "warmup_s": 0.417544667,
+      "rounds": 3
+    },
+    "checked_queries": 900,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5003475510369876,
+      "rounds": [
+        0.5003475510369876,
+        0.49194912197459467,
+        0.5042638041705393
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 300,
+    "seed": 7,
+    "data": "uniform",
+    "name": "final:MVDB_NO_AVXVNNI=1",
+    "write": {
+      "t_s": 2.728411022,
+      "b_bytes": 109711360,
+      "m_bytes": 116281344,
+      "warmup_s": 0,
+      "rounds": 3
+    },
+    "query": {
+      "t_s": 0.291255099,
+      "b_bytes": 109711360,
+      "m_bytes": 152047616,
+      "warmup_s": 0.416783619,
+      "rounds": 3
+    },
+    "checked_queries": 900,
+    "response_hashes": [
+      "3c8df14149cba348"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5042704234928473,
+      "rounds": [
+        0.5047426655269729,
+        0.5042704234928473,
+        0.5025490727664615
+      ]
+    }
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "daemon_pid": 179,
+  "context": "/tmp/seekdb-round4-docker-context-negtr1xe",
+  "source": "/tmp/seekdb-round4-final/minivectordb",
+  "socket": "unix:///tmp/seekdb-round4-docker.sock",
+  "final_sha256": "f45727b61cda9da39dacaa147c3aa57ac9c0d5f4e5cee86d1d5fe2f6ed4e30e0",
+  "image_id": "sha256:1bb6eb3ae5ad701d187d1f4f4eaabaec07874da70f8cfdd7a942313c59f92b37",
+  "docker_binary_sha256": "f45727b61cda9da39dacaa147c3aa57ac9c0d5f4e5cee86d1d5fe2f6ed4e30e0",
+  "binary_match": true,
+  "daemon_stopped": true,
+  "daemon_stop_time_utc": "2026-11-13T23:46:59Z",
+  "protocol_passed": true,
+  "protocol_case_count": 20
+}

@@ -1,0 +1,24 @@
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -347,6 +347,10 @@
+ 				if n > scanBatch {
+ 					n = scanBatch
+ 				}
++				// Fill the heap before scanning more rows at an infinite bound.
++				if missing := tk.k - len(tk.h); missing > 0 {
++					n = min(n, missing)
++				}
+ 				n = min(n, quantBlockRows-i%quantBlockRows)
+ 				bd := tk.bound()
+ 				thresh2 := blk.qbounds[i/quantBlockRows].threshold(qmin, qscale, t.Dim, bd)
+@@ -392,6 +396,10 @@
+ 				n := hi - i
+ 				if n > scanBatch {
+ 					n = scanBatch
++				}
++				// Fill the heap before scanning more rows at an infinite bound.
++				if missing := tk.k - len(tk.h); missing > 0 {
++					n = min(n, missing)
+ 				}
+ 				var bound quantBlockBound
+ 				if fusedCandidateOK {

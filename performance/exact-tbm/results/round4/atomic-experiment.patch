@@ -1,0 +1,124 @@
+diff --git a/minivectordb/internal/engine/topk.go b/minivectordb/internal/engine/topk.go
+index 9ea0557..57a2347 100644
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -332,6 +332,8 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 			}
+ 			qminAdj = float64(qmin) + 128*float64(qscale)
+ 		}
++		// Keep diagnostic counts local to this worker so scan batches do not
++		// contend on global atomic counters. Publish totals before returning.
+ 		if fusedBlockOK {
+ 			// Fused scan over the compacted category block: same
+ 			// single-pass kernel as the unfiltered fused branch, but
+@@ -342,6 +344,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 			var surv [2 * scanBatch]int64
+ 			var soff, spk [scanBatch]int64
+ 			var out [scanBatch]float64
++			var batches int64
+ 			for i := lo; i < hi; {
+ 				n := hi - i
+ 				if n > scanBatch {
+@@ -356,7 +359,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 				} else {
+ 					m = fusedScanInt8Block(qc, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+ 				}
+-				fusedBlockBatches.Add(1)
++				batches++
+ 				for j := 0; j < m; j++ {
+ 					soff[j] = surv[2*j] + vecOff
+ 					spk[j] = surv[2*j+1]
+@@ -369,6 +372,9 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 				}
+ 				i += n
+ 			}
++			if batches != 0 {
++				fusedBlockBatches.Add(batches)
++			}
+ 			return
+ 		}
+ 		if fusedOK || fusedCandidateOK {
+@@ -388,6 +394,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 			var surv [2 * scanBatch]int64
+ 			var soff, spk [scanBatch]int64
+ 			var out [scanBatch]float64
++			var batches int64
+ 			for i := lo; i < hi; {
+ 				n := hi - i
+ 				if n > scanBatch {
+@@ -407,15 +414,12 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 				var m int
+ 				if fusedCandidateOK {
+ 					m = fusedScanCandidates(qc, x, cand[i:i+n], qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+-					fusedCandidateBatches.Add(1)
+ 				} else if useVNNI {
+ 					m = fusedScanVNNI(qc8, x, int32(i), n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+ 				} else {
+ 					m = fusedScanInt8(qc, x, int32(i), n, qSum, qNorm2, qmin, qscale, thresh2, surv[:])
+ 				}
+-				if fusedOK {
+-					fusedBatches.Add(1)
+-				}
++				batches++
+ 				for j := 0; j < m; j++ {
+ 					soff[j] = surv[2*j] + vecOff
+ 					spk[j] = surv[2*j+1]
+@@ -428,6 +432,13 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 				}
+ 				i += n
+ 			}
++			if batches != 0 {
++				if fusedCandidateOK {
++					fusedCandidateBatches.Add(batches)
++				} else {
++					fusedBatches.Add(batches)
++				}
++			}
+ 			return
+ 		}
+ 		var offs, pks, rows [scanBatch]int64
+@@ -435,6 +446,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 		var coffs [scanBatch]int64
+ 		var approxInt [scanBatch]int32
+ 		var out [scanBatch]float64
++		var gatheredRows, exactRows, prefilterRuns int64
+ 		for i := lo; i < hi; {
+ 			n := 0
+ 			for ; i < hi && n < scanBatch; i++ {
+@@ -467,9 +479,9 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 				n++
+ 			}
+ 			m := n
+-			dbgScanGatherRows.Add(int64(n))
++			gatheredRows += int64(n)
+ 			if prefilterOK && len(tk.h) >= tk.k {
+-				dbgPrefilterRuns.Add(1)
++				prefilterRuns++
+ 				// Int8 prefilter: approximate the squared distance of
+ 				// every row in the batch from its codes, and drop the
+ 				// rows the error bound proves cannot enter TopK. The
+@@ -511,7 +523,7 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 					m++
+ 				}
+ 			}
+-			dbgScanExactRows.Add(int64(m))
++			exactRows += int64(m)
+ 			l2sqGatherBytes(qw, base, offs[:m], out[:m])
+ 			for j := 0; j < m; j++ {
+ 				if d := out[j]; d <= tk.bound() {
+@@ -519,6 +531,15 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
+ 				}
+ 			}
+ 		}
++		if gatheredRows != 0 {
++			dbgScanGatherRows.Add(gatheredRows)
++		}
++		if exactRows != 0 {
++			dbgScanExactRows.Add(exactRows)
++		}
++		if prefilterRuns != 0 {
++			dbgPrefilterRuns.Add(prefilterRuns)
++		}
+ 	}
+ 	if useIVF {
+ 		for _, c := range x.probeOrder(q)[:x.nprobe()] {

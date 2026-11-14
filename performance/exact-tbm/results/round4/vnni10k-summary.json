@@ -1,0 +1,76 @@
+[
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.206007111,
+      "b_bytes": 5853184,
+      "m_bytes": 10080256,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.316797702,
+      "b_bytes": 5853184,
+      "m_bytes": 13111296,
+      "warmup_s": 0.02219622,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.49976870987783634,
+      "rounds": [
+        0.4921984001631198,
+        0.5043995407407333,
+        0.49767967895093923,
+        0.5049673561838622,
+        0.49976870987783634
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "vnni",
+    "write": {
+      "t_s": 0.193608029,
+      "b_bytes": 5853184,
+      "m_bytes": 9945088,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.296068564,
+      "b_bytes": 5853184,
+      "m_bytes": 13258752,
+      "warmup_s": 0.022199695,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5119482975355052,
+      "rounds": [
+        0.4953436148157463,
+        0.5061816547631317,
+        0.5138163701574661,
+        0.5119482975355052,
+        0.5128173017368409
+      ]
+    }
+  }
+]

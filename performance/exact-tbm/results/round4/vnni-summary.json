@@ -1,0 +1,150 @@
+[
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 0.206007111,
+      "b_bytes": 5853184,
+      "m_bytes": 10080256,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.316797702,
+      "b_bytes": 5853184,
+      "m_bytes": 13111296,
+      "warmup_s": 0.02219622,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.49976870987783634,
+      "rounds": [
+        0.4921984001631198,
+        0.5043995407407333,
+        0.49767967895093923,
+        0.5049673561838622,
+        0.49976870987783634
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "vnni",
+    "write": {
+      "t_s": 0.193608029,
+      "b_bytes": 5853184,
+      "m_bytes": 9945088,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.296068564,
+      "b_bytes": 5853184,
+      "m_bytes": 13258752,
+      "warmup_s": 0.022199695,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5119482975355052,
+      "rounds": [
+        0.4953436148157463,
+        0.5061816547631317,
+        0.5138163701574661,
+        0.5119482975355052,
+        0.5128173017368409
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 600,
+    "seed": 7,
+    "data": "uniform",
+    "name": "base",
+    "write": {
+      "t_s": 2.723750985,
+      "b_bytes": 109711360,
+      "m_bytes": 116449280,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.573881815,
+      "b_bytes": 109711360,
+      "m_bytes": 155992064,
+      "warmup_s": 0.416151725,
+      "rounds": 5
+    },
+    "checked_queries": 3000,
+    "response_hashes": [
+      "3023d53c89eca564"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.499595500878829,
+      "rounds": [
+        0.5001661323547921,
+        0.4904535329550275,
+        0.5007703847869569,
+        0.4981475711521136,
+        0.499595500878829
+      ]
+    }
+  },
+  {
+    "rows": 100000,
+    "dim": 256,
+    "queries": 600,
+    "seed": 7,
+    "data": "uniform",
+    "name": "vnni",
+    "write": {
+      "t_s": 2.73188602,
+      "b_bytes": 109711360,
+      "m_bytes": 116658176,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.517488714,
+      "b_bytes": 109711360,
+      "m_bytes": 156000256,
+      "warmup_s": 0.419756314,
+      "rounds": 5
+    },
+    "checked_queries": 3000,
+    "response_hashes": [
+      "3023d53c89eca564"
+    ],
+    "local_E": {
+      "baseline": "base",
+      "median": 0.5100220749190202,
+      "rounds": [
+        0.5069805206701767,
+        0.5099050680156805,
+        0.5100220749190202,
+        0.5104359831890675,
+        0.5111148291163978
+      ]
+    }
+  }
+]

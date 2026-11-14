@@ -1,0 +1,35 @@
+{
+  "baseline_commit": "88434ee",
+  "branch": "perf/exact-tbm-5500",
+  "compiler": "Ubuntu Go 1.22.2",
+  "goroot": "/tmp/seekdb-round3-go",
+  "build_env": {
+    "CGO_ENABLED": "0",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1"
+  },
+  "build_flags": [
+    "-trimpath",
+    "-ldflags=-s -w"
+  ],
+  "kernel": "6.18.58.1-microsoft-standard-WSL2",
+  "cpu_model": "Intel(R) Core(TM) Ultra 5 125H",
+  "relevant_cpu_flags": [
+    "fma",
+    "xsave",
+    "avx",
+    "avx2",
+    "avx_vnni"
+  ],
+  "database_cgroup": {
+    "cpu_max": "200000 100000",
+    "memory_max": 2147483648,
+    "memory_swap_max": 0,
+    "pids_max": 128
+  },
+  "durability": "fdatasync",
+  "official_submissions": 0,
+  "pushed": false,
+  "benchmark_policy": "one database/performance workload at a time; truth oracle outside cgroup"
+}

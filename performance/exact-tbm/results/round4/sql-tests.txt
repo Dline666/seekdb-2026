@@ -1,0 +1,10 @@
+=== RUN   TestSelectPrimaryAliasesAndLimits
+--- PASS: TestSelectPrimaryAliasesAndLimits (0.00s)
+=== RUN   TestSelectPrimaryBoundedOrder
+--- PASS: TestSelectPrimaryBoundedOrder (0.00s)
+=== RUN   TestSelectPointAndPrimaryTransactionVisibility
+--- PASS: TestSelectPointAndPrimaryTransactionVisibility (0.00s)
+=== RUN   TestSelectPrimaryPlanningDoesNotReadLog
+--- PASS: TestSelectPrimaryPlanningDoesNotReadLog (0.00s)
+PASS
+ok  	minivectordb/internal/engine	0.007s

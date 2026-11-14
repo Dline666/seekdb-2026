@@ -1,0 +1,76 @@
+[
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "vnni",
+    "write": {
+      "t_s": 0.203350194,
+      "b_bytes": 5853184,
+      "m_bytes": 10096640,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.297390041,
+      "b_bytes": 5853184,
+      "m_bytes": 13197312,
+      "warmup_s": 0.0217581,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "vnni",
+      "median": 0.4997433720608632,
+      "rounds": [
+        0.4904615316481713,
+        0.4997433720608632,
+        0.5029668656185262,
+        0.5001487683068586,
+        0.4978638073616551
+      ]
+    }
+  },
+  {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 3000,
+    "seed": 7,
+    "data": "uniform",
+    "name": "vnniwide",
+    "write": {
+      "t_s": 0.207261339,
+      "b_bytes": 5853184,
+      "m_bytes": 10280960,
+      "warmup_s": 0,
+      "rounds": 5
+    },
+    "query": {
+      "t_s": 0.296819575,
+      "b_bytes": 5853184,
+      "m_bytes": 12746752,
+      "warmup_s": 0.02217454,
+      "rounds": 5
+    },
+    "checked_queries": 15000,
+    "response_hashes": [
+      "8bd586bb1fa47de1"
+    ],
+    "local_E": {
+      "baseline": "vnni",
+      "median": 0.49896089394740684,
+      "rounds": [
+        0.49409958414494287,
+        0.49896089394740684,
+        0.5037652336852477,
+        0.49598201405157266,
+        0.5004153966839306
+      ]
+    }
+  }
+]

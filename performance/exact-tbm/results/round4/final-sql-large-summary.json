@@ -1,0 +1,113 @@
+{
+  "scope": "single-version final capacity and correctness confirmation",
+  "source_file": "final-sql-large.jsonl",
+  "single_version": true,
+  "comparison": false,
+  "has_baseline": false,
+  "stage_E": null,
+  "raw_vector_bytes": 2252800000,
+  "original_rows": 550000,
+  "live_rows": 549997,
+  "dim": 1024,
+  "memory_limit": 2147483648,
+  "memory_swap_max": 0,
+  "sync": "fdatasync",
+  "suites": [
+    {
+      "suite": "point",
+      "name": "final",
+      "rounds": 1,
+      "sql_sha256": "b5e37a7f14c5fe842f474163c3bf23c5c20cc4d01f708248d3d4df67f2b68a41",
+      "reference_checked": 1,
+      "reference_rows_checked": 1,
+      "reference_bad": 0,
+      "resident_pages_before_query": 0,
+      "query_only": {
+        "t_s": 0.003442544,
+        "b_bytes": 4202496,
+        "m_bytes": 52559872
+      },
+      "measured_stage_total": {
+        "t_s": 1.7537429599999999,
+        "b_bytes": 4318175232,
+        "m_bytes": 2147483648
+      },
+      "query_sampled_memory": {
+        "max_sampled_anon": 46915584,
+        "max_sampled_file": 4202496,
+        "max_sampled_rss": 49295360
+      },
+      "memory_peak_scope": "phase_reset_fd"
+    },
+    {
+      "suite": "order",
+      "name": "final",
+      "rounds": 1,
+      "sql_sha256": "b9789df222d5d0bd545a1cbb4caaea6f53408c24a979ced8a6769aeaff357dad",
+      "reference_checked": 1,
+      "reference_rows_checked": 10,
+      "reference_bad": 0,
+      "resident_pages_before_query": 0,
+      "query_only": {
+        "t_s": 0.114792747,
+        "b_bytes": 16777216,
+        "m_bytes": 65142784
+      },
+      "measured_stage_total": {
+        "t_s": 1.887397524,
+        "b_bytes": 4330749952,
+        "m_bytes": 2147483648
+      },
+      "query_sampled_memory": {
+        "max_sampled_anon": 46862336,
+        "max_sampled_file": 16777216,
+        "max_sampled_rss": 49188864
+      },
+      "memory_peak_scope": "phase_reset_fd"
+    },
+    {
+      "suite": "census",
+      "name": "final",
+      "rounds": 1,
+      "sql_sha256": "794c0b55db42676a33983506ed52cb438f53e472c65ceeab65634d683d2f36a1",
+      "reference_checked": 1,
+      "reference_rows_checked": 549997,
+      "reference_bad": 0,
+      "resident_pages_before_query": 0,
+      "query_only": {
+        "t_s": 8.692077545,
+        "b_bytes": 4341166080,
+        "m_bytes": 2147483648
+      },
+      "measured_stage_total": {
+        "t_s": 10.224053606,
+        "b_bytes": 8655138816,
+        "m_bytes": 2147483648
+      },
+      "query_sampled_memory": {
+        "max_sampled_anon": 219262976,
+        "max_sampled_file": 2020974592,
+        "max_sampled_rss": 2130014208
+      },
+      "memory_peak_scope": "phase_reset_fd"
+    }
+  ],
+  "success": {
+    "fixture_sha256_unchanged": "b73ddf01090e76bc33a094e0d018d3d6b08de4c55ed4f41047206e2d9f9654d2",
+    "memory_events": {
+      "high": 0,
+      "low": 0,
+      "max": 21683,
+      "oom": 0,
+      "oom_group_kill": 0,
+      "oom_kill": 0
+    },
+    "original_fixture_metadata_unchanged": true,
+    "phase": "success",
+    "private_log": "/tmp/seekdb-round4-final-sql-large/db/data.log",
+    "reference_bad": 0,
+    "reference_checked": 3,
+    "reference_rows_checked": 550008
+  },
+  "note": "No performance comparison or E is derived. The raw suite comparison markers do not provide a baseline. Service-stage total is startup + query + shutdown T/B and max M, excluding fixture preparation, eviction, and external truth; it is not complete driver wall clock. Census checks IDs, categories, and scalar norms, not vector elements."
+}
