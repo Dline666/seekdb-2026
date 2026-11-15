@@ -9,6 +9,19 @@ import (
 func parseInt(s string) (int64, error) { return strconv.ParseInt(s, 10, 64) }
 
 func (ps *parser) insert() (Stmt, error) {
+	ins, err := ps.insertHead()
+	if err != nil {
+		return nil, err
+	}
+	if err := ps.insertRows(ins); err != nil {
+		return nil, err
+	}
+	return ins, nil
+}
+
+// insertHead parses an INSERT statement up to and including the VALUES/VALUE
+// keyword; the parser is left on the first row's `(`.
+func (ps *parser) insertHead() (*Insert, error) {
 	ps.p++
 	if ps.isKw("ignore") || ps.isKw("low_priority") || ps.isKw("delayed") || ps.isKw("high_priority") {
 		return nil, unsupported("INSERT %s is not supported", strings.ToUpper(ps.cur().Text))
@@ -43,16 +56,22 @@ func (ps *parser) insert() (Stmt, error) {
 	if !ps.acceptKw("values") && !ps.acceptKw("value") {
 		return nil, ps.errNear()
 	}
+	return ins, nil
+}
+
+// insertRows parses the row list of an INSERT into ins.Rows, plus the ON
+// DUPLICATE check that follows it.
+func (ps *parser) insertRows(ins *Insert) error {
 	for {
 		if err := ps.expectOp("("); err != nil {
-			return nil, err
+			return err
 		}
 		var row []Expr
 		if !ps.isOp(")") {
 			for {
 				e, err := ps.expr()
 				if err != nil {
-					return nil, err
+					return err
 				}
 				row = append(row, e)
 				if !ps.acceptOp(",") {
@@ -61,7 +80,7 @@ func (ps *parser) insert() (Stmt, error) {
 			}
 		}
 		if err := ps.expectOp(")"); err != nil {
-			return nil, err
+			return err
 		}
 		ins.Rows = append(ins.Rows, row)
 		if !ps.acceptOp(",") {
@@ -69,9 +88,9 @@ func (ps *parser) insert() (Stmt, error) {
 		}
 	}
 	if ps.isKw("on") {
-		return nil, unsupported("ON DUPLICATE KEY UPDATE is not supported")
+		return unsupported("ON DUPLICATE KEY UPDATE is not supported")
 	}
-	return ins, nil
+	return nil
 }
 
 func (ps *parser) selectStmt() (Stmt, error) {

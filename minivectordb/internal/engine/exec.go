@@ -25,6 +25,9 @@ var ErrQuit = errors.New("quit")
 
 // Exec parses and runs one statement.
 func (db *DB) Exec(sql string) (*Result, error) {
+	if res, err, handled := db.tryFastInsert(sql); handled {
+		return res, err
+	}
 	st, err := sp.Parse(sql)
 	if err != nil {
 		var pe *sp.Error
