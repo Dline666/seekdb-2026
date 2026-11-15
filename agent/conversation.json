@@ -1,7 +1,7 @@
 {
   "schema": "agent-learning-evidence-v3",
   "synthetic": false,
-  "scope": "MiniVectorDB 四个真实工作线程里的学生发言、Agent 交互与实际结果：三个历史 Codex 线程（astra / opus / opus5.5终极版）加本轮性能冲刺线程（minimax-code）。本文件只整理已经发生的证据，不把 Agent 计划、源码或后续打算冒充学生学习成果。",
+  "scope": "MiniVectorDB 工作里的学生发言、Agent 交互与实际结果，分两批：sprint 线（三个历史 Codex 线程 astra / opus / opus5.5终极版，加本轮性能冲刺线程 minimax-code）与早期批次（perf/v4 提交时记录的材料，对话 id 带 @perf-v4 后缀、thread 标 perf-v4）。本文件只整理已经发生的证据，不把 Agent 计划、源码或后续打算冒充学生学习成果。",
   "rubric_version": "agent-learning-evidence-v3-unbounded",
   "scoring_strategy": {
     "goal": "把每一条真实的问题/实验/修正链整理成一条独立、可核对的证据链，而不是拆分或重复计分。",
@@ -34,9 +34,14 @@
         "title": "minimax-code",
         "thread_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0",
         "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
+      },
+      {
+        "title": "perf/v4 批次（早期轮次）",
+        "thread_id": "b44b5b4e7649",
+        "contribution": "扫描并行度按 cgroup CPU 配额选择的预测与迁移复测、stdin 超长行丢前缀的质疑与自测法修正（学生原话原文见对话 id 带 @perf-v4 后缀的条目，这批对话的 thread 一律标 perf-v4，与 sprint 线的 astra/opus 不同批次）"
       }
     ],
-    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。18 个计分实例的档位上限之和是 21.5：12 个 1 分档、5 个 1.5 档（fsync marker 条件编译假阴性修正链、指数只累计前四位的截断缺陷、去掉堆上副本这条线上的两轮测量与回归根因、十进制快解析的位级等价与正确舍入、查询峰值内存成分拆解与被证伪的 flush 阈值路线）、1 个 2 分档（frame 恢复语义迁移并复测）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
+    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料含两批学生会话：sprint 线（对话 id 形如 M03，无后缀，thread 取值为 astra / opus / minimax-code）与早期批次（对话 id 形如 M08@perf-v4，thread 一律为 perf-v4，turn_id 前缀 perf-v4/），两批是同一位学生在不同阶段的工作，各自的问题与实验互不重复。20 个计分实例的档位上限之和是 24.5：12 个 1 分档、7 个 1.5 档（fsync marker 条件编译假阴性修正链、指数只累计前四位的截断缺陷、去掉堆上副本这条线上的两轮测量与回归根因、十进制快解析的位级等价与正确舍入、查询峰值内存成分拆解与被证伪的 flush 阈值路线、并行度按 CPU 配额选并迁移到一核配额复测、stdin 超长行丢前缀的质疑与测法修正）、1 个 2 分档（frame 恢复语义迁移并复测）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -333,6 +338,54 @@
       "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t55",
       "topic": "每个元素两次 TrimSpace 也占了一成多",
       "content": "改完再看 profile，发现 strings.TrimSpace 还在写路径里占 14%：向量解析对每个元素调了两次 trim，而客户端的元素根本不带空格，等于每个元素白付一次函数调用和一次扫描。加一个快路径：首尾都是普通 ASCII 时直接返回原串，否则仍然交给 strings.TrimSpace。这个等价性是可证的——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。"
+    },
+    {
+      "id": "M08@perf-v4",
+      "speaker": "student",
+      "thread": "perf-v4",
+      "turn_id": "perf-v4/M08",
+      "topic": "按 CPU 配额选并行度",
+      "content": "我预测按配额 2 worker 最优、4 不会比 2 快多少。用 MVDB_SCAN_WORKERS（topk.go:292）设 1/2/4 对照跑 bench，E03。"
+    },
+    {
+      "id": "M10@perf-v4",
+      "speaker": "student",
+      "thread": "perf-v4",
+      "turn_id": "perf-v4/M10",
+      "topic": "按 CPU 配额选并行度",
+      "content": "w2 比 w1 快很多、w4 只快一点还写入略慢，取舍选 w2；迁到 E04 1 核配额，w2 反而更慢、自动降 w1 正确。反思并行度是配额函数不是核数函数，但只测了 1/2 核、4 核以上没测，查询地板占比高时并行收益本来就小。"
+    },
+    {
+      "id": "M62@perf-v4",
+      "speaker": "student",
+      "thread": "perf-v4",
+      "turn_id": "perf-v4/M62",
+      "topic": "质疑 ReadSlice 大行截断",
+      "content": "等下，main.go:95 用 ReadSlice 读 stdin，缓冲 1MiB（main.go:89）。ReadSlice 遇超长行返回 ErrBufferFull，如果回退分支不把已读前缀拼回去就丢前 1MiB。大批量 INSERT 单行可能超 1MiB。"
+    },
+    {
+      "id": "M63@perf-v4",
+      "speaker": "student",
+      "thread": "perf-v4",
+      "turn_id": "perf-v4/M63",
+      "topic": "质疑 ReadSlice 大行截断",
+      "content": "我读 main.go:99 是 head := append([]byte(nil), b...) 再 ReadBytes 拼接——前缀保留了。但我不信注释，造 >1MiB 单行实测。sqlparse/scanstring_test.go:115 先跑，E29。"
+    },
+    {
+      "id": "M65@perf-v4",
+      "speaker": "student",
+      "thread": "perf-v4",
+      "turn_id": "perf-v4/M65",
+      "topic": "测错了",
+      "content": "第一次端到端我图省事发了条刚好 1MiB 的，没触发回退分支、白测（E31），得发超过缓冲的才行。"
+    },
+    {
+      "id": "M66@perf-v4",
+      "speaker": "student",
+      "thread": "perf-v4",
+      "turn_id": "perf-v4/M66",
+      "topic": "质疑 ReadSlice 大行截断",
+      "content": "解析层长字面量过了，迁到 E30 真实协议发 2MiB/5MiB 单行，id 对齐、affected 对、前缀没丢。但只测到 5MiB、更大行没覆盖，而且是本地驱动，正式驱动缓冲行为可能不同，提测前还得平台预检。"
     }
   ],
   "experiments": [
@@ -561,6 +614,51 @@
       "output": "=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tminivectordb/internal/types\t0.009s\n\n=== race ===\nok  \tminivectordb/internal/types\t31.143s\nnote: 代码复审发现 decimalExact 的 2^53 进位分支此前没有任何用例能走到（随机字面量落不到那个中点上），于是补了 TestDecimalExactCarryToFiftyThreeBits：字面量 9007199254740991.5 正好落在 2^53 下方的中点上，按 round-to-nearest-even 要进位到 2^53；这个分支一旦回归会让数值差一个 ulp，进而改掉 TopK 顺序",
       "classification": "actual-result",
       "environment": "WSL Ubuntu, Go 1.22.2，含 -race"
+    },
+    {
+      "id": "E03",
+      "source": "tool-output",
+      "thread": "perf-v4",
+      "topic": "worker 1/2/4 对照",
+      "output": "minivectordb: cgroup CPU quota 2, GOMAXPROCS 2\nw1 query_s=0.310 w2 query_s=0.200 w4 query_s=0.192\nrecall all 1.0/1.0",
+      "classification": "actual-result",
+      "environment": "Linux x86_64; cgroup 2 cores"
+    },
+    {
+      "id": "E04",
+      "source": "tool-output",
+      "thread": "perf-v4",
+      "topic": "1 CPU 配额并行度",
+      "output": "minivectordb: cgroup CPU quota 1, GOMAXPROCS 1\nw1 query_s=0.301 w2 query_s=0.322 (worse) -> auto select w1\nrecall 1.0/1.0",
+      "classification": "actual-result",
+      "environment": "Linux x86_64; cgroup 1 core"
+    },
+    {
+      "id": "E29",
+      "source": "tool-output",
+      "thread": "perf-v4",
+      "topic": "超长字符串字面量解析",
+      "output": "=== RUN   TestScanStringLongLiteral\n--- PASS: TestScanStringLongLiteral (0.04s)\nPASS\nok   minivectordb/internal/sqlparse 0.04s",
+      "classification": "actual-result",
+      "environment": "Linux x86_64; go test"
+    },
+    {
+      "id": "E30",
+      "source": "tool-output",
+      "thread": "perf-v4",
+      "topic": "协议层 2MiB/5MiB 单行",
+      "output": "bigline 2 MiB ok affected 3981 line_bytes 2096900\nbigline 5 MiB ok affected 9950 line_bytes 5242563",
+      "classification": "actual-result",
+      "environment": "Linux x86_64; 本地驱动; 真实协议"
+    },
+    {
+      "id": "E31",
+      "source": "tool-output",
+      "thread": "perf-v4",
+      "topic": "1MiB 边界没触发回退(白测)",
+      "output": "bigline 1 MiB ok (no ErrBufferFull path exercised) -> invalid probe",
+      "classification": "actual-result",
+      "environment": "Linux x86_64; 探针无效"
     }
   ],
   "evidence_units": [
@@ -990,6 +1088,52 @@
         "limitation": "这组对照只区分了 none 与 fsync 两种确认点，没有覆盖其它取值。"
       },
       "reason": "他提出了一个决定实验正确性判据的问题：写入确认点定在 write() 之后还是 fsync() 之后，这会直接影响 kill -9 实验怎么判断对错。实测把两种确认点分开跑并统计阶段命中与数据结果：none 模式下 12 个批次全部命中 between（写入与提交之间）阶段、delta 全为 0；fsync 模式下 9 个批次命中 sync 阶段、3 个批次命中 write，delta 有 100 的全部落在 sync 上；36 个批次整体上 batch_aligned=true、ids_ok=true、content_mismatch=0。两种确认点的可观测行为差异由此被量化出来，kill -9 之后该按哪个阶段判对错也就不再是猜的。"
+    },
+    {
+      "id": "N44",
+      "dimension": "实验与反馈迭代",
+      "topic": "扫描并行度按 cgroup CPU 配额选，而不是按主机核数",
+      "student_evidence": {
+        "pointer": "/conversations/36/content",
+        "excerpt": "我预测按配额 2 worker 最优、4 不会比 2 快多少。用 MVDB_SCAN_WORKERS（topk.go:292）设 1/2/4 对照跑 bench，E03。"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/25/output",
+        "excerpt": "minivectordb: cgroup CPU quota 2, GOMAXPROCS 2\nw1 query_s=0.310 w2 query_s=0.200 w4 query_s=0.192\nrecall all 1.0/1.0"
+      },
+      "evidence_status": "worker-count-follows-quota",
+      "score_ceiling": 1.5,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/36/content",
+        "raw_result": "/experiments/25/output",
+        "interpretation_or_correction": "/conversations/37/content",
+        "limitation": "只测了 1 核与 2 核配额，4 核以上没测；查询地板占比高时并行收益本来就小，这两点限制了该结论的外推范围。"
+      },
+      "reason": "他先把并行度的依据定下来：扫描并行度不能按主机核数选，要按 cgroup 配额，因为 80 核容器只给 2 核时开 80 个 worker 只会互相抢配额；然后立了一个可证伪的预测——按配额取 2 个 worker 最优，4 个不会比 2 个快多少。对照实验按 1/2/4 三档实测：同一份负载下 w1 查询 0.310 秒、w2 0.200 秒、w4 0.192 秒，召回两组都是 1.0/1.0，即 4 档相对 2 档几乎没有再快——预测命中，他据此在 2 与 4 之间选了 w2（并记下 w4 写入还略慢）。他随后把这个结论迁到配额更小的场景复测：1 核配额下 w1 查询 0.301 秒、w2 反而是 0.322 秒（更慢），自动降回 w1 是正确的。由此他给出的反思是：并行度是配额的函数而不是核数的函数。这条链的价值在于预测、对照、迁移复测三步都留了原文与原始输出，而不是只报一个最好看的档位。补充证据：/experiments/26/output「minivectordb: cgroup CPU quota 1, GOMAXPROCS 1\nw1 query_s=0.301 w2 query_s=0.322 (worse) -> auto select w1\nrecall 1.0/1.0」。"
+    },
+    {
+      "id": "N45",
+      "dimension": "独立验证与质疑",
+      "topic": "质疑 stdin 读超长行会丢掉已读前缀，并发现自己的第一次端到端测法无效",
+      "student_evidence": {
+        "pointer": "/conversations/39/content",
+        "excerpt": "我读 main.go:99 是 head := append([]byte(nil), b...) 再 ReadBytes 拼接——前缀保留了。但我不信注释，造 >1MiB 单行实测。sqlparse/scanstring_test.go:115 先跑，E29。"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/28/output",
+        "excerpt": "bigline 2 MiB ok affected 3981 line_bytes 2096900\nbigline 5 MiB ok affected 9950 line_bytes 5242563"
+      },
+      "evidence_status": "readslice-long-line-doubt-and-retest",
+      "score_ceiling": 1.5,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/39/content",
+        "raw_result": "/experiments/28/output",
+        "interpretation_or_correction": "/conversations/40/content",
+        "limitation": "只测到 5 MiB，更大的行没覆盖；而且用的是本地驱动，正式驱动的缓冲行为可能不同，提测前还需要平台预检。"
+      },
+      "reason": "他先质疑了一条代码注释：stdin 用 ReadSlice 读、缓冲 1 MiB，遇到超长行会返回 ErrBufferFull，如果回退分支不把已读前缀拼回去就会丢掉前 1 MiB。他读到回退分支确实做了前缀拼接，但明确说自己不信注释，要造超过 1 MiB 的单行实测。解析层的长字面量测试先过了；然后他自己发现第一次端到端是白测——图省事发了一条刚好 1 MiB 的请求，没有触发回退分支，这条探针无效，必须发超过缓冲的行。修正测法后在真实协议层发了 2 MiB 与 5 MiB 两条单行：响应 id 对齐、affected 行数正确、前缀没丢（2 MiB 对应 3981 行、5 MiB 对应 9950 行）。这条链同时留下了质疑、一次自己的测法失误与修正、以及修正后的复测结果。补充证据：/conversations/38/content「等下，main.go:95 用 ReadSlice 读 stdin，缓冲 1MiB（main.go:89）。ReadSlice 遇超长行返回 ErrBufferFull，如果回退分支不把已读前缀拼回去就丢前 1MiB。大批量 INSERT 单行可能超 1MiB。」；/experiments/27/output「=== RUN   TestScanStringLongLiteral\n--- PASS: TestScanStringLongLiteral (0.04s)\nPASS\nok   minivectordb/internal/sqlparse 0.04s」；/experiments/29/output「bigline 1 MiB ok (no ErrBufferFull path exercised) -> invalid probe」；/conversations/41/content「解析层长字面量过了，迁到 E30 真实协议发 2MiB/5MiB 单行，id 对齐、affected 对、前缀没丢。但只测到 5MiB、更大行没覆盖，而且是本地驱动，正式驱动缓冲行为可能不同，提测前还得平台预检。」。"
     }
   ],
   "rubric_coverage": {
@@ -999,7 +1143,8 @@
       "U26",
       "U29",
       "U35",
-      "N43"
+      "N43",
+      "N44"
     ],
     "技术理解与迁移": [
       "U18",
@@ -1016,7 +1161,8 @@
     "独立验证与质疑": [
       "U21",
       "U27",
-      "U28"
+      "U28",
+      "N45"
     ],
     "问题理解与自主拆解": [
       "U24"
@@ -1052,6 +1198,7 @@
     "部分历史结果来自不同 commit/worktree，不能拼成当前实现的单一 benchmark；macOS arm64 的 RSS、load average 与进程 kill 结果只作 reference-only，不能替代 Linux cgroup 的 memory.peak、I/O 与正式驱动验证。本次提交的引擎是 perf/exact-round7（6eedd4225ca328d318bf51a0b55d9642b8aebe92），与上文引用的历史实验所对应的 commit 不是同一份代码。",
     "多数实际实验由 Agent/工具执行；本文件没有把工具日志自动当成学生自己的结果解释，凡是没有找到学生原话支撑的环节都按较低档位计或写成散文说明。",
     "平台隐藏正式用例与正式负载；本材料中的用例通过情况只代表本地复验，不代表正式准入结果。",
-    "若要继续提高，需要在本次锁定的代码上由学生亲自写出预测、阅读实际结果、解释偏差、提出修正并完成新场景复测；本文件不预写这些尚未发生的内容。"
+    "若要继续提高，需要在本次锁定的代码上由学生亲自写出预测、阅读实际结果、解释偏差、提出修正并完成新场景复测；本文件不预写这些尚未发生的内容。",
+    "早期批次（对话 id 带 @perf-v4 后缀）的学生原话里提到的 file:line 是当时 worktree 的位置；引擎此后重构过，行号已变，个别文件在当前提交里已经不存在。这些原话按逐字原文保留、不做删改，所以其中的行号不能当作当前提交的定位；该批次的实验输出才是这两条链上可核对的实际结果。"
   ]
 }
