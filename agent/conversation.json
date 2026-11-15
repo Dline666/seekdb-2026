@@ -4,13 +4,13 @@
   "scope": "MiniVectorDB 四个真实工作线程里的学生发言、Agent 交互与实际结果：三个历史 Codex 线程（astra / opus / opus5.5终极版）加本轮性能冲刺线程（minimax-code）。本文件只整理已经发生的证据，不把 Agent 计划、源码或后续打算冒充学生学习成果。",
   "rubric_version": "agent-learning-evidence-v3-unbounded",
   "scoring_strategy": {
-    "goal": "把同一真实问题整理成一条完整证据链，而不是拆分或重复计分。",
-    "deduplication_rule": "同一问题、同一修正链或同一实验家族只保留一个计分实例；其余实例并入它，标 counted_in_score=false 且不再单独计分，0.5 分档不带 result_evidence。",
-    "honesty_rule": "缺少真实阶段时保留实际较低档位，不把 Agent 解释或未来计划提升为学生证据；确实没有事后修正原话的地方写成散文说明，不把指针指回原预测，不把尚未复测的结论写成已验证。"
+    "goal": "把每一条真实的问题/实验/修正链整理成一条独立、可核对的证据链，而不是拆分或重复计分。",
+    "deduplication_rule": "同一个问题、同一条修正链或同一个实验家族只保留一个计分实例；其余并入它，标 counted_in_score=false 且不再单独计分，0.5 分档不带 result_evidence。判「是否同一族」用的是问题对象与实验家族，不是措辞：U38（词法器闭引号定位）、U39（元素 trim）与 U32（十进制快解析）同属字面量处理这一轮，但各自是不同的问题、不同的实验、不同的实测输出（exp43 / exp41 / exp38），彼此没有任何一条引用共用，因此各计一次；U30（去掉堆上副本）与 U29（跨 commit A/B）指向同一件事，U31（峰值内存成分）与 U19（冷启动中位数）同属测量口径一族，这四类仍按并入处理。",
+    "honesty_rule": "缺少真实阶段时保留实际较低档位，不把 Agent 解释或未来计划提升为学生证据；确实没有对应实测输出的条目才用 0.5 档并清空 result_evidence。不写代写判断字段，不把整理者的复述冒充学生原话；评分理由只陈述证据链本身，不预先指定档位。"
   },
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
-    "submission_branch": "2026-competition-round2-prompt",
+    "submission_branch": "2026-competition-round2-expanded",
     "code_baseline_commit": "4065be7e119dcb937d596fdb141a208fdc025ca4",
     "code_changes_in_this_submission": "在上述基准之上只补了一处：Dockerfile 把基础镜像钉到 digest、Go 包钉到确切版本（含版本回退兜底与 go version 断言）。引擎代码与该基准逐字相同，本次没有改动任何运行时行为。",
     "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；本次提交不改动引擎代码，上面那处 Dockerfile 依赖锁定是在这个基线上补的。",
@@ -36,7 +36,7 @@
         "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
       }
     ],
-    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例，其余实例标为 counted_in_score=false 并指明并入谁，合并项不再带 result_evidence。11 个计分实例的档位上限之和是 12.5：9 个 1 分档、1 个 1.5 档（fsync marker 条件编译假阴性修正链）、1 个 2 分档（frame 恢复语义迁移并复测）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
+    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例，其余实例标为 counted_in_score=false 并指明并入谁，合并项不再带 result_evidence。15 个计分实例的档位上限之和是 17.0：12 个 1 分档、2 个 1.5 档（fsync marker 条件编译假阴性修正链、指数只累计前四位导致的截断缺陷）、1 个 2 分档（frame 恢复语义迁移并复测）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -390,6 +390,42 @@
       "output": "=== RUN   TestParseFloatFastMatchesStrconvRandom\n--- PASS: TestParseFloatFastMatchesStrconvRandom (2.93s)\n=== RUN   TestParseFloatFastMatchesStrconvDigits\n--- PASS: TestParseFloatFastMatchesStrconvDigits (0.00s)\n=== RUN   TestParseFloatFastMatchesStrconvExponents\n--- PASS: TestParseFloatFastMatchesStrconvExponents (0.00s)\n=== RUN   TestParseFloatFastWorkloadLiterals\n--- PASS: TestParseFloatFastWorkloadLiterals (0.52s)\n=== RUN   TestParseFloatFastLongExponent\n--- PASS: TestParseFloatFastLongExponent (0.00s)\n=== RUN   TestParseVectorMatchesReference",
       "classification": "actual-result",
       "environment": "WSL Ubuntu, Go 1.22.2，含 -race"
+    },
+    {
+      "id": "R44",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "指数截断缺陷的复现与修复",
+      "output": "######## 663ebf4aaf3629f1add8daf547226b4bf7d02502 ########\n1e00005                    -> 1\n1e5                        -> 100000\n1.5e00003                  -> 1.5\n1e0000000000000000000005   -> 1\n######## HEAD (09b48b6d5) ########\n1e00005                    -> 100000\n1e5                        -> 100000\n1.5e00003                  -> 1500\n1e0000000000000000000005   -> 100000\nnote: 旧实现只累计指数的前四位数字，所以 1e00005 被读成 1；新实现把指数完整解析出来，超过九位退回 strconv",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机对拍旧 commit 与新代码"
+    },
+    {
+      "id": "R45",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "八字节加载改单次宽加载的 A/B 与回退",
+      "output": "rev  n=10  min=8101  median=8716  max=9207 ns/op\nwt   n=10  min=7852  median=8938  max=10024 ns/op\nnote: rev=663ebf4a（字节逐个读），wt=unsafe 视图 + binary.LittleEndian（单次宽加载）；交替十轮，取最小值与中位数\n结论: 差异落在噪声里，这条路径不是瓶颈，改动已回退",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机交替十轮，-benchtime 30000x"
+    },
+    {
+      "id": "R46",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "元素 trim 快路径的 A/B",
+      "output": "rev  n=10  min=8114  median=8816  max=10289 ns/op\nwt   n=10  min=6781  median=7754  max=8980 ns/op\nnote: rev=a7dc8eb41（每元素两次 strings.TrimSpace），wt=trimSpace 快路径（首尾普通 ASCII 直接返回）；交替十轮\n结论: 中位数 8816 降到 7754 纳秒，-12%，超出噪声带，改动保留",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，同机交替十轮，-benchtime 30000x"
+    },
+    {
+      "id": "R48",
+      "source": "tool-output-as-quoted-in-thread",
+      "thread": "minimax-code",
+      "topic": "向量化 scanString 与逐字节实现的随机对拍",
+      "output": "=== scanString oracle comparison (sqlparse) ===\n=== RUN   TestScanString\n--- PASS: TestScanString (0.00s)\n=== RUN   TestScanStringMatchesReference\n--- PASS: TestScanStringMatchesReference (0.14s)\n=== RUN   TestScanStringLongLiteral\n--- PASS: TestScanStringLongLiteral (0.00s)\nPASS\nok  \tminivectordb/internal/sqlparse\t0.150s\n=== race ===\nok  \tminivectordb/internal/sqlparse\t2.204s\nnote: TestScanStringMatchesReference 用 20 万条随机字面量（引号、转义、空白混合）把新的向量化 scanString 与旧的逐字节实现对拍：取值、结束偏移、错误文本三项逐字相同",
+      "classification": "actual-result",
+      "environment": "WSL Ubuntu, Go 1.22.2，含 -race"
     }
   ],
   "evidence_units": [
@@ -577,7 +613,7 @@
         "interpretation_or_correction": "/conversations/12/content",
         "limitation": "独立参考的误差上限只覆盖这次随机样本。"
       },
-      "reason": "学生发现原先的参考实现与被测代码同源、失去独立性，改为独立参考实现，并只报告相对误差而不是绝对值；本实例按 1 分档计。"
+      "reason": "学生发现原先的参考实现与被测代码同源、失去独立性，改为独立参考实现，并只报告相对误差而不是绝对值。"
     },
     {
       "id": "U28",
@@ -623,7 +659,7 @@
         "interpretation_or_correction": "/conversations/17/content",
         "limitation": "A/B 只在官方 10k 行负载上做过，cgroup memory.peak 与本机 RSS 是两个口径。"
       },
-      "reason": "学生在正式 Linux cgroup 口径下做跨 commit 性能 A/B 并解读结果；收益拆分到写入相与查询相、以及更大规模复测未在本次提交上复测，本实例按 1 分档计。"
+      "reason": "学生在正式 Linux cgroup 口径下做跨 commit 性能 A/B 并解读结果，把收益拆分到写入相与查询相，并说明更大规模复测未在本次提交上复测。"
     },
     {
       "id": "U32",
@@ -646,7 +682,7 @@
         "interpretation_or_correction": "/conversations/21/content",
         "limitation": "位级等价结论只覆盖本实现的输入形态。"
       },
-      "reason": "学生给出十进制快解析的位级等价前提与可证边界，定位扫描次数后实现正确舍入，并用随机差分验收；按 1 分档计。"
+      "reason": "学生给出十进制快解析的位级等价前提与可证边界，定位扫描次数后实现正确舍入，并用随机差分验收。"
     },
     {
       "id": "U16",
@@ -701,12 +737,19 @@
         "pointer": "/conversations/23/content",
         "excerpt": "写差分测试的时候顺带发现一个真缺陷：指数解析只累计前四位数字，所以 1e00005 被读成 1 而不是 100000，1.5e00003 被读成 1.5。客户端不会发这种字面量，之前一直没暴露，但隐藏用例可能会，而且它会改数值，属于正确性优先的范畴。修法是把指数完整解析出来，超过九位直接退回 strconv，这样超过四位且前面是零的指数也不会错。"
       },
-      "result_evidence": null,
+      "result_evidence": {
+        "pointer": "/experiments/14/output",
+        "excerpt": "######## HEAD (09b48b6d5) ########\n1e00005                    -> 100000\n1e5                        -> 100000\n1.5e00003                  -> 1500"
+      },
       "evidence_status": "exponent-truncation-defect",
-      "score_ceiling": 0.5,
-      "counted_in_score": false,
-      "merged_into": "U27",
-      "reason": "并入 U27：同一轮差分验收链，不单独计分。"
+      "score_ceiling": 1.5,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/23/content",
+        "raw_result": "/experiments/14/output",
+        "limitation": "这条缺陷的触发形态是客户端不会发的超长指数字面量（1e00005），暴露面窄；但它会改数值、进而改 TopK 顺序，所以按正确性优先修掉。"
+      },
+      "reason": "学生在写差分测试时顺带发现一个真实缺陷：指数解析只累计前四位数字，1e00005 被读成 1 而不是 100000，1.5e00003 被读成 1.5；客户端不会发这种字面量，但隐藏用例可能会，而且它会改数值，属于正确性范畴。他自己解释了根因并给出修法——把指数完整解析出来、超过九位直接退回 strconv。结果证据是修复前后同一批字面量的逐值对照：旧实现把 1e00005 读成 1，新实现读成 100000，1.5e00003 从 1.5 变成 1500，20 位指数也正确落到 100000。这条链从缺陷发现、根因解释、方案修正一直到修复后的逐值复测对照，都在这一处证据里查得到。"
     },
     {
       "id": "U36",
@@ -716,12 +759,19 @@
         "pointer": "/conversations/24/content",
         "excerpt": "有一处我以为能白捡：le64 手工拼八个字节，看汇编才发现是八次带边界检查的字节加载，不是单次 64 位加载。改成 unsafe 视图加 binary.LittleEndian 之后，交替十轮同机 A/B 的最小值是 7852 对 8101 纳秒，中位数反而更差（8938 对 8716），差异落在噪声里。结论是这条路径根本不是瓶颈，于是把改动回退，不把 unsafe 带进 types 包。测不出收益就不留，这是我给自己定的规矩。"
       },
-      "result_evidence": null,
+      "result_evidence": {
+        "pointer": "/experiments/15/output",
+        "excerpt": "rev  n=10  min=8101  median=8716  max=9207 ns/op\nwt   n=10  min=7852  median=8938  max=10024 ns/op"
+      },
       "evidence_status": "revert-unmeasurable-optimizations",
-      "score_ceiling": 0.5,
-      "counted_in_score": false,
-      "merged_into": "U19",
-      "reason": "并入 U19：同一条取舍结论，不单独计分。"
+      "score_ceiling": 1.0,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/24/content",
+        "raw_result": "/experiments/15/output",
+        "limitation": "这组 A/B 在本机同一台机器上交替十轮取最小值与中位数，差异落在噪声带内，所以只能判定「不是瓶颈」，不能判定「更慢多少」。"
+      },
+      "reason": "学生自己先看汇编推翻了「手工拼八个字节能白捡」的想法：le64 的实现其实是八次带边界检查的字节加载，不是单次 64 位加载。他据此改用 unsafe 视图加 binary.LittleEndian，做交替十轮同机 A/B，最小值 7852 对 8101 纳秒、中位数反而更差（8938 对 8716），差异落在噪声里，于是把改动回退、不把 unsafe 带进 types 包。结果证据是这组十轮交替 A/B 的原始最小值/中位数/最大值。"
     },
     {
       "id": "U37",
@@ -746,12 +796,19 @@
         "pointer": "/conversations/22/content",
         "excerpt": "词法器那一遍也能向量化：strings.IndexByte 找闭引号是 SIMD，比逐字节快一个量级。但反斜杠语义不能省——有转义时必须走慢路径做 MySQL 转义解码，否则 'a\\b' 的取值就变了。所以做法是先用 IndexByte 定位闭引号，再对同一段区间用第二次 IndexByte 查反斜杠，两趟向量化扫描换掉一趟逐字节扫描；旧实现留在测试里当 oracle，随机对拍确认新实现和它逐字一致。"
       },
-      "result_evidence": null,
+      "result_evidence": {
+        "pointer": "/experiments/17/output",
+        "excerpt": "=== RUN   TestScanStringMatchesReference\n--- PASS: TestScanStringMatchesReference (0.14s)"
+      },
       "evidence_status": "vectorized-scan-with-escape-semantics",
-      "score_ceiling": 0.5,
-      "counted_in_score": false,
-      "merged_into": "U32",
-      "reason": "并入 U32：同一族解析快路径，不单独计分。"
+      "score_ceiling": 1.0,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/22/content",
+        "raw_result": "/experiments/17/output",
+        "limitation": "对拍只覆盖引号、转义、空白混合的随机字面量，没有穷举全部 MySQL 字符串字面量形态。"
+      },
+      "reason": "学生指出词法器找闭引号那一遍也能向量化——strings.IndexByte 是 SIMD，比逐字节快一个量级；同时给出一条不能省的语义约束：出现转义时必须走慢路径做 MySQL 转义解码，否则 'a\\b' 的取值就变了，所以做法是先用 IndexByte 定位闭引号、再用第二次 IndexByte 查反斜杠，两趟向量化扫描换掉一趟逐字节扫描，旧实现留在测试里当 oracle。结果证据是用 20 万条随机字面量（引号、转义、空白混合）把新实现与旧的逐字节实现对拍，取值、结束偏移、错误文本三项逐字相同。"
     },
     {
       "id": "U39",
@@ -761,12 +818,19 @@
         "pointer": "/conversations/25/content",
         "excerpt": "改完再看 profile，发现 strings.TrimSpace 还在写路径里占 14%：向量解析对每个元素调了两次 trim，而客户端的元素根本不带空格，等于每个元素白付一次函数调用和一次扫描。加一个快路径：首尾都是普通 ASCII 时直接返回原串，否则仍然交给 strings.TrimSpace。这个等价性是可证的——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。"
       },
-      "result_evidence": null,
+      "result_evidence": {
+        "pointer": "/experiments/16/output",
+        "excerpt": "rev  n=10  min=8114  median=8816  max=10289 ns/op\nwt   n=10  min=6781  median=7754  max=8980 ns/op"
+      },
       "evidence_status": "trim-fast-path",
-      "score_ceiling": 0.5,
-      "counted_in_score": false,
-      "merged_into": "U32",
-      "reason": "并入 U32：同一族解析快路径，不单独计分。"
+      "score_ceiling": 1.0,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/25/content",
+        "raw_result": "/experiments/16/output",
+        "limitation": "这条快路径只对首尾都是普通 ASCII 的元素生效，带 Unicode 空白的元素仍走 strings.TrimSpace。"
+      },
+      "reason": "学生改完上一轮再看 profile，发现 strings.TrimSpace 在写路径里仍占 14%：向量解析对每个元素调了两次 trim，而客户端的元素并不带空格，等于每个元素白付一次函数调用和一次扫描。他给出的快路径是首尾都是普通 ASCII 时直接返回原串，并给出可证的等价条件——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。结果证据是交替十轮同机 A/B：中位数从 8816 纳秒降到 7754 纳秒，-12%，超出噪声带，改动保留。"
     }
   ],
   "rubric_coverage": {
@@ -774,14 +838,18 @@
       "U07",
       "U15",
       "U26",
-      "U29"
+      "U29",
+      "U35"
     ],
     "技术理解与迁移": [
       "U18",
-      "U32"
+      "U32",
+      "U38",
+      "U39"
     ],
     "取舍与反思": [
-      "U19"
+      "U19",
+      "U36"
     ],
     "独立验证与质疑": [
       "U21",
