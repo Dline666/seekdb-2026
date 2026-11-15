@@ -85,8 +85,9 @@ func main() {
 	// Requests are read on the main goroutine, one at a time, so a request
 	// is handled without a goroutine hand-off. SIGTERM/SIGINT are checked
 	// between requests; a signal that arrives while blocked on stdin is
-	// handled by a watcher that closes stdin, which ends the read with EOF.
-	rd := bufio.NewReaderSize(os.Stdin, 1<<20)
+	// handled by a watcher that interrupts stdin, which ends the read.
+	stdin, interruptStdin := newStdin(logf)
+	rd := bufio.NewReaderSize(stdin, 1<<20)
 	next := func() line {
 		// ReadSlice hands back a view into the reader buffer instead of
 		// allocating a fresh slice per request. The request is fully
@@ -113,7 +114,7 @@ func main() {
 	go func() {
 		<-sigs
 		close(stop)
-		os.Stdin.Close()
+		interruptStdin()
 	}()
 
 	// Recovery and index rebuild are done inside engine.Open, so the
