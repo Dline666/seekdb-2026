@@ -130,6 +130,10 @@ func main() {
 		return 0
 	}
 	enc := &proto.Encoder{}
+	// One parser for the whole session: its scratch holds the decoded SQL
+	// of an escaped request until the next line is parsed, which is exactly
+	// as long as the request may alias the read buffer anyway.
+	rp := &proto.RequestParser{}
 	for {
 		select {
 		case <-stop:
@@ -143,7 +147,7 @@ func main() {
 		if len(bytes.TrimSpace(l.b)) == 0 {
 			continue
 		}
-		req, perr := proto.ParseRequest(l.b)
+		req, perr := rp.Parse(l.b)
 		if perr != nil {
 			logf("bad request: %v", perr)
 			out.Write(enc.Error(req.ID, "invalid_request", perr.Error()))
