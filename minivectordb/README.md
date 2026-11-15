@@ -111,7 +111,11 @@ turns the fast path off; `MVDB_FAST_INSERT_MIN` (bytes) and
 **Request reads.** On linux/amd64, when stdin is a pipe and the process has
 at least two CPUs, the reader polls stdin for up to 1 ms (`MVDB_SPIN_US`,
 0 = off) before it sleeps, yielding the CPU between polls. The descriptor
-stays in blocking mode. On one CPU the polling is off.
+stays in blocking mode. On one CPU the polling is off. The request decoder
+handles JSON escapes in the `sql` string itself (`\" \\ \/ \b \f \n \r \t` and
+`\uXXXX` outside the surrogate range) and keeps its 8-byte ASCII skip going
+after non-ASCII text; surrogates and anything unusual still go through
+`encoding/json`, and the accepted lines decode to exactly the same strings.
 
 **Vector search.** Each table keeps a contiguous float32 copy of its committed
 vectors (within the memory budget). TopK scans it with a bounded max-heap,
@@ -154,25 +158,28 @@ measurable gain on uniform random data, where the K-th best distance stays
 close to the average.
 
 This revision against the one before it (see `performance/lead-opt/`):
-100 x 100-row INSERT of VECTOR(128) with 17-digit literals, then 1000 TopK
-queries, same driver and requests for both binaries, interleaved rounds,
-medians. None of this is the official environment.
+100 x 100-row INSERT of VECTOR(128), then 1000 TopK queries, same driver and
+requests for both binaries, interleaved rounds, medians. None of this is the
+official environment.
 
 | Setup | Metric | Before | After |
 | --- | --- | --- | --- |
-| Linux VM, 2 vCPU Xeon 2.2 GHz, direct pipes, sync off | write T | 0.178 s | 0.130 s |
-| same, fdatasync (4 to 5 ms each on that disk) | write T | 0.70 s | 0.62 s |
-| same VM, 3 relay processes emulating the docker stream chain | write T | 1.32 s | 1.15 s |
-| same (noisy: single rounds 0.33-0.39 s and 0.29-0.44 s) | query T | 0.343 s | 0.300 s |
-| macOS x86_64, i7-9750H, direct pipes, sync off | write T | 0.102 s | 0.056 s |
-| Docker, cgroup v2, 1-CPU VM, GOMAXPROCS=2 | write M / query M | 9.43 / 11.58 MiB | 9.68 / 11.93 MiB |
+| Linux VM, 2 vCPU Xeon 2.2 GHz, direct pipes, sync off, one-line SQL | write T | 0.177 s | 0.132 s |
+| same | query T | 0.231 s | 0.208 s |
+| same, rows with Chinese text and `, ` separators | write T | 0.247 s | 0.139 s |
+| same, SQL laid out over several lines as in the task statement | write T / query T | 0.454 / 0.259 s | 0.169 / 0.216 s |
+| same VM, fdatasync on (4 to 5 ms each on that disk), one-line SQL | write T | 0.66 s | 0.61 s |
+| same VM, 3 relay processes emulating the docker stream chain | write T | 1.33 s | 1.18 s |
+| same (noisy: 0.33-0.36 s before, 0.28-0.46 s after) | query T | 0.343 s | 0.297 s |
+| Docker, cgroup v2, 1-CPU VM, GOMAXPROCS=2 | write M / query M | 9.17 / 11.45 MiB | 9.75 / 11.79 MiB |
 | same | B per phase | 6.05 MiB | 6.05 MiB |
 
-Peak memory is about 0.3 MiB higher (second worker and its buffers). The two
-revisions answered more than 300,000 randomized protocol requests byte for
-byte identically (DDL, DML, TopK, transactions, protocol errors, restarts,
-kill -9 between requests; request lines also delivered in pieces), with the
-fast path at its default threshold and forced on for every INSERT.
+Peak memory is 0.3 to 0.6 MiB higher (second worker and its buffers). The two
+revisions answered about 509,000 randomized protocol requests byte for byte
+identically (DDL, DML, TopK, transactions, protocol errors, restarts,
+kill -9 between requests; request lines also delivered in pieces), 145,000
+of them with the final binary, with the fast path at its default threshold
+and forced on for every INSERT.
 
 ## Known limits
 

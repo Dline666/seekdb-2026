@@ -19,25 +19,31 @@ Tools (Python 3 + numpy, no other dependencies):
   emulate the hops of `docker run -i`.
 
 Results (reference = the engine of `a268b0cd` plus the CREATE VECTOR INDEX
-fix; candidate = that plus the literal parser, the INSERT fast path and stdin
-polling; interleaved rounds, medians):
+fix; candidate = that plus the literal parser, the INSERT fast path, stdin
+polling and the request decoder changes; interleaved rounds, medians, range
+in brackets where it matters):
 
 | Setup | Metric | Reference | Candidate |
 | --- | --- | --- | --- |
-| Linux VM, 2 vCPU Xeon 2.2 GHz (one core, two threads), direct pipes, sync off, 5 rounds | write T | 0.178 s | 0.130 s |
-| same, fdatasync on (4 to 5 ms per call on that disk), 4 rounds | write T | 0.70 s | 0.62 s |
-| same VM, `relay 3`, sync off, 6 rounds | write T | 1.32 s | 1.15 s |
-| same (single rounds 0.33-0.39 s and 0.29-0.44 s) | query T | 0.343 s | 0.300 s |
+| Linux VM, 2 vCPU Xeon 2.2 GHz (one core, two threads), direct pipes, sync off, `--schema official --fmt lab`, 5 rounds | write T | 0.177 s | 0.132 s |
+| same | query T | 0.231 s | 0.208 s |
+| same, `--schema official_cn --fmt json` (Chinese text in every row, `, ` separators) | write T | 0.247 s | 0.139 s |
+| same, `--schema statement --fmt json` (multi-line SQL as in the task statement, so `\n` escapes in the JSON) | write T | 0.454 s | 0.169 s |
+| same | query T | 0.259 s | 0.216 s |
+| same VM, fdatasync on (4 to 5 ms per call on that disk), 4 rounds | write T | 0.659 s [0.634-0.692] | 0.611 s [0.582-0.666] |
+| same VM, `relay 3`, sync off, 6 rounds | write T | 1.33 s [1.30-1.38] | 1.18 s [1.06-1.39] |
+| same | query T | 0.343 s [0.325-0.359] | 0.297 s [0.280-0.458] |
 | direct pipes, request round trip (`ping.py`, p50, 3 pairs) | polling off / on | 23.6 us | 15.3 us |
-| macOS x86_64 i7-9750H, direct pipes, sync off, 5 rounds | write T | 0.102 s | 0.056 s |
-| Docker on a 1-CPU VM, cgroup v2, btrfs volume, GOMAXPROCS=2, warm rounds | write M | 9.43 MiB | 9.68 MiB |
-| same | query M | 11.58 MiB | 11.93 MiB |
+| macOS x86_64 i7-9750H, direct pipes, sync off, 5 rounds, one-line SQL | write T | 0.122 s | 0.068 s |
+| same, `--schema statement --fmt json` | write T / query T | 0.309 / 0.142 s | 0.091 / 0.111 s |
+| Docker on a 1-CPU VM, cgroup v2, btrfs volume, GOMAXPROCS=2, warm rounds | write M | 9.17 MiB | 9.75 MiB |
+| same | query M | 11.45 MiB | 11.79 MiB |
 | same | B per phase | 6.05 MiB | 6.05 MiB |
 
-Query T without the relay chain is unchanged within noise (about 0.21 s on
-the VM for both). T inside Docker could not be compared on the 1-CPU VM, and
-stdin polling is off there by design; the relay chain is an emulation of the
-docker hops, not the judge.
+T inside Docker could not be compared on the 1-CPU VM, and stdin polling is
+off there by design; the relay chain is an emulation of the docker hops, not
+the judge. How the judge formats its SQL is not published; the three request
+shapes above are guesses that bracket it.
 
 Stdin polling alone (same binary, `MVDB_SPIN_US=0` against the default, five
 alternating query-phase runs through `relay 3`): 0.337 s against 0.317 s
@@ -47,13 +53,14 @@ with it over six alternating runs, and two polling runs had a worse p99
 (0.6-0.8 ms). On two hardware threads of one core the gain is therefore small
 and not certain; with one CPU the reader does not poll at all.
 
-Differential runs, all with zero mismatches: 150 seeds x 400 requests after
-the literal-parser change; 400 seeds after the INSERT fast path (200 with the
-fast path forced for every INSERT and two workers); on Linux 120 seeds with
-chunked request delivery, then for the final binary 150 chunked seeds and 100
-seeds with the fast path forced and a 50 us poll window. About 364,000
-compared responses in total, 305,000 of them against binaries containing the
-INSERT fast path.
+Differential runs (`diff_fuzz.py`, reference binary against each stage), all
+with zero mismatches, about 509,000 compared responses in total: 150 seeds x
+400 requests after the literal-parser change; 412 seeds after the INSERT fast
+path (200 with the fast path forced for every INSERT and two workers) plus
+120 chunked seeds on Linux; 250 seeds on Linux after stdin polling (100 with
+the fast path forced and a 50 us poll window); and for the final binary 220
+seeds on macOS (120 chunked, 100 forced) and 150 chunked seeds on Linux,
+about 145,000 responses.
 
 Tried and not kept:
 
