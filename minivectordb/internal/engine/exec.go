@@ -213,7 +213,10 @@ func (db *DB) execCreateIndex(s *sp.CreateIndex) (*Result, error) {
 	if t.Cols[ci].Type != types.TVector {
 		return nil, types.ErrNotVectorCol(s.Column)
 	}
-	if t.Index != nil {
+	// An implicit index, created by the first TopK query on a table without
+	// CREATE VECTOR INDEX, is not an index the user asked for. Only an
+	// explicit one makes this statement a duplicate.
+	if t.Index != nil && t.Index.Explicit {
 		if s.IfNotExists {
 			return &Result{}, nil
 		}
