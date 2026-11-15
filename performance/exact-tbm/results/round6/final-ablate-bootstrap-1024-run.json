@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/tmp/seekdb-round6/bin/tbm",
+    "-bins",
+    "final:MVDB_NO_BOOTSTRAP=1,final",
+    "-bin-dir",
+    "/tmp/seekdb-round6/bin",
+    "-rows",
+    "10000",
+    "-dim",
+    "1024",
+    "-queries",
+    "1000",
+    "-rounds",
+    "5",
+    "-data",
+    "uniform",
+    "-seed",
+    "7"
+  ],
+  "exit_code": 0,
+  "start": 1794739367.4189548,
+  "wall_s": 30.03640341758728
+}

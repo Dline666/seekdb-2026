@@ -482,7 +482,7 @@ func validate(b []byte, want []hit) {
 	for i, h := range want {
 		row := r.Rows[i]
 		d := math.Sqrt(h.d)
-		if len(row) != 2 || int(row[0].(float64)) != h.id || math.Abs(row[1].(float64)-d) > 1e-10*math.Max(1, d) {
+		if len(row) != 2 || row[0].(float64) != float64(h.id) || math.Abs(row[1].(float64)-d) > 1e-10*math.Max(1, d) {
 			panic(fmt.Sprintf("exact mismatch got=%v want=%+v", r.Rows, want))
 		}
 	}
@@ -532,7 +532,7 @@ func census(c *child, m *model) {
 			d += float64(x) * float64(x)
 		}
 		d = math.Sqrt(d)
-		if len(row) != 3 || int(row[0].(float64)) != id || row[1].(string) != fmt.Sprintf("c%d", state.cat) || math.Abs(row[2].(float64)-d) > 1e-10*math.Max(1, d) {
+		if len(row) != 3 || row[0].(float64) != float64(id) || row[1].(string) != fmt.Sprintf("c%d", state.cat) || math.Abs(row[2].(float64)-d) > 1e-10*math.Max(1, d) {
 			panic(fmt.Sprintf("census mismatch id=%d got=%v", id, row))
 		}
 	}
@@ -566,7 +566,7 @@ func checkPoint(c *child, dim, id int, want rowState) {
 		panic(fmt.Sprintf("missing point %d: %v", id, r.Rows))
 	}
 	row := r.Rows[0]
-	if int(row[0].(float64)) != id || row[1].(string) != fmt.Sprintf("c%d", want.cat) || row[2].(float64) != 0 {
+	if row[0].(float64) != float64(id) || row[1].(string) != fmt.Sprintf("c%d", want.cat) || row[2].(float64) != 0 {
 		panic(fmt.Sprintf("point mismatch %d: %v", id, row))
 	}
 }

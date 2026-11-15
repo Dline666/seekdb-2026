@@ -1,0 +1,42 @@
+{
+  "status": "rejected",
+  "patch": "residual.patch",
+  "patch_sha256": "288d3decb2d7ce4a5006eb1b32cc7fd4c61c6e212f96c9e23371c25c5473cfa6",
+  "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+  "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+  "candidate_snapshot_sha256": "32c771fbbe37ff39e50de81a508648223ecabb3576aa6ba177af9f2183d11025",
+  "git_apply_check": "PASS",
+  "reconstructed_snapshot_matches": true,
+  "changed_files": [
+    {
+      "path": "minivectordb/internal/engine/eqset.go",
+      "action": "modified",
+      "base_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+      "candidate_sha256": "bc6f661bdbd7d5e2b3140477d6d4f8b9ff78a6b53cfbe670721314f213781792"
+    },
+    {
+      "path": "minivectordb/internal/engine/prefilter.go",
+      "action": "modified",
+      "base_sha256": "ca7065f2c3e9c6bd5226d8f0269d4a85ccfdf90c6cdfa5dd79b7bc6fa773cf04",
+      "candidate_sha256": "48d1bc0fa85201043fbc5892896088f59563ed79b36986c77d0d9e0ed97b05a0"
+    },
+    {
+      "path": "minivectordb/internal/engine/residual_bound_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "71a14bcf2530334cedfe06b44898939929bb07988af24a09cbe1a553d3c777fb"
+    },
+    {
+      "path": "minivectordb/internal/engine/topk.go",
+      "action": "modified",
+      "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+      "candidate_sha256": "fc1d52e951a09b43091e22d1bb7134ba38a19f2f77d513c5f7100e59609861fb"
+    },
+    {
+      "path": "minivectordb/internal/engine/vecindex.go",
+      "action": "modified",
+      "base_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+      "candidate_sha256": "d1198db45c21ef5babdbafa880cbed27e8ed374c913580a363be2e0f7011425d"
+    }
+  ]
+}

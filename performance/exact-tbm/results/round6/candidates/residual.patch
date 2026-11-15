@@ -1,0 +1,597 @@
+diff --git a/minivectordb/internal/engine/eqset.go b/minivectordb/internal/engine/eqset.go
+--- a/minivectordb/internal/engine/eqset.go
++++ b/minivectordb/internal/engine/eqset.go
+@@ -175,7 +175,9 @@
+ 		// m2=-2*min and s2=-2*scale are exact in float64, so the
+ 		// original per-row bounds need no extra retained parameters.
+ 		f := b.qf[i*4 : i*4+4]
+-		b.qbounds[i/quantBlockRows].add(float32(-f[2]/2), math.Abs(f[0]/2)-128*f[2])
++		// No per-row residual is retained. The source slot block's maximum
++		// also bounds this row, conservatively, without rereading its vector.
++		b.qbounds[i/quantBlockRows].add(x.qbounds[int(s)/quantBlockRows].maxResidual, math.Abs(f[0]/2)-128*f[2])
+ 	}
+ 	if x.cat == nil {
+ 		x.cat = map[int]map[string]*catBlock{}
+diff --git a/minivectordb/internal/engine/prefilter.go b/minivectordb/internal/engine/prefilter.go
+--- a/minivectordb/internal/engine/prefilter.go
++++ b/minivectordb/internal/engine/prefilter.go
+@@ -25,7 +25,8 @@
+ // qparam holds the per-row affine quantization parameters of one stored
+ // vector, plus the two sums the approximate distance needs. Codes are
+ // uint8 in [0,255]: code[i] = round((v[i]-min)/scale), so the dequantized
+-// value min+scale*code[i] is within scale/2 of v[i]. Codes are derived
++// value min+scale*code[i] approximates v[i]. residual bounds the actual
++// L2 reconstruction error, including scale rounding and code clamps. Codes are derived
+ // state, like the rest of VecIndex: they are built at insert/commit time
+ // and rebuilt from the log on recovery, never persisted separately.
+ //
+@@ -39,10 +40,11 @@
+ // float64 rounding of that one sum. The absolute allowance in
+ // prefilterRoundSlack covers cancellation between large terms.
+ type qparam struct {
+-	min   float32
+-	scale float32
+-	sumC  float32 // sum of the codes
+-	cRow  float64 // folded per-row constant of the dhat2 expansion
++	min      float32
++	scale    float32
++	sumC     float32 // sum of the codes
++	cRow     float64 // folded per-row constant of the dhat2 expansion
++	residual float64 // conservative L2 norm of the actual reconstruction residual
+ }
+ 
+ // quantizeRow writes the int8 codes of v into codes (len(v) bytes) and
+@@ -61,7 +63,7 @@
+ 	if mx > mn {
+ 		sc = (mx - mn) / 255
+ 	}
+-	var sumC, sumC2 float64
++	var sumC, sumC2, residualSq float64
+ 	for i, f := range v {
+ 		c := 0
+ 		if sc > 0 {
+@@ -75,10 +77,13 @@
+ 		codes[i] = byte(c)
+ 		sumC += float64(c)
+ 		sumC2 += float64(c) * float64(c)
++		r := float64(f) - (float64(mn) + float64(sc)*float64(c))
++		residualSq += r * r
+ 	}
+ 	mnf, scf := float64(mn), float64(sc)
+ 	cRow := float64(len(v))*mnf*mnf + 2*scf*mnf*sumC + scf*scf*sumC2
+-	return qparam{min: mn, scale: sc, sumC: float32(sumC), cRow: cRow}
++	return qparam{min: mn, scale: sc, sumC: float32(sumC), cRow: cRow,
++		residual: quantResidualUpper(residualSq, mn, mx, sc, len(v))}
+ }
+ 
+ // quantizeQuery6 is the 6-bit variant of quantizeQuery: q[i] ~=
+@@ -86,19 +91,24 @@
+ // quantization lets the dot kernel use VPMADDUBSW (unsigned row codes
+ // times signed query codes, pairwise-summed into int16) instead of
+ // VPMOVZXBW+VPMADDWD, at the cost of a ~4x larger qscale, which the
+-// prefilter bound absorbs (the combined scale becomes maxScale+qscale).
++// prefilter bound absorbs through the actual query reconstruction residual.
+ // It returns ok=false for a non-finite element, like quantizeQuery.
+ func quantizeQuery6(q []float32) (qmin, qscale float32, qc []int8, qSum, qNorm2 float64, ok bool) {
++	qmin, qscale, qc, qSum, qNorm2, _, ok = quantizeQuery6Residual(q)
++	return
++}
++
++func quantizeQuery6Residual(q []float32) (qmin, qscale float32, qc []int8, qSum, qNorm2, residual float64, ok bool) {
+ 	if len(q) == 0 {
+-		return 0, 0, nil, 0, 0, true
++		return 0, 0, nil, 0, 0, 0, true
+ 	}
+ 	mn, mx := q[0], q[0]
+ 	if math.IsNaN(float64(mn)) || math.IsInf(float64(mn), 0) {
+-		return 0, 0, nil, 0, 0, false
++		return 0, 0, nil, 0, 0, math.Inf(1), false
+ 	}
+ 	for _, f := range q[1:] {
+ 		if math.IsNaN(float64(f)) || math.IsInf(float64(f), 0) {
+-			return 0, 0, nil, 0, 0, false
++			return 0, 0, nil, 0, 0, math.Inf(1), false
+ 		}
+ 		if f < mn {
+ 			mn = f
+@@ -111,6 +121,10 @@
+ 	if mx > mn {
+ 		sc = (mx - mn) / 63
+ 	}
++	if math.IsInf(float64(sc), 0) {
++		return 0, 0, nil, 0, 0, math.Inf(1), false
++	}
++	var residualSq float64
+ 	qc = make([]int8, len(q))
+ 	for i, f := range q {
+ 		c := 0
+@@ -126,27 +140,34 @@
+ 		qh := float64(mn) + float64(sc)*float64(c)
+ 		qSum += qh
+ 		qNorm2 += qh * qh
+-	}
+-	return mn, sc, qc, qSum, qNorm2, true
++		r := float64(f) - qh
++		residualSq += r * r
++	}
++	return mn, sc, qc, qSum, qNorm2, quantResidualUpper(residualSq, mn, mx, sc, len(q)), true
+ }
+ 
+ // quantizeQuery quantizes the query to 8-bit codes for the integer
+ // prefilter kernel: q[i] ~= qmin + qscale*qc[i] with qc[i] in [0,255].
+ // It also returns the element sum and squared norm of the DEQUANTIZED
+ // query (qmin+qscale*qc), which approxDist2 needs. It returns ok=false
+-// when the query has a non-finite element: the integer kernel cannot
+-// represent those, so the caller must fall back to the exact scan.
++// when a query element or its float32 quantization scale is non-finite:
++// the caller then falls back to the exact scan.
+ func quantizeQuery(q []float32) (qmin, qscale float32, qc []int16, qSum, qNorm2 float64, ok bool) {
++	qmin, qscale, qc, qSum, qNorm2, _, ok = quantizeQueryResidual(q)
++	return
++}
++
++func quantizeQueryResidual(q []float32) (qmin, qscale float32, qc []int16, qSum, qNorm2, residual float64, ok bool) {
+ 	if len(q) == 0 {
+-		return 0, 0, nil, 0, 0, true
++		return 0, 0, nil, 0, 0, 0, true
+ 	}
+ 	mn, mx := q[0], q[0]
+ 	if math.IsNaN(float64(mn)) || math.IsInf(float64(mn), 0) {
+-		return 0, 0, nil, 0, 0, false
++		return 0, 0, nil, 0, 0, math.Inf(1), false
+ 	}
+ 	for _, f := range q[1:] {
+ 		if math.IsNaN(float64(f)) || math.IsInf(float64(f), 0) {
+-			return 0, 0, nil, 0, 0, false
++			return 0, 0, nil, 0, 0, math.Inf(1), false
+ 		}
+ 		if f < mn {
+ 			mn = f
+@@ -159,6 +180,10 @@
+ 	if mx > mn {
+ 		sc = (mx - mn) / 255
+ 	}
++	if math.IsInf(float64(sc), 0) {
++		return 0, 0, nil, 0, 0, math.Inf(1), false
++	}
++	var residualSq float64
+ 	qc = make([]int16, len(q))
+ 	for i, f := range q {
+ 		c := 0
+@@ -174,8 +199,10 @@
+ 		qh := float64(mn) + float64(sc)*float64(c)
+ 		qSum += qh
+ 		qNorm2 += qh * qh
+-	}
+-	return mn, sc, qc, qSum, qNorm2, true
++		r := float64(f) - qh
++		residualSq += r * r
++	}
++	return mn, sc, qc, qSum, qNorm2, quantResidualUpper(residualSq, mn, mx, sc, len(q)), true
+ }
+ 
+ // dotInt8GatherScalar is the portable reference for the AVX2 kernel:
+@@ -229,21 +256,21 @@
+ const quantBlockRows = 128
+ 
+ type quantBlockBound struct {
+-	maxAbs   float64
+-	maxScale float32
+-}
+-
+-func (b *quantBlockBound) add(scale float32, abs float64) {
+-	if scale > b.maxScale {
+-		b.maxScale = scale
++	maxAbs      float64
++	maxResidual float64
++}
++
++func (b *quantBlockBound) add(residual, abs float64) {
++	if math.IsNaN(residual) || residual > b.maxResidual {
++		b.maxResidual = residual
+ 	}
+ 	if abs > b.maxAbs {
+ 		b.maxAbs = abs
+ 	}
+ }
+ 
+-func (b quantBlockBound) threshold(qmin, qscale float32, dim int, bd float64) float64 {
+-	return prefilterThreshold(b.maxScale+qscale, dim, bd) + prefilterRoundSlack(b.maxAbs, qmin, qscale, dim)
++func (b quantBlockBound) threshold(qmin, qscale float32, dim int, bd, queryResidual float64) float64 {
++	return residualThreshold(b.maxResidual, queryResidual, bd) + prefilterRoundSlack(b.maxAbs, qmin, qscale, dim)
+ }
+ 
+ func quantBlockBytes(rows int) int64 {
+@@ -259,11 +286,70 @@
+ 		i := int(slot) / quantBlockRows
+ 		if i != prev {
+ 			part := x.qbounds[i]
+-			b.add(part.maxScale, part.maxAbs)
++			b.add(part.maxResidual, part.maxAbs)
+ 			prev = i
+ 		}
+ 	}
+ 	return b
++}
++
++// quantResidualUpper bounds the real-arithmetic norm of
++// v[i]-(min+scale*code[i]), starting from the sum of the computed float64
++// residual squares. It deliberately makes no scale/2 assumption: float32
++// scale rounding, underflow to zero, and clamped endpoint codes are included.
++//
++// For finite float32 scale and an 8-bit code their float64 product is exact
++// (at most 32 significant bits). Let A=|min|+256*scale and V=max |v[i]|.
++// The reconstruction addition and residual subtraction together differ from
++// the real residual by at most 4*u*(V+A), with u=2^-52 (twice unit roundoff).
++// The Euclidean norm of these per-component errors is <= dim times that
++// allowance. Using dim instead of sqrt(dim) avoids another square root.
++//
++// Squaring/summing computed residuals incurs <= gamma_(dim+1) relative
++// error. 8*(dim+1)*u safely inflates its computed square root for all
++// supported dimensions. A final inflation and Nextafter cover additions
++// and products in this bound. Float32 subnormals and their squared
++// differences are normal float64 numbers, so no gradual-underflow term is
++// needed. Non-finite arithmetic disables pruning rather than narrowing it.
++func quantResidualUpper(sumSq float64, mn, mx, scale float32, dim int) float64 {
++	if dim <= 0 {
++		return 0
++	}
++	if !(sumSq >= 0) || math.IsInf(sumSq, 0) || math.IsNaN(float64(scale)) || math.IsInf(float64(scale), 0) {
++		return math.Inf(1)
++	}
++	const u = 0x1p-52
++	n := float64(dim)
++	originalAbs := math.Max(math.Abs(float64(mn)), math.Abs(float64(mx)))
++	reconstructedAbs := math.Abs(float64(mn)) + 256*float64(scale)
++	arithmetic := 4 * n * u * (originalAbs + reconstructedAbs)
++	upper := (math.Sqrt(sumSq)*(1+8*(n+1)*u) + arithmetic) * (1 + 8*u)
++	if math.IsNaN(upper) || math.IsInf(upper, 0) {
++		return math.Inf(1)
++	}
++	return math.Nextafter(upper, math.Inf(1))
++}
++
++// residualThreshold uses the triangle inequality. With R >= ||x-xhat||
++// and Q >= ||q-qhat||, a row with real ||x-q|| <= D satisfies
++// ||xhat-qhat|| <= D+R+Q. Its approximate squared distance therefore
++// cannot exceed (D+R+Q)^2, apart from the folded-distance rounding covered
++// separately by prefilterRoundSlack.
++//
++// bd is the existing nonnegative float64 exact-kernel result. Its positive
++// sum of squares differs from the real sum by far less than prefilterEps
++// over dim<=maxInt8Dim. (bd+eps)/(1-eps) is consequently an upper bound
++// for the real distance of any row that can enter the heap, including ties.
++// The extra (1+eps) on the norm dominates threshold-arithmetic rounding.
++// No approximate result is returned: every survivor still gets exact L2.
++func residualThreshold(rowResidual, queryResidual, bd float64) float64 {
++	if !(rowResidual >= 0) || !(queryResidual >= 0) || !(bd >= 0) ||
++		math.IsInf(rowResidual, 0) || math.IsInf(queryResidual, 0) || math.IsInf(bd, 0) {
++		return math.Inf(1)
++	}
++	const eps = prefilterEps
++	norm := (math.Sqrt((bd+eps)/(1-eps)) + rowResidual + queryResidual) * (1 + eps)
++	return math.Nextafter(norm*norm, math.Inf(1))
+ }
+ 
+ // prefilterRoundSlack bounds rounding in the expanded squared distance.
+diff --git a/minivectordb/internal/engine/residual_bound_test.go b/minivectordb/internal/engine/residual_bound_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/residual_bound_test.go
+@@ -0,0 +1,230 @@
++package engine
++
++import (
++	"fmt"
++	"math"
++	"math/big"
++	"math/rand"
++	"testing"
++	"unsafe"
++)
++
++// Independent exact rational oracle over the original float32 vector and
++// final integer codes. It does not use any distance or error-bound helper.
++func residualSquaredOracle(v []float32, mn, scale float32, code func(int) int64) *big.Rat {
++	sum := new(big.Rat)
++	minR := new(big.Rat).SetFloat64(float64(mn))
++	scaleR := new(big.Rat).SetFloat64(float64(scale))
++	for i, f := range v {
++		reconstruction := new(big.Rat).Mul(scaleR, new(big.Rat).SetInt64(code(i)))
++		reconstruction.Add(reconstruction, minR)
++		delta := new(big.Rat).Sub(new(big.Rat).SetFloat64(float64(f)), reconstruction)
++		sum.Add(sum, new(big.Rat).Mul(delta, delta))
++	}
++	return sum
++}
++
++func checkResidualOracle(t *testing.T, tag string, got float64, exactSq *big.Rat) {
++	t.Helper()
++	if math.IsInf(got, 1) {
++		return
++	}
++	if !(got >= 0) {
++		t.Fatalf("%s: invalid bound %g", tag, got)
++	}
++	square := new(big.Rat).SetFloat64(got)
++	square.Mul(square, square)
++	if square.Cmp(exactSq) < 0 {
++		exact, _ := exactSq.Float64()
++		t.Fatalf("%s: bound^2=%g is below exact residual squared=%g", tag, got*got, exact)
++	}
++}
++
++func TestResidualNormRationalOracle(t *testing.T) {
++	rng := rand.New(rand.NewSource(66117))
++	vectors := [][]float32{
++		{0, 0, 0, 0},
++		{math.SmallestNonzeroFloat32, 0, -math.SmallestNonzeroFloat32, 2 * math.SmallestNonzeroFloat32},
++		{1, math.Nextafter32(1, 2), math.Nextafter32(1, 0), 1},
++		{math.MaxFloat32, math.MaxFloat32, math.MaxFloat32},
++		{-math.MaxFloat32, 0, math.MaxFloat32}, // float32 range overflow
++		{0, math.Float32frombits(0x00ffffff), math.Float32frombits(0x00800000)},
++	}
++	for _, dim := range []int{16, 31, 128, 257, 1024} {
++		for trial := 0; trial < 12; trial++ {
++			v := make([]float32, dim)
++			for i := range v {
++				switch trial % 4 {
++				case 0:
++					v[i] = rng.Float32()
++				case 1:
++					v[i] = float32(math.Ldexp(rng.NormFloat64(), rng.Intn(240)-120))
++				case 2:
++					v[i] = math.Float32frombits(uint32(rng.Intn(1 << 24)))
++				case 3:
++					v[i] = 7722174976
++					if i%3 == 0 {
++						v[i] = math.Nextafter32(v[i], float32(math.Inf(1)))
++					}
++				}
++			}
++			vectors = append(vectors, v)
++		}
++	}
++	// The highest supported dimension also exercises norm summation inflation.
++	maxdim := make([]float32, maxInt8Dim)
++	for i := range maxdim {
++		maxdim[i] = rng.Float32()
++	}
++	vectors = append(vectors, maxdim)
++	for at, v := range vectors {
++		codes := make([]byte, len(v))
++		qp := quantizeRow(v, codes)
++		if math.IsInf(float64(qp.scale), 0) {
++			if !math.IsInf(qp.residual, 1) {
++				t.Fatal("overflowed row scale must disable pruning")
++			}
++		} else {
++			checkResidualOracle(t, fmt.Sprintf("row-%d", at), qp.residual,
++				residualSquaredOracle(v, qp.min, qp.scale, func(i int) int64 { return int64(codes[i]) }))
++		}
++		mn, scale, qc, _, _, residual, ok := quantizeQueryResidual(v)
++		if !ok {
++			if !math.IsInf(float64(qp.scale), 0) {
++				t.Fatalf("finite-scale query %d rejected", at)
++			}
++		} else {
++			checkResidualOracle(t, fmt.Sprintf("query8-%d", at), residual,
++				residualSquaredOracle(v, mn, scale, func(i int) int64 { return int64(qc[i]) }))
++		}
++		mn, scale, qc6, _, _, residual, ok := quantizeQuery6Residual(v)
++		if ok {
++			checkResidualOracle(t, fmt.Sprintf("query6-%d", at), residual,
++				residualSquaredOracle(v, mn, scale, func(i int) int64 { return int64(qc6[i]) }))
++		} else if !math.IsInf(float64(qp.scale), 0) {
++			t.Fatalf("finite-scale six-bit query %d rejected", at)
++		}
++	}
++}
++
++func TestResidualThresholdIndependentDistance(t *testing.T) {
++	rng := rand.New(rand.NewSource(77012))
++	for _, dim := range []int{16, 31, 128, 257, 1024} {
++		for trial := 0; trial < 80; trial++ {
++			v, q := make([]float32, dim), make([]float32, dim)
++			for i := range v {
++				switch trial % 5 {
++				case 0:
++					v[i], q[i] = rng.Float32(), rng.Float32()
++				case 1:
++					v[i] = float32(rng.NormFloat64() * 1e-30)
++					q[i] = float32(rng.NormFloat64() * 1e-30)
++				case 2:
++					v[i] = float32(math.Ldexp(rng.NormFloat64(), rng.Intn(240)-120))
++					q[i] = v[i]
++				case 3:
++					v[i] = 7722174976
++					q[i] = math.Nextafter32(v[i], float32(math.Inf(1)))
++				case 4:
++					v[i] = float32(rng.NormFloat64() * 1e30)
++					q[i] = float32(rng.NormFloat64() * 1e30)
++				}
++			}
++			codes := make([]byte, dim)
++			qp := quantizeRow(v, codes)
++			for _, six := range []bool{false, true} {
++				var mn, scale float32
++				var sum, norm, residual float64
++				var dot int32
++				if six {
++					var qc []int8
++					var ok bool
++					mn, scale, qc, sum, norm, residual, ok = quantizeQuery6Residual(q)
++					if !ok {
++						t.Fatal("query unexpectedly rejected")
++					}
++					for i, c := range codes {
++						dot += int32(c) * int32(qc[i])
++					}
++				} else {
++					var qc []int16
++					var ok bool
++					mn, scale, qc, sum, norm, residual, ok = quantizeQueryResidual(q)
++					if !ok {
++						t.Fatal("query unexpectedly rejected")
++					}
++					for i, c := range codes {
++						dot += int32(c) * int32(qc[i])
++					}
++				}
++				// Independent, unfused, sequential sum over input vectors. Also check a
++				// few ulps below it to cover different exact-kernel reduction rounding.
++				exact := 0.0
++				for i, f := range v {
++					d := float64(f) - float64(q[i])
++					exact += d * d
++				}
++				for i := 0; i < 8 && exact > 0; i++ {
++					exact = math.Nextafter(exact, 0)
++				}
++				m2, t2, s2, cr := foldQparam(qp, dim)
++				approx := foldDist2(sum, norm, mn, scale, dot, m2, t2, s2, cr)
++				b := quantBlockBound{maxAbs: math.Abs(float64(qp.min)) + 256*float64(qp.scale), maxResidual: qp.residual}
++				threshold := b.threshold(mn, scale, dim, exact, residual)
++				if approx > threshold {
++					t.Fatalf("unsafe prune dim=%d trial=%d six=%v approximate=%g threshold=%g", dim, trial, six, approx, threshold)
++				}
++			}
++		}
++	}
++	for _, bad := range []float64{math.NaN(), math.Inf(1), -1} {
++		if !math.IsInf(residualThreshold(bad, 0, 1), 1) || !math.IsInf(residualThreshold(0, bad, 1), 1) {
++			t.Fatal("invalid residual did not disable pruning")
++		}
++	}
++}
++
++func TestResidualBoundsRemainBlockLocalAndTighter(t *testing.T) {
++	if unsafe.Sizeof(quantBlockBound{}) != 16 {
++		t.Fatal("block bound memory budget changed")
++	}
++	rng := rand.New(rand.NewSource(8192))
++	const dim = 128
++	b := quantBlockBound{}
++	var oldScale float32
++	for row := 0; row < quantBlockRows; row++ {
++		v := make([]float32, dim)
++		for i := range v {
++			v[i] = rng.Float32()
++		}
++		qp := quantizeRow(v, make([]byte, dim))
++		b.add(qp.residual, math.Abs(float64(qp.min))+256*float64(qp.scale))
++		oldScale = max(oldScale, qp.scale)
++	}
++	q := make([]float32, dim)
++	for i := range q {
++		q[i] = rng.Float32()
++	}
++	mn, scale, _, _, _, residual, ok := quantizeQueryResidual(q)
++	if !ok {
++		t.Fatal("finite query rejected")
++	}
++	old := prefilterThreshold(oldScale+scale, dim, 12) + prefilterRoundSlack(b.maxAbs, mn, scale, dim)
++	tight := b.threshold(mn, scale, dim, 12, residual)
++	if !(tight < old) {
++		t.Fatalf("actual residual did not tighten threshold: %g >= %g", tight, old)
++	}
++	// Monotone update and arbitrary candidate batches must never lose the
++	// maximum of a covered block, including a non-finite residual.
++	x := &VecIndex{qbounds: []quantBlockBound{b, {maxAbs: 1e30, maxResidual: 1e20}, b}}
++	if got := x.boundForSlots([]int32{0, 300}); got.maxResidual != b.maxResidual {
++		t.Fatal("unvisited outlier block leaked")
++	}
++	if got := x.boundForSlots([]int32{300, 128, 0}); got.maxResidual != 1e20 {
++		t.Fatal("candidate merge lost outlier")
++	}
++	b.add(math.Inf(1), 1)
++	if !math.IsInf(b.threshold(mn, scale, dim, 12, residual), 1) {
++		t.Fatal("non-finite row residual narrowed threshold")
++	}
++}
+diff --git a/minivectordb/internal/engine/topk.go b/minivectordb/internal/engine/topk.go
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -156,17 +156,18 @@
+ 	// quantized, so the prefilter is off for this query (the exact scan
+ 	// still answers it). With prefilter6Bit the query is quantized to
+ 	// 6-bit codes instead (quantizeQuery6 + VPMADDUBSW kernel); qscale is
+-	// then the 6-bit scale and the threshold uses maxScale+qscale.
++	// then the 6-bit scale; the threshold uses the actual reconstruction
++	// residuals of the query and the rows covered by each block.
+ 	var qmin, qscale float32
+-	var qSum, qNorm2 float64
++	var qSum, qNorm2, queryResidual float64
+ 	var qok bool
+ 	var qc []int16
+ 	var qc6 []int8
+ 	if prefilterEnabled && x.codes != nil && t.Dim <= maxInt8Dim {
+ 		if prefilter6Bit {
+-			qmin, qscale, qc6, qSum, qNorm2, qok = quantizeQuery6(q)
++			qmin, qscale, qc6, qSum, qNorm2, queryResidual, qok = quantizeQuery6Residual(q)
+ 		} else {
+-			qmin, qscale, qc, qSum, qNorm2, qok = quantizeQuery(q)
++			qmin, qscale, qc, qSum, qNorm2, queryResidual, qok = quantizeQueryResidual(q)
+ 		}
+ 	}
+ 	var ov map[int64]int64
+@@ -349,7 +350,7 @@
+ 				}
+ 				n = min(n, quantBlockRows-i%quantBlockRows)
+ 				bd := tk.bound()
+-				thresh2 := blk.qbounds[i/quantBlockRows].threshold(qmin, qscale, t.Dim, bd)
++				thresh2 := blk.qbounds[i/quantBlockRows].threshold(qmin, qscale, t.Dim, bd, queryResidual)
+ 				var m int
+ 				if useVNNI {
+ 					m = fusedScanInt8BlockVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+@@ -405,7 +406,7 @@
+ 					bound = x.qbounds[i/quantBlockRows]
+ 				}
+ 				bd := tk.bound()
+-				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd)
++				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd, queryResidual)
+ 				var m int
+ 				if fusedCandidateOK {
+ 					if useAVXVNNI {
+@@ -486,14 +487,13 @@
+ 				// dequantized (dot = qmin*sumC + qscale*intDot) and
+ 				// expanded to an approximate squared distance. The
+ 				// per-row bound is replaced by a single threshold per
+-				// batch (prefilterThreshold): one square root per batch
++				// batch (residualThreshold): one square root per batch
+ 				// instead of one per row, and no per-row bound
+-				// arithmetic. The threshold takes the combined scale
+-				// (maxScale + qscale): the per-element error is
+-				// (scale+qscale)/2, row quantization plus query
+-				// quantization. It is exactly as safe as the per-row
+-				// test (see prefilterThreshold's proof): it can only
+-				// admit extra rows, never drop a true candidate.
++				// arithmetic. The threshold uses conservative L2 norms
++				// of the actual row and query reconstruction residuals.
++				// By the triangle inequality (see residualThreshold), a
++				// row that can enter the heap must survive; the block
++				// maximum can only admit extra rows.
+ 				// The bound is taken once, before any admission from
+ 				// this batch; it can only shrink afterwards, so a row
+ 				// dropped here stays dropped. Survivors are compacted
+@@ -508,7 +508,7 @@
+ 					dotInt8GatherInt(qc, x.codes, coffs[:n], approxInt[:n])
+ 				}
+ 				bd := tk.bound()
+-				thresh2 := x.boundForSlots(slots[:n]).threshold(qmin, qscale, t.Dim, bd)
++				thresh2 := x.boundForSlots(slots[:n]).threshold(qmin, qscale, t.Dim, bd, queryResidual)
+ 				m = 0
+ 				for j := 0; j < n; j++ {
+ 					f := x.qf[int(slots[j])*4 : int(slots[j])*4+4]
+diff --git a/minivectordb/internal/engine/vecindex.go b/minivectordb/internal/engine/vecindex.go
+--- a/minivectordb/internal/engine/vecindex.go
++++ b/minivectordb/internal/engine/vecindex.go
+@@ -231,7 +231,7 @@
+ 	for len(x.qbounds) <= block {
+ 		x.qbounds = append(x.qbounds, quantBlockBound{})
+ 	}
+-	x.qbounds[block].add(qp.scale, bound)
++	x.qbounds[block].add(qp.residual, bound)
+ 	x.qf[4*int(s)], x.qf[4*int(s)+1], x.qf[4*int(s)+2], x.qf[4*int(s)+3] = foldQparam(qp, x.dim)
+ 	if qp.scale > x.maxScale {
+ 		x.maxScale = qp.scale

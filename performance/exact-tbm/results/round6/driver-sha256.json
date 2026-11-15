@@ -1,0 +1,19 @@
+{
+  "tbm_bench.go": "1bc7e60f422e52ebdfcdb9539584824d427607d0a4509c78c766f12369e706e1",
+  "sqlcompare/main.go": "1450022c266c346a6885bb3252d5ed1a74dd65a64e1e2ba7826389abe64f4101",
+  "stress/main.go": "765996745865100ad5d61d230f117a8b9760c799160fbc55d273957382078572",
+  "round6": {
+    "README.md": "976cd966fdb7e09fe137688b651ec6b3d87ba64cb6386a70500db73e16c65ed1",
+    "analyze.py": "26614eaf30dac24c52535c8e013bc5bb63a9a78982c218caebf6bb7fa90eae8e",
+    "archive.py": "da28e1ebd49d458c89e83a9d9cb9b78ec791c28dcf594b57803fe85267a7b2a8",
+    "archive_candidates.py": "f06054ed764321463633d94fa28eeca90c54dd84c697e47dca9bad629bfbd63d",
+    "diagnose.py": "23c0ff2a3880a361fe4aa1adb1ee550286c936049d6c7f581f5d226a9afef5e4",
+    "query-diagnostic.go.txt": "c213420d1c5d66e84fa0dda7c972ca65df7412ff053b35cda6698540c68c78fb",
+    "report.py": "82c3848b08f5e7049d05c36dab09810c0e3b8a65e8df0afe62dfbc34e63c402b",
+    "run.py": "738af56420edbf4dddae8c08adf62a8496218a764fcfa99d9ef37caa387cccf9",
+    "stress_verify.py": "f5bdce9ba59e5bc4404aaef49b7c16c828e4bba52c5eb41be3ed218b20fa50b1",
+    "verify.py": "f9c2328bfacf10e64d11275c3c18e206e7c059f128cec82267b122687f64d8cb"
+  },
+  "tbm_binary": "e562db25e9409a4b2bf4a4bb0d9b98a807ac2238484839515dffbd8207f87e82",
+  "sqlcompare_binary": "fa030d00a73b7d73a3efbe2fe4df5c8a0b5ece4d23986de4e328d4e4bc94cf62"
+}

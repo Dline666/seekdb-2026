@@ -1,0 +1,7 @@
+[
+  "internal/engine/prefilter.go",
+  "internal/engine/vecindex.go",
+  "internal/engine/topk.go",
+  "internal/engine/eqset.go",
+  "internal/engine/residual_bound_test.go"
+]

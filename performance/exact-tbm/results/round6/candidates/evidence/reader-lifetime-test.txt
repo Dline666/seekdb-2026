@@ -1,0 +1,6 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./cmd/minivectordb", "-run", "TestRequestLineLongBufferEngineLifetime", "-count=1", "-v"], "cwd": "/tmp/seekdb-round6/reader/minivectordb", "start": 1794737648.9033349}
+=== RUN   TestRequestLineLongBufferEngineLifetime
+--- PASS: TestRequestLineLongBufferEngineLifetime (0.01s)
+PASS
+ok  	minivectordb/cmd/minivectordb	0.015s
+{"exit_code": 0, "wall_s": 0.6382639408111572}

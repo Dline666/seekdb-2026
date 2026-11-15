@@ -1,0 +1,36 @@
+{
+  "status": "rejected",
+  "patch": "reader.patch",
+  "patch_sha256": "db8aa166b87455dab6b3980c11bf3923c148e7baa481eb26da8444d2574fe24d",
+  "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+  "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+  "candidate_snapshot_sha256": "317592556a5ec8e004cb5871f402f389c15d3a08c0b723791f912fa38895f007",
+  "git_apply_check": "PASS",
+  "reconstructed_snapshot_matches": true,
+  "changed_files": [
+    {
+      "path": "minivectordb/cmd/minivectordb/main.go",
+      "action": "modified",
+      "base_sha256": "8b31d2770dcc1dfaa1ccba74a24043906fca2212d72c985aaf172faab23b0f62",
+      "candidate_sha256": "fc21f528d74e601251ddbc6432997275afdd9a9ba3fdb8ed66463a75f03dcc6f"
+    },
+    {
+      "path": "minivectordb/cmd/minivectordb/requestline.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "71c9754e98fbca18d19bc93c8577e6dd6fe009960a86ff59a471e6be324612a9"
+    },
+    {
+      "path": "minivectordb/cmd/minivectordb/requestline_lifetime_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "5dd07b6ae9235d75c2c33730a9c1d275f79c94727e2fe9d8f1a02f67a9e1f7c3"
+    },
+    {
+      "path": "minivectordb/cmd/minivectordb/requestline_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "d3de0fdb5faef25b855bf486b3ac9e413f6b30ac6034530eed5b8bca82bca38e"
+    }
+  ]
+}

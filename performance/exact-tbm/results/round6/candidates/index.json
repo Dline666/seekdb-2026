@@ -1,0 +1,658 @@
+{
+  "schema": "seekdb-round6-source-candidates-v1",
+  "created_utc": "2026-11-15T11:23:19.856362+00:00",
+  "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+  "base_matches_commit_after_crlf_normalization": true,
+  "snapshot_hash_definition": "SHA256 of UTF-8 JSON path-to-SHA256 map; sorted keys, compact separators",
+  "source_snapshots": {
+    "base": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\base\\minivectordb",
+      "file_count": 73,
+      "raw_snapshot_sha256": "dd0b6800746f623bc080c8d4560e96a29e2a03e50e35ae5c93a60916849b2f8d",
+      "lf_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "build_manifest_sha256": "04ebfa4630e8d2672263adfe1103f0c70dcacde0c8a38f50ac72e15ec3e5164f",
+      "matches_recorded_build_source": true
+    },
+    "heap": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\heap\\minivectordb",
+      "file_count": 74,
+      "raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "build_manifest_sha256": "19779dc4f030702e1223eafc15cf9277e1bbf7cb54794bfe1f8aeb82a7a45d51",
+      "matches_recorded_build_source": true
+    },
+    "residual": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\residual\\minivectordb",
+      "file_count": 74,
+      "raw_snapshot_sha256": "1b5238246f755bd1010ba11e51d66f88104ce7d22efe2cfdc008bbd923f853b5",
+      "lf_snapshot_sha256": "32c771fbbe37ff39e50de81a508648223ecabb3576aa6ba177af9f2183d11025",
+      "build_manifest_sha256": "bdbef65c633d719444dc4bac7cd97ea32246c50a8808eccc6449da2da1118ea9",
+      "matches_recorded_build_source": true
+    },
+    "flatrows": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\flatrows\\minivectordb",
+      "file_count": 74,
+      "raw_snapshot_sha256": "125a6fde7e77c2afa65081fa76eb0d0185c854741bada504175f1ad881db4e22",
+      "lf_snapshot_sha256": "154eeca307621198adba06fd0b9a98abff81be0e0e58d4b711bc17b732ac39d9",
+      "build_manifest_sha256": "20b2f4bb937c79747e02eb57ea0f5d87a2a115450e1f5e0dbfcc36b697942bed",
+      "matches_recorded_build_source": true
+    },
+    "reader": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\reader\\minivectordb",
+      "file_count": 76,
+      "raw_snapshot_sha256": "f8279ff7baa395028e8c15ae72a86d5efdcb66e55c9197b39f4555e822df5bf6",
+      "lf_snapshot_sha256": "317592556a5ec8e004cb5871f402f389c15d3a08c0b723791f912fa38895f007",
+      "build_manifest_sha256": "805e1f8c1f14dd598b08dc01afd4c73b5c02b8b57d61b49a2af4f70ae698adf0",
+      "matches_recorded_build_source": true
+    },
+    "bootstrap": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\bootstrap\\minivectordb",
+      "file_count": 75,
+      "raw_snapshot_sha256": "38ff25a77538f08b0e80670244a38f1381c3496289d4f85d639fdb3e41da2a51",
+      "lf_snapshot_sha256": "f52328faa96908243196b1f134913a68fb1f87eea0931608c52ed4e6dd60d37f",
+      "build_manifest_sha256": "c8248265b1ec28e84c02135af6192aff297c133baae1225e8c5bf9a0eb1c6f4b",
+      "matches_recorded_build_source": true
+    },
+    "heapflat": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\heapflat\\minivectordb",
+      "file_count": 75,
+      "raw_snapshot_sha256": "800520bdaed282b453f3a7d366654410cc26af10353306dfa9b92e1ad9c3ec50",
+      "lf_snapshot_sha256": "730a57dbb0bc180a89e92c7a40cd352b1f7930f28d5b42b17735ea99f247f421",
+      "build_manifest_sha256": "538711643b47780efbf5558d66f08735dce3cf3bc83caa49f55a8a7e55fe4a22",
+      "matches_recorded_build_source": true
+    },
+    "final": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\final\\minivectordb",
+      "file_count": 77,
+      "raw_snapshot_sha256": "2fd908ee2d043463fd4c7486dc3c814f5e88f4e5916a450e63c220733919af16",
+      "lf_snapshot_sha256": "bc352350260b6e553dee09cd135f2ab064d2fe0c370c0abf684359b1f5e93d9d",
+      "build_manifest_sha256": "128360743d87aee043d6850293f9019018915d1cfebeb6191a32911297290258",
+      "matches_recorded_build_source": true
+    },
+    "wide": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\wide\\minivectordb",
+      "file_count": 76,
+      "raw_snapshot_sha256": "4f47efd29b931f81101b9f9d4acacd2a02c97fa2fad9fb0c5a562af626b03c18",
+      "lf_snapshot_sha256": "1a074ac2674e3c4ccfa0c381db1ee6e4add52f08014508e543501579a83bc4c7",
+      "build_manifest_sha256": "da6e26333348aa42ed8fc885b1364ac35f31c3bb97e997c8c7fe7615a27d5600",
+      "matches_recorded_build_source": true
+    }
+  },
+  "candidates": {
+    "heap": {
+      "status": "pending",
+      "patch": "heap.patch",
+      "patch_sha256": "6d6d62484902b6d4497bf6346f8ed788038931467ed11d2b3502aa6f0038d26d",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+          "candidate_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb"
+        },
+        {
+          "path": "minivectordb/internal/engine/typed_topk_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "ee96b74ed45ca4c5fcb33dd8dbfed4b76d5450e6e4187b4c653f57a25b0f1023"
+        }
+      ]
+    },
+    "residual": {
+      "status": "rejected",
+      "patch": "residual.patch",
+      "patch_sha256": "288d3decb2d7ce4a5006eb1b32cc7fd4c61c6e212f96c9e23371c25c5473cfa6",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "32c771fbbe37ff39e50de81a508648223ecabb3576aa6ba177af9f2183d11025",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_sha256": "bc6f661bdbd7d5e2b3140477d6d4f8b9ff78a6b53cfbe670721314f213781792"
+        },
+        {
+          "path": "minivectordb/internal/engine/prefilter.go",
+          "action": "modified",
+          "base_sha256": "ca7065f2c3e9c6bd5226d8f0269d4a85ccfdf90c6cdfa5dd79b7bc6fa773cf04",
+          "candidate_sha256": "48d1bc0fa85201043fbc5892896088f59563ed79b36986c77d0d9e0ed97b05a0"
+        },
+        {
+          "path": "minivectordb/internal/engine/residual_bound_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "71a14bcf2530334cedfe06b44898939929bb07988af24a09cbe1a553d3c777fb"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+          "candidate_sha256": "fc1d52e951a09b43091e22d1bb7134ba38a19f2f77d513c5f7100e59609861fb"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_sha256": "d1198db45c21ef5babdbafa880cbed27e8ed374c913580a363be2e0f7011425d"
+        }
+      ]
+    },
+    "flatrows": {
+      "status": "pending",
+      "patch": "flatrows.patch",
+      "patch_sha256": "777f6aa9ebff9d70016857b9bba1e3d0c0bec5c66dffafdeb4f9eb80dac63279",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "154eeca307621198adba06fd0b9a98abff81be0e0e58d4b711bc17b732ac39d9",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/select.go",
+          "action": "modified",
+          "base_sha256": "479f60d7619029534bcff8fb60eb168904725f16a255472584feca462605f3a3",
+          "candidate_sha256": "2809b7c294721295bb28284457c80fee7c9af55e448d64ffb4cc2b783aab6cfe"
+        },
+        {
+          "path": "minivectordb/internal/engine/select_flatrows_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "4e8e6fb279f5e08b6fe5b03315e0f4a0e09fcf43ef9a5106de9b76662efc5292"
+        }
+      ]
+    },
+    "reader": {
+      "status": "rejected",
+      "patch": "reader.patch",
+      "patch_sha256": "db8aa166b87455dab6b3980c11bf3923c148e7baa481eb26da8444d2574fe24d",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "317592556a5ec8e004cb5871f402f389c15d3a08c0b723791f912fa38895f007",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/cmd/minivectordb/main.go",
+          "action": "modified",
+          "base_sha256": "8b31d2770dcc1dfaa1ccba74a24043906fca2212d72c985aaf172faab23b0f62",
+          "candidate_sha256": "fc21f528d74e601251ddbc6432997275afdd9a9ba3fdb8ed66463a75f03dcc6f"
+        },
+        {
+          "path": "minivectordb/cmd/minivectordb/requestline.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "71c9754e98fbca18d19bc93c8577e6dd6fe009960a86ff59a471e6be324612a9"
+        },
+        {
+          "path": "minivectordb/cmd/minivectordb/requestline_lifetime_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "5dd07b6ae9235d75c2c33730a9c1d275f79c94727e2fe9d8f1a02f67a9e1f7c3"
+        },
+        {
+          "path": "minivectordb/cmd/minivectordb/requestline_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "d3de0fdb5faef25b855bf486b3ac9e413f6b30ac6034530eed5b8bca82bca38e"
+        }
+      ]
+    },
+    "bootstrap": {
+      "status": "pending",
+      "patch": "bootstrap.patch",
+      "patch_sha256": "3393614f91e54104a5713ecf39e84dc63615c97c98f4858e62da48a0935abfbd",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "f52328faa96908243196b1f134913a68fb1f87eea0931608c52ed4e6dd60d37f",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/bootstrap.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "cf3e5778c4bcf12693ff179404687b1a258c867fbcd1023daecfcea5377458bf"
+        },
+        {
+          "path": "minivectordb/internal/engine/bootstrap_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "d282d4c853502724749cf03a30a7e95a4d58eba21ec28760d2fe5b92041db0ad"
+        },
+        {
+          "path": "minivectordb/internal/engine/fused_candidates_test.go",
+          "action": "modified",
+          "base_sha256": "332964ffe487e467df3e2e648512a854edb90bf99b2c60983f7e333954a5b4a8",
+          "candidate_sha256": "ec147b9854bf7711d2eb98f47650ec8091ebe79a72451688c23ea9a66b7bc9f7"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+          "candidate_sha256": "5821e851cb1f837c31b3c9e02c903e61b5295a1e2c19d6a12abfdd269cbc9dbb"
+        }
+      ]
+    },
+    "heapflat": {
+      "status": "pending",
+      "patch": "heapflat.patch",
+      "patch_sha256": "3437d95454e2d697fcfe1af61c4e59407e12d99e6d27ff5a8fcd57f3cb3bdd0f",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "730a57dbb0bc180a89e92c7a40cd352b1f7930f28d5b42b17735ea99f247f421",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/select.go",
+          "action": "modified",
+          "base_sha256": "479f60d7619029534bcff8fb60eb168904725f16a255472584feca462605f3a3",
+          "candidate_sha256": "2809b7c294721295bb28284457c80fee7c9af55e448d64ffb4cc2b783aab6cfe"
+        },
+        {
+          "path": "minivectordb/internal/engine/select_flatrows_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "4e8e6fb279f5e08b6fe5b03315e0f4a0e09fcf43ef9a5106de9b76662efc5292"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+          "candidate_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb"
+        },
+        {
+          "path": "minivectordb/internal/engine/typed_topk_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "ee96b74ed45ca4c5fcb33dd8dbfed4b76d5450e6e4187b4c653f57a25b0f1023"
+        }
+      ]
+    },
+    "final": {
+      "status": "pending",
+      "patch": "final.patch",
+      "patch_sha256": "7508f43639d198920d3138fde03628bbf345d00b966af5521015851dd82d85c5",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "bc352350260b6e553dee09cd135f2ab064d2fe0c370c0abf684359b1f5e93d9d",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/bootstrap.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "cf3e5778c4bcf12693ff179404687b1a258c867fbcd1023daecfcea5377458bf"
+        },
+        {
+          "path": "minivectordb/internal/engine/bootstrap_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "d282d4c853502724749cf03a30a7e95a4d58eba21ec28760d2fe5b92041db0ad"
+        },
+        {
+          "path": "minivectordb/internal/engine/fused_candidates_test.go",
+          "action": "modified",
+          "base_sha256": "332964ffe487e467df3e2e648512a854edb90bf99b2c60983f7e333954a5b4a8",
+          "candidate_sha256": "ec147b9854bf7711d2eb98f47650ec8091ebe79a72451688c23ea9a66b7bc9f7"
+        },
+        {
+          "path": "minivectordb/internal/engine/select.go",
+          "action": "modified",
+          "base_sha256": "479f60d7619029534bcff8fb60eb168904725f16a255472584feca462605f3a3",
+          "candidate_sha256": "2809b7c294721295bb28284457c80fee7c9af55e448d64ffb4cc2b783aab6cfe"
+        },
+        {
+          "path": "minivectordb/internal/engine/select_flatrows_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "4e8e6fb279f5e08b6fe5b03315e0f4a0e09fcf43ef9a5106de9b76662efc5292"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+          "candidate_sha256": "b51f92ca3c6b9196b7a15533d3156fb732a7000e69907717792e9398bc70c7d2"
+        },
+        {
+          "path": "minivectordb/internal/engine/typed_topk_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "ee96b74ed45ca4c5fcb33dd8dbfed4b76d5450e6e4187b4c653f57a25b0f1023"
+        }
+      ]
+    },
+    "wide": {
+      "status": "pending",
+      "patch": "wide.patch",
+      "patch_sha256": "f782164dd9913bd79bac75c215874968a54607a8c0db7feef1001ed7d62c5f05",
+      "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+      "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+      "candidate_snapshot_sha256": "1a074ac2674e3c4ccfa0c381db1ee6e4add52f08014508e543501579a83bc4c7",
+      "git_apply_check": "PASS",
+      "reconstructed_snapshot_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/bootstrap.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "0036f02e957e593fe8b029769527abde337589e4e9a1023facc5e187c0d705d5"
+        },
+        {
+          "path": "minivectordb/internal/engine/bootstrap_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "cc3785f8e2f737b03bef987c48fdd0f10c715f000ac5a19fbc461277ca9a8b75"
+        },
+        {
+          "path": "minivectordb/internal/engine/fused_candidates_test.go",
+          "action": "modified",
+          "base_sha256": "332964ffe487e467df3e2e648512a854edb90bf99b2c60983f7e333954a5b4a8",
+          "candidate_sha256": "ec147b9854bf7711d2eb98f47650ec8091ebe79a72451688c23ea9a66b7bc9f7"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+          "candidate_sha256": "06ec754986dbe0bf8b8bb9460336244928bd33c3487f115325b06a956c97da31"
+        },
+        {
+          "path": "minivectordb/internal/engine/typed_topk_test.go",
+          "action": "added",
+          "base_sha256": null,
+          "candidate_sha256": "ee96b74ed45ca4c5fcb33dd8dbfed4b76d5450e6e4187b4c653f57a25b0f1023"
+        }
+      ]
+    }
+  },
+  "designs": {
+    "residual": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6-residual-_nj3iyp5\\DESIGN.md",
+      "raw_sha256": "f09d37714a418143a3e0e475a07ecf68f22eee1931ee8dbc1671c1bc671ad704",
+      "lf_sha256": "f09d37714a418143a3e0e475a07ecf68f22eee1931ee8dbc1671c1bc671ad704",
+      "bytes": 6476
+    },
+    "bootstrap": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6-bootstrap\\DESIGN.md",
+      "raw_sha256": "ae20d9ab3c715364918bded8fd1b8c53ea3b618b912bee86c4c7477d0073b671",
+      "lf_sha256": "ae20d9ab3c715364918bded8fd1b8c53ea3b618b912bee86c4c7477d0073b671",
+      "bytes": 4854
+    }
+  },
+  "preserved_evidence": {
+    "bootstrap-tests-fixed.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\bootstrap-tests-fixed.txt",
+      "raw_sha256": "1fab2c7cebc7714ab59d33472018096e16629427d144db14ccc0e809d82f65ba",
+      "lf_sha256": "1fab2c7cebc7714ab59d33472018096e16629427d144db14ccc0e809d82f65ba",
+      "bytes": 467
+    },
+    "bootstrap-tests.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\bootstrap-tests.txt",
+      "raw_sha256": "e19758413bc82f6931a7c514e03b3dd85b652a54410afdd44f11a7d0d1cebd8b",
+      "lf_sha256": "e19758413bc82f6931a7c514e03b3dd85b652a54410afdd44f11a7d0d1cebd8b",
+      "bytes": 584
+    },
+    "reader-100k-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-100k-run.json",
+      "raw_sha256": "db951dfc58c6fb82415c7eecd0eab05338aebe37c41affd7ba9a96aa92456b8e",
+      "lf_sha256": "db951dfc58c6fb82415c7eecd0eab05338aebe37c41affd7ba9a96aa92456b8e",
+      "bytes": 362
+    },
+    "reader-100k-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-100k-summary.json",
+      "raw_sha256": "9a3d9e16b9c1b5630648835b60354f0781824d8a10fc7ad7cf5ebd5a70fff6ef",
+      "lf_sha256": "9a3d9e16b9c1b5630648835b60354f0781824d8a10fc7ad7cf5ebd5a70fff6ef",
+      "bytes": 2622
+    },
+    "reader-100k.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-100k.jsonl",
+      "raw_sha256": "ba290a2c03813d5304e6bb4127bfff18f092429a2623eaac1b360239a5d64681",
+      "lf_sha256": "ba290a2c03813d5304e6bb4127bfff18f092429a2623eaac1b360239a5d64681",
+      "bytes": 8805
+    },
+    "reader-100k.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-100k.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "reader-10k-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-10k-run.json",
+      "raw_sha256": "f62c41b18a613bf122785a6654e97ed853db6d33eb20bd24a96ae97c011220ca",
+      "lf_sha256": "f62c41b18a613bf122785a6654e97ed853db6d33eb20bd24a96ae97c011220ca",
+      "bytes": 363
+    },
+    "reader-10k-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-10k-summary.json",
+      "raw_sha256": "c46425b6e84b510edc1195d4a38944711278cc016a928ca389899d20fb2fcd50",
+      "lf_sha256": "c46425b6e84b510edc1195d4a38944711278cc016a928ca389899d20fb2fcd50",
+      "bytes": 2603
+    },
+    "reader-10k.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-10k.jsonl",
+      "raw_sha256": "b4d48e2e6cc718634d5e90d61dc421cf8e8b77b8e5ce1b88284c844c4eb34e95",
+      "lf_sha256": "b4d48e2e6cc718634d5e90d61dc421cf8e8b77b8e5ce1b88284c844c4eb34e95",
+      "bytes": 8619
+    },
+    "reader-10k.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-10k.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "reader-binary-sha256.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-binary-sha256.json",
+      "raw_sha256": "23031f3e2691258d715045fc61e2967a75261cb4fcdaa37d626bcd07092b4fa5",
+      "lf_sha256": "23031f3e2691258d715045fc61e2967a75261cb4fcdaa37d626bcd07092b4fa5",
+      "bytes": 83
+    },
+    "reader-build.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-build.txt",
+      "raw_sha256": "e770caeb83ccbf49ed50f03fbea5c0fef513607de6d25b2c61cb0cde4fdf3ff6",
+      "lf_sha256": "e770caeb83ccbf49ed50f03fbea5c0fef513607de6d25b2c61cb0cde4fdf3ff6",
+      "bytes": 270
+    },
+    "reader-candidate-files.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-candidate-files.json",
+      "raw_sha256": "ce2730b926ca8d794cba9ac6a350087e6df2ff4a229dbbce74cfcfba0bb26f89",
+      "lf_sha256": "ce2730b926ca8d794cba9ac6a350087e6df2ff4a229dbbce74cfcfba0bb26f89",
+      "bytes": 112
+    },
+    "reader-default-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-default-run.json",
+      "raw_sha256": "44d7b994cda25dfd1046e74fb14afcc22787522acad50270a463516467b510f3",
+      "lf_sha256": "44d7b994cda25dfd1046e74fb14afcc22787522acad50270a463516467b510f3",
+      "bytes": 361
+    },
+    "reader-default-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-default-summary.json",
+      "raw_sha256": "91e263bf5d7ca0da25049bea7f16204b5f7636e0cabd04da63ebd9fc5d4e8d68",
+      "lf_sha256": "91e263bf5d7ca0da25049bea7f16204b5f7636e0cabd04da63ebd9fc5d4e8d68",
+      "bytes": 2614
+    },
+    "reader-default.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-default.jsonl",
+      "raw_sha256": "90d96ffe02748cc4d768ff03a2eace5b24d41f911a9b9d92a8abdf1a1e3d30f7",
+      "lf_sha256": "90d96ffe02748cc4d768ff03a2eace5b24d41f911a9b9d92a8abdf1a1e3d30f7",
+      "bytes": 8629
+    },
+    "reader-default.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-default.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "reader-dim1024-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-dim1024-run.json",
+      "raw_sha256": "971fba6dd5b147cc498fe759352af84dbdeec6b9dcaa7f7e46a2616194bfc800",
+      "lf_sha256": "971fba6dd5b147cc498fe759352af84dbdeec6b9dcaa7f7e46a2616194bfc800",
+      "bytes": 363
+    },
+    "reader-dim1024-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-dim1024-summary.json",
+      "raw_sha256": "c77bb279a6f3403ad846248a3f5c095481d3d9072d90425a19041b59452f1d15",
+      "lf_sha256": "c77bb279a6f3403ad846248a3f5c095481d3d9072d90425a19041b59452f1d15",
+      "bytes": 2625
+    },
+    "reader-dim1024.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-dim1024.jsonl",
+      "raw_sha256": "87b8c997a9c558a46f6fafd8272f62893ef4f09c48c86d7a8ef444434b2c1040",
+      "lf_sha256": "87b8c997a9c558a46f6fafd8272f62893ef4f09c48c86d7a8ef444434b2c1040",
+      "bytes": 8753
+    },
+    "reader-dim1024.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-dim1024.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "reader-lifetime-test.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-lifetime-test.txt",
+      "raw_sha256": "45baaf53a891f744fe3e2d0eda9ba0bb3fce6bfe55623d9be7b9eb93a3dc445a",
+      "lf_sha256": "45baaf53a891f744fe3e2d0eda9ba0bb3fce6bfe55623d9be7b9eb93a3dc445a",
+      "bytes": 422
+    },
+    "reader-source-sha256.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-source-sha256.json",
+      "raw_sha256": "805e1f8c1f14dd598b08dc01afd4c73b5c02b8b57d61b49a2af4f70ae698adf0",
+      "lf_sha256": "805e1f8c1f14dd598b08dc01afd4c73b5c02b8b57d61b49a2af4f70ae698adf0",
+      "bytes": 7861
+    },
+    "reader-tests.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\reader-tests.txt",
+      "raw_sha256": "f6960bbc01f0cfc2f21deec5fef8c6f3b0244e452888b578e453863bc4cabea2",
+      "lf_sha256": "f6960bbc01f0cfc2f21deec5fef8c6f3b0244e452888b578e453863bc4cabea2",
+      "bytes": 454
+    },
+    "residual-100k-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-100k-run.json",
+      "raw_sha256": "f89c43d1ba9d4abf16333b02ba8b45568e82fd532a22bebe71431ceda6e749bc",
+      "lf_sha256": "f89c43d1ba9d4abf16333b02ba8b45568e82fd532a22bebe71431ceda6e749bc",
+      "bytes": 364
+    },
+    "residual-100k-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-100k-summary.json",
+      "raw_sha256": "203538164c8b0a26e6709c9fca91a7806c47f3424fe1a4beb7fc673dfb33bcb5",
+      "lf_sha256": "203538164c8b0a26e6709c9fca91a7806c47f3424fe1a4beb7fc673dfb33bcb5",
+      "bytes": 2631
+    },
+    "residual-100k.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-100k.jsonl",
+      "raw_sha256": "60febf3ed304da39051e6801721464a64c97333fbaa6284d57e142fe193cb159",
+      "lf_sha256": "60febf3ed304da39051e6801721464a64c97333fbaa6284d57e142fe193cb159",
+      "bytes": 8823
+    },
+    "residual-100k.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-100k.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "residual-10k-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-10k-run.json",
+      "raw_sha256": "8b2d89b0aed34da45ae74bd3739cd36abd0eb5a506d861ff81cd5451caed9b1a",
+      "lf_sha256": "8b2d89b0aed34da45ae74bd3739cd36abd0eb5a506d861ff81cd5451caed9b1a",
+      "bytes": 364
+    },
+    "residual-10k-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-10k-summary.json",
+      "raw_sha256": "e8746c5c5a107cf5f79e9490998ad4cd02f23638f18966bbcee0c042267bd67d",
+      "lf_sha256": "e8746c5c5a107cf5f79e9490998ad4cd02f23638f18966bbcee0c042267bd67d",
+      "bytes": 2618
+    },
+    "residual-10k.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-10k.jsonl",
+      "raw_sha256": "963dc95927477072b829931ea441fe95888ff66dfd9cb79f4f5a1dffba2c7bd6",
+      "lf_sha256": "963dc95927477072b829931ea441fe95888ff66dfd9cb79f4f5a1dffba2c7bd6",
+      "bytes": 8629
+    },
+    "residual-10k.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-10k.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "residual-binary-sha256.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-binary-sha256.json",
+      "raw_sha256": "974bf3dede425b45ffdddf5ba1d649273e30623c1bd4e0a0c9780a42a7e5eac1",
+      "lf_sha256": "974bf3dede425b45ffdddf5ba1d649273e30623c1bd4e0a0c9780a42a7e5eac1",
+      "bytes": 85
+    },
+    "residual-build.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-build.txt",
+      "raw_sha256": "4f9c743c325301c01a9de305453a96482bb7256e4b4c91af6dff0d118a2dc3c9",
+      "lf_sha256": "4f9c743c325301c01a9de305453a96482bb7256e4b4c91af6dff0d118a2dc3c9",
+      "bytes": 272
+    },
+    "residual-candidate-files.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-candidate-files.json",
+      "raw_sha256": "e26652b37ad0196f98df5fd17c52c52d66fac893a7fb4a233355060c72d236f1",
+      "lf_sha256": "e26652b37ad0196f98df5fd17c52c52d66fac893a7fb4a233355060c72d236f1",
+      "bytes": 173
+    },
+    "residual-default-run.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-default-run.json",
+      "raw_sha256": "76da7b34b860d4e318d0cfbc6bd52ccedae664552ae13bfbc8c6e926bad0588b",
+      "lf_sha256": "76da7b34b860d4e318d0cfbc6bd52ccedae664552ae13bfbc8c6e926bad0588b",
+      "bytes": 364
+    },
+    "residual-default-summary.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-default-summary.json",
+      "raw_sha256": "3956f63bf1d689aa4c1db6e61796c4f7c5fb6ccb6647811c210c9201df862716",
+      "lf_sha256": "3956f63bf1d689aa4c1db6e61796c4f7c5fb6ccb6647811c210c9201df862716",
+      "bytes": 2640
+    },
+    "residual-default.jsonl": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-default.jsonl",
+      "raw_sha256": "2757d159b5e32b83fbd30dc2697aee3c05234f0b27701f4f7ac03d105a81cb5a",
+      "lf_sha256": "2757d159b5e32b83fbd30dc2697aee3c05234f0b27701f4f7ac03d105a81cb5a",
+      "bytes": 8647
+    },
+    "residual-default.stderr.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-default.stderr.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lf_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "residual-design.md": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-design.md",
+      "raw_sha256": "f09d37714a418143a3e0e475a07ecf68f22eee1931ee8dbc1671c1bc671ad704",
+      "lf_sha256": "f09d37714a418143a3e0e475a07ecf68f22eee1931ee8dbc1671c1bc671ad704",
+      "bytes": 6476
+    },
+    "residual-query-work.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-query-work.txt",
+      "raw_sha256": "6872813b33ae84bdf9fdf368e779c7e25705c853194774ce4f6a0cc033802716",
+      "lf_sha256": "6872813b33ae84bdf9fdf368e779c7e25705c853194774ce4f6a0cc033802716",
+      "bytes": 768
+    },
+    "residual-source-sha256.json": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-source-sha256.json",
+      "raw_sha256": "bdbef65c633d719444dc4bac7cd97ea32246c50a8808eccc6449da2da1118ea9",
+      "lf_sha256": "bdbef65c633d719444dc4bac7cd97ea32246c50a8808eccc6449da2da1118ea9",
+      "bytes": 7639
+    },
+    "residual-tests.txt": {
+      "source": "\\\\wsl.localhost\\ArchBench\\tmp\\seekdb-round6\\results\\residual-tests.txt",
+      "raw_sha256": "cda403c02b0faf450fbbcdbc7b88f2e41363bd71eff31fdf13b247798ddbca53",
+      "lf_sha256": "cda403c02b0faf450fbbcdbc7b88f2e41363bd71eff31fdf13b247798ddbca53",
+      "bytes": 24640
+    }
+  },
+  "decisions": {
+    "pending": "All other candidates, including the combination named final, await the root agent's final retention decision. The name final does not mean selected.",
+    "residual": "Rejected after independent local T/B/M evaluation; retain all available raw comparisons, summaries and test logs.",
+    "reader": "Rejected after independent local T/B/M evaluation, including the 1024-dimensional write regression; retain all available evidence.",
+    "bootstrap_test_failure": "Original c1 UPDATE was a no-op; corrected snapshot uses c2 to create an overlay. Both original failed and corrected test logs are preserved."
+  },
+  "scope": "Local source archive only. No binary/fixture copies, tests, benchmarks, push or formal submission."
+}

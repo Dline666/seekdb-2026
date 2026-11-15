@@ -1,0 +1,672 @@
+diff --git a/minivectordb/internal/engine/bootstrap.go b/minivectordb/internal/engine/bootstrap.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/bootstrap.go
+@@ -0,0 +1,120 @@
++package engine
++
++import (
++	"math"
++	"os"
++	"sync/atomic"
++)
++
++var bootstrapEnabled = os.Getenv("MVDB_NO_BOOTSTRAP") == ""
++var bootstrapBatches atomic.Int64
++
++// Seed selection has a fixed cost; reserve production bootstrap for wider vectors.
++const bootstrapMinDim = 256
++
++const bootstrapMaxK = 16
++
++// bootstrapInput describes one already-validated fused batch. slots is nil
++// for consecutive rows, otherwise it contains exactly rows distinct live slots.
++// All rows satisfy WHERE and no transaction overlay applies.
++type bootstrapInput struct {
++	codes       []byte
++	pks, off    []int64
++	qf          []float64
++	slots       []int32
++	start, rows int
++	bound       quantBlockBound
++}
++
++// bootstrapBatch consumes an empty heap's first batch. It ranks the batch by
++// approximate distance only to choose useful seeds, computes those seeds
++// exactly, and then applies the usual conservative bound to EVERY other row.
++// It returns the number of exact distances computed, or zero when ineligible.
++// Seed selection never excludes a row or supplies a returned distance.
++// Its work/storage is bounded by scanBatch and bootstrapMaxK, never table size.
++func bootstrapBatch(tk *topK, in bootstrapInput, qc []int16, qw []float64, base []byte,
++	qSum, qNorm2 float64, qmin, qscale float32, vecOff int64) int {
++	if !bootstrapEnabled || tk.k < 1 || tk.k > bootstrapMaxK || len(tk.h) != 0 ||
++		in.rows < 2*tk.k || in.rows > scanBatch {
++		return 0
++	}
++	n, dim := in.rows, len(qc)
++	var coffs, rows, pks, soff [scanBatch]int64
++	var dots [scanBatch]int32
++	var approximate, out [scanBatch]float64
++	var seeds [bootstrapMaxK]int
++	var chosen [scanBatch]bool
++	for i := 0; i < n; i++ {
++		s := in.start + i
++		if in.slots != nil {
++			s = int(in.slots[i])
++		}
++		coffs[i] = int64(s) * int64(dim)
++		rows[i], pks[i] = in.off[s], in.pks[s]
++	}
++	dotInt8GatherInt(qc, in.codes, coffs[:n], dots[:n])
++	selected := 0
++	for i := 0; i < n; i++ {
++		s := in.start + i
++		if in.slots != nil {
++			s = int(in.slots[i])
++		}
++		f := in.qf[s*4 : s*4+4]
++		d := foldDist2(qSum, qNorm2, qmin, qscale, dots[i], f[0], f[1], f[2], f[3])
++		// Unknown approximate distances get first chance as seeds and can never
++		// be pruned. This does not change their eventual exact distance.
++		if math.IsNaN(d) {
++			d = math.Inf(-1)
++		}
++		approximate[i] = d
++		at := selected
++		if at == tk.k {
++			at--
++		}
++		if selected == tk.k && !(d < approximate[seeds[at]]) {
++			continue
++		}
++		for at > 0 && d < approximate[seeds[at-1]] {
++			if at < tk.k {
++				seeds[at] = seeds[at-1]
++			}
++			at--
++		}
++		seeds[at] = i
++		if selected < tk.k {
++			selected++
++		}
++	}
++	for j := 0; j < selected; j++ {
++		i := seeds[j]
++		chosen[i] = true
++		soff[j] = rows[i] + vecOff
++	}
++	l2sqGatherBytes(qw, base, soff[:selected], out[:selected])
++	for j := 0; j < selected; j++ {
++		i := seeds[j]
++		if d := out[j]; d <= tk.bound() {
++			tk.admit(d, pks[i], rows[i])
++		}
++	}
++	threshold := in.bound.threshold(qmin, qscale, dim, tk.bound())
++	remaining := 0
++	for i := 0; i < n; i++ {
++		if chosen[i] || approximate[i] > threshold {
++			continue
++		}
++		soff[remaining] = rows[i] + vecOff
++		// Reuse coffs as the fixed-size survivor-to-batch mapping.
++		coffs[remaining] = int64(i)
++		remaining++
++	}
++	l2sqGatherBytes(qw, base, soff[:remaining], out[:remaining])
++	for j := 0; j < remaining; j++ {
++		i := int(coffs[j])
++		if d := out[j]; d <= tk.bound() {
++			tk.admit(d, pks[i], rows[i])
++		}
++	}
++	bootstrapBatches.Add(1)
++	return selected + remaining
++}
+diff --git a/minivectordb/internal/engine/bootstrap_test.go b/minivectordb/internal/engine/bootstrap_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/bootstrap_test.go
+@@ -0,0 +1,247 @@
++package engine
++
++import (
++	"encoding/binary"
++	"fmt"
++	"math"
++	"math/rand"
++	"sort"
++	"strings"
++	"testing"
++)
++
++// Independent float64 brute-force ranking. No quantization, engine distance,
++// heap comparator, or production prefilter participates in this oracle.
++func bootstrapReference(vectors [][]float32, pks []int64, slots []int32, q []float32, k int) []hit {
++	var all []hit
++	visit := func(s int) {
++		d := 0.0
++		for j, f := range vectors[s] {
++			delta := float64(f) - float64(q[j])
++			d += delta * delta
++		}
++		all = append(all, hit{d: d, pk: pks[s], off: int64(s)})
++	}
++	if slots == nil {
++		for s := range vectors {
++			visit(s)
++		}
++	} else {
++		for _, s := range slots {
++			visit(int(s))
++		}
++	}
++	sort.Slice(all, func(i, j int) bool {
++		if all[i].d != all[j].d {
++			return all[i].d < all[j].d
++		}
++		return all[i].pk < all[j].pk
++	})
++	if len(all) > k {
++		all = all[:k]
++	}
++	return all
++}
++
++func TestBootstrapFirstBatchIndependentTruth(t *testing.T) {
++	old := bootstrapEnabled
++	bootstrapEnabled = true
++	defer func() { bootstrapEnabled = old }()
++	const n, dim = 128, 33
++	rng := rand.New(rand.NewSource(92981))
++	vectors := make([][]float32, n)
++	in := bootstrapInput{codes: make([]byte, n*dim), pks: make([]int64, n), off: make([]int64, n), qf: make([]float64, n*4), rows: n}
++	base := make([]byte, n*dim*4)
++	for i := 0; i < n; i++ {
++		v := make([]float32, dim)
++		for j := range v {
++			v[j] = float32(rng.Intn(9)-4) / 4
++		}
++		if i == 0 || i == 63 || i == 127 {
++			clear(v)
++		}
++		vectors[i] = v
++		in.pks[i] = int64(n - i)
++		in.off[i] = int64(i * dim * 4)
++		for j, f := range v {
++			binary.LittleEndian.PutUint32(base[(i*dim+j)*4:], math.Float32bits(f))
++		}
++		qp := quantizeRow(v, in.codes[i*dim:(i+1)*dim])
++		in.qf[4*i], in.qf[4*i+1], in.qf[4*i+2], in.qf[4*i+3] = foldQparam(qp, dim)
++		in.bound.add(qp.scale, math.Abs(float64(qp.min))+256*float64(qp.scale))
++	}
++	q := make([]float32, dim)
++	mn, sc, qc, sum, norm, _ := quantizeQuery(q)
++	for _, shuffled := range []bool{false, true} {
++		input := in
++		if shuffled {
++			input.slots = make([]int32, n)
++			for i, s := range rng.Perm(n) {
++				input.slots[i] = int32(s)
++			}
++		}
++		for _, nonfinite := range []bool{false, true} {
++			input.qf = append([]float64(nil), in.qf...)
++			if nonfinite {
++				// Unknown and deliberately optimistic approximations must not become
++				// answers, omit unseeded rows, or duplicate one row in the final heap.
++				input.qf[3] = math.NaN()
++				input.qf[4*1+3] = -1e30
++			}
++			for _, k := range []int{1, 10, 16} {
++				tk := &topK{k: k}
++				count := bootstrapBatch(tk, input, qc, widen(q), base, sum, norm, mn, sc, 0)
++				if count < k || count > n {
++					t.Fatalf("exact count=%d k=%d", count, k)
++				}
++				want := bootstrapReference(vectors, in.pks, input.slots, q, k)
++				offs, dists := tk.result()
++				if len(offs) != len(want) {
++					t.Fatalf("result count=%d want=%d", len(offs), len(want))
++				}
++				seen := map[int64]bool{}
++				for i, w := range want {
++					if seen[offs[i]] {
++						t.Fatal("seed admitted more than once")
++					}
++					seen[offs[i]] = true
++					if offs[i] != w.off*dim*4 || dists[i] != w.d {
++						t.Fatalf("shuffle=%v exceptional=%v k=%d rank=%d got=(%d,%g) want=(%d,%g)", shuffled, nonfinite, k, i, offs[i], dists[i], w.off*dim*4, w.d)
++					}
++				}
++			}
++		}
++	}
++	// All ineligible helper calls leave the heap untouched.
++	for _, tc := range []struct{ k, n int }{{0, 128}, {17, 128}, {10, 19}, {10, 129}} {
++		input := in
++		input.rows = tc.n
++		tk := &topK{k: tc.k}
++		if bootstrapBatch(tk, input, qc, widen(q), base, sum, norm, mn, sc, 0) != 0 || len(tk.h) != 0 {
++			t.Fatalf("ineligible bootstrap changed heap k=%d n=%d", tc.k, tc.n)
++		}
++	}
++	tk := &topK{k: 10}
++	tk.admit(0, 1, 0)
++	if bootstrapBatch(tk, in, qc, widen(q), base, sum, norm, mn, sc, 0) != 0 || len(tk.h) != 1 {
++		t.Fatal("nonempty heap bootstrapped")
++	}
++}
++
++func TestBootstrapFirstAndLaterBatchesExact(t *testing.T) {
++	if !useSIMD {
++		t.Skip("production bootstrap requires SIMD")
++	}
++	oldBoot, oldPF, oldSix, oldParallel := bootstrapEnabled, prefilterEnabled, prefilter6Bit, parallelMinSlots
++	defer func() {
++		bootstrapEnabled, prefilterEnabled, prefilter6Bit, parallelMinSlots = oldBoot, oldPF, oldSix, oldParallel
++	}()
++	bootstrapEnabled, prefilterEnabled, prefilter6Bit = true, true, false
++	const n = 333
++	for _, tc := range []struct {
++		kind string
++		dim  int
++	}{
++		{"coarse", 33},
++		{"large_constant", 128},
++		{"overflow_scale", 33},
++		{"coarse", 257},
++		{"large_constant", 257},
++		{"overflow_scale", 257},
++	} {
++		kind, dim := tc.kind, tc.dim
++		db := open(t, t.TempDir())
++		vectors := make([][]float32, n)
++		pks := make([]int64, n)
++		q := make([]float32, dim)
++		if kind == "large_constant" {
++			for j := range q {
++				q[j] = 7722174976
++			}
++		}
++		var sql strings.Builder
++		mustExec(t, db, fmt.Sprintf("CREATE TABLE docs(id BIGINT PRIMARY KEY,cat VARCHAR(8),e VECTOR(%d))", dim))
++		sql.WriteString("INSERT INTO docs VALUES")
++		for i := 0; i < n; i++ {
++			v := make([]float32, dim)
++			for j := range v {
++				switch kind {
++				case "coarse":
++					v[j] = float32((i*17+j*7)%13+1) / 8
++				case "large_constant":
++					v[j] = q[j]
++				case "overflow_scale":
++					v[j] = math.MaxFloat32
++					if j%2 == 1 {
++						v[j] = -math.MaxFloat32
++					}
++				}
++			}
++			if kind == "coarse" && (i == 0 || i == 127 || i == 128 || i == n-1) {
++				clear(v)
++			}
++			vectors[i], pks[i] = v, int64(n-i)
++			if i > 0 {
++				sql.WriteByte(',')
++			}
++			fmt.Fprintf(&sql, "(%d,'c%d','%s')", pks[i], pks[i]%2, vectorText(v))
++		}
++		mustExec(t, db, sql.String())
++		check := func(filter, k int) {
++			t.Helper()
++			var slots []int32
++			where := ""
++			if filter >= 0 {
++				where = fmt.Sprintf(" WHERE cat='c%d'", filter)
++				for i, pk := range pks {
++					if pk%2 == int64(filter) {
++						slots = append(slots, int32(i))
++					}
++				}
++			}
++			want := bootstrapReference(vectors, pks, slots, q, k)
++			got := mustExec(t, db, fmt.Sprintf("SELECT id,L2_DISTANCE(e,'%s') AS d FROM docs%s ORDER BY d LIMIT %d", vectorText(q), where, k)).Rows
++			if len(got) != len(want) {
++				t.Fatalf("%s filter=%d count=%d want=%d", kind, filter, len(got), len(want))
++			}
++			for i, w := range want {
++				distance := math.Sqrt(w.d)
++				if got[i][0].I != w.pk || math.Abs(got[i][1].F-distance) > 1e-12*math.Max(1, distance) {
++					t.Fatalf("%s filter=%d k=%d rank=%d got=(%d,%g) want=(%d,%g)", kind, filter, k, i, got[i][0].I, got[i][1].F, w.pk, distance)
++				}
++			}
++		}
++		for _, parallel := range []int{math.MaxInt, 1} {
++			parallelMinSlots = parallel
++			before := bootstrapBatches.Load()
++			for _, filter := range []int{-1, 0, 1} {
++				for _, k := range []int{1, 10, 16, 17} {
++					check(filter, k)
++				}
++			}
++			ran := bootstrapBatches.Load() != before
++			if want := dim >= bootstrapMinDim; ran != want {
++				t.Fatalf("%s dim=%d parallel=%d: bootstrap ran=%v want=%v", kind, dim, parallel, ran, want)
++			}
++		}
++		// Predicates beyond a covering equality and transaction overlays must
++		// retain their original scan path, including an update inside BEGIN.
++		parallelMinSlots = math.MaxInt
++		before := bootstrapBatches.Load()
++		mustExec(t, db, fmt.Sprintf("SELECT id FROM docs WHERE id>0 ORDER BY L2_DISTANCE(e,'%s') LIMIT 10", vectorText(q)))
++		if bootstrapBatches.Load() != before {
++			t.Fatal("residual predicate used bootstrap")
++		}
++		mustExec(t, db, "BEGIN")
++		mustExec(t, db, "UPDATE docs SET cat='c2' WHERE id=1")
++		before = bootstrapBatches.Load()
++		mustExec(t, db, fmt.Sprintf("SELECT id FROM docs ORDER BY L2_DISTANCE(e,'%s') LIMIT 10", vectorText(q)))
++		if bootstrapBatches.Load() != before {
++			t.Fatal("overlay used bootstrap")
++		}
++		mustExec(t, db, "ROLLBACK")
++		if err := db.Close(); err != nil {
++			t.Fatal(err)
++		}
++	}
++}
+diff --git a/minivectordb/internal/engine/fused_candidates_test.go b/minivectordb/internal/engine/fused_candidates_test.go
+--- a/minivectordb/internal/engine/fused_candidates_test.go
++++ b/minivectordb/internal/engine/fused_candidates_test.go
+@@ -49,6 +49,12 @@
+ }
+ 
+ func TestFusedCandidatesExactAfterMutation(t *testing.T) {
++	// This test proves the fused candidate kernel itself ran, including when
++	// the entire category fits in one batch. Bootstrap has separate truth tests.
++	oldBootstrap := bootstrapEnabled
++	bootstrapEnabled = false
++	defer func() { bootstrapEnabled = oldBootstrap }()
++
+ 	db := open(t, t.TempDir())
+ 	defer db.Close()
+ 	mustExec(t, db, "CREATE TABLE docs(id BIGINT PRIMARY KEY, category VARCHAR(8), embedding VECTOR(33))")
+diff --git a/minivectordb/internal/engine/topk.go b/minivectordb/internal/engine/topk.go
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -1,11 +1,9 @@
+ package engine
+ 
+ import (
+-	"container/heap"
+ 	"math"
+ 	"os"
+ 	"runtime"
+-	"sort"
+ 	"strconv"
+ 	"sync"
+ 	"sync/atomic"
+@@ -52,15 +50,36 @@
+ 
+ type hitHeap []hit // max-heap: the worst hit on top
+ 
+-func (h hitHeap) Len() int           { return len(h) }
+-func (h hitHeap) Less(i, j int) bool { return worse(h[i], h[j]) }
+-func (h hitHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+-func (h *hitHeap) Push(x any)        { *h = append(*h, x.(hit)) }
+-func (h *hitHeap) Pop() any {
+-	o := *h
+-	x := o[len(o)-1]
+-	*h = o[:len(o)-1]
+-	return x
++// push keeps hits typed throughout admission, avoiding an interface box for
++// every initial heap entry.
++func (h *hitHeap) push(c hit) {
++	*h = append(*h, c)
++	for j := len(*h) - 1; j > 0; {
++		i := (j - 1) / 2
++		if !worse((*h)[j], (*h)[i]) {
++			break
++		}
++		(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
++		j = i
++	}
++}
++
++// down restores the worst-first heap in h[:n] after replacing its root.
++func (h hitHeap) down(i, n int) {
++	for {
++		j := 2*i + 1
++		if j >= n || j < 0 {
++			break
++		}
++		if right := j + 1; right < n && worse(h[right], h[j]) {
++			j = right
++		}
++		if !worse(h[j], h[i]) {
++			break
++		}
++		h[i], h[j] = h[j], h[i]
++		i = j
++	}
+ }
+ 
+ type topK struct {
+@@ -97,18 +116,23 @@
+ 	}
+ 	if full {
+ 		t.h[0] = c
+-		heap.Fix(&t.h, 0)
++		t.h.down(0, len(t.h))
+ 	} else {
+-		heap.Push(&t.h, c)
++		t.h.push(c)
+ 	}
+ }
+ 
+ func (t *topK) result() ([]int64, []float64) {
+-	hs := []hit(t.h)
+-	sort.Slice(hs, func(i, j int) bool { return worse(hs[j], hs[i]) })
+-	out := make([]int64, len(hs))
+-	dists := make([]float64, len(hs))
+-	for i, h := range hs {
++	// The scan already built a max-heap. Moving its worst hit to the end
++	// repeatedly produces ascending (distance, pk) order without reflection.
++	// As before, result consumes the heap ordering.
++	for end := len(t.h) - 1; end > 0; end-- {
++		t.h[0], t.h[end] = t.h[end], t.h[0]
++		t.h.down(0, end)
++	}
++	out := make([]int64, len(t.h))
++	dists := make([]float64, len(t.h))
++	for i, h := range t.h {
+ 		out[i] = h.off
+ 		dists[i] = h.d
+ 	}
+@@ -348,6 +372,14 @@
+ 					n = scanBatch
+ 				}
+ 				n = min(n, quantBlockRows-i%quantBlockRows)
++				if i == lo && bootstrapEnabled && t.Dim >= bootstrapMinDim && tk.k <= bootstrapMaxK && n >= 2*tk.k {
++					in := bootstrapInput{codes: blk.codes, pks: blk.pks, off: blk.off, qf: blk.qf,
++						start: i, rows: n, bound: blk.qbounds[i/quantBlockRows]}
++					if bootstrapBatch(tk, in, qc, qw, base, qSum, qNorm2, qmin, qscale, vecOff) > 0 {
++						i += n
++						continue
++					}
++				}
+ 				bd := tk.bound()
+ 				thresh2 := blk.qbounds[i/quantBlockRows].threshold(qmin, qscale, t.Dim, bd)
+ 				var m int
+@@ -403,6 +435,17 @@
+ 					// apply its bound to rows from the following block.
+ 					n = min(n, quantBlockRows-i%quantBlockRows)
+ 					bound = x.qbounds[i/quantBlockRows]
++				}
++				if i == lo && bootstrapEnabled && t.Dim >= bootstrapMinDim && tk.k <= bootstrapMaxK && n >= 2*tk.k {
++					in := bootstrapInput{codes: x.codes, pks: x.pks, off: x.off, qf: x.qf,
++						start: i, rows: n, bound: bound}
++					if fusedCandidateOK {
++						in.slots = cand[i : i+n]
++					}
++					if bootstrapBatch(tk, in, qc, qw, base, qSum, qNorm2, qmin, qscale, vecOff) > 0 {
++						i += n
++						continue
++					}
+ 				}
+ 				bd := tk.bound()
+ 				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd)
+diff --git a/minivectordb/internal/engine/typed_topk_test.go b/minivectordb/internal/engine/typed_topk_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/typed_topk_test.go
+@@ -0,0 +1,149 @@
++package engine
++
++import (
++	"fmt"
++	"math"
++	"math/rand"
++	"sort"
++	"testing"
++)
++
++// This oracle sorts every candidate independently of topK and its comparator.
++// The synthetic offsets deliberately have no relationship to primary-key order.
++func typedTopKReference(in []hit, k int) []hit {
++	out := append([]hit(nil), in...)
++	sort.Slice(out, func(i, j int) bool {
++		if out[i].d < out[j].d {
++			return true
++		}
++		if out[i].d > out[j].d {
++			return false
++		}
++		return out[i].pk < out[j].pk
++	})
++	if len(out) > k {
++		out = out[:k]
++	}
++	return out
++}
++
++func typedTopKInputs() []hit {
++	// Signed zero must retain its bits while comparing equal for ranking.
++	// Infinite sentinels exercise the full distance-order boundary. Actual
++	// SQL vector components are finite, so NaN is outside this input domain.
++	in := []hit{
++		{d: math.Inf(1), pk: math.MaxInt64, off: 907},
++		{d: math.Inf(1), pk: math.MinInt64, off: 31},
++		{d: math.MaxFloat64, pk: -17, off: 503},
++		{d: math.SmallestNonzeroFloat64, pk: 9, off: 101},
++		{d: math.Copysign(0, -1), pk: -1, off: 811},
++		{d: 0, pk: 1, off: 77},
++		{d: math.Nextafter(1, 2), pk: -99, off: 283},
++		{d: 1, pk: -98, off: 601},
++	}
++	rng := rand.New(rand.NewSource(714))
++	for i := 0; i < 129; i++ {
++		// Scalar squared Euclidean distance over coarse float32 coordinates
++		// creates exact ties. No production distance or quantization helper
++		// participates in constructing the expected ranking.
++		var d float64
++		for j := 0; j < 7; j++ {
++			q := float32(j%3) / 2
++			v := float32(rng.Intn(5)-2) / 2
++			delta := float64(q) - float64(v)
++			d += delta * delta
++		}
++		if i%11 == 0 {
++			d = 2 // repeated boundary ties arrive in different PK orders
++		}
++		in = append(in, hit{d: d, pk: int64(1000 + i), off: int64(5000 + (i*53)%129*29)})
++	}
++	return in
++}
++
++func checkTypedTopKResult(t *testing.T, tk *topK, all []hit) {
++	t.Helper()
++	want := typedTopKReference(all, tk.k)
++	if len(all) < tk.k {
++		if !math.IsInf(tk.bound(), 1) {
++			t.Fatalf("unfilled heap bound = %v, want +Inf", tk.bound())
++		}
++	} else if got := math.Float64bits(tk.bound()); got != math.Float64bits(want[len(want)-1].d) {
++		t.Fatalf("bound bits = %x, want %x", got, math.Float64bits(want[len(want)-1].d))
++	}
++	// result consumes the heap ordering. Copy only the test subject so the
++	// original stream can keep accepting candidates after this check.
++	copyTK := *tk
++	copyTK.h = append(hitHeap(nil), tk.h...)
++	offs, dists := copyTK.result()
++	if len(offs) != len(want) || len(dists) != len(want) {
++		t.Fatalf("result lengths = %d/%d, want %d", len(offs), len(dists), len(want))
++	}
++	for i, w := range want {
++		if offs[i] != w.off || math.Float64bits(dists[i]) != math.Float64bits(w.d) {
++			t.Fatalf("rank %d = (offset %d, distance bits %x), want (offset %d, distance bits %x), PK %d",
++				i, offs[i], math.Float64bits(dists[i]), w.off, math.Float64bits(w.d), w.pk)
++		}
++	}
++}
++
++func TestTypedTopKIndependentOrderAndBound(t *testing.T) {
++	input := typedTopKInputs()
++	for _, k := range []int{1, 2, 3, 10, 31, len(input), len(input) + 7} {
++		for order := 0; order < 6; order++ {
++			t.Run(fmt.Sprintf("k=%d/order=%d", k, order), func(t *testing.T) {
++				stream := append([]hit(nil), input...)
++				switch order {
++				case 0:
++					// Best-first arrivals stress rejecting worse candidates.
++					stream = typedTopKReference(stream, len(stream))
++				case 1:
++					// Worst-first arrivals repeatedly replace the root.
++					stream = typedTopKReference(stream, len(stream))
++					for i, j := 0, len(stream)-1; i < j; i, j = i+1, j-1 {
++						stream[i], stream[j] = stream[j], stream[i]
++					}
++				default:
++					rng := rand.New(rand.NewSource(int64(91 + order)))
++					rng.Shuffle(len(stream), func(i, j int) { stream[i], stream[j] = stream[j], stream[i] })
++				}
++				tk := &topK{k: k, h: make(hitHeap, 0, k)}
++				checkTypedTopKResult(t, tk, nil)
++				for i, c := range stream {
++					tk.admit(c.d, c.pk, c.off)
++					checkTypedTopKResult(t, tk, stream[:i+1])
++				}
++			})
++		}
++	}
++}
++
++func TestTypedTopKPartitionMergeMatchesFullOrder(t *testing.T) {
++	input := typedTopKInputs()
++	for _, k := range []int{1, 10, 31, len(input) + 7} {
++		for _, workers := range []int{2, 3, 7} {
++			t.Run(fmt.Sprintf("k=%d/workers=%d", k, workers), func(t *testing.T) {
++				parts := make([]topK, workers)
++				for i := range parts {
++					parts[i].k = k
++				}
++				for i, c := range input {
++					parts[i%workers].admit(c.d, c.pk, c.off)
++				}
++				for _, reverse := range []bool{false, true} {
++					tk := &topK{k: k}
++					for i := range parts {
++						p := i
++						if reverse {
++							p = len(parts) - 1 - i
++						}
++						for _, c := range parts[p].h {
++							tk.admit(c.d, c.pk, c.off)
++						}
++					}
++					checkTypedTopKResult(t, tk, input)
++				}
++			})
++		}
++	}
++}

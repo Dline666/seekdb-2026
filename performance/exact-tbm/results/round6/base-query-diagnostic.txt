@@ -1,0 +1,7 @@
+=== RUN   TestRound6QueryDiagnostic
+    review_diag_test.go:17: filtered=false queries=1000 exact_rows_per_query=204.120 allocs_per_query=81.000 allocated_bytes_per_query=8784.1
+    review_diag_test.go:17: filtered=true queries=1000 exact_rows_per_query=166.310 allocs_per_query=93.003 allocated_bytes_per_query=9200.4
+    review_diag_test.go:18: independent_oracle_queries=200 SIMD=true AVXVNNI=true VNNI=false
+--- PASS: TestRound6QueryDiagnostic (0.84s)
+PASS
+ok  	minivectordb/internal/engine	0.843s

@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "build", "-trimpath", "-ldflags=-s -w", "-o", "/tmp/seekdb-round6/bin/bootstrap", "./cmd/minivectordb"], "cwd": "/tmp/seekdb-round6/bootstrap/minivectordb", "start": 1794738292.0192564}
+{"exit_code": 0, "wall_s": 0.8715310096740723}

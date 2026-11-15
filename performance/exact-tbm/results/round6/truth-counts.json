@@ -1,0 +1,25 @@
+{
+  "by_binary_and_environment": {
+    "base": 476000,
+    "bootstrap": 23000,
+    "final": 166000,
+    "final:MVDB_NO_BOOTSTRAP=1": 83000,
+    "flatrows": 23000,
+    "heap": 136000,
+    "base:MVDB_NO_AVXVNNI=1": 15000,
+    "heap:MVDB_NO_AVXVNNI=1": 15000,
+    "heapflat": 80000,
+    "reader": 28000,
+    "residual": 23000,
+    "wide": 96000
+  },
+  "selected": "heap",
+  "selected_protocol_topk_queries": 151000,
+  "all_comparisons": 37,
+  "all_reference_bad": 0,
+  "excludes": [
+    "diagnostic queries",
+    "Go tests",
+    "capacity and stress checks"
+  ]
+}

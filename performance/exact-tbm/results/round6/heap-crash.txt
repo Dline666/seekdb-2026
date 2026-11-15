@@ -1,0 +1,3 @@
+{"argv": ["python3", "/mnt/c/Users/27372/seekdb-review-avx-fix/minivectordb/tools/crash_test.py", "--bin", "/tmp/seekdb-round6/bin/heap", "--rounds", "30"], "cwd": "None", "start": 1794742408.742309}
+ok: 30 rounds, 11190 committed rows
+{"exit_code": 0, "wall_s": 1.9584107398986816}

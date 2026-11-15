@@ -1,0 +1,54 @@
+{
+  "status": "pending",
+  "patch": "final.patch",
+  "patch_sha256": "7508f43639d198920d3138fde03628bbf345d00b966af5521015851dd82d85c5",
+  "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+  "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+  "candidate_snapshot_sha256": "bc352350260b6e553dee09cd135f2ab064d2fe0c370c0abf684359b1f5e93d9d",
+  "git_apply_check": "PASS",
+  "reconstructed_snapshot_matches": true,
+  "changed_files": [
+    {
+      "path": "minivectordb/internal/engine/bootstrap.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "cf3e5778c4bcf12693ff179404687b1a258c867fbcd1023daecfcea5377458bf"
+    },
+    {
+      "path": "minivectordb/internal/engine/bootstrap_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "d282d4c853502724749cf03a30a7e95a4d58eba21ec28760d2fe5b92041db0ad"
+    },
+    {
+      "path": "minivectordb/internal/engine/fused_candidates_test.go",
+      "action": "modified",
+      "base_sha256": "332964ffe487e467df3e2e648512a854edb90bf99b2c60983f7e333954a5b4a8",
+      "candidate_sha256": "ec147b9854bf7711d2eb98f47650ec8091ebe79a72451688c23ea9a66b7bc9f7"
+    },
+    {
+      "path": "minivectordb/internal/engine/select.go",
+      "action": "modified",
+      "base_sha256": "479f60d7619029534bcff8fb60eb168904725f16a255472584feca462605f3a3",
+      "candidate_sha256": "2809b7c294721295bb28284457c80fee7c9af55e448d64ffb4cc2b783aab6cfe"
+    },
+    {
+      "path": "minivectordb/internal/engine/select_flatrows_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "4e8e6fb279f5e08b6fe5b03315e0f4a0e09fcf43ef9a5106de9b76662efc5292"
+    },
+    {
+      "path": "minivectordb/internal/engine/topk.go",
+      "action": "modified",
+      "base_sha256": "e9e8622eb7e76cb208695dd308725c73b5a875a123d0ad33109773ab387f9e9c",
+      "candidate_sha256": "b51f92ca3c6b9196b7a15533d3156fb732a7000e69907717792e9398bc70c7d2"
+    },
+    {
+      "path": "minivectordb/internal/engine/typed_topk_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "ee96b74ed45ca4c5fcb33dd8dbfed4b76d5450e6e4187b4c653f57a25b0f1023"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "recorded_success_accepted": true,
+  "source": "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/results/round3/stress-final.jsonl",
+  "new_capacity_run": false,
+  "corrupted_records_rejected": {
+    "missing_success": "missing final success",
+    "wrong_truth": "independent truth mismatch",
+    "wrong_peak_scope": "initial_startup: per-phase memory peak reset not verified",
+    "fractional_count": "query_after_write: incomplete TopK truth",
+    "oom": "cgroup OOM or OOM kill"
+  }
+}

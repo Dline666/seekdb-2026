@@ -1,0 +1,19 @@
+package engine
+import("fmt";"math";"math/rand";"runtime";"sort";"sync/atomic";"testing";"minivectordb/internal/storage")
+var reviewExactRows atomic.Int64
+func TestRound6QueryDiagnostic(t *testing.T) {
+ db,err:=Open(t.TempDir(),Options{Sync:storage.SyncData});if err!=nil{t.Fatal(err)};defer db.Close()
+ mustExec(t,db,"CREATE TABLE docs(id BIGINT PRIMARY KEY,category VARCHAR(16),embedding VECTOR(128))")
+ for _,s:=range buildWriteWorkload(){mustExec(t,db,s)}
+ rng:=rand.New(rand.NewSource(7));vs:=make([][]float32,10000);cats:=make([]int,10000)
+ for i:=range vs {cats[i]=rng.Intn(10);vs[i]=make([]float32,128);for j:=range vs[i]{vs[i][j]=float32(rng.Float64())}}
+ qrng:=rand.New(rand.NewSource(41));qs:=make([]string,200)
+ type rh struct{id int64;d float64}
+ for i:=range qs {q:=make([]float32,128);for j:=range q{q[j]=qrng.Float32()};cat:=-1;where:="";if i%2==1{cat=qrng.Intn(10);where=fmt.Sprintf(" WHERE category='c%d'",cat)}
+ qs[i]="SELECT id,L2_DISTANCE(embedding,'"+vectorText(q)+"') AS distance FROM docs"+where+" ORDER BY distance LIMIT 10"
+ truth:=make([]rh,0,10000);for row,v:=range vs {if cat>=0&&cats[row]!=cat{continue};d:=0.0;for j:=range q{z:=float64(q[j])-float64(v[j]);d+=z*z};truth=append(truth,rh{int64(row+1),d})};sort.Slice(truth,func(a,b int)bool{if truth[a].d!=truth[b].d{return truth[a].d<truth[b].d};return truth[a].id<truth[b].id})
+ res:=mustExec(t,db,qs[i]);if len(res.Rows)!=10{t.Fatal("rows")};for j,row:=range res.Rows{if row[0].I!=truth[j].id||math.Abs(row[1].F-math.Sqrt(truth[j].d))>1e-12{t.Fatalf("oracle q=%d j=%d",i,j)}}
+ }
+ for parity:=0;parity<2;parity++ {reviewExactRows.Store(0);runtime.GC();var a,b runtime.MemStats;runtime.ReadMemStats(&a);for rep:=0;rep<10;rep++{for i:=parity;i<len(qs);i+=2 {mustExec(t,db,qs[i])}};runtime.ReadMemStats(&b);t.Logf("filtered=%v queries=1000 exact_rows_per_query=%.3f allocs_per_query=%.3f allocated_bytes_per_query=%.1f",parity==1,float64(reviewExactRows.Load())/1000,float64(b.Mallocs-a.Mallocs)/1000,float64(b.TotalAlloc-a.TotalAlloc)/1000)}
+ t.Logf("independent_oracle_queries=200 SIMD=%v AVXVNNI=%v VNNI=%v",useSIMD,useAVXVNNI,useVNNI)
+}

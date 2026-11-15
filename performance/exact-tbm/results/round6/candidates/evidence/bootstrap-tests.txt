@@ -1,0 +1,12 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./...", "-count=1"], "cwd": "/tmp/seekdb-round6/bootstrap/minivectordb", "start": 1794738292.8941903}
+?   	minivectordb/cmd/minivectordb	[no test files]
+?   	minivectordb/internal/storage	[no test files]
+--- FAIL: TestBootstrapFirstAndLaterBatchesExact (0.00s)
+    bootstrap_test.go:232: overlay used bootstrap
+FAIL
+FAIL	minivectordb/internal/engine	16.313s
+ok  	minivectordb/internal/proto	0.019s
+ok  	minivectordb/internal/sqlparse	0.062s
+ok  	minivectordb/internal/types	1.604s
+FAIL
+{"exit_code": 1, "wall_s": 18.341029167175293}

@@ -1,0 +1,363 @@
+diff --git a/minivectordb/cmd/minivectordb/main.go b/minivectordb/cmd/minivectordb/main.go
+--- a/minivectordb/cmd/minivectordb/main.go
++++ b/minivectordb/cmd/minivectordb/main.go
+@@ -86,21 +86,11 @@
+ 	// is handled without a goroutine hand-off. SIGTERM/SIGINT are checked
+ 	// between requests; a signal that arrives while blocked on stdin is
+ 	// handled by a watcher that closes stdin, which ends the read with EOF.
+-	rd := bufio.NewReaderSize(os.Stdin, 1<<20)
++	rd := newRequestLineReader(os.Stdin)
+ 	next := func() line {
+-		// ReadSlice hands back a view into the reader buffer instead of
+-		// allocating a fresh slice per request. The request is fully
+-		// processed before the next read, so any strings parseFast aliases
+-		// into this view never outlive the buffer.
+-		b, err := rd.ReadSlice('\n')
+-		if err == bufio.ErrBufferFull {
+-			// Line longer than the buffer: ReadSlice has already consumed
+-			// the first len(b) bytes, so copy them and append the rest.
+-			head := append([]byte(nil), b...)
+-			var rest []byte
+-			rest, err = rd.ReadBytes('\n')
+-			b = append(head, rest...)
+-		}
++		// The previous request and its response are fully processed before
++		// this call reuses either the reader buffer or its long-line buffer.
++		b, err := rd.readLine()
+ 		if len(b) == 0 && err != nil {
+ 			if err != io.EOF && !errors.Is(err, os.ErrClosed) {
+ 				logf("read stdin: %v", err)
+diff --git a/minivectordb/cmd/minivectordb/requestline.go b/minivectordb/cmd/minivectordb/requestline.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/cmd/minivectordb/requestline.go
+@@ -0,0 +1,41 @@
++package main
++
++import (
++	"bufio"
++	"io"
++)
++
++const requestReaderBytes = 64 << 10
++const requestRetainBytes = 512 << 10
++
++// requestLineReader lends its returned bytes until the next readLine call.
++// The caller must finish parsing, executing and encoding a response before
++// calling readLine again; SQL strings can alias either of these buffers.
++// The retention limit is not an input limit: larger lines are accepted, but
++// their buffer is released when the following request begins.
++type requestLineReader struct {
++	rd   *bufio.Reader
++	long []byte
++}
++
++func newRequestLineReader(r io.Reader) *requestLineReader {
++	return &requestLineReader{rd: bufio.NewReaderSize(r, requestReaderBytes)}
++}
++
++func (r *requestLineReader) readLine() ([]byte, error) {
++	if cap(r.long) > requestRetainBytes {
++		r.long = nil
++	} else {
++		r.long = r.long[:0]
++	}
++	part, err := r.rd.ReadSlice('\n')
++	if err != bufio.ErrBufferFull {
++		return part, err
++	}
++	r.long = append(r.long, part...)
++	for err == bufio.ErrBufferFull {
++		part, err = r.rd.ReadSlice('\n')
++		r.long = append(r.long, part...)
++	}
++	return r.long, err
++}
+diff --git a/minivectordb/cmd/minivectordb/requestline_lifetime_test.go b/minivectordb/cmd/minivectordb/requestline_lifetime_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/cmd/minivectordb/requestline_lifetime_test.go
+@@ -0,0 +1,115 @@
++package main
++
++import (
++	"bytes"
++	"encoding/json"
++	"strings"
++	"testing"
++
++	"minivectordb/internal/engine"
++	"minivectordb/internal/proto"
++	"minivectordb/internal/storage"
++)
++
++// Exercise the actual borrowed long-line buffer through parsing, execution,
++// response encoding, transaction state and recovery. Byte-only reader tests
++// cannot detect catalog or transaction state retaining a request string.
++func TestRequestLineLongBufferEngineLifetime(t *testing.T) {
++	type step struct{ sql, rows string }
++	steps := []step{
++		{"CREATE TABLE docs(id BIGINT PRIMARY KEY,tag VARCHAR(16),e VECTOR(4))", ""},
++		{"CREATE VECTOR INDEX permanent_index ON docs(e)", ""},
++		{"BEGIN", ""},
++		{"INSERT INTO docs VALUES(1,'keep','[1,2,3,4]')", ""},
++		{"SELECT id,tag,e FROM docs ORDER BY id", `"rows":[[1,"keep",[1,2,3,4]]]`},
++		{"UPDATE docs SET tag='changed',e='[4,3,2,1]' WHERE id=1", ""},
++		{"SELECT id,tag,e FROM docs ORDER BY id", `"rows":[[1,"changed",[4,3,2,1]]]`},
++		{"ROLLBACK", ""},
++		{"SELECT id,tag,e FROM docs ORDER BY id", `"rows":[]`},
++		{"BEGIN", ""},
++		{"INSERT INTO docs VALUES(1,'persist','[1,2,3,4]')", ""},
++		{"COMMIT", ""},
++		{"SELECT id,tag,e FROM docs ORDER BY id", `"rows":[[1,"persist",[1,2,3,4]]]`},
++		{"SET search_mode='ann'", ""},
++		{"SELECT id,tag,e FROM docs WHERE tag='persist' ORDER BY L2_DISTANCE(e,'[1,2,3,4]') LIMIT 1", `"rows":[[1,"persist",[1,2,3,4]]]`},
++	}
++	var wire bytes.Buffer
++	for _, s := range steps {
++		// No JSON string escapes: ParseRequest should use its borrowed-string
++		// fast path. Equal line sizes ensure the same long storage is overwritten.
++		sql := s.sql + strings.Repeat(" ", (96<<10)-len(s.sql))
++		line, err := json.Marshal(struct {
++			ID  int    `json:"id"`
++			Op  string `json:"op"`
++			SQL string `json:"sql"`
++		}{1, "execute", sql})
++		if err != nil {
++			t.Fatal(err)
++		}
++		wire.Write(line)
++		wire.WriteByte('\n')
++	}
++	dir := t.TempDir()
++	db, err := engine.Open(dir, engine.Options{Sync: storage.SyncData})
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if db != nil {
++			db.Close()
++		}
++	}()
++	reader := newRequestLineReader(&wire)
++	enc := &proto.Encoder{}
++	var backing *byte
++	for i, s := range steps {
++		line, err := reader.readLine()
++		if err != nil {
++			t.Fatalf("step %d read: %v", i, err)
++		}
++		if backing == nil {
++			backing = &line[0]
++		} else if backing != &line[0] {
++			t.Fatal("test did not reuse long-line storage")
++		}
++		req, err := proto.ParseRequest(line)
++		if err != nil || req.SQL == nil {
++			t.Fatalf("step %d parse: %v", i, err)
++		}
++		result, err := db.Exec(*req.SQL)
++		if err != nil {
++			t.Fatalf("step %d execute %q: %v", i, s.sql, err)
++		}
++		response := enc.OK(req.ID)
++		if result.IsQuery || result.HasAffected {
++			response = enc.Result(req.ID, result)
++		}
++		// Like main, consume/encode the response before the following read.
++		if !json.Valid(bytes.TrimSpace(response)) || !bytes.Contains(response, []byte(`"ok":true`)) {
++			t.Fatalf("step %d invalid response %s", i, response)
++		}
++		if s.rows != "" && !bytes.Contains(response, []byte(s.rows)) {
++			t.Fatalf("step %d response %s does not contain %s", i, response, s.rows)
++		}
++	}
++	// SET saved settings must own their bytes even after the next request
++	// overwrote the same input backing array.
++	if db.SearchMode() != "ann" {
++		t.Fatalf("retained mode=%q", db.SearchMode())
++	}
++	if err := db.Close(); err != nil {
++		t.Fatal(err)
++	}
++	db = nil
++	db, err = engine.Open(dir, engine.Options{Sync: storage.SyncData})
++	if err != nil {
++		t.Fatal(err)
++	}
++	result, err := db.Exec("SELECT id,tag,e FROM docs ORDER BY id")
++	if err != nil {
++		t.Fatal(err)
++	}
++	if got := enc.Result([]byte("1"), result); !bytes.Contains(got, []byte(`"rows":[[1,"persist",[1,2,3,4]]]`)) {
++		t.Fatalf("recovered response=%s", got)
++	}
++}
+diff --git a/minivectordb/cmd/minivectordb/requestline_test.go b/minivectordb/cmd/minivectordb/requestline_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/cmd/minivectordb/requestline_test.go
+@@ -0,0 +1,163 @@
++package main
++
++import (
++	"bytes"
++	"errors"
++	"fmt"
++	"io"
++	"os"
++	"testing"
++)
++
++type limitedRequestReader struct {
++	r io.Reader
++	n int
++}
++
++func (r limitedRequestReader) Read(p []byte) (int, error) {
++	if len(p) > r.n {
++		p = p[:r.n]
++	}
++	return r.r.Read(p)
++}
++
++func requestBytes(n int, newline bool) []byte {
++	p := make([]byte, n)
++	for i := range p {
++		p[i] = byte('a' + i%23)
++	}
++	if newline {
++		p[len(p)-1] = '\n'
++	}
++	return p
++}
++
++func TestRequestLineBoundaries(t *testing.T) {
++	lengths := []int{requestReaderBytes - 1, requestReaderBytes, requestReaderBytes + 1,
++		requestRetainBytes - 1, requestRetainBytes, requestRetainBytes + 1, (1 << 20) + 19}
++	for _, n := range lengths {
++		for _, newline := range []bool{false, true} {
++			t.Run(fmt.Sprintf("bytes=%d/newline=%t", n, newline), func(t *testing.T) {
++				want := requestBytes(n, newline)
++				r := newRequestLineReader(bytes.NewReader(want))
++				got, err := r.readLine()
++				if !bytes.Equal(got, want) {
++					t.Fatalf("returned bytes=%d want=%d; content differs", len(got), len(want))
++				}
++				if newline && err != nil || !newline && !errors.Is(err, io.EOF) {
++					t.Fatalf("newline=%t err=%v", newline, err)
++				}
++				got, err = r.readLine()
++				if len(got) != 0 || !errors.Is(err, io.EOF) {
++					t.Fatalf("after final line got=%q err=%v", got, err)
++				}
++			})
++		}
++	}
++}
++
++func TestRequestLineAlternatingLongShort(t *testing.T) {
++	lines := [][]byte{
++		[]byte("\n"), []byte("\r\n"),
++		[]byte("{\"sql\":\"中文🙂 and \\n remain one line\"}\n"),
++		requestBytes(requestReaderBytes+3, true),
++		[]byte("short\n"),
++		requestBytes(requestRetainBytes-17, true),
++		[]byte("next\n"),
++		requestBytes((1<<20)+31, true),
++		[]byte("after large\n"),
++		requestBytes(requestReaderBytes+29, true),
++		[]byte("final without newline"),
++	}
++	wire := bytes.Join(lines, nil)
++	for _, chunk := range []int{1, 7, requestReaderBytes + 5, len(wire)} {
++		t.Run(fmt.Sprintf("read-chunk=%d", chunk), func(t *testing.T) {
++			r := newRequestLineReader(limitedRequestReader{bytes.NewReader(wire), chunk})
++			for i, want := range lines {
++				got, err := r.readLine()
++				// Validate before the next call: returned bytes are borrowed,
++				// exactly like bufio.ReadSlice, not caller-owned snapshots.
++				if !bytes.Equal(got, want) {
++					t.Fatalf("line %d bytes differ: got=%d want=%d", i, len(got), len(want))
++				}
++				if i < len(lines)-1 && err != nil || i == len(lines)-1 && !errors.Is(err, io.EOF) {
++					t.Fatalf("line %d err=%v", i, err)
++				}
++			}
++		})
++	}
++}
++
++func TestRequestLineRetainsOnlyBoundedBuffer(t *testing.T) {
++	smallLong := requestBytes(requestReaderBytes+1, true)
++	large := requestBytes((1<<20)+1, true)
++	wire := bytes.Join([][]byte{smallLong, smallLong, large, []byte("small\n")}, nil)
++	r := newRequestLineReader(bytes.NewReader(wire))
++	first, err := r.readLine()
++	if err != nil || !bytes.Equal(first, smallLong) {
++		t.Fatalf("first long request err=%v", err)
++	}
++	firstStorage := &first[0]
++	second, err := r.readLine()
++	if err != nil || !bytes.Equal(second, smallLong) || &second[0] != firstStorage {
++		t.Fatal("bounded long request storage was not reused")
++	}
++	got, err := r.readLine()
++	if err != nil || !bytes.Equal(got, large) {
++		t.Fatalf("oversized request was rejected or truncated, err=%v", err)
++	}
++	got, err = r.readLine()
++	if err != nil || string(got) != "small\n" || cap(r.long) > requestRetainBytes {
++		t.Fatalf("large buffer retained into next request: bytes=%d capacity=%d err=%v", len(got), cap(r.long), err)
++	}
++}
++
++// dataAndErrorReader delivers an error with the last nonempty read, exercising
++// ReadSlice's distinction between a final unterminated line and cached errors.
++type dataAndErrorReader struct {
++	data []byte
++	err  error
++}
++
++func (r *dataAndErrorReader) Read(p []byte) (int, error) {
++	if len(r.data) == 0 {
++		return 0, r.err
++	}
++	n := copy(p, r.data)
++	r.data = r.data[n:]
++	if len(r.data) == 0 {
++		return n, r.err
++	}
++	return n, nil
++}
++
++func TestRequestLinePreservesReadErrors(t *testing.T) {
++	readFailure := errors.New("injected read failure")
++	for _, finalErr := range []error{io.EOF, os.ErrClosed, readFailure} {
++		for _, n := range []int{0, 17, requestReaderBytes, requestReaderBytes + 3} {
++			for _, newline := range []bool{false, true} {
++				if n == 0 && newline {
++					continue
++				}
++				want := requestBytes(n, newline)
++				r := newRequestLineReader(&dataAndErrorReader{data: want, err: finalErr})
++				got, err := r.readLine()
++				if !bytes.Equal(got, want) {
++					t.Fatalf("n=%d newline=%t lost bytes", n, newline)
++				}
++				if newline {
++					if err != nil {
++						t.Fatalf("completed line should precede cached error: %v", err)
++					}
++					got, err = r.readLine()
++					if len(got) != 0 {
++						t.Fatalf("cached error came with unexpected bytes: %q", got)
++					}
++				}
++				if !errors.Is(err, finalErr) {
++					t.Fatalf("n=%d newline=%t err=%v want=%v", n, newline, err, finalErr)
++				}
++			}
++		}
++	}
++}

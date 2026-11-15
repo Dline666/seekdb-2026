@@ -1,0 +1,9 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/engine", "-run", "^TestRound6QueryDiagnostic$", "-count=1", "-v"], "cwd": "/tmp/seekdb-round6/bootstrap-diagnostic/minivectordb", "start": 1794738390.9542592}
+=== RUN   TestRound6QueryDiagnostic
+    review_diag_test.go:17: filtered=false queries=1000 exact_rows_per_query=89.730 allocs_per_query=81.000 allocated_bytes_per_query=8784.0
+    review_diag_test.go:17: filtered=true queries=1000 exact_rows_per_query=52.740 allocs_per_query=93.000 allocated_bytes_per_query=9200.0
+    review_diag_test.go:18: independent_oracle_queries=200 SIMD=true AVXVNNI=true VNNI=false
+--- PASS: TestRound6QueryDiagnostic (0.84s)
+PASS
+ok  	minivectordb/internal/engine	0.847s
+{"exit_code": 0, "wall_s": 2.334139108657837}

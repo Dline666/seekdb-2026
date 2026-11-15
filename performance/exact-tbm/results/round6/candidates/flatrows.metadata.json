@@ -1,0 +1,24 @@
+{
+  "status": "pending",
+  "patch": "flatrows.patch",
+  "patch_sha256": "777f6aa9ebff9d70016857b9bba1e3d0c0bec5c66dffafdeb4f9eb80dac63279",
+  "baseline_commit": "33485b53c039a6cc3d2c4fa5b40d064365cf6eee",
+  "base_snapshot_sha256": "29eb02cebb011411a2b325e2647bac0ef849c6268f0d135e598c8efad88949fd",
+  "candidate_snapshot_sha256": "154eeca307621198adba06fd0b9a98abff81be0e0e58d4b711bc17b732ac39d9",
+  "git_apply_check": "PASS",
+  "reconstructed_snapshot_matches": true,
+  "changed_files": [
+    {
+      "path": "minivectordb/internal/engine/select.go",
+      "action": "modified",
+      "base_sha256": "479f60d7619029534bcff8fb60eb168904725f16a255472584feca462605f3a3",
+      "candidate_sha256": "2809b7c294721295bb28284457c80fee7c9af55e448d64ffb4cc2b783aab6cfe"
+    },
+    {
+      "path": "minivectordb/internal/engine/select_flatrows_test.go",
+      "action": "added",
+      "base_sha256": null,
+      "candidate_sha256": "4e8e6fb279f5e08b6fe5b03315e0f4a0e09fcf43ef9a5106de9b76662efc5292"
+    }
+  ]
+}

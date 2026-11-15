@@ -1,0 +1,8 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./...", "-count=1"], "cwd": "/tmp/seekdb-round6/flatrows/minivectordb", "start": 1794736890.7611315}
+?   	minivectordb/cmd/minivectordb	[no test files]
+ok  	minivectordb/internal/engine	16.174s
+ok  	minivectordb/internal/proto	0.020s
+?   	minivectordb/internal/storage	[no test files]
+ok  	minivectordb/internal/sqlparse	0.067s
+ok  	minivectordb/internal/types	1.553s
+{"exit_code": 0, "wall_s": 20.52119255065918}

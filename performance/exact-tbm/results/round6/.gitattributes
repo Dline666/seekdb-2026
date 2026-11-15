@@ -1,0 +1,6 @@
+# Preserve archived patch and evidence bytes across Windows checkouts.
+* text eol=lf
+# The protocol runner emits a trailing space after PASS; preserve its raw output.
+heap-protocol.txt whitespace=-blank-at-eol
+# Unified diff context requires leading spaces, including on otherwise blank lines.
+candidates/*.patch -whitespace

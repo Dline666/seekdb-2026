@@ -1,0 +1,47 @@
+{
+  "candidate": "heap",
+  "candidate_binary": "/tmp/seekdb-round6/bin/heap",
+  "candidate_sha256": "b52c80e51e26b5edd4c30fe2d377115f34d4de02ca6dff1a38888e872b12e98b",
+  "driver_source": "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go",
+  "driver_source_sha256": "765996745865100ad5d61d230f117a8b9760c799160fbc55d273957382078572",
+  "build_argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/tmp/seekdb-round6/heap-stress/stress-driver",
+    "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go"
+  ],
+  "argv": [
+    "/tmp/seekdb-round6/heap-stress/stress-driver",
+    "-binary",
+    "/tmp/seekdb-round6/bin/heap",
+    "-data-dir",
+    "/tmp/seekdb-round6/heap-stress",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-queries",
+    "12",
+    "-batch",
+    "64",
+    "-bulk-update",
+    "-recovery-kill-delay",
+    "10ms"
+  ],
+  "data_dir": "/tmp/seekdb-round6/heap-stress",
+  "exit_code": 0,
+  "validation_passed": true,
+  "official_submissions": 0,
+  "database_env": [
+    "GOMAXPROCS=2",
+    "GOMEMLIMIT=1288490188",
+    "GOGC=20"
+  ],
+  "build_exit_code": 0,
+  "driver_sha256": "ac3597c0abbb85727647c05af019a3ff2484198264e343de9017cd64f35bc5c0",
+  "start": 1794741761.3448546,
+  "workflow_wall_s": 538.6444463729858,
+  "build_and_workflow_wall_s": 539.1256532669067
+}

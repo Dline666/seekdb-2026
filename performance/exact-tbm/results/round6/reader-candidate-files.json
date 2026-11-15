@@ -1,0 +1,5 @@
+[
+  "cmd/minivectordb/main.go",
+  "cmd/minivectordb/requestline.go",
+  "cmd/minivectordb/requestline_test.go"
+]
