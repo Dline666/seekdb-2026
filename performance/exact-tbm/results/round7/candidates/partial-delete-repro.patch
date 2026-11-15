@@ -1,0 +1,869 @@
+diff --git a/minivectordb/internal/engine/eqset.go b/minivectordb/internal/engine/eqset.go
+--- a/minivectordb/internal/engine/eqset.go
++++ b/minivectordb/internal/engine/eqset.go
+@@ -133,7 +133,10 @@
+ // (~10k rows at the bench scale, ~3 MB); it runs once per value per index
+ // generation.
+ func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock {
+-	if !catBlocksEnabled || x.Disabled || col < 0 || x.codes == nil || x.qf == nil {
++	// A category can contain slots outside a partially encoded prefix.
++	// Keep the full equality set, but do not copy uninitialized codes.
++	if !catBlocksEnabled || x.Disabled || col < 0 || x.codes == nil || x.qf == nil ||
++		x.quantRows < len(x.pks) {
+ 		return nil
+ 	}
+ 	// The map key must own its bytes: val comes from the SQL parser and,
+diff --git a/minivectordb/internal/engine/partial_delete_budget_test.go b/minivectordb/internal/engine/partial_delete_budget_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/partial_delete_budget_test.go
+@@ -0,0 +1,70 @@
++package engine
++
++import "testing"
++
++// Deleting rows cannot release the backing map or slot arrays. The newly
++// allocated free-slot list therefore needs its own budget check, even when
++// the live row count falls and the row payload is no longer indexed.
++func TestPartialQuantDeleteEnforcesBudget(t *testing.T) {
++	partialQuantTestModes(t)
++	const n, dim = 40, 32
++	fullBudget := int64(n)*(indexBytesPerRow+dim+32) + int64(dim)*4 + quantBlockBytes(n)
++	for _, tc := range []struct {
++		name     string
++		budget   int64
++		full     bool
++	}{
++		{"full-quantization", fullBudget, true},
++		{"slots-only", int64(n) * indexBytesPerRow, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			dir := t.TempDir()
++			db := openPartialDB(t, dir, tc.budget)
++			defer func() { db.Close() }()
++			truth := partialFixture(t, db, "docs", n, dim, false)
++			x := db.tables["docs"].Index
++			if x.Disabled || x.derivedBytes() != tc.budget {
++				t.Fatalf("fixture must exactly fill its budget: disabled=%t derived=%d budget=%d", x.Disabled, x.derivedBytes(), tc.budget)
++			}
++			if tc.full && x.quantRows != n || !tc.full && x.quantRows != 0 {
++				t.Fatalf("wrong initial coverage: full=%t Q=%d", tc.full, x.quantRows)
++			}
++			if len(x.free) != 0 || cap(x.free) != 0 {
++				t.Fatal("fixture must allocate its first free slot on DELETE")
++			}
++
++			// The final inserted row ties at distance zero and has the lowest
++			// PK, so removing it must change the independent expected TopK.
++			q := make([]float32, dim)
++			checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++			mustExec(t, db, "DELETE FROM docs WHERE id=1")
++			delete(truth, 1)
++
++			// Check before any query can alter derived state. On the broken
++			// implementation free grows while the other retained charges stay
++			// fixed, exceeding the originally exact-fit budget.
++			checkPartialBudget(t, db)
++			if tc.full {
++				if x.Disabled || x.quantRows != 0 || x.codes != nil || x.qf != nil || x.qbounds != nil {
++					t.Fatal("DELETE should release optional quantization and retain the exact slot index")
++				}
++			} else if !x.Disabled || x.derivedBytes() != 0 || x.posRows != 0 {
++				t.Fatal("DELETE must disable an over-budget slot index and release its retained charges")
++			}
++			checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++			checkPartialTruth(t, db, "docs", truth, q, 17, "c1", -1)
++			checkPartialTruth(t, db, "docs", truth, q, 17, "c1", 20)
++			checkPartialBudget(t, db)
++
++			// The fallback is derived state; the committed deletion must
++			// survive rebuilding the explicit index with the same allowance.
++			if err := db.Close(); err != nil {
++				t.Fatal(err)
++			}
++			db = openPartialDB(t, dir, tc.budget)
++			checkPartialBudget(t, db)
++			checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++			checkPartialTruth(t, db, "docs", truth, q, 17, "c1", -1)
++		})
++	}
++}
+diff --git a/minivectordb/internal/engine/partial_quant_test.go b/minivectordb/internal/engine/partial_quant_test.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/partial_quant_test.go
+@@ -0,0 +1,445 @@
++package engine
++
++import (
++	"fmt"
++	"math"
++	"os"
++	"path/filepath"
++	"runtime"
++	"sort"
++	"strings"
++	"testing"
++
++	"minivectordb/internal/storage"
++)
++
++type partialTruthRow struct {
++	cat string
++	vec []float32
++}
++
++// The oracle ranks a separate copy of the input by scalar float64 squared
++// distance and primary key. It never calls a distance or quantization helper.
++func checkPartialTruth(t *testing.T, db *DB, table string, truth map[int64]partialTruthRow, q []float32, k int, cat string, minID int64) {
++	t.Helper()
++	type answer struct {
++		id int64
++		sq float64
++	}
++	want := make([]answer, 0, len(truth))
++	for id, row := range truth {
++		if cat != "" && row.cat != cat || minID >= 0 && id <= minID {
++			continue
++		}
++		var sq float64
++		for j, f := range q {
++			d := float64(f) - float64(row.vec[j])
++			sq += d * d
++		}
++		want = append(want, answer{id, sq})
++	}
++	sort.Slice(want, func(i, j int) bool {
++		return want[i].sq < want[j].sq || want[i].sq == want[j].sq && want[i].id < want[j].id
++	})
++	where := ""
++	if cat != "" {
++		where = " WHERE cat='" + cat + "'"
++	}
++	if minID >= 0 {
++		if where == "" {
++			where = " WHERE "
++		} else {
++			where += " AND "
++		}
++		where += fmt.Sprintf("id>%d", minID)
++	}
++	sql := fmt.Sprintf("SELECT id,L2_DISTANCE(e,'%s') AS d FROM %s%s ORDER BY d LIMIT %d", vectorText(q), table, where, k)
++	got := mustExec(t, db, sql).Rows
++	if len(got) != min(k, len(want)) {
++		t.Fatalf("%s: got %d rows, want %d", sql, len(got), min(k, len(want)))
++	}
++	for i, row := range got {
++		d := math.Sqrt(want[i].sq)
++		if row[0].I != want[i].id || math.IsNaN(row[1].F) || math.Abs(row[1].F-d) > 1e-12*math.Max(1, d) {
++			t.Fatalf("%s: rank %d got id=%d d=%g, want id=%d d=%g", sql, i, row[0].I, row[1].F, want[i].id, d)
++		}
++	}
++}
++
++func partialQuantTestModes(t *testing.T) bool {
++	t.Helper()
++	pre, six, cat, fused := prefilterEnabled, prefilter6Bit, catBlocksEnabled, fusedCandidatesEnabled
++	simd, batch, parallel, workers := useSIMD, batchScan, parallelMinSlots, maxScanWorkers
++	procs := runtime.GOMAXPROCS(2)
++	t.Cleanup(func() {
++		prefilterEnabled, prefilter6Bit, catBlocksEnabled, fusedCandidatesEnabled = pre, six, cat, fused
++		useSIMD, batchScan, parallelMinSlots, maxScanWorkers = simd, batch, parallel, workers
++		runtime.GOMAXPROCS(procs)
++	})
++	prefilterEnabled, prefilter6Bit, catBlocksEnabled, fusedCandidatesEnabled = true, false, true, true
++	batchScan, parallelMinSlots, maxScanWorkers = true, 1, 2
++	return simd
++}
++
++func openPartialDB(t *testing.T, dir string, budget int64) *DB {
++	t.Helper()
++	db, err := Open(dir, Options{Sync: storage.SyncData, IndexMemBytes: budget})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return db
++}
++
++func partialFixture(t *testing.T, db *DB, table string, n, dim int, unique bool) map[int64]partialTruthRow {
++	t.Helper()
++	mustExec(t, db, fmt.Sprintf("CREATE TABLE %s(id BIGINT PRIMARY KEY,cat VARCHAR(64),e VECTOR(%d))", table, dim))
++	truth := make(map[int64]partialTruthRow, n)
++	for start := 0; start < n; start += 64 {
++		var sql strings.Builder
++		fmt.Fprintf(&sql, "INSERT INTO %s VALUES ", table)
++		for i := start; i < min(start+64, n); i++ {
++			v := make([]float32, dim)
++			for j := range v {
++				// Binary-exact coordinates make the scalar oracle independent
++				// of accumulation order for ordinary rows.
++				v[j] = float32((i*19+j*7)%97-48) / 16
++			}
++			if i < 24 || i == n-1 {
++				clear(v)
++			}
++			if i == 129 || i == n-2 {
++				v[0] = 1e20
++			}
++			id := int64(n - i) // exact ties arrive in reverse PK order
++			cat := fmt.Sprintf("c%d", id%3)
++			if unique {
++				cat = fmt.Sprintf("unique-%04d", id)
++			}
++			truth[id] = partialTruthRow{cat, v}
++			if i > start {
++				sql.WriteByte(',')
++			}
++			fmt.Fprintf(&sql, "(%d,'%s','%s')", id, cat, vectorText(v))
++		}
++		mustExec(t, db, sql.String())
++	}
++	mustExec(t, db, fmt.Sprintf("CREATE VECTOR INDEX vi_%s ON %s(e)", table, table))
++	return truth
++}
++
++func checkPartialBudget(t *testing.T, db *DB) {
++	t.Helper()
++	var retained int64
++	for _, table := range db.tables {
++		if table.Index != nil {
++			retained += table.Index.derivedBytes()
++		}
++	}
++	if retained > db.opts.IndexMemBytes {
++		t.Fatalf("aggregate derived bytes %d exceed budget %d", retained, db.opts.IndexMemBytes)
++	}
++}
++
++func checkPartialPrefix(t *testing.T, db *DB, table string) *VecIndex {
++	t.Helper()
++	x := db.tables[table].Index
++	if x == nil || x.Disabled || x.quantRows < quantBlockRows || x.quantRows >= len(x.pks) || x.quantRows%quantBlockRows != 0 {
++		t.Fatalf("expected a nonempty partial encoded prefix in table %s", table)
++	}
++	// No initialized tail storage exists. Any tail qf/code access must fail
++	// instead of accidentally reading zero-filled capacity as valid codes.
++	if len(x.codes) != x.quantRows*x.dim || len(x.qf) != 4*x.quantRows || len(x.qbounds) != x.quantRows/quantBlockRows {
++		t.Fatalf("encoded storage does not end at Q=%d: codes=%d qf=%d bounds=%d", x.quantRows, len(x.codes), len(x.qf), len(x.qbounds))
++	}
++	checkPartialBudget(t, db)
++	return x
++}
++
++func partialUpdate(t *testing.T, db *DB, truth map[int64]partialTruthRow, id int64, cat string, v []float32) {
++	t.Helper()
++	mustExec(t, db, fmt.Sprintf("UPDATE docs SET cat='%s',e='%s' WHERE id=%d", cat, vectorText(v), id))
++	truth[id] = partialTruthRow{cat, append([]float32(nil), v...)}
++}
++
++func partialInsert(t *testing.T, db *DB, table string, truth map[int64]partialTruthRow, id int64, cat string, v []float32) {
++	t.Helper()
++	mustExec(t, db, fmt.Sprintf("INSERT INTO %s VALUES(%d,'%s','%s')", table, id, cat, vectorText(v)))
++	truth[id] = partialTruthRow{cat, append([]float32(nil), v...)}
++}
++
++func clonePartialTruth(src map[int64]partialTruthRow) map[int64]partialTruthRow {
++	dst := make(map[int64]partialTruthRow, len(src))
++	for id, row := range src {
++		dst[id] = partialTruthRow{row.cat, append([]float32(nil), row.vec...)}
++	}
++	return dst
++}
++
++func TestPartialQuantExactMutationAndRecovery(t *testing.T) {
++	hostSIMD := partialQuantTestModes(t)
++	const n, dim, budget = 1539, 33, 180 << 10
++	dir := t.TempDir()
++	db := openPartialDB(t, dir, budget)
++	defer func() { db.Close() }()
++	truth := partialFixture(t, db, "docs", n, dim, false)
++	x := checkPartialPrefix(t, db, "docs")
++	qn := x.quantRows
++	if qn <= n/2 || (n/2)%scanBatch == 0 {
++		t.Fatalf("fixture must split a coded/tail batch in a nonaligned worker: Q=%d split=%d", qn, n/2)
++	}
++	q := make([]float32, dim)
++	batches, coded, uncoded := partialPrefilterBatches.Load(), partialPrefilterRows.Load(), partialUncodedRows.Load()
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "c1", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "c1", n/3)
++	if hostSIMD && (partialPrefilterBatches.Load() <= batches || partialPrefilterRows.Load() <= coded || partialUncodedRows.Load() <= uncoded) {
++		t.Fatal("fixture did not execute coded and uncoded portions of the partial prefilter")
++	}
++	if x.catBlockFor(db, db.tables["docs"], 1, "c1") != nil {
++		t.Fatal("partial quantization must not build a category code copy")
++	}
++	slots, ok := x.eqSlots(db, db.tables["docs"], 1, truth[1].cat)
++	foundTail := false
++	for _, slot := range slots {
++		foundTail = foundTail || x.pks[slot] == 1 && int(slot) >= qn
++	}
++	if !ok || !foundTail {
++		t.Fatal("full equality set omitted the nearest uncoded tail row")
++	}
++
++	// Query every switch independently against the scalar oracle, including
++	// the 6-bit path and both exact fallbacks.
++	for _, mode := range []struct {
++		name                  string
++		six, simd, batch, pre bool
++	}{
++		{"normal", false, hostSIMD, true, true},
++		{"six-bit", true, hostSIMD, true, true},
++		{"scalar", false, false, true, true},
++		{"no-gather", false, hostSIMD, false, true},
++		{"no-prefilter", false, hostSIMD, true, false},
++	} {
++		t.Run(mode.name, func(t *testing.T) {
++			prefilter6Bit, useSIMD, batchScan, prefilterEnabled = mode.six, mode.simd, mode.batch, mode.pre
++			checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++			checkPartialTruth(t, db, "docs", truth, q, 17, "c1", n/3)
++			randomQ := make([]float32, dim)
++			for j := range randomQ {
++				randomQ[j] = float32((j*11)%23-11) / 8
++			}
++			checkPartialTruth(t, db, "docs", truth, randomQ, 31, "", -1)
++		})
++	}
++	prefilter6Bit, useSIMD, batchScan, prefilterEnabled = false, hostSIMD, true, true
++	covered, firstTail, nextTail := x.pks[qn-1], x.pks[qn], x.pks[qn+1]
++	for _, id := range []int64{covered, firstTail, nextTail} {
++		partialUpdate(t, db, truth, id, "boundary", q)
++	}
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "boundary", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "boundary", firstTail)
++
++	large := make([]float32, dim)
++	for j := range large {
++		large[j] = 1 << 20
++	}
++	partialUpdate(t, db, truth, covered, "large", large)
++	partialUpdate(t, db, truth, firstTail, "large", large)
++	checkPartialTruth(t, db, "docs", truth, large, 2, "", -1)
++
++	// Deletion and LIFO slot reuse touch both sides of Q.
++	mapHighWater := x.posRows
++	mustExec(t, db, fmt.Sprintf("DELETE FROM docs WHERE id=%d", covered))
++	delete(truth, covered)
++	mustExec(t, db, fmt.Sprintf("DELETE FROM docs WHERE id=%d", firstTail))
++	delete(truth, firstTail)
++	if x.posRows != mapHighWater {
++		t.Fatal("deletion released the retained primary-key map charge")
++	}
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	tailReplacement, codedReplacement := int64(n+100), int64(n+101)
++	partialInsert(t, db, "docs", truth, tailReplacement, "reused", q)
++	partialInsert(t, db, "docs", truth, codedReplacement, "reused", q)
++	if x.pos[tailReplacement] != int32(qn) || x.pos[codedReplacement] != int32(qn-1) || x.quantRows != qn {
++		t.Fatal("reuse failed to preserve covered and uncoded slots")
++	}
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 31, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "reused", -1)
++	checkPartialPrefix(t, db, "docs")
++
++	before := clonePartialTruth(truth)
++	mustExec(t, db, "BEGIN")
++	overlayVector := make([]float32, dim)
++	overlayVector[0] = 0.125
++	partialUpdate(t, db, truth, codedReplacement, "txn", overlayVector)
++	partialUpdate(t, db, truth, tailReplacement, "txn", overlayVector)
++	mustExec(t, db, "DELETE FROM docs WHERE id=1")
++	delete(truth, 1)
++	partialInsert(t, db, "docs", truth, int64(n+200), "txn", q)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "txn", n)
++	mustExec(t, db, "ROLLBACK")
++	truth = before
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "txn", -1)
++
++	mustExec(t, db, "BEGIN")
++	partialUpdate(t, db, truth, codedReplacement, "committed", q)
++	partialUpdate(t, db, truth, tailReplacement, "committed", q)
++	mustExec(t, db, "DELETE FROM docs WHERE id=1")
++	delete(truth, 1)
++	partialInsert(t, db, "docs", truth, int64(n+201), "committed", q)
++	mustExec(t, db, "COMMIT")
++	checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "committed", n)
++	checkPartialBudget(t, db)
++
++	// Capture an unfinished transaction before Close can roll it back.
++	// Replaying both the intact and torn uncommitted tail must preserve the
++	// independently tracked committed state and rebuild partial coverage.
++	mustExec(t, db, "BEGIN")
++	mustExec(t, db, fmt.Sprintf("UPDATE docs SET cat='uncommitted',e='%s' WHERE id=%d", vectorText(large), codedReplacement))
++	mustExec(t, db, fmt.Sprintf("DELETE FROM docs WHERE id=%d", tailReplacement))
++	if err := db.log.Flush(); err != nil {
++		t.Fatal(err)
++	}
++	logBytes, err := os.ReadFile(filepath.Join(dir, logName))
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, cut := range []int{len(logBytes), len(logBytes) - 7} {
++		crashDir := t.TempDir()
++		if err := os.WriteFile(filepath.Join(crashDir, logName), logBytes[:cut], 0o644); err != nil {
++			t.Fatal(err)
++		}
++		recovered := openPartialDB(t, crashDir, budget)
++		checkPartialPrefix(t, recovered, "docs")
++		checkPartialTruth(t, recovered, "docs", truth, q, 17, "", -1)
++		checkPartialTruth(t, recovered, "docs", truth, q, 17, "committed", n)
++		checkPartialTruth(t, recovered, "docs", truth, q, 17, "uncommitted", -1)
++		if err := recovered.Close(); err != nil {
++			t.Fatal(err)
++		}
++	}
++	mustExec(t, db, "ROLLBACK")
++	for round := 0; round < 2; round++ {
++		if err := db.Close(); err != nil {
++			t.Fatal(err)
++		}
++		db = openPartialDB(t, dir, budget)
++		checkPartialPrefix(t, db, "docs")
++		checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++		checkPartialTruth(t, db, "docs", truth, q, 17, "committed", n)
++	}
++}
++
++func TestPartialQuantDimensionTail(t *testing.T) {
++	hostSIMD := partialQuantTestModes(t)
++	const n, dim = 515, 257
++	db := openPartialDB(t, t.TempDir(), 160<<10)
++	defer db.Close()
++	truth := partialFixture(t, db, "docs", n, dim, false)
++	x := checkPartialPrefix(t, db, "docs")
++	q := make([]float32, dim)
++	for j := range q {
++		q[j] = float32((j*13)%31-15) / 8
++	}
++	for _, id := range []int64{x.pks[x.quantRows-1], x.pks[x.quantRows], x.pks[x.quantRows+1]} {
++		partialUpdate(t, db, truth, id, "boundary", q)
++	}
++	for mode := 0; mode < 4; mode++ {
++		prefilter6Bit, useSIMD, batchScan = mode == 1, hostSIMD && mode != 2, mode != 3
++		checkPartialTruth(t, db, "docs", truth, q, 17, "", -1)
++		checkPartialTruth(t, db, "docs", truth, q, 17, "boundary", -1)
++		checkPartialTruth(t, db, "docs", truth, q, 17, "c1", n/3)
++	}
++}
++
++func TestPartialQuantEqualityBudgetFallback(t *testing.T) {
++	partialQuantTestModes(t)
++	db := openPartialDB(t, t.TempDir(), 58<<10)
++	defer db.Close()
++	truth := partialFixture(t, db, "docs", 513, 33, true)
++	x := checkPartialPrefix(t, db, "docs")
++	q := make([]float32, 33)
++	tailCat := truth[1].cat
++	checkPartialTruth(t, db, "docs", truth, q, 17, tailCat, -1)
++	if !x.eqFull || x.eqBytes != 0 || len(x.eq) != 0 {
++		t.Fatal("high-cardinality equality allocation did not use the budget fallback")
++	}
++	checkPartialBudget(t, db)
++	mustExec(t, db, "UPDATE docs SET cat='shared'")
++	for id, row := range truth {
++		row.cat = "shared"
++		truth[id] = row
++	}
++	if x.eqFull {
++		t.Fatal("mutation must allow equality grouping to be retried")
++	}
++	slots, ok := x.eqSlots(db, db.tables["docs"], 1, "shared")
++	if !ok || len(slots) != len(truth) {
++		t.Fatal("shared equality group must include both coded and uncoded rows")
++	}
++	checkPartialTruth(t, db, "docs", truth, q, 17, "shared", -1)
++	checkPartialTruth(t, db, "docs", truth, q, 17, "shared", 200)
++	checkPartialBudget(t, db)
++}
++
++func TestPartialQuantSharedBudgetAndGrowth(t *testing.T) {
++	partialQuantTestModes(t)
++	db := openPartialDB(t, t.TempDir(), 58<<10)
++	defer db.Close()
++	aTruth := partialFixture(t, db, "a", 513, 33, false)
++	a := checkPartialPrefix(t, db, "a")
++	db.opts.IndexMemBytes = a.derivedBytes() + (58 << 10)
++	bTruth := partialFixture(t, db, "b", 513, 33, false)
++	b := checkPartialPrefix(t, db, "b")
++	cTruth := partialFixture(t, db, "c", 513, 33, false)
++	if !db.tables["c"].Index.Disabled {
++		t.Fatal("third table slots should exceed the remaining shared budget")
++	}
++	q := make([]float32, 33)
++	for _, entry := range []struct {
++		name string
++		rows map[int64]partialTruthRow
++	}{{"a", aTruth}, {"b", bTruth}, {"c", cTruth}} {
++		checkPartialTruth(t, db, entry.name, entry.rows, q, 17, "", -1)
++	}
++	if a.quantRows == 0 || b.quantRows == 0 {
++		t.Fatal("both active indexes must initially retain a partial prefix")
++	}
++	// Grow through backing-array expansion and then the slot-only budget.
++	// The optional prefix may be dropped once; every state remains exact.
++	for id := int64(514); id <= 1113; id++ {
++		v := make([]float32, 33)
++		v[0] = float32(id%7) / 8
++		partialInsert(t, db, "a", aTruth, id, "grown", v)
++		checkPartialBudget(t, db)
++		if id == 600 || id == 900 || id == 1113 {
++			checkPartialTruth(t, db, "a", aTruth, q, 17, "", -1)
++			checkPartialTruth(t, db, "a", aTruth, q, 17, "grown", 550)
++		}
++	}
++	if !a.Disabled {
++		t.Fatal("slot-only growth must eventually fall back within the shared budget")
++	}
++	checkPartialTruth(t, db, "b", bTruth, q, 17, "", -1)
++	checkPartialTruth(t, db, "c", cTruth, q, 17, "", -1)
++}
++
++func TestPartialQuantTooSmallForOneBlock(t *testing.T) {
++	partialQuantTestModes(t)
++	const n, dim = 129, 33
++	budget := int64(n*indexBytesPerRow + 127*(dim+32) + 4*dim)
++	db := openPartialDB(t, t.TempDir(), budget)
++	defer db.Close()
++	truth := partialFixture(t, db, "docs", n, dim, false)
++	x := db.tables["docs"].Index
++	if x.Disabled || x.quantRows != 0 || x.codes != nil || x.qf != nil || x.qbounds != nil {
++		t.Fatal("sub-block budget must retain only the exact slot index")
++	}
++	checkPartialTruth(t, db, "docs", truth, make([]float32, dim), 17, "", -1)
++	checkPartialTruth(t, db, "docs", truth, make([]float32, dim), 17, "c1", -1)
++	checkPartialBudget(t, db)
++}
+diff --git a/minivectordb/internal/engine/partial_scan.go b/minivectordb/internal/engine/partial_scan.go
+new file mode 100644
+--- /dev/null
++++ b/minivectordb/internal/engine/partial_scan.go
+@@ -0,0 +1,56 @@
++package engine
++
++import "sync/atomic"
++
++// Diagnostics distinguish the coded subset from rows that must remain exact.
++var partialPrefilterBatches, partialPrefilterRows, partialUncodedRows atomic.Int64
++
++// filterPartialBatch filters only initialized prefix slots. offs/pks/rows are
++// compacted together, in their original order. Uncoded rows are never passed
++// to a dot-product kernel or tested against an approximate distance. The caller
++// has already checked tombstones, transaction overlays and any residual WHERE.
++func (x *VecIndex) filterPartialBatch(qc []int16, qc6 []int8, qSum, qNorm2 float64,
++	qmin, qscale float32, bound float64, slots []int32, offs, pks, rows []int64) int {
++	var codedSlots [scanBatch]int32
++	var positions [scanBatch]int
++	var coffs [scanBatch]int64
++	var dots [scanBatch]int32
++	var rejected [scanBatch]bool
++	coded := 0
++	for i, s := range slots {
++		if int(s) >= x.quantRows {
++			continue
++		}
++		codedSlots[coded], positions[coded] = s, i
++		coffs[coded] = int64(s) * int64(x.dim)
++		coded++
++	}
++	partialUncodedRows.Add(int64(len(slots) - coded))
++	if coded == 0 {
++		return len(slots)
++	}
++	partialPrefilterBatches.Add(1)
++	partialPrefilterRows.Add(int64(coded))
++	if prefilter6Bit {
++		dotInt8GatherInt6(qc6, x.codes, coffs[:coded], dots[:coded])
++	} else {
++		dotInt8GatherInt(qc, x.codes, coffs[:coded], dots[:coded])
++	}
++	threshold := x.boundForSlots(codedSlots[:coded]).threshold(qmin, qscale, x.dim, bound)
++	for j := 0; j < coded; j++ {
++		s := int(codedSlots[j])
++		f := x.qf[s*4 : s*4+4]
++		d := foldDist2(qSum, qNorm2, qmin, qscale, dots[j], f[0], f[1], f[2], f[3])
++		// Strict comparison preserves ties and does not reject a NaN distance.
++		rejected[positions[j]] = d > threshold
++	}
++	kept := 0
++	for i := range slots {
++		if rejected[i] {
++			continue
++		}
++		offs[kept], pks[kept], rows[kept] = offs[i], pks[i], rows[i]
++		kept++
++	}
++	return kept
++}
+diff --git a/minivectordb/internal/engine/topk.go b/minivectordb/internal/engine/topk.go
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -285,13 +285,16 @@
+ 	// slot order against the same bound, so the result equals the per-row
+ 	// visit exactly.
+ 	gather := batchScan && useSIMD && base != nil && t.Dim >= 16
+-	// prefilterOK gates the int8 prefilter. The length checks are the
+-	// memory-safety net for the kernel: every live slot must own dim code
+-	// bytes and one parameter set, so codes[slot*dim:slot*dim+dim] is in
+-	// range for every slot the scan can visit.
+-	prefilterOK := gather && prefilterEnabled && qok && t.Dim <= maxInt8Dim && x.codes != nil &&
+-		len(x.codes) >= len(x.pks)*t.Dim && len(x.qf) >= len(x.pks)*4 &&
+-		len(x.qbounds) >= (len(x.pks)+quantBlockRows-1)/quantBlockRows
++	// Only quantRows initialized slots may reach a quantized kernel. Full
++	// coverage keeps the existing fused paths; partial coverage separately
++	// gathers coded rows and always computes the uncovered tail exactly.
++	quantRows := x.quantRows
++	prefilterReady := gather && prefilterEnabled && qok && t.Dim <= maxInt8Dim &&
++		quantRows > 0 && quantRows <= len(x.pks) &&
++		len(x.codes) >= quantRows*t.Dim && len(x.qf) >= quantRows*4 &&
++		len(x.qbounds) >= (quantRows+quantBlockRows-1)/quantBlockRows
++	prefilterOK := prefilterReady && quantRows == len(x.pks)
++	partialPrefilterOK := prefilterReady && quantRows < len(x.pks)
+ 	// fusedOK gates the fused single-pass scan kernel (fusedScanInt8),
+ 	// which folds the gather loop, the coffs multiply, the integer dot
+ 	// kernel, the dequantization and the threshold loop into one pass over
+@@ -542,6 +545,9 @@
+ 					offs[m], pks[m], rows[m] = offs[j], pks[j], rows[j]
+ 					m++
+ 				}
++			} else if partialPrefilterOK && len(tk.h) >= tk.k {
++				m = x.filterPartialBatch(qc, qc6, qSum, qNorm2, qmin, qscale,
++					tk.bound(), slots[:n], offs[:n], pks[:n], rows[:n])
+ 			}
+ 			dbgScanExactRows.Add(int64(m))
+ 			l2sqGatherBytes(qw, base, offs[:m], out[:m])
+diff --git a/minivectordb/internal/engine/vecindex.go b/minivectordb/internal/engine/vecindex.go
+--- a/minivectordb/internal/engine/vecindex.go
++++ b/minivectordb/internal/engine/vecindex.go
+@@ -26,6 +26,7 @@
+ 	pks      []int64
+ 	off      []int64 // row offset of each slot
+ 	pos      map[int64]int32
++	posRows  int // map allocation hint / entry high-water mark; deletion does not release storage
+ 	free     []int32
+ 	live     int
+ 
+@@ -50,6 +51,8 @@
+ 	codes       []byte
+ 	qf          []float64
+ 	qbounds     []quantBlockBound // conservative bounds for each quantBlockRows consecutive slots
++	quantRows   int               // initialized consecutive prefix [0, quantRows), including deleted slots
++	quantLimit  int               // -1 permits full coverage growth; otherwise the frozen row limit
+ 	maxScale    float32           // largest per-row quantization scale in the index; a stale larger value is safe (it only loosens the prefilter threshold)
+ 	maxAbs      float64           // upper bound on absolute dequantized coordinates; stale larger bounds are safe
+ 	qscratch    []float32         // reused decode buffer for quantizeSlot
+@@ -70,42 +73,58 @@
+ const indexBytesPerRow = 64
+ 
+ func newVecIndex(name string) *VecIndex {
+-	return &VecIndex{Name: strings.Clone(name), pos: map[int64]int32{}}
++	return &VecIndex{Name: strings.Clone(name), pos: map[int64]int32{}, quantLimit: -1}
+ }
+ 
+ func (x *VecIndex) rebuild(db *DB, t *Table) {
+ 	x.invalidateSets()
+-	x.qbounds = nil
+-	x.maxAbs = 0
+-	x.qscratch = nil
++	x.dropQuantization()
+ 	x.dim = t.Dim
+ 	budget := db.indexBudget(x)
+-	x.Disabled = int64(len(t.rows))*indexBytesPerRow > budget
++	n := len(t.rows)
++	x.Disabled = int64(n)*indexBytesPerRow > budget
+ 	if x.Disabled {
+ 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
+-		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
++		x.posRows = 0
+ 		x.resetIVF()
+ 		return
+ 	}
+-	// The prefilter needs dim+32 bytes per row (codes + folded threshold
+-	// constants) on top of the index itself, and only
+-	// pays off for the batched scan (dim>=16).
+-	// When it does not fit, the index still works and queries just run the
+-	// exact scan.
+-	x.noPrefilter = x.dim < 16 || x.dim > maxInt8Dim || int64(len(t.rows))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4+quantBlockBytes(len(t.rows)) > budget
+-	x.codes, x.qf, x.maxScale = nil, nil, 0
++	// Preserve the ordinary fully covered path when its existing estimate
++	// fits. Otherwise retain only an initialized prefix, rounded to complete
++	// bound blocks. Leave budget/16 unallocated for equality sets, temporary
++	// construction work and slot growth; this is not a reserved growth budget
++	// or a hard bound on the Go heap / file cache.
++	quantCapacity := 0
++	if x.dim >= 16 && x.dim <= maxInt8Dim {
++		fullBytes := int64(n)*(indexBytesPerRow+int64(x.dim)+32) + int64(x.dim)*4 + quantBlockBytes(n)
++		if fullBytes <= budget {
++			x.noPrefilter, x.quantLimit = false, -1
++			quantCapacity = n
++		} else {
++			available := budget - budget/16 - int64(n)*indexBytesPerRow - int64(x.dim)*4
++			perBlock := int64(quantBlockRows)*(int64(x.dim)+32) + 16
++			if available >= perBlock {
++				blocks := min(int64(n/quantBlockRows), available/perBlock)
++				quantCapacity = int(blocks) * quantBlockRows
++				if quantCapacity > 0 {
++					x.noPrefilter, x.quantLimit = false, quantCapacity
++				}
++			}
++		}
++	}
+ 	x.pks, x.off, x.free = nil, nil, nil
+-	x.pos = make(map[int64]int32, len(t.rows))
++	x.pos = make(map[int64]int32, n)
++	x.posRows = n
+ 	x.live = 0
+ 	x.resetIVF()
+-	x.pks = make([]int64, 0, len(t.rows))
+-	x.off = make([]int64, 0, len(t.rows))
+-	// Rebuild knows the final size. Repeated append growth otherwise retains
+-	// several generations of large code/parameter arrays until the next GC.
++	x.pks = make([]int64, 0, n)
++	x.off = make([]int64, 0, n)
++	// Allocate each quantization backing array once at its planned capacity.
++	// quantRows is advanced only after a slot has been fully encoded below.
+ 	if !x.noPrefilter {
+-		x.codes = make([]byte, 0, len(t.rows)*x.dim)
+-		x.qf = make([]float64, 0, len(t.rows)*4)
+-		x.qbounds = make([]quantBlockBound, (len(t.rows)+quantBlockRows-1)/quantBlockRows)
++		x.codes = make([]byte, 0, quantCapacity*x.dim)
++		x.qf = make([]float64, 0, quantCapacity*4)
++		x.qbounds = make([]quantBlockBound, (quantCapacity+quantBlockRows-1)/quantBlockRows)
+ 	}
+ 	// The slots follow the log order. The scan then walks the log from the
+ 	// oldest row to the newest and reads the mapped file sequentially; with
+@@ -114,7 +133,7 @@
+ 		pk  int64
+ 		off int64
+ 	}
+-	rows := make([]rowRef, 0, len(t.rows))
++	rows := make([]rowRef, 0, n)
+ 	for pk, off := range t.rows {
+ 		rows = append(rows, rowRef{pk, off})
+ 	}
+@@ -122,6 +141,16 @@
+ 	for _, r := range rows {
+ 		x.upsert(db, t, r.pk, r.off)
+ 	}
++}
++
++// dropQuantization drops all owned quantization references together; GC
++// need not reclaim them immediately. Never reslice a large backing array to
++// pretend that a shorter prefix freed it.
++func (x *VecIndex) dropQuantization() {
++	x.codes, x.qf, x.qbounds, x.qscratch = nil, nil, nil, nil
++	x.quantRows, x.quantLimit = 0, 0
++	x.noPrefilter = true
++	x.maxScale, x.maxAbs = 0, 0
+ }
+ 
+ func (x *VecIndex) resetIVF() {
+@@ -137,18 +166,21 @@
+ 	if !x.has(pk) && int64(x.live+1)*indexBytesPerRow > budget {
+ 		x.Disabled = true
+ 		x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, map[int64]int32{}, 0
+-		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, false, 0
+-		x.qbounds = nil
++		x.posRows = 0
++		x.dropQuantization()
+ 		x.resetIVF()
+ 		return
+ 	}
+-	// Backstop for the codes budget: rows added after the last rebuild can
+-	// push the codes past the budget. Dropping the codes only turns the
+-	// prefilter off; the index itself keeps working.
+-	if !x.has(pk) && !x.noPrefilter && x.dim >= 16 &&
++	// Stop growing a fully covered index before its row-count estimate
++	// exceeds the budget. Preserve the initialized prefix without copying
++	// it; future tail rows use exact distances. Capacity growth can still
++	// exceed the estimate, so the retained-byte check below remains required.
++	if !x.has(pk) && !x.noPrefilter && x.quantLimit < 0 &&
+ 		int64(max(len(x.pks), x.live+1))*(indexBytesPerRow+int64(x.dim)+32)+int64(x.dim)*4+quantBlockBytes(max(len(x.pks), x.live+1)) > budget {
+-		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale = nil, nil, nil, true, 0
+-		x.qbounds = nil
++		x.quantLimit = x.quantRows
++		if x.quantRows == 0 {
++			x.dropQuantization()
++		}
+ 	}
+ 	s, ok := x.pos[pk]
+ 	if !ok {
+@@ -162,12 +194,13 @@
+ 			if x.slotList != nil {
+ 				x.slotList = append(x.slotList, -1)
+ 			}
+-			if !x.noPrefilter && x.dim >= 16 {
++			if !x.noPrefilter && x.dim >= 16 && (x.quantLimit < 0 || int(s) < x.quantLimit) {
+ 				x.codes = append(x.codes, make([]byte, x.dim)...)
+ 				x.qf = append(x.qf, 0, 0, 0, 0)
+ 			}
+ 		}
+ 		x.pos[pk] = s
++		x.posRows = max(x.posRows, len(x.pos))
+ 		x.live++
+ 	} else if x.slotList != nil {
+ 		x.unlist(s)
+@@ -185,11 +218,11 @@
+ 	// generic scan over the authoritative table map.
+ 	if x.derivedBytes() > budget {
+ 		x.resetIVF()
+-		x.codes, x.qf, x.qscratch, x.noPrefilter, x.maxScale, x.maxAbs = nil, nil, nil, true, 0, 0
+-		x.qbounds = nil
++		x.dropQuantization()
+ 		if x.derivedBytes() > budget {
+ 			x.Disabled = true
+ 			x.pks, x.off, x.free, x.pos, x.live = nil, nil, nil, nil, 0
++			x.posRows = 0
+ 			x.resetIVF()
+ 			return
+ 		}
+@@ -198,13 +231,12 @@
+ 
+ // quantizeSlot (re)builds the int8 codes of the row in slot s from the
+ // vector stored at x.off[s]. It reuses x.qscratch so bulk inserts do not
+-// allocate once per row. It is a no-op when the prefilter is off. The
+-// defensive growth below keeps the invariant the scan relies on (every
+-// slot owns dim code bytes and one parameter set); upsert extends the
+-// arrays on append, so it should never trigger, but a slot without codes
+-// would let the scan filter on stale data, which must not happen silently.
++// allocate once per row. A frozen tail is never encoded or defensively
++// filled. Only the next consecutive slot can extend the published prefix;
++// updates and free-slot reuse inside that prefix replace its existing code.
+ func (x *VecIndex) quantizeSlot(db *DB, t *Table, s int32) {
+-	if x.noPrefilter || x.dim < 16 {
++	if x.noPrefilter || x.dim < 16 || int(s) > x.quantRows ||
++		(x.quantLimit >= 0 && int(s) >= x.quantLimit) {
+ 		return
+ 	}
+ 	if want := (int(s) + 1) * x.dim; len(x.codes) < want {
+@@ -236,6 +268,9 @@
+ 	if qp.scale > x.maxScale {
+ 		x.maxScale = qp.scale
+ 	}
++	if int(s) == x.quantRows {
++		x.quantRows++
++	}
+ }
+ 
+ // decodeInto reads the vector stored at the given log offset into dst.
+@@ -260,11 +295,13 @@
+ }
+ 
+ // derivedBytes includes slice capacity, since append growth can retain more
+-// storage than the number of live rows. Map cost remains an estimate, as in
+-// indexBytesPerRow; all tables and category blocks share one index budget.
++// storage than the number of live rows. Map cost uses its allocation hint
++// and entry high-water mark: deleting keys does not shrink the Go map. This
++// remains an estimate, as in indexBytesPerRow; all tables and category blocks
++// share one index budget.
+ func (x *VecIndex) derivedBytes() int64 {
+ 	bytes := int64(cap(x.pks)+cap(x.off)+cap(x.qf))*8 +
+-		int64(cap(x.free)+cap(x.qscratch))*4 + int64(len(x.pos))*48 +
++		int64(cap(x.free)+cap(x.qscratch))*4 + int64(max(x.posRows, len(x.pos)))*48 +
+ 		int64(cap(x.codes)) + int64(cap(x.qbounds))*16 + x.catBytes + x.eqBytes
+ 	bytes += int64(cap(x.cents)+cap(x.slotList))*4 + int64(cap(x.lists))*24
+ 	for _, list := range x.lists {

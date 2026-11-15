@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/gofmt", "-w", "/tmp/seekdb-round7/partial-reuse/minivectordb/internal/engine/vecindex.go", "/tmp/seekdb-round7/partial-reuse/minivectordb/internal/engine/partial_reuse_test.go"], "cwd": "/tmp/seekdb-round7/partial-reuse/minivectordb", "start": 1794746457.6529174}
+{"exit_code": 0, "wall_s": 0.010581731796264648}

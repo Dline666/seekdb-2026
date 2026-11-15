@@ -133,7 +133,10 @@ type catBlock struct {
 // (~10k rows at the bench scale, ~3 MB); it runs once per value per index
 // generation.
 func (x *VecIndex) catBlockFor(db *DB, t *Table, col int, val string) *catBlock {
-	if !catBlocksEnabled || x.Disabled || col < 0 || x.codes == nil || x.qf == nil {
+	// A category can contain slots outside a partially encoded prefix.
+	// Keep the full equality set, but do not copy uninitialized codes.
+	if !catBlocksEnabled || x.Disabled || col < 0 || x.codes == nil || x.qf == nil ||
+		x.quantRows < len(x.pks) {
 		return nil
 	}
 	// The map key must own its bytes: val comes from the SQL parser and,

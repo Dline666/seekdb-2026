@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/tmp/seekdb-round7/bin/large",
+    "-bins",
+    "/tmp/seekdb-round7/bin/base,/tmp/seekdb-round7/bin/control",
+    "-fixture",
+    "/tmp/seekdb-round7/smoke-fixture/db/data.log",
+    "-work-dir",
+    "/tmp/seekdb-round7/large-driver-smoke-private",
+    "-rows",
+    "1536",
+    "-dim",
+    "33",
+    "-queries",
+    "6",
+    "-allow-small"
+  ],
+  "start": 1794744253.4829097,
+  "wall_s": 0.13779473304748535,
+  "exit_code": 0
+}

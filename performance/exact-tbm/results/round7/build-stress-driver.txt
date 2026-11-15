@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "build", "-trimpath", "-o", "/tmp/seekdb-round7/bin/stress", "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go"], "cwd": "None", "start": 1794744198.9808865}
+{"exit_code": 0, "wall_s": 0.24777507781982422}

@@ -1,0 +1,48 @@
+{
+  "candidate": "partial-balanced",
+  "stress_label": "partial-balanced-stress-recovered",
+  "candidate_binary": "/tmp/seekdb-round7/bin/partial-balanced",
+  "candidate_sha256": "b190079fe993ad33a0a48006d167a41b98b12bba29c29248c1ae97c5522dd99d",
+  "driver_source": "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go",
+  "driver_source_sha256": "765996745865100ad5d61d230f117a8b9760c799160fbc55d273957382078572",
+  "build_argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/tmp/seekdb-round7/partial-balanced-stress-recovered/stress-driver",
+    "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go"
+  ],
+  "argv": [
+    "/tmp/seekdb-round7/partial-balanced-stress-recovered/stress-driver",
+    "-binary",
+    "/tmp/seekdb-round7/bin/partial-balanced",
+    "-data-dir",
+    "/tmp/seekdb-round7/partial-balanced-stress-recovered",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-queries",
+    "12",
+    "-batch",
+    "64",
+    "-bulk-update",
+    "-recovery-kill-delay",
+    "10ms"
+  ],
+  "data_dir": "/tmp/seekdb-round7/partial-balanced-stress-recovered",
+  "exit_code": 0,
+  "validation_passed": true,
+  "official_submissions": 0,
+  "database_env": [
+    "GOMAXPROCS=2",
+    "GOMEMLIMIT=1288490188",
+    "GOGC=20"
+  ],
+  "build_exit_code": 0,
+  "driver_sha256": "ac3597c0abbb85727647c05af019a3ff2484198264e343de9017cd64f35bc5c0",
+  "start": 1794749756.9780521,
+  "workflow_wall_s": 235.07344770431519,
+  "build_and_workflow_wall_s": 235.49913215637207
+}

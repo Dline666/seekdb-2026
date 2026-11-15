@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/tmp/seekdb-round7/bin/sqlcompare",
+    "-bins",
+    "/tmp/seekdb-round7/bin/partial-balanced",
+    "-fixture",
+    "/tmp/seekdb-round3-stress-final/db/data.log",
+    "-work-dir",
+    "/tmp/seekdb-round7/partial-balanced-capacity-private",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-rounds",
+    "1",
+    "-census-rounds",
+    "1"
+  ],
+  "exit_code": 0,
+  "wall_s": 34.67095494270325
+}

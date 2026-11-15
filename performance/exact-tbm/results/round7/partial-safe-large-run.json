@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/tmp/seekdb-round7/bin/large",
+    "-bins",
+    "/tmp/seekdb-round7/bin/base,/tmp/seekdb-round7/bin/partial-safe",
+    "-fixture",
+    "/tmp/seekdb-round6/heap-stress/db/data.log",
+    "-work-dir",
+    "/tmp/seekdb-round7/partial-safe-large-private",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-queries",
+    "6"
+  ],
+  "start": 1794745072.2535212,
+  "wall_s": 352.8543815612793,
+  "exit_code": 0
+}

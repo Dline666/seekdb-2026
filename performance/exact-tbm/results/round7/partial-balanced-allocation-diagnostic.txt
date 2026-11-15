@@ -1,0 +1,10 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/engine", "-run", "^$", "-bench", "^BenchmarkHeScan(Filtered|Unfiltered)100k$", "-benchtime=1000x", "-benchmem", "-count=1"], "cwd": "/tmp/seekdb-round7/partial-balanced/minivectordb", "start": 1794746275.569688}
+goos: linux
+goarch: amd64
+pkg: minivectordb/internal/engine
+cpu: Intel(R) Core(TM) Ultra 5 125H
+BenchmarkHeScanFiltered100k-2     	    1000	    164332 ns/op	   11918 B/op	      89 allocs/op
+BenchmarkHeScanUnfiltered100k-2   	    1000	   1187750 ns/op	   35497 B/op	     347 allocs/op
+PASS
+ok  	minivectordb/internal/engine	7.395s
+{"exit_code": 0, "wall_s": 8.735153198242188}

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/tmp/seekdb-round7/bin/tbm",
+    "-bins",
+    "base:MVDB_INDEX_MEM_MB=4,partial-balanced:MVDB_INDEX_MEM_MB=4",
+    "-bin-dir",
+    "/tmp/seekdb-round7/bin",
+    "-rows",
+    "10000",
+    "-dim",
+    "1024",
+    "-queries",
+    "500",
+    "-rounds",
+    "5",
+    "-data",
+    "constant",
+    "-seed",
+    "7"
+  ],
+  "exit_code": 0,
+  "start": 1794746146.1495652,
+  "wall_s": 26.38025689125061
+}

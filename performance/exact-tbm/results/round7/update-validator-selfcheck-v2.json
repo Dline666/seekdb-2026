@@ -1,0 +1,96 @@
+{
+  "validator_selfcheck_passed": true,
+  "source_smoke": "/tmp/seekdb-round7/results/update-driver-smoke-v2.jsonl",
+  "not_database_performance_evidence": true,
+  "cases": [
+    {
+      "case": "valid-copy",
+      "valid_copy_passed": true
+    },
+    {
+      "case": "wrong-position",
+      "rejected": true,
+      "reason": "trial_begin: wrong position"
+    },
+    {
+      "case": "missing-update",
+      "rejected": true,
+      "reason": "raw execution order mismatch: expected category_update"
+    },
+    {
+      "case": "wrong-affected",
+      "rejected": true,
+      "reason": "indexed update acknowledgement missing"
+    },
+    {
+      "case": "wrong-census",
+      "rejected": true,
+      "reason": "census ID/count/SQL mismatch"
+    },
+    {
+      "case": "wrong-request",
+      "rejected": true,
+      "reason": "indexed update acknowledgement missing"
+    },
+    {
+      "case": "false-peak",
+      "rejected": true,
+      "reason": "phase peak reset not verified"
+    },
+    {
+      "case": "wrong-log-hash",
+      "rejected": true,
+      "reason": "recovery changed committed log"
+    },
+    {
+      "case": "oom",
+      "rejected": true,
+      "reason": "OOM or missing valid OOM counters"
+    },
+    {
+      "case": "nonzero-process-exit",
+      "rejected": true,
+      "reason": "database exit/acknowledgement mismatch"
+    },
+    {
+      "case": "nonzero-driver-exit",
+      "rejected": true,
+      "reason": "driver failed or did not finish"
+    },
+    {
+      "case": "missing-success",
+      "rejected": true,
+      "reason": "missing config or final success"
+    },
+    {
+      "case": "missing-driver-verification",
+      "rejected": true,
+      "reason": "driver identity verification missing or failed"
+    },
+    {
+      "case": "false-driver-verification",
+      "rejected": true,
+      "reason": "driver identity verification missing or failed"
+    },
+    {
+      "case": "changed-driver",
+      "rejected": true,
+      "reason": "driver identity verification missing or failed"
+    },
+    {
+      "case": "missing-truth-flag",
+      "rejected": true,
+      "reason": "truth validation requires an explicit integer-zero reference_bad"
+    },
+    {
+      "case": "boolean-truth-flag",
+      "rejected": true,
+      "reason": "invalid reference_bad: False"
+    },
+    {
+      "case": "consistent-forged-topk",
+      "rejected": true,
+      "reason": "TopK response hash differs from independent expected rows"
+    }
+  ]
+}

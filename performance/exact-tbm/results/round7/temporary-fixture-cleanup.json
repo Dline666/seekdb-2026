@@ -1,0 +1,23 @@
+{
+  "purpose": "space for large indexed-update and full capacity/recovery checks",
+  "only_completed_private_log_copies_removed": true,
+  "original_source_retained": true,
+  "files": [
+    {
+      "path": "/tmp/seekdb-round7/partial-safe-large-private/db/data.log",
+      "bytes": 4313968692,
+      "sha256": "b73ddf01090e76bc33a094e0d018d3d6b08de4c55ed4f41047206e2d9f9654d2",
+      "recreatable_source": "/tmp/seekdb-round6/heap-stress/db/data.log",
+      "completed_result": "partial-safe-large.jsonl",
+      "removed": true
+    },
+    {
+      "path": "/tmp/seekdb-round7/partial-balanced-vs-safe-large-private/db/data.log",
+      "bytes": 4313968692,
+      "sha256": "b73ddf01090e76bc33a094e0d018d3d6b08de4c55ed4f41047206e2d9f9654d2",
+      "recreatable_source": "/tmp/seekdb-round6/heap-stress/db/data.log",
+      "completed_result": "partial-balanced-vs-safe-large.jsonl",
+      "removed": true
+    }
+  ]
+}

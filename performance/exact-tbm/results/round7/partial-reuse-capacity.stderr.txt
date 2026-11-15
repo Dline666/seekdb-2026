@@ -1,0 +1,5 @@
+panic: work-dir must not exist; use a fresh private directory
+
+goroutine 1 [running]:
+main.main()
+	./main.go:632 +0x3f52

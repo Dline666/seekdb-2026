@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/tmp/seekdb-round7/partial-balanced-stress-recovered/stress-driver",
+    "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/stress/main.go"
+  ],
+  "start": 1794749756.561095
+}

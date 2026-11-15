@@ -136,7 +136,7 @@ func (db *DB) commitTxn(tx *Txn) error {
 			if off == deleted {
 				delete(t.rows, pk)
 				if t.Index != nil {
-					t.Index.remove(pk)
+					t.Index.remove(db, pk)
 				}
 			} else {
 				t.rows[pk] = off

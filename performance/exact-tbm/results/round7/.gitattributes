@@ -1,0 +1,5 @@
+# Preserve raw evidence and its recorded SHA-256 across Windows/Linux checkouts.
+* -text whitespace=cr-at-eol
+*.txt whitespace=-blank-at-eol,cr-at-eol
+# Patch context prefixes precede Go indentation; retain them verbatim.
+*.patch whitespace=-blank-at-eol,-space-before-tab,cr-at-eol

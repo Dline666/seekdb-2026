@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/tmp/seekdb-round7/bin/update",
+    "-bins",
+    "/tmp/seekdb-round7/bin/base,/tmp/seekdb-round7/bin/control",
+    "-work-dir",
+    "/tmp/seekdb-round7/update-driver-smoke-v2-private",
+    "-rows",
+    "2048",
+    "-dim",
+    "1024",
+    "-index-mem-mb",
+    "1",
+    "-batch",
+    "64"
+  ],
+  "start": 1794745878.889992,
+  "wall_s": 5.905503511428833,
+  "exit_code": 0,
+  "driver_identities_before": {
+    "/tmp/seekdb-round7/bin/update": "548963f57efd64deba630f342f92c86861cb28def05fd286b2336e67cd62d36a",
+    "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/round7/update/main.go": "58f0ad3b6763fa230c732d1468c69148156438ec70932227027cc4cf868307e4"
+  },
+  "driver_identities_after": {
+    "/tmp/seekdb-round7/bin/update": "548963f57efd64deba630f342f92c86861cb28def05fd286b2336e67cd62d36a",
+    "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/round7/update/main.go": "58f0ad3b6763fa230c732d1468c69148156438ec70932227027cc4cf868307e4"
+  },
+  "driver_identities_verified": true
+}

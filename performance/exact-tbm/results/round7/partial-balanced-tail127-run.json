@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/tmp/seekdb-round7/bin/tbm",
+    "-bins",
+    "base,partial-balanced",
+    "-bin-dir",
+    "/tmp/seekdb-round7/bin",
+    "-rows",
+    "10000",
+    "-dim",
+    "127",
+    "-queries",
+    "1000",
+    "-rounds",
+    "5",
+    "-data",
+    "uniform",
+    "-seed",
+    "7"
+  ],
+  "exit_code": 0,
+  "start": 1794746100.846391,
+  "wall_s": 8.019203662872314
+}

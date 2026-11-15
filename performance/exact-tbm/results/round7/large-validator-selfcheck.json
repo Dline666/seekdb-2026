@@ -1,0 +1,15 @@
+{
+  "identical_binary_smoke_accepted": true,
+  "reencoded_control_accepted": true,
+  "corruptions_rejected": {
+    "wrong_position": "trial_begin: incorrect position; interleaving or workload changed",
+    "missing_phase": "raw order mismatch at 7: expected cold, got batch_validation",
+    "nonzero_exit": "driver did not exit successfully",
+    "false_peak": "phase peak reset not verified",
+    "wrong_hash": "oracle definition hash mismatch",
+    "wrong_counts": "not every query/row was independently checked",
+    "oom": "OOM or missing valid OOM counters",
+    "request_id": "request IDs are not the actual ordered protocol sequence"
+  },
+  "new_performance_claim": false
+}

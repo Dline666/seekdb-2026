@@ -1,0 +1,577 @@
+{
+  "schema": "seekdb-round7-source-candidates-v1",
+  "created_utc": "2026-11-15T13:34:23.171557+00:00",
+  "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+  "base_matches_commit_after_lf_normalization": true,
+  "selection": {
+    "status": "decided",
+    "selected": "partial-balanced"
+  },
+  "git": {
+    "executable": "git",
+    "version": "git version 2.53.0.windows.1",
+    "host": "Windows"
+  },
+  "snapshot_hash_definition": "SHA256 of UTF-8 JSON path-to-SHA256 map; sorted keys, compact separators",
+  "source_snapshots": {
+    "base": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\base\\minivectordb",
+      "file_count": 74,
+      "raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "recorded_manifest": "build-manifests/base-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\base-source-sha256.json",
+      "recorded_manifest_raw_sha256": "19779dc4f030702e1223eafc15cf9277e1bbf7cb54794bfe1f8aeb82a7a45d51",
+      "recorded_manifest_lf_sha256": "19779dc4f030702e1223eafc15cf9277e1bbf7cb54794bfe1f8aeb82a7a45d51",
+      "matches_recorded_source": true
+    },
+    "partial": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\partial\\minivectordb",
+      "file_count": 76,
+      "raw_snapshot_sha256": "fda62345d27dcf45c9575a85ae78ab620186b942ce126a49de0077882056c773",
+      "lf_snapshot_sha256": "2255b0e9a1c848797791509b9168d13d1e38ee8ac6a0036a4baba3bbf6d40652",
+      "recorded_manifest": "build-manifests/partial-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\partial-source-sha256.json",
+      "recorded_manifest_raw_sha256": "70388f68ed696c64fb69ad4843f379107f8f7affe1531888f47cca7f6e7f393b",
+      "recorded_manifest_lf_sha256": "70388f68ed696c64fb69ad4843f379107f8f7affe1531888f47cca7f6e7f393b",
+      "matches_recorded_source": true
+    },
+    "partial-delete-repro": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\partial-delete-repro\\minivectordb",
+      "file_count": 77,
+      "raw_snapshot_sha256": "63c2c9bf9a508ca26136a6c9513ff89c8401569c5554a9db46594b2e62e48d3f",
+      "lf_snapshot_sha256": "e85352097328c9ccef97f6cc989a951ea44680ddcf108845f806fb25db00ddb4",
+      "recorded_manifest": "build-manifests/partial-delete-repro-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\partial-delete-repro-source-sha256.json",
+      "recorded_manifest_raw_sha256": "e08760f504c9093cec44704226ba76d91bcb55477c7f0aa0035d54e7326f57c4",
+      "recorded_manifest_lf_sha256": "e08760f504c9093cec44704226ba76d91bcb55477c7f0aa0035d54e7326f57c4",
+      "matches_recorded_source": true
+    },
+    "partial-safe": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\partial-safe\\minivectordb",
+      "file_count": 78,
+      "raw_snapshot_sha256": "c8d17e33e8e3f4d7d0d448b39ef5b1322b8575b71a80cf930d4f01050c341c34",
+      "lf_snapshot_sha256": "5fee31dbd8c1fb60f5e096bc857095c4059eee28628bb405b752cbc49ad9ac32",
+      "recorded_manifest": "build-manifests/partial-safe-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\partial-safe-source-sha256.json",
+      "recorded_manifest_raw_sha256": "ab7fb5150a768510890089eab66c7376dfdc2651ac6d386ea3f92edaf7e175ae",
+      "recorded_manifest_lf_sha256": "ab7fb5150a768510890089eab66c7376dfdc2651ac6d386ea3f92edaf7e175ae",
+      "matches_recorded_source": true
+    },
+    "partial-balanced": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\partial-balanced\\minivectordb",
+      "file_count": 79,
+      "raw_snapshot_sha256": "7b5354a0df7f2478319ec16d5ee68e7d61865a87536f584866ab0c743362f3bf",
+      "lf_snapshot_sha256": "06ac4e7daccd4b90309b7261fe2f3e050768b2721460adb4ab4ea1847ecd203e",
+      "recorded_manifest": "build-manifests/partial-balanced-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\partial-balanced-source-sha256.json",
+      "recorded_manifest_raw_sha256": "8f8928f5da95cc9f6f2b0cd7cda2049e5ff748c66de5bd09b66c24097e8b8dda",
+      "recorded_manifest_lf_sha256": "8f8928f5da95cc9f6f2b0cd7cda2049e5ff748c66de5bd09b66c24097e8b8dda",
+      "matches_recorded_source": true
+    },
+    "partial-lean": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\partial-lean\\minivectordb",
+      "file_count": 79,
+      "raw_snapshot_sha256": "2078f687d191349f3119d65f215549f3d026dc2e439ba6801d500d94442dd5fd",
+      "lf_snapshot_sha256": "961379eae0eb5fd6785fb077816ff750c4ab06c7339ecb84eeca144c4d8bcfdf",
+      "recorded_manifest": "build-manifests/partial-lean-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\partial-lean-source-sha256.json",
+      "recorded_manifest_raw_sha256": "7fcc73ca6751d9070dd9f81be183bc3acf12a7245c451172ee4f95c99996b426",
+      "recorded_manifest_lf_sha256": "7fcc73ca6751d9070dd9f81be183bc3acf12a7245c451172ee4f95c99996b426",
+      "matches_recorded_source": true
+    },
+    "partial-reuse": {
+      "source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\partial-reuse\\minivectordb",
+      "file_count": 80,
+      "raw_snapshot_sha256": "f89d6d726fa83d8b4152374cd3c25312ac97f1751688c7476a138d6cc1f4ad8a",
+      "lf_snapshot_sha256": "7c47887179d2b9b7a9d9037ade46aca361e415168cda119de1a8e28a801e4271",
+      "recorded_manifest": "build-manifests/partial-reuse-source-sha256.json",
+      "recorded_manifest_source": "C:\\Users\\27372\\seekdb-round7-rescue-20261115\\results\\partial-reuse-source-sha256.json",
+      "recorded_manifest_raw_sha256": "7e36240ca775241a09f30a2e9b45e39f63578697af792f0646eb5f3e7d8c0ef3",
+      "recorded_manifest_lf_sha256": "7e36240ca775241a09f30a2e9b45e39f63578697af792f0646eb5f3e7d8c0ef3",
+      "matches_recorded_source": true
+    }
+  },
+  "candidates": {
+    "partial": {
+      "status": "failed",
+      "selected": false,
+      "patch": "partial.patch",
+      "patch_sha256": "f7f700216bfd414bf3bb6874709fb5914155c08fd742f5c3ed404ee28f7127e9",
+      "patch_bytes": 31839,
+      "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+      "base_raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "base_lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "candidate_raw_snapshot_sha256": "fda62345d27dcf45c9575a85ae78ab620186b942ce126a49de0077882056c773",
+      "candidate_lf_snapshot_sha256": "2255b0e9a1c848797791509b9168d13d1e38ee8ac6a0036a4baba3bbf6d40652",
+      "snapshot_manifest": "snapshots/partial.json",
+      "git_apply_check": "PASS",
+      "reconstructed_complete_lf_tree_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_raw_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "base_lf_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_raw_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+          "candidate_lf_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_quant_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c",
+          "candidate_lf_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_scan.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793",
+          "candidate_lf_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_raw_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "base_lf_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "candidate_raw_sha256": "1a64fff2b40eb6fae5d99bae98279be44932bd77176d5382bfc216d8e28bb7d1",
+          "candidate_lf_sha256": "1a64fff2b40eb6fae5d99bae98279be44932bd77176d5382bfc216d8e28bb7d1"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_raw_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "base_lf_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_raw_sha256": "0682f26fa37c312ad5cd0da0368e0d59edcc278c4328e8c54d70e9eefd840a15",
+          "candidate_lf_sha256": "0682f26fa37c312ad5cd0da0368e0d59edcc278c4328e8c54d70e9eefd840a15"
+        }
+      ]
+    },
+    "partial-delete-repro": {
+      "status": "failed",
+      "selected": false,
+      "patch": "partial-delete-repro.patch",
+      "patch_sha256": "b084ff59f8ad1823dadc5e0261fc98dceb3b0b78e717f98072c58ea68a47062e",
+      "patch_bytes": 34964,
+      "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+      "base_raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "base_lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "candidate_raw_snapshot_sha256": "63c2c9bf9a508ca26136a6c9513ff89c8401569c5554a9db46594b2e62e48d3f",
+      "candidate_lf_snapshot_sha256": "e85352097328c9ccef97f6cc989a951ea44680ddcf108845f806fb25db00ddb4",
+      "snapshot_manifest": "snapshots/partial-delete-repro.json",
+      "git_apply_check": "PASS",
+      "reconstructed_complete_lf_tree_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_raw_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "base_lf_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_raw_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+          "candidate_lf_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_delete_budget_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "7a706852a8ec74dcf614d1c0f00ad9807cc045ca229693a9821defaba8669d84",
+          "candidate_lf_sha256": "7a706852a8ec74dcf614d1c0f00ad9807cc045ca229693a9821defaba8669d84"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_quant_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c",
+          "candidate_lf_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_scan.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793",
+          "candidate_lf_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_raw_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "base_lf_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "candidate_raw_sha256": "1a64fff2b40eb6fae5d99bae98279be44932bd77176d5382bfc216d8e28bb7d1",
+          "candidate_lf_sha256": "1a64fff2b40eb6fae5d99bae98279be44932bd77176d5382bfc216d8e28bb7d1"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_raw_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "base_lf_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_raw_sha256": "0682f26fa37c312ad5cd0da0368e0d59edcc278c4328e8c54d70e9eefd840a15",
+          "candidate_lf_sha256": "0682f26fa37c312ad5cd0da0368e0d59edcc278c4328e8c54d70e9eefd840a15"
+        }
+      ]
+    },
+    "partial-safe": {
+      "status": "rejected",
+      "selected": false,
+      "patch": "partial-safe.patch",
+      "patch_sha256": "131d26550d897e633b22ec3311e31167b336147be62a5e68c22781b76e3dfa0d",
+      "patch_bytes": 40899,
+      "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+      "base_raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "base_lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "candidate_raw_snapshot_sha256": "c8d17e33e8e3f4d7d0d448b39ef5b1322b8575b71a80cf930d4f01050c341c34",
+      "candidate_lf_snapshot_sha256": "5fee31dbd8c1fb60f5e096bc857095c4059eee28628bb405b752cbc49ad9ac32",
+      "snapshot_manifest": "snapshots/partial-safe.json",
+      "git_apply_check": "PASS",
+      "reconstructed_complete_lf_tree_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_raw_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "base_lf_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_raw_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+          "candidate_lf_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_delete_budget_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8",
+          "candidate_lf_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_growth_boundary_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c",
+          "candidate_lf_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_quant_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c",
+          "candidate_lf_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_scan.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793",
+          "candidate_lf_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_raw_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "base_lf_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "candidate_raw_sha256": "1a64fff2b40eb6fae5d99bae98279be44932bd77176d5382bfc216d8e28bb7d1",
+          "candidate_lf_sha256": "1a64fff2b40eb6fae5d99bae98279be44932bd77176d5382bfc216d8e28bb7d1"
+        },
+        {
+          "path": "minivectordb/internal/engine/txn.go",
+          "action": "modified",
+          "base_raw_sha256": "5beeeda3c331afe2ebc24244e67b7a14102a8c2af525f5e8f78d2c8aebcc467a",
+          "base_lf_sha256": "99225fd7898c351faa384ded7f0d5893b383860872a3a2f693d904a8cf66e4bf",
+          "candidate_raw_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040",
+          "candidate_lf_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_raw_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "base_lf_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_raw_sha256": "421b6544ac0c3807b6c74152693ad18e374aaaef89acfd83affa6b4b5d99eb3f",
+          "candidate_lf_sha256": "421b6544ac0c3807b6c74152693ad18e374aaaef89acfd83affa6b4b5d99eb3f"
+        }
+      ]
+    },
+    "partial-balanced": {
+      "status": "selected",
+      "selected": true,
+      "patch": "partial-balanced.patch",
+      "patch_sha256": "6a1edb0c94f6a262b3075f934e54d9be4c9e724f7faedcaac7cc9f156e4ce8e3",
+      "patch_bytes": 47452,
+      "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+      "base_raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "base_lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "candidate_raw_snapshot_sha256": "7b5354a0df7f2478319ec16d5ee68e7d61865a87536f584866ab0c743362f3bf",
+      "candidate_lf_snapshot_sha256": "06ac4e7daccd4b90309b7261fe2f3e050768b2721460adb4ab4ea1847ecd203e",
+      "snapshot_manifest": "snapshots/partial-balanced.json",
+      "git_apply_check": "PASS",
+      "reconstructed_complete_lf_tree_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_raw_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "base_lf_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_raw_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+          "candidate_lf_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_balanced_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "5be68e312b7830dac8a7f04383836724128fe650b9ff759ae8d1c7bbc80e56b8",
+          "candidate_lf_sha256": "5be68e312b7830dac8a7f04383836724128fe650b9ff759ae8d1c7bbc80e56b8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_delete_budget_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8",
+          "candidate_lf_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_growth_boundary_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c",
+          "candidate_lf_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_quant_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c",
+          "candidate_lf_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_scan.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793",
+          "candidate_lf_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_raw_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "base_lf_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "candidate_raw_sha256": "a4fc7866c391c7ce641d0ac8ab61576d238989b9dae71e33d2c30a7baa223297",
+          "candidate_lf_sha256": "a4fc7866c391c7ce641d0ac8ab61576d238989b9dae71e33d2c30a7baa223297"
+        },
+        {
+          "path": "minivectordb/internal/engine/txn.go",
+          "action": "modified",
+          "base_raw_sha256": "5beeeda3c331afe2ebc24244e67b7a14102a8c2af525f5e8f78d2c8aebcc467a",
+          "base_lf_sha256": "99225fd7898c351faa384ded7f0d5893b383860872a3a2f693d904a8cf66e4bf",
+          "candidate_raw_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040",
+          "candidate_lf_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_raw_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "base_lf_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_raw_sha256": "421b6544ac0c3807b6c74152693ad18e374aaaef89acfd83affa6b4b5d99eb3f",
+          "candidate_lf_sha256": "421b6544ac0c3807b6c74152693ad18e374aaaef89acfd83affa6b4b5d99eb3f"
+        }
+      ]
+    },
+    "partial-lean": {
+      "status": "rejected",
+      "selected": false,
+      "patch": "partial-lean.patch",
+      "patch_sha256": "bc3a5f7b70526f5bd3bcf930786d7251af9e1e132f510f5db06f74ec32a607f5",
+      "patch_bytes": 47590,
+      "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+      "base_raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "base_lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "candidate_raw_snapshot_sha256": "2078f687d191349f3119d65f215549f3d026dc2e439ba6801d500d94442dd5fd",
+      "candidate_lf_snapshot_sha256": "961379eae0eb5fd6785fb077816ff750c4ab06c7339ecb84eeca144c4d8bcfdf",
+      "snapshot_manifest": "snapshots/partial-lean.json",
+      "git_apply_check": "PASS",
+      "reconstructed_complete_lf_tree_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_raw_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "base_lf_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_raw_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+          "candidate_lf_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_balanced_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "5be68e312b7830dac8a7f04383836724128fe650b9ff759ae8d1c7bbc80e56b8",
+          "candidate_lf_sha256": "5be68e312b7830dac8a7f04383836724128fe650b9ff759ae8d1c7bbc80e56b8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_delete_budget_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8",
+          "candidate_lf_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_growth_boundary_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c",
+          "candidate_lf_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_quant_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c",
+          "candidate_lf_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_scan.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793",
+          "candidate_lf_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_raw_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "base_lf_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "candidate_raw_sha256": "678a81c8dd62de1dd69c9bae8abeceeacbc625498ba99bafcec0656aec47ae55",
+          "candidate_lf_sha256": "678a81c8dd62de1dd69c9bae8abeceeacbc625498ba99bafcec0656aec47ae55"
+        },
+        {
+          "path": "minivectordb/internal/engine/txn.go",
+          "action": "modified",
+          "base_raw_sha256": "5beeeda3c331afe2ebc24244e67b7a14102a8c2af525f5e8f78d2c8aebcc467a",
+          "base_lf_sha256": "99225fd7898c351faa384ded7f0d5893b383860872a3a2f693d904a8cf66e4bf",
+          "candidate_raw_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040",
+          "candidate_lf_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_raw_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "base_lf_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_raw_sha256": "421b6544ac0c3807b6c74152693ad18e374aaaef89acfd83affa6b4b5d99eb3f",
+          "candidate_lf_sha256": "421b6544ac0c3807b6c74152693ad18e374aaaef89acfd83affa6b4b5d99eb3f"
+        }
+      ]
+    },
+    "partial-reuse": {
+      "status": "rejected",
+      "selected": false,
+      "patch": "partial-reuse.patch",
+      "patch_sha256": "7bcd64ea097f771f3c6dd3ec4a2be1145cf13e63e3e22d4c119054592eca51f2",
+      "patch_bytes": 61288,
+      "baseline_commit": "4a257014c9f43fd1dbb86b008d32cd93303b4d94",
+      "base_raw_snapshot_sha256": "b2a869414ece9585f0a562049e9aed869fc1c02ad7da6f952988da738ea4ae80",
+      "base_lf_snapshot_sha256": "7cba71188acb61c9d97d4ef1e5422c72b783cf667f87e3164e973dc6e094bea5",
+      "candidate_raw_snapshot_sha256": "f89d6d726fa83d8b4152374cd3c25312ac97f1751688c7476a138d6cc1f4ad8a",
+      "candidate_lf_snapshot_sha256": "7c47887179d2b9b7a9d9037ade46aca361e415168cda119de1a8e28a801e4271",
+      "snapshot_manifest": "snapshots/partial-reuse.json",
+      "git_apply_check": "PASS",
+      "reconstructed_complete_lf_tree_matches": true,
+      "changed_files": [
+        {
+          "path": "minivectordb/internal/engine/eqset.go",
+          "action": "modified",
+          "base_raw_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "base_lf_sha256": "a33240ed84b64a53e7d9c5b1d0fbfd71eb204fc8c0d7dc4b71270f4edc6951b8",
+          "candidate_raw_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+          "candidate_lf_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_balanced_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "5be68e312b7830dac8a7f04383836724128fe650b9ff759ae8d1c7bbc80e56b8",
+          "candidate_lf_sha256": "5be68e312b7830dac8a7f04383836724128fe650b9ff759ae8d1c7bbc80e56b8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_delete_budget_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8",
+          "candidate_lf_sha256": "548c7199b39cc75396b7c715595dd56fce3222e67550d88706ca2bec1a59e5d8"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_growth_boundary_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c",
+          "candidate_lf_sha256": "46d539abc78c8b06da4deab4d08c103f3ea079560df677d684a424afaa99301c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_quant_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c",
+          "candidate_lf_sha256": "fdf171b4402ef410cb78fde76e7fb3e1485d97f2440cfa50f39a181578722c1c"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_reuse_test.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "ea545f42e009269b0f4b2c960167abbe6067e08828c4fc7417e535feba3b7f5b",
+          "candidate_lf_sha256": "ea545f42e009269b0f4b2c960167abbe6067e08828c4fc7417e535feba3b7f5b"
+        },
+        {
+          "path": "minivectordb/internal/engine/partial_scan.go",
+          "action": "added",
+          "base_raw_sha256": null,
+          "base_lf_sha256": null,
+          "candidate_raw_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793",
+          "candidate_lf_sha256": "8ae7f30c07fcf245ec00f64f8f8fcfc478934052f424758f058e3448120bf793"
+        },
+        {
+          "path": "minivectordb/internal/engine/topk.go",
+          "action": "modified",
+          "base_raw_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "base_lf_sha256": "2fabe7bd0d9c2f27732788033743fade3ff81354527098254544ecbafa61a8fb",
+          "candidate_raw_sha256": "a4fc7866c391c7ce641d0ac8ab61576d238989b9dae71e33d2c30a7baa223297",
+          "candidate_lf_sha256": "a4fc7866c391c7ce641d0ac8ab61576d238989b9dae71e33d2c30a7baa223297"
+        },
+        {
+          "path": "minivectordb/internal/engine/txn.go",
+          "action": "modified",
+          "base_raw_sha256": "5beeeda3c331afe2ebc24244e67b7a14102a8c2af525f5e8f78d2c8aebcc467a",
+          "base_lf_sha256": "99225fd7898c351faa384ded7f0d5893b383860872a3a2f693d904a8cf66e4bf",
+          "candidate_raw_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040",
+          "candidate_lf_sha256": "45f8cda69cfbc6bb05f3f799f02b637ba66b8e60f70bf2b3a21b42536d6bc040"
+        },
+        {
+          "path": "minivectordb/internal/engine/vecindex.go",
+          "action": "modified",
+          "base_raw_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "base_lf_sha256": "1743a9bf7ee4b239b747a878caa92ee629a51d4131e254daa15cc8da3e2e4c0b",
+          "candidate_raw_sha256": "1f9066bedc543a397039df4dc06ced6f40d3445cae0e56554938a726355e96c3",
+          "candidate_lf_sha256": "1f9066bedc543a397039df4dc06ced6f40d3445cae0e56554938a726355e96c3"
+        }
+      ]
+    }
+  },
+  "scope": "Complete source-content diffs only; no builds, tests, binaries, fixtures, result logs, push or formal submission.",
+  "validation_limit": "Patch reconstruction proves source reproducibility, not test success or a performance score."
+}

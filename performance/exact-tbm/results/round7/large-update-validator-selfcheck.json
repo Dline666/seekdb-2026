@@ -1,0 +1,151 @@
+{
+  "validator_selfcheck_passed": true,
+  "source_smoke": "/tmp/seekdb-round7/results/large-update-driver-smoke-v2.jsonl",
+  "not_database_performance_evidence": true,
+  "cases": [
+    {
+      "case": "valid-copy",
+      "valid_copy_passed": true
+    },
+    {
+      "case": "wrong-position",
+      "rejected": true,
+      "reason": "trial_begin: incorrect position"
+    },
+    {
+      "case": "missing-update",
+      "rejected": true,
+      "reason": "raw order mismatch: expected category_update, got post_update"
+    },
+    {
+      "case": "wrong-affected",
+      "rejected": true,
+      "reason": "indexed UPDATE confirmation incomplete"
+    },
+    {
+      "case": "wrong-census",
+      "rejected": true,
+      "reason": "census independent truth/count/hash mismatch"
+    },
+    {
+      "case": "wrong-request",
+      "rejected": true,
+      "reason": "indexed UPDATE confirmation incomplete"
+    },
+    {
+      "case": "false-peak",
+      "rejected": true,
+      "reason": "phase peak reset not verified"
+    },
+    {
+      "case": "zero-durable-writes",
+      "rejected": true,
+      "reason": "durable UPDATE physical writes do not cover actual appended log bytes minus one page"
+    },
+    {
+      "case": "wrong-growth",
+      "rejected": true,
+      "reason": "invalid log_growth_bytes: 0"
+    },
+    {
+      "case": "false-write-verification",
+      "rejected": true,
+      "reason": "durable UPDATE physical writes do not cover actual appended log bytes minus one page"
+    },
+    {
+      "case": "false-producer-cgroup",
+      "rejected": true,
+      "reason": "private inode must be created and streamed/synced inside the database cgroup"
+    },
+    {
+      "case": "wrong-producer-cgroup",
+      "rejected": true,
+      "reason": "private inode must be created and streamed/synced inside the database cgroup"
+    },
+    {
+      "case": "wrong-reset-cgroup",
+      "rejected": true,
+      "reason": "private truncate/sync/full-hash reset incomplete or performed outside database cgroup"
+    },
+    {
+      "case": "wrong-prefix-hash",
+      "rejected": true,
+      "reason": "unsafe/incomplete original-prefix verification"
+    },
+    {
+      "case": "wrong-restored-hash",
+      "rejected": true,
+      "reason": "private truncate/sync/full-hash reset incomplete or performed outside database cgroup"
+    },
+    {
+      "case": "unsynced-reset",
+      "rejected": true,
+      "reason": "private truncate/sync/full-hash reset incomplete or performed outside database cgroup"
+    },
+    {
+      "case": "reset-before-prefix",
+      "rejected": true,
+      "reason": "raw order mismatch: expected prefix_verified, got fixture_restored"
+    },
+    {
+      "case": "missing-prefix",
+      "rejected": true,
+      "reason": "raw order mismatch: expected prefix_verified, got fixture_restored"
+    },
+    {
+      "case": "false-private-inode",
+      "rejected": true,
+      "reason": "unsafe/incomplete original-prefix verification"
+    },
+    {
+      "case": "warm-pages",
+      "rejected": true,
+      "reason": "private fixture was not cold"
+    },
+    {
+      "case": "oom",
+      "rejected": true,
+      "reason": "OOM or missing valid OOM counters"
+    },
+    {
+      "case": "oom-group",
+      "rejected": true,
+      "reason": "cgroup OOM group kill"
+    },
+    {
+      "case": "nonzero-process-exit",
+      "rejected": true,
+      "reason": "database did not exit cleanly"
+    },
+    {
+      "case": "nonzero-driver-exit",
+      "rejected": true,
+      "reason": "driver did not exit successfully"
+    },
+    {
+      "case": "missing-driver-verification",
+      "rejected": true,
+      "reason": "driver/source identity verification missing or failed"
+    },
+    {
+      "case": "changed-driver",
+      "rejected": true,
+      "reason": "driver/source identity verification missing or failed"
+    },
+    {
+      "case": "missing-truth-flag",
+      "rejected": true,
+      "reason": "truth record requires explicit integer-zero reference_bad"
+    },
+    {
+      "case": "wrong-topk-hash",
+      "rejected": true,
+      "reason": "TopK truth/hash/count mismatch"
+    },
+    {
+      "case": "missing-success",
+      "rejected": true,
+      "reason": "missing config or final success"
+    }
+  ]
+}

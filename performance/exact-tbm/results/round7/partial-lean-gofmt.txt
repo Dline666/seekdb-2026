@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/gofmt", "-w", "/tmp/seekdb-round7/partial-lean/minivectordb/internal/engine/topk.go"], "cwd": "/tmp/seekdb-round7/partial-lean/minivectordb", "start": 1794746255.078287}
+{"exit_code": 0, "wall_s": 0.011227130889892578}

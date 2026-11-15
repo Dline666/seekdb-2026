@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/gofmt", "-w", "/tmp/seekdb-round7/partial-safe/minivectordb/internal/engine/partial_growth_boundary_test.go"], "cwd": "/tmp/seekdb-round7/partial-safe/minivectordb", "start": 1794744857.711648}
+{"exit_code": 0, "wall_s": 0.006564140319824219}

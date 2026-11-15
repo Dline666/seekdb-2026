@@ -1,0 +1,52 @@
+{
+  "failed_label": "partial-balanced-stress",
+  "status": "recovered_full_stress_passed",
+  "observed_failure": {
+    "driver_exit_code_reported": 2,
+    "runner_exception": "OSError: [Errno 30] Read-only file system",
+    "new_wsl_process_error": "Wsl/Service/CreateInstance/E_FAIL",
+    "last_complete_progress_rows": 192000,
+    "required_rows": 550000,
+    "failed_phase": "write",
+    "run_and_summary_json_bytes": 0,
+    "raw_jsonl_contains_trailing_nuls": true
+  },
+  "root_cause": "Undetermined. Low free space on the Windows host D: drive was observed after failure, but there is no retained kernel evidence proving ENOSPC or a device error caused the read-only filesystem.",
+  "original_environment": {
+    "distro": "ArchBench",
+    "vhdx": "D:/TerminalBench/Arch/ext4.vhdx",
+    "vhdx_bytes": 55102668800,
+    "host_d_free_bytes_after_failure": 3787300864,
+    "original_vhd_retained": true
+  },
+  "recovery": {
+    "small_artifact_backup": "C:/Users/27372/seekdb-round7-rescue-20261115",
+    "verified_backup_files": 787,
+    "backup_bytes": 45557084,
+    "procedure": [
+      "Copied source snapshots, binaries, results and STATE.json over WSL UNC and verified all file SHA-256 hashes.",
+      "Terminated the failed test distribution; copied its VHDX to C: without modifying or deleting the D: original.",
+      "Registered copied VHDX as ArchBenchRound7; filesystem mounted read-write without manual repair or remount.",
+      "Verified all 787 rescued file hashes again in the recovered distribution.",
+      "Started a fresh complete stress workflow using a new label and directory; original failed evidence remains byte-for-byte archived."
+    ],
+    "distro": "ArchBenchRound7",
+    "vhdx": "C:/Users/27372/WSL/ArchBenchRound7/ext4.vhdx",
+    "kernel": "6.18.58.1-microsoft-standard-WSL2",
+    "linux_available_bytes_before_rerun": 9466564608,
+    "candidate_sha256": "b190079fe993ad33a0a48006d167a41b98b12bba29c29248c1ae97c5522dd99d"
+  },
+  "interpretation": "The recovered run is a capacity/exact/transaction/crash-recovery check. Its T/B/M must not be pooled with the original interleaved performance comparisons because host storage changed.",
+  "failed_artifacts": "failed-attempts/partial-balanced-stress",
+  "diagnostics": "stress-recovery-environment.json",
+  "official_submissions": 0,
+  "successful_rerun_label": "partial-balanced-stress-recovered",
+  "rerun_summary_file": "partial-balanced-stress-recovered-summary.json",
+  "rerun_artifact_sha256": {
+    "partial-balanced-stress-recovered-build.txt": "6fa6c77603448aa7716d4f666c41d4e6313df54f5f55ffa428fb40e773b5ba07",
+    "partial-balanced-stress-recovered-run.json": "d487b1786ac17510332869fe2bc496d6f136b250b40103eb9855b8aa1ee0ef96",
+    "partial-balanced-stress-recovered-summary.json": "d6857b627332cfc2250a3f4ce507df3b7c8d7d21eb80209f97d9795ce277750c",
+    "partial-balanced-stress-recovered.jsonl": "e72195db4198ee4b388bf8aa89493da77c183e672df50204fc72d77909edfe04",
+    "partial-balanced-stress-recovered.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

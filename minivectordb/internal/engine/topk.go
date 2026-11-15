@@ -14,6 +14,9 @@ import (
 var fusedBatches atomic.Int64
 var fusedCandidateBatches atomic.Int64
 
+// Counts workers assigned nonempty coded and uncoded ranges, for path tests.
+var partialBalancedWorkers atomic.Int64
+
 // dbgScanGatherRows / dbgScanExactRows / dbgPrefilterRuns are diagnostics
 // for the multi-pass scan (worker h-b): rows gathered into batches, rows
 // that survive the prefilter to the exact kernel, and batches where the
@@ -285,13 +288,16 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	// slot order against the same bound, so the result equals the per-row
 	// visit exactly.
 	gather := batchScan && useSIMD && base != nil && t.Dim >= 16
-	// prefilterOK gates the int8 prefilter. The length checks are the
-	// memory-safety net for the kernel: every live slot must own dim code
-	// bytes and one parameter set, so codes[slot*dim:slot*dim+dim] is in
-	// range for every slot the scan can visit.
-	prefilterOK := gather && prefilterEnabled && qok && t.Dim <= maxInt8Dim && x.codes != nil &&
-		len(x.codes) >= len(x.pks)*t.Dim && len(x.qf) >= len(x.pks)*4 &&
-		len(x.qbounds) >= (len(x.pks)+quantBlockRows-1)/quantBlockRows
+	// Only quantRows initialized slots may reach a quantized kernel. Full
+	// coverage keeps the existing fused paths; partial coverage separately
+	// gathers coded rows and always computes the uncovered tail exactly.
+	quantRows := x.quantRows
+	prefilterReady := gather && prefilterEnabled && qok && t.Dim <= maxInt8Dim &&
+		quantRows > 0 && quantRows <= len(x.pks) &&
+		len(x.codes) >= quantRows*t.Dim && len(x.qf) >= quantRows*4 &&
+		len(x.qbounds) >= (quantRows+quantBlockRows-1)/quantBlockRows
+	prefilterOK := prefilterReady && quantRows == len(x.pks)
+	partialPrefilterOK := prefilterReady && quantRows < len(x.pks)
 	// fusedOK gates the fused single-pass scan kernel (fusedScanInt8),
 	// which folds the gather loop, the coffs multiply, the integer dot
 	// kernel, the dequantization and the threshold loop into one pass over
@@ -542,6 +548,9 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 					offs[m], pks[m], rows[m] = offs[j], pks[j], rows[j]
 					m++
 				}
+			} else if partialPrefilterOK && len(tk.h) >= tk.k {
+				m = x.filterPartialBatch(qc, qc6, qSum, qNorm2, qmin, qscale,
+					tk.bound(), slots[:n], offs[:n], pks[:n], rows[:n])
 			}
 			dbgScanExactRows.Add(int64(m))
 			l2sqGatherBytes(qw, base, offs[:m], out[:m])
@@ -559,16 +568,37 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 			}
 		}
 	} else if workers := scanWorkers(scanWork); workers > 1 {
+		// A coded row usually costs less than an uncoded exact row. Divide
+		// each region separately while keeping its ranges consecutive. Each
+		// worker carries its own heap from its coded range into its tail range.
+		cut, balanced := quantRows, partialPrefilterOK
+		if balanced && useCand {
+			cut, balanced = partialCandidateCut(cand, quantRows)
+		}
+		balanced = balanced && cut > 0 && cut < n
 		parts := make([]*topK, workers)
 		var wg sync.WaitGroup
 		for w := 0; w < workers; w++ {
 			lo, hi := n*w/workers, n*(w+1)/workers
+			var codedLo, codedHi, tailLo, tailHi int
+			if balanced {
+				codedLo, codedHi = cut*w/workers, cut*(w+1)/workers
+				tailLo, tailHi = cut+(n-cut)*w/workers, cut+(n-cut)*(w+1)/workers
+			}
 			p := &topK{k: k, pred: pred, db: db, h: make(hitHeap, 0, k+1)}
 			parts[w] = p
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				scan(p, lo, hi)
+				if balanced {
+					if codedLo < codedHi && tailLo < tailHi {
+						partialBalancedWorkers.Add(1)
+					}
+					scan(p, codedLo, codedHi)
+					scan(p, tailLo, tailHi)
+				} else {
+					scan(p, lo, hi)
+				}
 			}()
 		}
 		wg.Wait()
@@ -589,6 +619,27 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	}
 	offs, dists := tk.result()
 	return offs, dists, true
+}
+
+// partialCandidateCut finds the first uncoded candidate only after proving
+// that source slots are strictly increasing. An unexpected order keeps the
+// original partitioning and the per-slot partial filter, preserving coverage.
+func partialCandidateCut(cand []int32, quantRows int) (int, bool) {
+	for i := 1; i < len(cand); i++ {
+		if cand[i] <= cand[i-1] {
+			return 0, false
+		}
+	}
+	lo, hi := 0, len(cand)
+	for lo < hi {
+		mid := lo + (hi-lo)/2
+		if int(cand[mid]) < quantRows {
+			lo = mid + 1
+		} else {
+			hi = mid
+		}
+	}
+	return lo, true
 }
 
 // eqFilterSpec is a WHERE conjunct "varchar_column = 'constant'".

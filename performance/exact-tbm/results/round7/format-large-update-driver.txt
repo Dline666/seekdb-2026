@@ -1,0 +1,2 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/gofmt", "-w", "/mnt/c/Users/27372/seekdb-review-avx-fix/performance/exact-tbm/round7/large_update/main.go"], "cwd": "None", "start": 1794747609.0841806}
+{"exit_code": 0, "wall_s": 0.034203529357910156}

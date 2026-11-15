@@ -1,0 +1,13 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/engine", "-run", "^TestPartialQuantDeleteEnforcesBudget$", "-count=1", "-v"], "cwd": "/tmp/seekdb-round7/partial-delete-repro/minivectordb", "start": 1794744723.9700599}
+=== RUN   TestPartialQuantDeleteEnforcesBudget
+=== RUN   TestPartialQuantDeleteEnforcesBudget/full-quantization
+    partial_delete_budget_test.go:46: aggregate derived bytes 5272 exceed budget 5264
+=== RUN   TestPartialQuantDeleteEnforcesBudget/slots-only
+    partial_delete_budget_test.go:46: aggregate derived bytes 2568 exceed budget 2560
+--- FAIL: TestPartialQuantDeleteEnforcesBudget (0.01s)
+    --- FAIL: TestPartialQuantDeleteEnforcesBudget/full-quantization (0.01s)
+    --- FAIL: TestPartialQuantDeleteEnforcesBudget/slots-only (0.01s)
+FAIL
+FAIL	minivectordb/internal/engine	0.013s
+FAIL
+{"exit_code": 1, "wall_s": 1.6719565391540527}
