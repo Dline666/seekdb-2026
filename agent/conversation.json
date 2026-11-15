@@ -12,8 +12,8 @@
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-prompt",
     "code_baseline_commit": "4065be7e119dcb937d596fdb141a208fdc025ca4",
-    "code_changes_in_this_submission": "在上述基线之上只补了两处：其一是 CREATE VECTOR INDEX 的重复判定只认显式索引（官方评测报告指出的 D1：先做 TopK 查询再建显式索引会误报 table_exists），并补了两个回归测试；其二是 Dockerfile 把基础镜像钉到 digest、Go 包钉到确切版本。除此之外没有其它运行时行为变更。",
-    "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；上面两处修复是在这个基线上补的。",
+    "code_changes_in_this_submission": "在上述基准之上只补了一处：Dockerfile 把基础镜像钉到 digest、Go 包钉到确切版本（含版本回退兜底与 go version 断言）。引擎代码与该基准逐字相同，本次没有改动任何运行时行为。",
+    "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；本次提交不改动引擎代码，上面那处 Dockerfile 依赖锁定是在这个基线上补的。",
     "source_threads": [
       {
         "title": "astra",
