@@ -1,11 +1,9 @@
 package engine
 
 import (
-	"container/heap"
 	"math"
 	"os"
 	"runtime"
-	"sort"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -52,15 +50,36 @@ func worse(a, b hit) bool {
 
 type hitHeap []hit // max-heap: the worst hit on top
 
-func (h hitHeap) Len() int           { return len(h) }
-func (h hitHeap) Less(i, j int) bool { return worse(h[i], h[j]) }
-func (h hitHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *hitHeap) Push(x any)        { *h = append(*h, x.(hit)) }
-func (h *hitHeap) Pop() any {
-	o := *h
-	x := o[len(o)-1]
-	*h = o[:len(o)-1]
-	return x
+// push keeps hits typed throughout admission, avoiding an interface box for
+// every initial heap entry.
+func (h *hitHeap) push(c hit) {
+	*h = append(*h, c)
+	for j := len(*h) - 1; j > 0; {
+		i := (j - 1) / 2
+		if !worse((*h)[j], (*h)[i]) {
+			break
+		}
+		(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
+		j = i
+	}
+}
+
+// down restores the worst-first heap in h[:n] after replacing its root.
+func (h hitHeap) down(i, n int) {
+	for {
+		j := 2*i + 1
+		if j >= n || j < 0 {
+			break
+		}
+		if right := j + 1; right < n && worse(h[right], h[j]) {
+			j = right
+		}
+		if !worse(h[j], h[i]) {
+			break
+		}
+		h[i], h[j] = h[j], h[i]
+		i = j
+	}
 }
 
 type topK struct {
@@ -97,18 +116,23 @@ func (t *topK) admit(d float64, pk, off int64) {
 	}
 	if full {
 		t.h[0] = c
-		heap.Fix(&t.h, 0)
+		t.h.down(0, len(t.h))
 	} else {
-		heap.Push(&t.h, c)
+		t.h.push(c)
 	}
 }
 
 func (t *topK) result() ([]int64, []float64) {
-	hs := []hit(t.h)
-	sort.Slice(hs, func(i, j int) bool { return worse(hs[j], hs[i]) })
-	out := make([]int64, len(hs))
-	dists := make([]float64, len(hs))
-	for i, h := range hs {
+	// The scan already built a max-heap. Moving its worst hit to the end
+	// repeatedly produces ascending (distance, pk) order without reflection.
+	// As before, result consumes the heap ordering.
+	for end := len(t.h) - 1; end > 0; end-- {
+		t.h[0], t.h[end] = t.h[end], t.h[0]
+		t.h.down(0, end)
+	}
+	out := make([]int64, len(t.h))
+	dists := make([]float64, len(t.h))
+	for i, h := range t.h {
 		out[i] = h.off
 		dists[i] = h.d
 	}
