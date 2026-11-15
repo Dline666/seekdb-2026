@@ -139,21 +139,36 @@ func parseFast(b []byte) (*Request, bool) {
 	return &r, true
 }
 
-// validStringBytes skips eight printable ASCII bytes at a time. Non-ASCII
-// and short tails use the ordinary validation, including encoding/json's
-// requirement that the fast path reject invalid UTF-8 for its slow fallback.
+// validStringBytes skips eight printable ASCII bytes at a time and resumes
+// the skip after each non-ASCII rune, so a few Chinese characters do not
+// turn the check byte-at-a-time for the rest of the string. The SWAR test
+// also trips on 0x7F..0xFF and on bytes below 0x20; those fall to the
+// per-byte branch, which enforces encoding/json's requirement that the fast
+// path reject invalid UTF-8 and control bytes for its slow fallback.
 func validStringBytes(b []byte) bool {
-	for len(b) >= 8 {
-		w := binary.LittleEndian.Uint64(b)
-		if ((w-0x2020202020202020)|w)&0x8080808080808080 != 0 {
-			break
+	for {
+		for len(b) >= 8 {
+			w := binary.LittleEndian.Uint64(b)
+			if ((w-0x2020202020202020)|w)&0x8080808080808080 != 0 {
+				break
+			}
+			b = b[8:]
 		}
-		b = b[8:]
-	}
-	for _, c := range b {
+		if len(b) == 0 {
+			return true
+		}
+		c := b[0]
 		if c < 0x20 {
 			return false
 		}
+		if c < utf8.RuneSelf {
+			b = b[1:]
+			continue
+		}
+		r, size := utf8.DecodeRune(b)
+		if r == utf8.RuneError && size == 1 {
+			return false
+		}
+		b = b[size:]
 	}
-	return utf8.Valid(b)
 }
