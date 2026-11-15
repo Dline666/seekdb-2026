@@ -415,3 +415,22 @@ func BenchmarkParseVectorWorkload(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkParseVectorWorkloadSpaced is the same workload shape joined with
+// ", ", the separator form many clients emit.
+func BenchmarkParseVectorWorkloadSpaced(b *testing.B) {
+	rng := rand.New(rand.NewSource(3))
+	lit := make([]string, 128)
+	for i := range lit {
+		lit[i] = strconv.FormatFloat(float64(float32(rng.NormFloat64())), 'f', -1, 64)
+	}
+	s := "[" + strings.Join(lit, ", ") + "]"
+	b.SetBytes(int64(len(s)))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		v, err := ParseVector(s)
+		if err != nil || len(v) != 128 {
+			b.Fatal(err)
+		}
+	}
+}
