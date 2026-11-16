@@ -1,0 +1,211 @@
+{
+  "file": "docker-memory.jsonl",
+  "workload": {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 1000,
+    "seed": 7,
+    "data": "uniform"
+  },
+  "rounds": 5,
+  "complete_interleaving": true,
+  "reference_bad": 0,
+  "response_hash": "fd6b775eea0f301b",
+  "baseline_first_three_medians": {
+    "write": {
+      "t_s": 0.255091621,
+      "b_bytes": 5853184,
+      "m_bytes": 11116544
+    },
+    "query": {
+      "t_s": 0.34796953,
+      "b_bytes": 5853184,
+      "m_bytes": 13680640
+    }
+  },
+  "versions": [
+    {
+      "name": "v2",
+      "write": {
+        "t_s": 0.234441905,
+        "b_bytes": 5853184,
+        "m_bytes": 10928128,
+        "warmup_s": 0
+      },
+      "query": {
+        "t_s": 0.35201203,
+        "b_bytes": 5853184,
+        "m_bytes": 13680640,
+        "warmup_s": 0.022680137
+      },
+      "local_E": {
+        "median": 0.49763256708863174,
+        "rounds": [
+          0.4869921122486354,
+          0.49763256708863174,
+          0.5042010798669305,
+          0.4903864044292599,
+          0.5045778297150194
+        ]
+      },
+      "checked_queries": 5000
+    },
+    {
+      "name": "memory",
+      "write": {
+        "t_s": 0.257387979,
+        "b_bytes": 5853184,
+        "m_bytes": 10928128,
+        "warmup_s": 0
+      },
+      "query": {
+        "t_s": 0.354127319,
+        "b_bytes": 5853184,
+        "m_bytes": 13770752,
+        "warmup_s": 0.022268508
+      },
+      "local_E": {
+        "median": 0.49262151460567516,
+        "rounds": [
+          0.48638198487813644,
+          0.5046756773985229,
+          0.49262151460567516,
+          0.45956778537801235,
+          0.4984209930618632
+        ]
+      },
+      "checked_queries": 5000
+    }
+  ],
+  "paired_candidate_over_base": {
+    "write": {
+      "t_s": [
+        0.8728790211105985,
+        0.8929513133636012,
+        1.2229742161496255,
+        1.5117415431668424,
+        0.9880893894591131
+      ],
+      "b_bytes": [
+        1.1465474416294088,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "m_bytes": [
+        1.1035098155859608,
+        0.9737631184407796,
+        0.9830508474576272,
+        1.0388013830195928,
+        1.0
+      ]
+    },
+    "query": {
+      "t_s": [
+        1.0121112719451006,
+        0.9914986590196581,
+        1.0176963454242673,
+        1.11137842537626,
+        1.0588699511207047
+      ],
+      "b_bytes": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "m_bytes": [
+        1.0906855210574855,
+        0.9949689257176679,
+        1.0023952095808384,
+        0.9789878662326132,
+        1.0344723314182038
+      ]
+    }
+  },
+  "transport": "docker",
+  "format": "compact",
+  "cpu_count": 2,
+  "extra_phase_medians": {
+    "v2": {
+      "write": {
+        "startup_s": 0.366599237,
+        "ddl_s": 0.002671952,
+        "load_s": 0.234441905,
+        "warmup_s": 0,
+        "query_s": 0,
+        "shutdown_s": 0.055161679,
+        "request_total_s": 0.657166028,
+        "cpu_usage_s": 0.155227,
+        "cpu_throttled_s": 0.0
+      },
+      "query": {
+        "startup_s": 0.391598278,
+        "ddl_s": 0.003291448,
+        "load_s": 0.249921205,
+        "warmup_s": 0.022680137,
+        "query_s": 0.35201203,
+        "shutdown_s": 0.064459977,
+        "request_total_s": 1.0855593390000002,
+        "cpu_usage_s": 0.544092,
+        "cpu_throttled_s": 0.0
+      }
+    },
+    "memory": {
+      "write": {
+        "startup_s": 0.341095613,
+        "ddl_s": 0.002715212,
+        "load_s": 0.257387979,
+        "warmup_s": 0,
+        "query_s": 0,
+        "shutdown_s": 0.057615566,
+        "request_total_s": 0.6439142579999999,
+        "cpu_usage_s": 0.163387,
+        "cpu_throttled_s": 0.0
+      },
+      "query": {
+        "startup_s": 0.35407981,
+        "ddl_s": 0.003328509,
+        "load_s": 0.250536774,
+        "warmup_s": 0.022268508,
+        "query_s": 0.354127319,
+        "shutdown_s": 0.086730509,
+        "request_total_s": 1.078919996,
+        "cpu_usage_s": 0.534156,
+        "cpu_throttled_s": 0.0
+      }
+    }
+  },
+  "smoke_only": false,
+  "memory_events_zero": true,
+  "binary_identities": {
+    "/tmp/seekdb-fable-v3-20261116/bin/v2": "ec26542fa451a957e5e26647ee8e83512d74907dda5ab47d69425a7036d2b412",
+    "/tmp/seekdb-fable-v3-20261116/bin/memory": "29c9e4e2f668ba9f8568884a5a3b1fbba97418f8f81997b08ca262ccb2f18324",
+    "/tmp/seekdb-fable-v3-20261116/bin/tbm-eval": "49a5e07df04a01bf5b783e370b8a609f95ab9cd5232baccff25ecb9c48935846",
+    "/mnt/c/Users/27372/seekdb-fable-v3-experiments/tbm_eval.go": "4f0f17dea7c96ba3ca4e9457f1dc4f6dbac99eaf7ef4e7d5851e75521710869d"
+  },
+  "images": {
+    "base": {
+      "image": "seekdb-local-v3:base",
+      "image_id": "sha256:72f4df219a0e7c6d2fec9fb47be2da01a80e1c01f0af64c13f5cefce6e35cf00",
+      "binary_sha256": "63b483201a966edc5a5971935e6b5ba1193a52f5f0feea5b64f913f481275024"
+    },
+    "v2": {
+      "image": "seekdb-local-v3:v2",
+      "image_id": "sha256:e31c7023c2283712acd9300e46bbbdcc7992c07205f78691ba733a4a09315df2",
+      "binary_sha256": "ec26542fa451a957e5e26647ee8e83512d74907dda5ab47d69425a7036d2b412"
+    },
+    "memory": {
+      "image": "seekdb-local-v3:memory",
+      "image_id": "sha256:ead5ffcef650a3a109674df29bf14a78c6bc18613b9830a2f56dc3f5879af8af",
+      "binary_sha256": "29c9e4e2f668ba9f8568884a5a3b1fbba97418f8f81997b08ca262ccb2f18324"
+    },
+    "candidate": {
+      "image": "seekdb-local-v3:candidate",
+      "image_id": "sha256:096f7761468c73c98ad03089a793e898dc69636cddffaeadc157aac423863aba",
+      "binary_sha256": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39"
+    }
+  }
+}

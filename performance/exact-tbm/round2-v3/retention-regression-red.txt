@@ -1,0 +1,10 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/sqlparse", "./internal/engine", "-run", "^Test(RowParserReleasesSources|FastInsertReleasesRowReferences)$", "-count=1", "-v"], "cwd": "/tmp/seekdb-fable-v3-20261116/red/minivectordb", "extra_env": {}, "expected_exit": 1, "official_submissions": 0}
+# minivectordb/internal/sqlparse
+internal/sqlparse/insert_retention_test.go:37:4: expected statement, found ')'
+FAIL	minivectordb/internal/sqlparse [setup failed]
+=== RUN   TestFastInsertReleasesRowReferences
+    insert_retention_test.go:29: worker 0 column 1 retains "second" after INSERT INTO t VALUES (1,'first','[0.25]'),(2,'second','[0.5]')
+--- FAIL: TestFastInsertReleasesRowReferences (0.00s)
+FAIL
+FAIL	minivectordb/internal/engine	0.003s
+FAIL

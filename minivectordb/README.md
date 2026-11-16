@@ -108,10 +108,12 @@ algorithm (table and core adapted from Go's `strconv`, BSD license kept in
 turns the fast path off; `MVDB_FAST_INSERT_MIN` (bytes) and
 `MVDB_FAST_INSERT_WORKERS` (1 or 2) exist for tests and A/B runs.
 
-**Request reads.** On linux/amd64, when stdin is a pipe and the process has
-at least two CPUs, the reader polls stdin for up to 1 ms (`MVDB_SPIN_US`,
-0 = off) before it sleeps, yielding the CPU between polls. The descriptor
-stays in blocking mode. On one CPU the polling is off. The request decoder
+**Request reads.** The reader blocks by default. On linux/amd64, setting
+`MVDB_SPIN_US` to a positive number enables polling for that many microseconds
+when stdin is a pipe and the process has at least two configured CPUs. For
+example, `MVDB_SPIN_US=1000` enables a 1 ms window; unset or 0 disables it.
+Polling yields the CPU between reads, and the descriptor stays in blocking
+mode. On one CPU polling is off unless explicitly forced. The request decoder
 handles JSON escapes in the `sql` string itself (`\" \\ \/ \b \f \n \r \t` and
 `\uXXXX` outside the surrogate range) and keeps its 8-byte ASCII skip going
 after non-ASCII text; surrogates and anything unusual still go through

@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/tmp/seekdb-fable-v3-20261116/bin/tbm-eval",
+    "-bins",
+    "base,base-copy",
+    "-bin-dir",
+    "/tmp/seekdb-fable-v3-20261116/bin",
+    "-data-dir",
+    "/tmp/seekdb-fable-v3-20261116",
+    "-transport",
+    "docker",
+    "-rows",
+    "1000",
+    "-dim",
+    "16",
+    "-queries",
+    "10",
+    "-rounds",
+    "5",
+    "-format",
+    "compact",
+    "-data",
+    "uniform",
+    "-cpu-count",
+    "2"
+  ],
+  "exit_code": 2,
+  "wall_s": 0.627699613571167,
+  "identities": {
+    "/tmp/seekdb-fable-v3-20261116/bin/base": "63b483201a966edc5a5971935e6b5ba1193a52f5f0feea5b64f913f481275024",
+    "/tmp/seekdb-fable-v3-20261116/bin/base-copy": "63b483201a966edc5a5971935e6b5ba1193a52f5f0feea5b64f913f481275024",
+    "/tmp/seekdb-fable-v3-20261116/bin/tbm-eval": "607bb276a6df122d0f6aac4ac1ea533f34d67e4d0324fbd8dc54763a62b32922",
+    "/mnt/c/Users/27372/seekdb-fable-v3-experiments/tbm_eval.go": "829861423c0bf7cfb3fe398d96285a60ff61804b5738a9ef9796c3310244a0fe"
+  },
+  "identities_unchanged": true,
+  "official_submissions": 0
+}

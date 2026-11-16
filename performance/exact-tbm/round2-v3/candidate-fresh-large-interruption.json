@@ -1,0 +1,16 @@
+{
+  "status": "interrupted, not a full-workflow pass",
+  "last_recorded_phase": "recovery_after_bulk_commit",
+  "reason": "WSL restarted; both long-lived WSL execution sessions exited 1; trigger unconfirmed",
+  "binary_sha256": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39",
+  "partial_record_count": 39,
+  "last_recorded_memory_events": {
+    "high": 0,
+    "low": 0,
+    "max": 402830,
+    "oom": 0,
+    "oom_group_kill": 0,
+    "oom_kill": 0
+  },
+  "original_run_and_summary_files_empty": true
+}

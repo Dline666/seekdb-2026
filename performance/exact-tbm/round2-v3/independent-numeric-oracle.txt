@@ -1,0 +1,27 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/types", "-run", "^TestFableDiagnostic", "-count=1", "-v"], "cwd": "/tmp/seekdb-fable-v3-20261116/numeric-oracle/minivectordb", "extra_env": {}, "expected_exit": 0, "official_submissions": 0}
+=== RUN   TestFableDiagnosticDecimalOracle
+    evaluation_numeric_test.go:327: group=19-digit input=2000 scan_fast=2000 fallback=0 vector_oracle=286
+    evaluation_numeric_test.go:327: group=double-rounding input=4 scan_fast=0 fallback=4 vector_oracle=4
+    evaluation_numeric_test.go:327: group=exact-midpoint input=100 scan_fast=4 fallback=96 vector_oracle=100
+    evaluation_numeric_test.go:327: group=exact-midpoint-neighbor input=200 scan_fast=0 fallback=200 vector_oracle=200
+    evaluation_numeric_test.go:327: group=float32-edge input=18 scan_fast=18 fallback=0 vector_oracle=18
+    evaluation_numeric_test.go:327: group=float32-midpoint input=64 scan_fast=48 fallback=16 vector_oracle=64
+    evaluation_numeric_test.go:327: group=float32-overflow-midpoint input=8 scan_fast=6 fallback=2 vector_oracle=8
+    evaluation_numeric_test.go:327: group=float64-range-edge input=22 scan_fast=10 fallback=12 vector_oracle=22
+    evaluation_numeric_test.go:327: group=float64-tiny input=10 scan_fast=0 fallback=10 vector_oracle=10
+    evaluation_numeric_test.go:327: group=leading-zero-fallback input=2000 scan_fast=0 fallback=2000 vector_oracle=285
+    evaluation_numeric_test.go:327: group=leading-zero-fit input=2000 scan_fast=2000 fallback=0 vector_oracle=286
+    evaluation_numeric_test.go:327: group=mantissa-exponent-transition input=42 scan_fast=32 fallback=10 vector_oracle=42
+    evaluation_numeric_test.go:327: group=near-midpoint-19-digit input=300 scan_fast=272 fallback=28 vector_oracle=300
+    evaluation_numeric_test.go:327: group=point-19-digit input=2000 scan_fast=1771 fallback=229 vector_oracle=286
+    evaluation_numeric_test.go:327: group=signed-zero input=6 scan_fast=6 fallback=0 vector_oracle=6
+    evaluation_numeric_test.go:327: group=wide-exponents input=2000 scan_fast=1770 fallback=230 vector_oracle=286
+    evaluation_numeric_test.go:329: vector classes: finite=1511 rejected=692 subnormal=22 negative-zero=325
+--- PASS: TestFableDiagnosticDecimalOracle (0.05s)
+=== RUN   TestFableDiagnosticEiselRatOracle
+    evaluation_numeric_test.go:380: Eisel rational oracle: input=8099 accepted=7351 refused=748 normal=7346
+--- PASS: TestFableDiagnosticEiselRatOracle (0.01s)
+=== RUN   TestFableDiagnosticVectorLexicalEdges
+--- PASS: TestFableDiagnosticVectorLexicalEdges (0.00s)
+PASS
+ok  	minivectordb/internal/types	0.069s

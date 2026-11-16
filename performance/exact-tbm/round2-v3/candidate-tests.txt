@@ -1,0 +1,7 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./...", "-count=1", "-timeout=8m"], "cwd": "/tmp/seekdb-fable-v3-20261116/candidate/minivectordb", "extra_env": {}, "expected_exit": 0, "official_submissions": 0}
+ok  	minivectordb/cmd/minivectordb	5.579s
+?   	minivectordb/internal/storage	[no test files]
+ok  	minivectordb/internal/engine	18.828s
+ok  	minivectordb/internal/proto	4.596s
+ok  	minivectordb/internal/sqlparse	0.072s
+ok  	minivectordb/internal/types	26.344s

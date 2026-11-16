@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "test",
+    "./internal/types",
+    "-run",
+    "^TestFableDiagnostic",
+    "-count=1",
+    "-v"
+  ],
+  "cwd": "/tmp/seekdb-fable-v3-20261116/numeric-oracle/minivectordb",
+  "extra_env": {},
+  "expected_exit": 0,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 0.6690716743469238
+}

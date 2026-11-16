@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large/stress-driver",
+    "/mnt/c/Users/27372/seekdb-fable-v3-experiments/stress_driver.go"
+  ],
+  "start": 1794839413.2429793
+}

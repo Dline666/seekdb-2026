@@ -1,0 +1,15 @@
+{
+  "archive": "/mnt/c/Users/27372/seekdb-fable-v3-experiments/retention-v2-memory-fixture.tar.gz",
+  "sha256": "c6d4b830de2289dca1efd65c8c8b8aae884471e55955f63d5c25fcd234c25607",
+  "original_directory": "/tmp/seekdb-fable-v3-20261116/retention-v2-memory",
+  "files": {
+    "retention-v2-memory/memory/db/data.log": "1d0ec2e63943ea453188f9b7c1a3682c63a1b11e329281035aacaad92168fb57",
+    "retention-v2-memory/memory/events.jsonl": "0514c716e81b077906dfc56b0eeebbd4b5f565b7b18fd80ae26c9b690e1d8397",
+    "retention-v2-memory/memory/initial.stderr.txt": "e75f1f87bf89ccf7a9cd51b54f9999f6859cca98a4bc289ff34726fff7966967",
+    "retention-v2-memory/memory/recovery.stderr.txt": "e75f1f87bf89ccf7a9cd51b54f9999f6859cca98a4bc289ff34726fff7966967",
+    "retention-v2-memory/v2/db/data.log": "30fde409c4c57401684744c39f6e7979ba263484f80e1244a9ba50490d86d1da",
+    "retention-v2-memory/v2/events.jsonl": "91b949c560dc40c3d4742bcc9a0900bbd7ebba3c4ce0daada46e4d3173a2fb1c",
+    "retention-v2-memory/v2/initial.stderr.txt": "e75f1f87bf89ccf7a9cd51b54f9999f6859cca98a4bc289ff34726fff7966967",
+    "retention-v2-memory/v2/recovery.stderr.txt": "e75f1f87bf89ccf7a9cd51b54f9999f6859cca98a4bc289ff34726fff7966967"
+  }
+}

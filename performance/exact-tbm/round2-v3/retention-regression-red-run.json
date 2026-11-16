@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "test",
+    "./internal/sqlparse",
+    "./internal/engine",
+    "-run",
+    "^Test(RowParserReleasesSources|FastInsertReleasesRowReferences)$",
+    "-count=1",
+    "-v"
+  ],
+  "cwd": "/tmp/seekdb-fable-v3-20261116/red/minivectordb",
+  "extra_env": {},
+  "expected_exit": 1,
+  "official_submissions": 0,
+  "exit_code": 1,
+  "wall_s": 2.1284823417663574
+}

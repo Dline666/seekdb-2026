@@ -1,0 +1,15 @@
+{
+  "archive": "/mnt/c/Users/27372/seekdb-fable-v3-experiments/candidate-fresh-large-retry-fixture.tar",
+  "sha256": "0f912e0942bd713a44a8acc14e2857519e7a33f382da6283306a2cca83ff540b",
+  "original_directory": "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large-retry",
+  "files": {
+    "candidate-fresh-large-retry/db/data.log": "b73ddf01090e76bc33a094e0d018d3d6b08de4c55ed4f41047206e2d9f9654d2",
+    "candidate-fresh-large-retry/stderr-1.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large-retry/stderr-2.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large-retry/stderr-3.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large-retry/stderr-4.txt": "dfb0ca5dfb882366bb4efea17bb0d198cd9608b98f3e2d36dc290c8fdf47f3a6",
+    "candidate-fresh-large-retry/stderr-5.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large-retry/stress-driver": "d54331f509d67fb65f24238e49fea93c3ed315977555b9bcb67d8a071c677be0"
+  },
+  "reason": "preserve evidence while restoring test-volume space"
+}

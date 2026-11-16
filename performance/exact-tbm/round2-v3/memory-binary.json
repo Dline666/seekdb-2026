@@ -1,0 +1,5 @@
+{
+  "sha256": "29c9e4e2f668ba9f8568884a5a3b1fbba97418f8f81997b08ca262ccb2f18324",
+  "default_spin_us": 1000,
+  "change": "Only completed INSERT source reference release compared with f723ad1"
+}

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/tmp/seekdb-fable-v2-eval-20261116/bin/retention-repro-parameterized",
+    "-bins",
+    "v2=/tmp/seekdb-fable-v3-20261116/bin/v2,memory=/tmp/seekdb-fable-v3-20261116/bin/memory",
+    "-work-dir",
+    "/tmp/seekdb-fable-v3-20261116/retention-v2-memory",
+    "-start-rows",
+    "160"
+  ],
+  "exit_code": 1,
+  "wall_s": 10.706028699874878,
+  "driver_sha256": "4d61bdc7bd48ee1a0ac53e9e1a70186b4d8f5ca143e186c9092b3eef8c948922",
+  "binary_sha256": {
+    "v2": "ec26542fa451a957e5e26647ee8e83512d74907dda5ab47d69425a7036d2b412",
+    "memory": "29c9e4e2f668ba9f8568884a5a3b1fbba97418f8f81997b08ca262ccb2f18324"
+  },
+  "scope": "256MiB retention diagnostic, not a 2GiB formal evaluation"
+}

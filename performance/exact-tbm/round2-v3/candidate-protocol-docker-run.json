@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "/mnt/c/Users/27372/seekdb-review-fable-v3/protocol_check/run.py",
+    "--image",
+    "seekdb-local-v3:candidate",
+    "--output",
+    "/tmp/seekdb-fable-v3-20261116/protocol-docker"
+  ],
+  "cwd": null,
+  "extra_env": {},
+  "expected_exit": 0,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 32.2653329372406
+}

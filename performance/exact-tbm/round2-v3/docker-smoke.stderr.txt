@@ -1,0 +1,9 @@
+panic: EOF
+
+goroutine 1 [running]:
+main.must(...)
+	./tbm_eval.go:41
+main.main.func2(0xc0000d7d70, 0xc000084060, 0xc000084070, {0xc0000940a0, 0xd}, 0xc000084050, 0xc000094070, 0xc000084080, {0xc0000da090, 0x89, ...}, ...)
+	./tbm_eval.go:323 +0x3c74
+main.main()
+	./tbm_eval.go:498 +0x17b0

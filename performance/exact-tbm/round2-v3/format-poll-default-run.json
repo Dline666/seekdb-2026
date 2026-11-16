@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/gofmt",
+    "-w",
+    "/mnt/c/Users/27372/seekdb-review-fable-v3/minivectordb/cmd/minivectordb/stdin_poll.go",
+    "/mnt/c/Users/27372/seekdb-review-fable-v3/minivectordb/cmd/minivectordb/stdin_poll_test.go"
+  ],
+  "cwd": null,
+  "extra_env": {},
+  "expected_exit": 0,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 0.021975040435791016
+}

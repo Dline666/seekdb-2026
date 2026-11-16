@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "test",
+    "-race",
+    "./internal/engine",
+    "./internal/sqlparse",
+    "./cmd/minivectordb",
+    "-count=1",
+    "-timeout=8m"
+  ],
+  "cwd": "/tmp/seekdb-fable-v3-20261116/candidate/minivectordb",
+  "extra_env": {
+    "CGO_ENABLED": "1"
+  },
+  "expected_exit": 0,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 148.44981145858765
+}

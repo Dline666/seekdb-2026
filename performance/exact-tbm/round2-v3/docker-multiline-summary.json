@@ -1,0 +1,211 @@
+{
+  "file": "docker-multiline.jsonl",
+  "workload": {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 1000,
+    "seed": 7,
+    "data": "uniform"
+  },
+  "rounds": 5,
+  "complete_interleaving": true,
+  "reference_bad": 0,
+  "response_hash": "fd6b775eea0f301b",
+  "baseline_first_three_medians": {
+    "write": {
+      "t_s": 0.537463726,
+      "b_bytes": 6361088,
+      "m_bytes": 11390976
+    },
+    "query": {
+      "t_s": 0.474562374,
+      "b_bytes": 6361088,
+      "m_bytes": 14168064
+    }
+  },
+  "versions": [
+    {
+      "name": "base",
+      "write": {
+        "t_s": 0.537463726,
+        "b_bytes": 6361088,
+        "m_bytes": 11505664,
+        "warmup_s": 0
+      },
+      "query": {
+        "t_s": 0.50408928,
+        "b_bytes": 6361088,
+        "m_bytes": 14446592,
+        "warmup_s": 0.023054403
+      },
+      "local_E": {
+        "median": 0.4943853581684705,
+        "rounds": [
+          0.4943853581684705,
+          0.48186999504907746,
+          0.5065312335161627,
+          0.4751705416003858,
+          0.49473023987885156
+        ]
+      },
+      "checked_queries": 5000
+    },
+    {
+      "name": "candidate",
+      "write": {
+        "t_s": 0.473085727,
+        "b_bytes": 6361088,
+        "m_bytes": 12247040,
+        "warmup_s": 0
+      },
+      "query": {
+        "t_s": 0.466784203,
+        "b_bytes": 6361088,
+        "m_bytes": 14258176,
+        "warmup_s": 0.022652842
+      },
+      "local_E": {
+        "median": 0.5048659291541963,
+        "rounds": [
+          0.4957811462793585,
+          0.5200402821121587,
+          0.5048659291541963,
+          0.4995662560440236,
+          0.5173006981682876
+        ]
+      },
+      "checked_queries": 5000
+    }
+  ],
+  "paired_candidate_over_base": {
+    "write": {
+      "t_s": [
+        1.022498958376216,
+        0.5647775469054623,
+        0.8966135821754838,
+        0.976869487102272,
+        0.9170650154335689
+      ],
+      "b_bytes": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "m_bytes": [
+        1.0877513711151736,
+        1.0751528227256382,
+        1.02812388750445,
+        1.0598320503848846,
+        1.0699325523606673
+      ]
+    },
+    "query": {
+      "t_s": [
+        0.9622626948146963,
+        0.8897675501284055,
+        1.0636401443827908,
+        0.7893156508243614,
+        0.8291281531651136
+      ],
+      "b_bytes": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "m_bytes": [
+        1.0014526438117373,
+        1.0197740112994351,
+        1.0156114483954901,
+        0.9811161217587373,
+        0.9804366316983272
+      ]
+    }
+  },
+  "transport": "docker",
+  "format": "multiline",
+  "cpu_count": 2,
+  "extra_phase_medians": {
+    "base": {
+      "write": {
+        "startup_s": 0.403139594,
+        "ddl_s": 0.002719867,
+        "load_s": 0.537463726,
+        "warmup_s": 0,
+        "query_s": 0,
+        "shutdown_s": 0.065245106,
+        "request_total_s": 1.002182567,
+        "cpu_usage_s": 0.264071,
+        "cpu_throttled_s": 0.0
+      },
+      "query": {
+        "startup_s": 0.425516949,
+        "ddl_s": 0.002868513,
+        "load_s": 0.510069106,
+        "warmup_s": 0.023054403,
+        "query_s": 0.50408928,
+        "shutdown_s": 0.048408951,
+        "request_total_s": 1.5156644830000001,
+        "cpu_usage_s": 0.472092,
+        "cpu_throttled_s": 0.0
+      }
+    },
+    "candidate": {
+      "write": {
+        "startup_s": 0.418397154,
+        "ddl_s": 0.0026186,
+        "load_s": 0.473085727,
+        "warmup_s": 0,
+        "query_s": 0,
+        "shutdown_s": 0.064335305,
+        "request_total_s": 0.971148187,
+        "cpu_usage_s": 0.137095,
+        "cpu_throttled_s": 0.0
+      },
+      "query": {
+        "startup_s": 0.430313584,
+        "ddl_s": 0.007172823,
+        "load_s": 0.448987606,
+        "warmup_s": 0.022652842,
+        "query_s": 0.466784203,
+        "shutdown_s": 0.067664309,
+        "request_total_s": 1.4421843380000001,
+        "cpu_usage_s": 0.311094,
+        "cpu_throttled_s": 0.0
+      }
+    }
+  },
+  "smoke_only": false,
+  "memory_events_zero": true,
+  "binary_identities": {
+    "/tmp/seekdb-fable-v3-20261116/bin/base": "63b483201a966edc5a5971935e6b5ba1193a52f5f0feea5b64f913f481275024",
+    "/tmp/seekdb-fable-v3-20261116/bin/candidate": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39",
+    "/tmp/seekdb-fable-v3-20261116/bin/tbm-eval": "49a5e07df04a01bf5b783e370b8a609f95ab9cd5232baccff25ecb9c48935846",
+    "/mnt/c/Users/27372/seekdb-fable-v3-experiments/tbm_eval.go": "4f0f17dea7c96ba3ca4e9457f1dc4f6dbac99eaf7ef4e7d5851e75521710869d"
+  },
+  "images": {
+    "base": {
+      "image": "seekdb-local-v3:base",
+      "image_id": "sha256:72f4df219a0e7c6d2fec9fb47be2da01a80e1c01f0af64c13f5cefce6e35cf00",
+      "binary_sha256": "63b483201a966edc5a5971935e6b5ba1193a52f5f0feea5b64f913f481275024"
+    },
+    "v2": {
+      "image": "seekdb-local-v3:v2",
+      "image_id": "sha256:e31c7023c2283712acd9300e46bbbdcc7992c07205f78691ba733a4a09315df2",
+      "binary_sha256": "ec26542fa451a957e5e26647ee8e83512d74907dda5ab47d69425a7036d2b412"
+    },
+    "memory": {
+      "image": "seekdb-local-v3:memory",
+      "image_id": "sha256:ead5ffcef650a3a109674df29bf14a78c6bc18613b9830a2f56dc3f5879af8af",
+      "binary_sha256": "29c9e4e2f668ba9f8568884a5a3b1fbba97418f8f81997b08ca262ccb2f18324"
+    },
+    "candidate": {
+      "image": "seekdb-local-v3:candidate",
+      "image_id": "sha256:096f7761468c73c98ad03089a793e898dc69636cddffaeadc157aac423863aba",
+      "binary_sha256": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39"
+    }
+  }
+}

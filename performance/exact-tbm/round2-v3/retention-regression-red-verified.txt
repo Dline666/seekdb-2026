@@ -1,0 +1,19 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./internal/sqlparse", "./internal/engine", "-run", "^Test(RowParserReleasesSources|FastInsertReleasesRowReferences)$", "-count=1", "-v"], "cwd": "/tmp/seekdb-fable-v3-20261116/red-verified/minivectordb", "extra_env": {}, "expected_exit": 1, "official_submissions": 0}
+=== RUN   TestRowParserReleasesSources
+=== RUN   TestRowParserReleasesSources/shorter_batch
+    insert_retention_test.go:30: completed parser retains source at token 0 (1 bytes)
+=== RUN   TestRowParserReleasesSources/parse_error
+    insert_retention_test.go:30: completed parser retains source at token 0 (1 bytes)
+=== RUN   TestRowParserReleasesSources/lex_error
+--- FAIL: TestRowParserReleasesSources (0.00s)
+    --- FAIL: TestRowParserReleasesSources/shorter_batch (0.00s)
+    --- FAIL: TestRowParserReleasesSources/parse_error (0.00s)
+    --- PASS: TestRowParserReleasesSources/lex_error (0.00s)
+FAIL
+FAIL	minivectordb/internal/sqlparse	0.003s
+=== RUN   TestFastInsertReleasesRowReferences
+    insert_retention_test.go:29: worker 0 column 1 retains "second" after INSERT INTO t VALUES (1,'first','[0.25]'),(2,'second','[0.5]')
+--- FAIL: TestFastInsertReleasesRowReferences (0.00s)
+FAIL
+FAIL	minivectordb/internal/engine	0.004s
+FAIL

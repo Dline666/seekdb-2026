@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "docker",
+    "tag",
+    "seekdb-local-v3:base",
+    "seekdb-local-v3:base-copy"
+  ],
+  "cwd": null,
+  "extra_env": {},
+  "expected_exit": 0,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 0.21746540069580078
+}

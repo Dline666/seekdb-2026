@@ -1,0 +1,15 @@
+{
+  "archive": "/mnt/c/Users/27372/seekdb-fable-v3-experiments/candidate-fresh-large-interrupted-fixture.tar",
+  "sha256": "e39b32e1ba0834045643a0a7b98a23209daf1e8ee372aef9bffee074a837e793",
+  "files": {
+    "candidate-fresh-large/db/data.log": "b73ddf01090e76bc33a094e0d018d3d6b08de4c55ed4f41047206e2d9f9654d2",
+    "candidate-fresh-large/stderr-1.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large/stderr-2.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large/stderr-3.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large/stderr-4.txt": "dfb0ca5dfb882366bb4efea17bb0d198cd9608b98f3e2d36dc290c8fdf47f3a6",
+    "candidate-fresh-large/stderr-5.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-fresh-large/stress-driver": "d54331f509d67fb65f24238e49fea93c3ed315977555b9bcb67d8a071c677be0"
+  },
+  "original_directory": "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large",
+  "status": "incomplete workload, preserved for diagnosis"
+}

@@ -1,0 +1,2 @@
+{"argv": ["python3", "/mnt/c/Users/27372/seekdb-review-fable-v3/performance/lead-opt/diff_fuzz.py", "/tmp/seekdb-fable-v3-20261116/bin/v2", "/tmp/seekdb-fable-v3-20261116/bin/candidate", "--seeds", "4101-4125", "--steps", "400"], "cwd": "/tmp/seekdb-fable-v3-20261116", "extra_env": {}, "expected_exit": 0, "official_submissions": 0}
+seeds 4101-4125 steps=400 mismatches=0 ok_responses=5470 error_responses=4313

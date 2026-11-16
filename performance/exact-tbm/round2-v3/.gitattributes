@@ -1,0 +1,2 @@
+# Preserve the protocol runner output, including its trailing spaces.
+candidate-protocol-docker.txt whitespace=-blank-at-eol

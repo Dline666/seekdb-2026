@@ -1,0 +1,23 @@
+{"argv": ["docker", "build", "--network=none", "-t", "seekdb-local-v3:memory", "/tmp/seekdb-fable-v3-20261116/docker/memory"], "cwd": null, "extra_env": {"DOCKER_BUILDKIT": "0"}, "expected_exit": 0, "official_submissions": 0}
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  3.595MB
+Step 1/5 : FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+ ---> fe81560990fa
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+ ---> 3854ffdc95b5
+Step 3/5 : COPY minivectordb /app/minivectordb
+ ---> 565033d1b609
+Step 4/5 : ENTRYPOINT ["/app/minivectordb"]
+ ---> Running in 3d22d639915d
+ ---> Removed intermediate container 3d22d639915d
+ ---> b3811736c83c
+Step 5/5 : CMD ["--data-dir","/data"]
+ ---> Running in 21f50ef9c350
+ ---> Removed intermediate container 21f50ef9c350
+ ---> ead5ffcef650
+Successfully built ead5ffcef650
+Successfully tagged seekdb-local-v3:memory

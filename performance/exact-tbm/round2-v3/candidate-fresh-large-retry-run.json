@@ -1,0 +1,48 @@
+{
+  "candidate": "candidate",
+  "stress_label": "candidate-fresh-large-retry",
+  "candidate_binary": "/tmp/seekdb-fable-v3-20261116/bin/candidate",
+  "candidate_sha256": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39",
+  "driver_source": "/mnt/c/Users/27372/seekdb-fable-v3-experiments/stress_driver.go",
+  "driver_source_sha256": "765996745865100ad5d61d230f117a8b9760c799160fbc55d273957382078572",
+  "build_argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large-retry/stress-driver",
+    "/mnt/c/Users/27372/seekdb-fable-v3-experiments/stress_driver.go"
+  ],
+  "argv": [
+    "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large-retry/stress-driver",
+    "-binary",
+    "/tmp/seekdb-fable-v3-20261116/bin/candidate",
+    "-data-dir",
+    "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large-retry",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-queries",
+    "12",
+    "-batch",
+    "64",
+    "-bulk-update",
+    "-recovery-kill-delay",
+    "10ms"
+  ],
+  "data_dir": "/tmp/seekdb-fable-v3-20261116/candidate-fresh-large-retry",
+  "exit_code": 0,
+  "validation_passed": true,
+  "official_submissions": 0,
+  "database_env": [
+    "GOMAXPROCS=2",
+    "GOMEMLIMIT=1288490188",
+    "GOGC=20"
+  ],
+  "build_exit_code": 0,
+  "driver_sha256": "d54331f509d67fb65f24238e49fea93c3ed315977555b9bcb67d8a071c677be0",
+  "start": 1794840214.5999455,
+  "workflow_wall_s": 442.93733406066895,
+  "build_and_workflow_wall_s": 443.51649713516235
+}

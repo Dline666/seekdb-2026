@@ -1,0 +1,210 @@
+{
+  "file": "docker-poll-multiline.jsonl",
+  "workload": {
+    "rows": 10000,
+    "dim": 128,
+    "queries": 1000,
+    "seed": 7,
+    "data": "uniform"
+  },
+  "rounds": 5,
+  "complete_interleaving": true,
+  "reference_bad": 0,
+  "response_hash": "fd6b775eea0f301b",
+  "baseline_first_three_medians": {
+    "write": {
+      "t_s": 0.537384291,
+      "b_bytes": 6361088,
+      "m_bytes": 12341248
+    },
+    "query": {
+      "t_s": 0.446371498,
+      "b_bytes": 6361088,
+      "m_bytes": 14749696
+    }
+  },
+  "versions": [
+    {
+      "name": "candidate",
+      "write": {
+        "t_s": 0.537384291,
+        "b_bytes": 6361088,
+        "m_bytes": 12271616,
+        "warmup_s": 0
+      },
+      "query": {
+        "t_s": 0.430267436,
+        "b_bytes": 6361088,
+        "m_bytes": 14749696,
+        "warmup_s": 0.022520576
+      },
+      "local_E": {
+        "median": 0.5044880816941988,
+        "rounds": [
+          0.5056561316632271,
+          0.4723985554155695,
+          0.5009447418746673,
+          0.5219686049635466,
+          0.5044880816941988
+        ]
+      },
+      "checked_queries": 5000
+    },
+    {
+      "name": "candidate:MVDB_SPIN_US=1000",
+      "write": {
+        "t_s": 0.569390473,
+        "b_bytes": 6361088,
+        "m_bytes": 11878400,
+        "warmup_s": 0
+      },
+      "query": {
+        "t_s": 0.381134674,
+        "b_bytes": 6361088,
+        "m_bytes": 14487552,
+        "warmup_s": 0.022647809
+      },
+      "local_E": {
+        "median": 0.5124745033657124,
+        "rounds": [
+          0.5096724201039105,
+          0.5153181075193312,
+          0.5124390394207925,
+          0.5382414426979667,
+          0.5124745033657124
+        ]
+      },
+      "checked_queries": 5000
+    }
+  ],
+  "paired_candidate_over_base": {
+    "write": {
+      "t_s": [
+        1.1026791213007028,
+        0.6751605886447479,
+        1.1304354838314394,
+        0.8539327140004013,
+        0.9839253472495672
+      ],
+      "b_bytes": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "m_bytes": [
+        0.9970129439097245,
+        0.9565646594274433,
+        0.9679572763684913,
+        0.984641638225256,
+        0.9777478084962913
+      ]
+    },
+    "query": {
+      "t_s": [
+        0.9201333818811237,
+        0.8054426418986004,
+        0.8430411096722846,
+        0.9276835304170704,
+        0.924896251357476
+      ],
+      "b_bytes": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "m_bytes": [
+        0.9822271591224659,
+        0.9638424177010254,
+        0.9962888952326577,
+        0.9734879867439934,
+        1.030176026823135
+      ]
+    }
+  },
+  "transport": "docker",
+  "format": "multiline",
+  "cpu_count": 2,
+  "extra_phase_medians": {
+    "candidate": {
+      "write": {
+        "startup_s": 0.405079876,
+        "ddl_s": 0.003364195,
+        "load_s": 0.537384291,
+        "warmup_s": 0,
+        "query_s": 0,
+        "shutdown_s": 0.068666835,
+        "request_total_s": 1.0356860170000002,
+        "cpu_usage_s": 0.143734,
+        "cpu_throttled_s": 0.0
+      },
+      "query": {
+        "startup_s": 0.395546845,
+        "ddl_s": 0.003120973,
+        "load_s": 0.420622317,
+        "warmup_s": 0.022520576,
+        "query_s": 0.430267436,
+        "shutdown_s": 0.073920989,
+        "request_total_s": 1.4591675830000002,
+        "cpu_usage_s": 0.291145,
+        "cpu_throttled_s": 0.0
+      }
+    },
+    "candidate:MVDB_SPIN_US=1000": {
+      "write": {
+        "startup_s": 0.379549099,
+        "ddl_s": 0.002813023,
+        "load_s": 0.569390473,
+        "warmup_s": 0,
+        "query_s": 0,
+        "shutdown_s": 0.068253907,
+        "request_total_s": 1.012626159,
+        "cpu_usage_s": 0.200136,
+        "cpu_throttled_s": 0.0
+      },
+      "query": {
+        "startup_s": 0.360999117,
+        "ddl_s": 0.003235721,
+        "load_s": 0.473333996,
+        "warmup_s": 0.022647809,
+        "query_s": 0.381134674,
+        "shutdown_s": 0.064987375,
+        "request_total_s": 1.323475517,
+        "cpu_usage_s": 0.605714,
+        "cpu_throttled_s": 0.0
+      }
+    }
+  },
+  "smoke_only": false,
+  "memory_events_zero": true,
+  "binary_identities": {
+    "/tmp/seekdb-fable-v3-20261116/bin/candidate": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39",
+    "/tmp/seekdb-fable-v3-20261116/bin/tbm-eval": "49a5e07df04a01bf5b783e370b8a609f95ab9cd5232baccff25ecb9c48935846",
+    "/mnt/c/Users/27372/seekdb-fable-v3-experiments/tbm_eval.go": "4f0f17dea7c96ba3ca4e9457f1dc4f6dbac99eaf7ef4e7d5851e75521710869d"
+  },
+  "images": {
+    "base": {
+      "image": "seekdb-local-v3:base",
+      "image_id": "sha256:72f4df219a0e7c6d2fec9fb47be2da01a80e1c01f0af64c13f5cefce6e35cf00",
+      "binary_sha256": "63b483201a966edc5a5971935e6b5ba1193a52f5f0feea5b64f913f481275024"
+    },
+    "v2": {
+      "image": "seekdb-local-v3:v2",
+      "image_id": "sha256:e31c7023c2283712acd9300e46bbbdcc7992c07205f78691ba733a4a09315df2",
+      "binary_sha256": "ec26542fa451a957e5e26647ee8e83512d74907dda5ab47d69425a7036d2b412"
+    },
+    "memory": {
+      "image": "seekdb-local-v3:memory",
+      "image_id": "sha256:ead5ffcef650a3a109674df29bf14a78c6bc18613b9830a2f56dc3f5879af8af",
+      "binary_sha256": "29c9e4e2f668ba9f8568884a5a3b1fbba97418f8f81997b08ca262ccb2f18324"
+    },
+    "candidate": {
+      "image": "seekdb-local-v3:candidate",
+      "image_id": "sha256:096f7761468c73c98ad03089a793e898dc69636cddffaeadc157aac423863aba",
+      "binary_sha256": "b30f5b33fce51d6df5c547b0afdbecd5e022774fe6d1e7a67e6bd865f883ea39"
+    }
+  }
+}
