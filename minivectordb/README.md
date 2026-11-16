@@ -93,6 +93,30 @@ result, so a crash during recovery is harmless. If dead data exceeds both
 256 MiB and the live data, the log is rewritten to a temp file, synced and
 renamed. Vector indexes are rebuilt before the ready line.
 
+**Bulk INSERT.** A multi-row INSERT of 16 KiB or more takes an optimistic
+fast path: the statement head is parsed up to `VALUES`, the row list is split
+at a row boundary near its middle, and two goroutines lex, parse, convert and
+encode their halves into private buffers that are reused across statements.
+The fast path either completes the whole statement or reports "not handled"
+without any side effect, in which case the ordinary sequential path runs on
+the original SQL, so every error still comes from that path. Duplicate checks
+and the log write stay on the calling goroutine, in row order. Vector
+literals are scanned in one pass and converted with the Eisel-Lemire
+algorithm (table and core adapted from Go's `strconv`, BSD license kept in
+`internal/types/eisel_lemire*.go`); results are bit-identical to
+`strconv.ParseFloat` followed by a float32 conversion. `MVDB_NO_FAST_INSERT=1`
+turns the fast path off; `MVDB_FAST_INSERT_MIN` (bytes) and
+`MVDB_FAST_INSERT_WORKERS` (1 or 2) exist for tests and A/B runs.
+
+**Request reads.** On linux/amd64, when stdin is a pipe and the process has
+at least two CPUs, the reader polls stdin for up to 1 ms (`MVDB_SPIN_US`,
+0 = off) before it sleeps, yielding the CPU between polls. The descriptor
+stays in blocking mode. On one CPU the polling is off. The request decoder
+handles JSON escapes in the `sql` string itself (`\" \\ \/ \b \f \n \r \t` and
+`\uXXXX` outside the surrogate range) and keeps its 8-byte ASCII skip going
+after non-ASCII text; surrogates and anything unusual still go through
+`encoding/json`, and the accepted lines decode to exactly the same strings.
+
 **Vector search.** Each table keeps a contiguous float32 copy of its committed
 vectors (within the memory budget). TopK scans it with a bounded max-heap,
 abandons a distance early once its partial sum exceeds the current K-th best,
@@ -132,6 +156,30 @@ All bench rows use 10k rows x 128 dims, 100-row commits and 1000 queries with
 K=10, half filtered. Early-exit distance helps on clustered data and gives no
 measurable gain on uniform random data, where the K-th best distance stays
 close to the average.
+
+This revision against the one before it (see `performance/lead-opt/`):
+100 x 100-row INSERT of VECTOR(128), then 1000 TopK queries, same driver and
+requests for both binaries, interleaved rounds, medians. None of this is the
+official environment.
+
+| Setup | Metric | Before | After |
+| --- | --- | --- | --- |
+| Linux VM, 2 vCPU Xeon 2.2 GHz, direct pipes, sync off, one-line SQL | write T | 0.177 s | 0.132 s |
+| same | query T | 0.231 s | 0.208 s |
+| same, rows with Chinese text and `, ` separators | write T | 0.247 s | 0.139 s |
+| same, SQL laid out over several lines as in the task statement | write T / query T | 0.454 / 0.259 s | 0.169 / 0.216 s |
+| same VM, fdatasync on (4 to 5 ms each on that disk), one-line SQL | write T | 0.66 s | 0.61 s |
+| same VM, 3 relay processes emulating the docker stream chain | write T | 1.33 s | 1.18 s |
+| same (noisy: 0.33-0.36 s before, 0.28-0.46 s after) | query T | 0.343 s | 0.297 s |
+| Docker, cgroup v2, 1-CPU VM, GOMAXPROCS=2 | write M / query M | 9.17 / 11.45 MiB | 9.75 / 11.79 MiB |
+| same | B per phase | 6.05 MiB | 6.05 MiB |
+
+Peak memory is 0.3 to 0.6 MiB higher (second worker and its buffers). The two
+revisions answered about 509,000 randomized protocol requests byte for byte
+identically (DDL, DML, TopK, transactions, protocol errors, restarts,
+kill -9 between requests; request lines also delivered in pieces), 145,000
+of them with the final binary, with the fast path at its default threshold
+and forced on for every INSERT.
 
 ## Known limits
 

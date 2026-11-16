@@ -44,6 +44,7 @@ type DB struct {
 	txn     *Txn // explicit transaction, nil when autocommit
 	opts    Options
 	scratch []byte
+	fi      fastInsertBufs // reusable buffers for the fast insert path
 }
 
 // ddl is the JSON payload of a RecDDL record.
