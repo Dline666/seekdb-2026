@@ -40,11 +40,15 @@ type RowParser struct {
 // ParseRows lexes src and parses it as a complete row list: `(` expr `,` ...
 // `)` pairs separated by commas, followed by optional semicolons and EOF.
 // Errors are returned, never swallowed; the parser keeps its token buffer
-// unless it grew past 65536 entries, so one huge statement cannot pin it.
+// unless it grew past 65536 entries. Its tokens do not retain source strings
+// after this call; the returned AST owns any values the caller still needs.
 func (rp *RowParser) ParseRows(src string) ([][]Expr, error) {
 	toks, err := LexInto(src, rp.toks[:0])
 	if cap(toks) <= 65536 {
-		rp.toks = toks
+		rp.toks = toks[:0]
+		// A smaller batch leaves old tokens beyond len(toks). Clear the
+		// entire retained allocation on success and parse errors alike.
+		defer clear(toks[:cap(toks)])
 	} else {
 		rp.toks = nil
 	}

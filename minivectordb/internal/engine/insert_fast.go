@@ -216,6 +216,10 @@ func (db *DB) resetFastInsert(rows int) {
 	fi := &db.fi
 	for i := range fi.workers {
 		w := &fi.workers[i]
+		// Encoded rows own their bytes. A string value in the scratch row
+		// can otherwise keep the whole completed request alive, including
+		// when this worker failed or is unused by the next INSERT.
+		clear(w.row)
 		if cap(w.enc) > 4<<20 {
 			w.enc = nil
 		}
