@@ -11,7 +11,7 @@
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-round2",
-    "code_baseline_commit": "6eedd4225ca328d318bf51a0b55d9642b8aebe92",
+    "code_baseline_commit": "a0964c70792579feff9cfb6e48dd623cef7b9e68",
     "code_changes_in_this_submission": "相对上述基准，本次提交只改动 agent/conversation.json，即这份学习证据材料本身；引擎代码与该基准逐字相同，本次没有改动任何运行时行为。材料侧的改动是：把两条证据链已齐备的实例（U29 性能回归定位与复验、U32 十进制快解析的位级等价与正确舍入）按完整证据链重新定档，并撤掉了此前把并入项提升为独立实例的改动。",
     "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；本次提交不改动引擎代码，上面那处 Dockerfile 依赖锁定是在这个基线上补的。",
     "source_threads": [
