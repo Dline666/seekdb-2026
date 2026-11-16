@@ -65,6 +65,7 @@ func fusedScanInt8AVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *floa
 
 // Same bound and survivor format as fusedScanInt8AVX2, over valid live
 // candidate slots in their supplied order. surv has room for 2*rows values.
+//
 //go:noescape
 func fusedScanCandidatesAVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qmin, qscale, thresh2 float64, slots *int32, rows, blocks, tail int, surv *int64) int
 

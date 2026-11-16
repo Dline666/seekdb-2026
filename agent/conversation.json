@@ -12,8 +12,8 @@
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-expanded-v2",
     "code_baseline_commit": "4065be7e119dcb937d596fdb141a208fdc025ca4",
-    "code_changes_in_this_submission": "在上述基准之上只补了一处：Dockerfile 把基础镜像钉到 digest、Go 包钉到确切版本（含版本回退兜底与 go version 断言）。引擎代码与该基准逐字相同，本次没有改动任何运行时行为。",
-    "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；本次提交不改动引擎代码，上面那处 Dockerfile 依赖锁定是在这个基线上补的。",
+    "code_changes_in_this_submission": "在上述基准之上有三类改动：（1）Dockerfile 把基础镜像钉到 digest、Go 包钉到确切版本（含版本回退兜底与 go version 断言）；（2）修复 CREATE VECTOR INDEX 在 TopK 查询之后被误判为重复索引的问题；（3）写入与请求路径的性能改动：向量字面量改用单遍扫描与 Eisel-Lemire 转换、大批量 INSERT 的两路并行快路径、Linux 上读 stdin 前的短暂轮询、请求 JSON 中转义与非 ASCII 文本的快速解码。第（2）（3）类改动由 AI 编码 Agent 在一次独立会话中实现并验证（记录在仓库的 performance/lead-opt/），不是学生的学习证据，本文件没有任何 evidence unit 引用它们。",
+    "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；在这个基线上补了 Dockerfile 依赖锁定，以及 code_changes_in_this_submission 列出的修复与写入/请求路径性能改动，后两类由 AI 编码 Agent 完成。",
     "source_threads": [
       {
         "title": "astra",
@@ -1059,7 +1059,7 @@
     {
       "id": "A02",
       "source": "agent",
-      "content": "本分支只新增了材料与两处代码修复（见 code_changes_in_this_submission），没有改写历史线程仓库，也没有把别人的实现声明成学生自己的成果。"
+      "content": "本分支新增了材料，以及 code_changes_in_this_submission 列出的代码改动；没有改写历史线程仓库，也没有把别人的实现或 Agent 的实现声明成学生自己的成果。"
     }
   ],
   "planned_not_executed": [
