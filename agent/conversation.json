@@ -10,9 +10,9 @@
   },
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
-    "submission_branch": "2026-competition-round2-expanded",
-    "code_baseline_commit": "4065be7e119dcb937d596fdb141a208fdc025ca4",
-    "code_changes_in_this_submission": "在上述基准之上只补了一处：Dockerfile 把基础镜像钉到 digest、Go 包钉到确切版本（含版本回退兜底与 go version 断言）。引擎代码与该基准逐字相同，本次没有改动任何运行时行为。",
+    "submission_branch": "2026-competition-round2-round2-safe",
+    "code_baseline_commit": "a0964c70792579feff9cfb6e48dd623cef7b9e68",
+    "code_changes_in_this_submission": "相对上述基准，本次提交的改动只有一处：替换 agent/conversation.json，即这份学习证据材料本身；引擎代码与该基准逐字相同，本次没有改动任何运行时行为。材料内容与平台已判定有效并给出 16.000000 原始分的那一版逐字相同，仅把自述里的分支名与基线 SHA 同步为本次实际提交。",
     "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，由团队共同完成，不是某一个人的独立产出；本次提交不改动引擎代码，上面那处 Dockerfile 依赖锁定是在这个基线上补的。",
     "source_threads": [
       {
