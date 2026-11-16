@@ -16,15 +16,17 @@ func TestNewStdinGuards(t *testing.T) {
 		want          time.Duration
 		wantOn        bool
 	}{
-		{"pipe default window", true, 4, 4, "", "", time.Millisecond, true},
+		{"pipe default off", true, 4, 4, "", "", 0, false},
 		{"pipe explicit window", true, 4, 4, "500", "", 500 * time.Microsecond, true},
 		{"pipe tiny window", true, 2, 2, "1", "", time.Microsecond, true},
 		{"not a fifo", false, 4, 4, "", "", 0, false},
 		{"window zero", true, 4, 4, "0", "", 0, false},
 		{"window negative", true, 4, 4, "-5", "", 0, false},
 		{"window zero wins over force", true, 4, 4, "0", "1", 0, false},
-		{"unparsable means default", true, 4, 4, "soon", "", time.Millisecond, true},
-		{"empty means default", true, 4, 4, "", "", time.Millisecond, true},
+		{"unparsable means default off", true, 4, 4, "soon", "", 0, false},
+		{"empty means default off", true, 4, 4, "", "", 0, false},
+		{"overflow disabled", true, 4, 4, "9223372036854775807", "", 0, false},
+		{"force still needs explicit window", true, 4, 4, "", "1", 0, false},
 		{"unparsable still off on one cpu", true, 1, 1, "soon", "", 0, false},
 		{"single ncpu", true, 1, 2, "1000", "", 0, false},
 		{"single procs", true, 2, 1, "1000", "", 0, false},
