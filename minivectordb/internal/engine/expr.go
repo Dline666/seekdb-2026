@@ -79,8 +79,10 @@ func (sc *scope) compile(e sp.Expr) (*compiled, *types.SQLError) {
 			fn = func(b []byte) types.Value { return t.col(b, i) }
 		default:
 			fn = func(b []byte) types.Value { return types.Str(string(t.varBytes(b, i))) }
-			return &compiled{fn: fn, kind: kindOf(c.Type), col: i,
-				raw: func(b []byte) []byte { return t.varBytes(b, i) }}, nil
+			return &compiled{
+				fn: fn, kind: kindOf(c.Type), col: i,
+				raw: func(b []byte) []byte { return t.varBytes(b, i) },
+			}, nil
 		}
 		return &compiled{fn: fn, kind: kindOf(c.Type), col: i}, nil
 	case *sp.Func:

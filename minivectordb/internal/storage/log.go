@@ -76,8 +76,10 @@ func OpenLog(path string, mode SyncMode) (*Log, error) {
 		f.Close()
 		return nil, err
 	}
-	return &Log{f: f, size: st.Size(), flushed: st.Size(), synced: st.Size(), mode: mode,
-		buf: make([]byte, 0, 64<<10)}, nil
+	return &Log{
+		f: f, size: st.Size(), flushed: st.Size(), synced: st.Size(), mode: mode,
+		buf: make([]byte, 0, 64<<10),
+	}, nil
 }
 
 func (l *Log) Size() int64 { return l.size }

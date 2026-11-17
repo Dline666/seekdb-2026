@@ -1,0 +1,318 @@
+// Copyright (c) 2026 OceanBase.
+// Licensed under the Apache License, Version 2.0.
+
+#include "textflag.h"
+
+// Four rows at a time. Integer dots are exact, and the packed float64
+// epilogue preserves the scalar association without FMA. Only ordered
+// greater-than distances are dropped, so NaNs still reach exact validation.
+// AVX2 widens unsigned row bytes to words before VPMADDWD. Query words
+// are in [0,255], and dim <= maxInt8Dim keeps the complete sum in int32.
+// Query loads are shared across four rows. No saturating byte dot or FMA.
+// As in the original fused AVX2 kernel, callers pass nonnegative thresholds;
+// omitting the scalar clamp-to-zero then preserves every keep/drop decision.
+TEXT ·fusedScanQuadAVX2(SB), NOSPLIT, $0-120
+	MOVQ qc+0(FP), R8
+	MOVQ blocks+96(FP), R9
+	SHLQ $5, R9
+	MOVQ baseSlot+80(FP), AX
+	IMULQ R9, AX
+	MOVQ codes+8(FP), DI
+	ADDQ AX, DI
+	MOVQ baseSlot+80(FP), AX
+	SHLQ $3, AX
+	MOVQ pks+16(FP), R13
+	ADDQ AX, R13
+	MOVQ offs+24(FP), R14
+	ADDQ AX, R14
+	SUBQ R13, R14
+	SHLQ $2, AX
+	MOVQ qf+32(FP), R15
+	ADDQ AX, R15
+	VBROADCASTSD qSum+40(FP), Y12
+	VBROADCASTSD qNorm2+48(FP), Y13
+	VBROADCASTSD qmin+56(FP), Y14
+	VBROADCASTSD qscale+64(FP), Y15
+	VBROADCASTSD thresh2+72(FP), Y11
+	MOVQ rows+88(FP), R10
+	MOVQ surv+104(FP), AX
+	TESTQ R10, R10
+	JZ done
+group:
+	LEAQ (DI)(R9*1), SI
+	LEAQ (SI)(R9*1), DX
+	LEAQ (DX)(R9*1), R12
+	MOVQ blocks+96(FP), CX
+	VPXOR Y0, Y0, Y0
+	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
+	PCALIGN $32
+dot:
+	VMOVDQU 0(R8), Y9
+	VMOVDQU 32(R8), Y10
+	VPMOVZXBW 0(DI), Y4
+	VPMADDWD Y9, Y4, Y4
+	VPADDD Y4, Y0, Y0
+	VPMOVZXBW 0(SI), Y5
+	VPMADDWD Y9, Y5, Y5
+	VPADDD Y5, Y1, Y1
+	VPMOVZXBW 0(DX), Y6
+	VPMADDWD Y9, Y6, Y6
+	VPADDD Y6, Y2, Y2
+	VPMOVZXBW 0(R12), Y7
+	VPMADDWD Y9, Y7, Y7
+	VPADDD Y7, Y3, Y3
+	VPMOVZXBW 16(DI), Y4
+	VPMADDWD Y10, Y4, Y4
+	VPADDD Y4, Y0, Y0
+	VPMOVZXBW 16(SI), Y5
+	VPMADDWD Y10, Y5, Y5
+	VPADDD Y5, Y1, Y1
+	VPMOVZXBW 16(DX), Y6
+	VPMADDWD Y10, Y6, Y6
+	VPADDD Y6, Y2, Y2
+	VPMOVZXBW 16(R12), Y7
+	VPMADDWD Y10, Y7, Y7
+	VPADDD Y7, Y3, Y3
+	ADDQ $64, R8
+	ADDQ $32, DI
+	ADDQ $32, SI
+	ADDQ $32, DX
+	ADDQ $32, R12
+	DECQ CX
+	JNZ dot
+	SUBQ R9, R8
+	SUBQ R9, R8
+	MOVQ R12, DI
+	// Low/high 128-bit halves now hold four row sums each.
+	VPHADDD Y1, Y0, Y4
+	VPHADDD Y3, Y2, Y5
+	VPHADDD Y5, Y4, Y4
+	VEXTRACTI128 $1, Y4, X5
+	VPADDD X5, X4, X4
+	VCVTDQ2PD X4, Y0
+	// Transpose four row-major (m2,t2,s2,cRow) tuples into columns.
+	VMOVUPD 0(R15), Y1
+	VMOVUPD 32(R15), Y2
+	VMOVUPD 64(R15), Y3
+	VMOVUPD 96(R15), Y4
+	VUNPCKLPD Y2, Y1, Y5
+	VUNPCKHPD Y2, Y1, Y6
+	VUNPCKLPD Y4, Y3, Y7
+	VUNPCKHPD Y4, Y3, Y8
+	VPERM2F128 $0x20, Y7, Y5, Y1
+	VPERM2F128 $0x20, Y8, Y6, Y2
+	VPERM2F128 $0x31, Y7, Y5, Y3
+	VPERM2F128 $0x31, Y8, Y6, Y4
+	VMULPD Y12, Y1, Y1
+	VADDPD Y13, Y1, Y1
+	VADDPD Y4, Y1, Y1
+	VMULPD Y14, Y2, Y2
+	VADDPD Y2, Y1, Y1
+	VMULPD Y15, Y3, Y3
+	VMULPD Y0, Y3, Y3
+	VADDPD Y3, Y1, Y1
+	VCMPPD $30, Y11, Y1, Y1
+	VMOVMSKPD Y1, CX
+	TESTQ $1, CX
+	JNZ second
+	MOVQ 0(R13)(R14*1), BX
+	MOVQ BX, 0(AX)
+	MOVQ 0(R13), BX
+	MOVQ BX, 8(AX)
+	ADDQ $16, AX
+second:
+	TESTQ $2, CX
+	JNZ third
+	MOVQ 8(R13)(R14*1), BX
+	MOVQ BX, 0(AX)
+	MOVQ 8(R13), BX
+	MOVQ BX, 8(AX)
+	ADDQ $16, AX
+third:
+	TESTQ $4, CX
+	JNZ fourth
+	MOVQ 16(R13)(R14*1), BX
+	MOVQ BX, 0(AX)
+	MOVQ 16(R13), BX
+	MOVQ BX, 8(AX)
+	ADDQ $16, AX
+fourth:
+	TESTQ $8, CX
+	JNZ next
+	MOVQ 24(R13)(R14*1), BX
+	MOVQ BX, 0(AX)
+	MOVQ 24(R13), BX
+	MOVQ BX, 8(AX)
+	ADDQ $16, AX
+next:
+	ADDQ $32, R13
+	ADDQ $128, R15
+	SUBQ $4, R10
+	JNZ group
+done:
+	MOVQ surv+104(FP), CX
+	SUBQ CX, AX
+	SHRQ $4, AX
+	MOVQ AX, ret+112(FP)
+	VZEROUPPER
+	RET
+
+// Candidate slots may be noncontiguous, repeated, or descending.
+TEXT ·fusedScanQuadCandidatesAVX2(SB), NOSPLIT, $0-120
+	MOVQ qc+0(FP), R8
+	MOVQ blocks+96(FP), R9
+	SHLQ $5, R9
+	MOVQ slots+80(FP), BX
+	MOVQ pks+16(FP), R13
+	MOVQ offs+24(FP), R14
+	MOVQ qf+32(FP), R15
+	VBROADCASTSD qSum+40(FP), Y12
+	VBROADCASTSD qNorm2+48(FP), Y13
+	VBROADCASTSD qmin+56(FP), Y14
+	VBROADCASTSD qscale+64(FP), Y15
+	VBROADCASTSD thresh2+72(FP), Y11
+	MOVQ rows+88(FP), R10
+	MOVQ surv+104(FP), AX
+	TESTQ R10, R10
+	JZ done
+group:
+	MOVL 0(BX), DI
+	IMULQ R9, DI
+	ADDQ codes+8(FP), DI
+	MOVL 4(BX), SI
+	IMULQ R9, SI
+	ADDQ codes+8(FP), SI
+	MOVL 8(BX), DX
+	IMULQ R9, DX
+	ADDQ codes+8(FP), DX
+	MOVL 12(BX), R12
+	IMULQ R9, R12
+	ADDQ codes+8(FP), R12
+	MOVQ blocks+96(FP), CX
+	VPXOR Y0, Y0, Y0
+	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
+	PCALIGN $32
+dot:
+	VMOVDQU 0(R8), Y9
+	VMOVDQU 32(R8), Y10
+	VPMOVZXBW 0(DI), Y4
+	VPMADDWD Y9, Y4, Y4
+	VPADDD Y4, Y0, Y0
+	VPMOVZXBW 0(SI), Y5
+	VPMADDWD Y9, Y5, Y5
+	VPADDD Y5, Y1, Y1
+	VPMOVZXBW 0(DX), Y6
+	VPMADDWD Y9, Y6, Y6
+	VPADDD Y6, Y2, Y2
+	VPMOVZXBW 0(R12), Y7
+	VPMADDWD Y9, Y7, Y7
+	VPADDD Y7, Y3, Y3
+	VPMOVZXBW 16(DI), Y4
+	VPMADDWD Y10, Y4, Y4
+	VPADDD Y4, Y0, Y0
+	VPMOVZXBW 16(SI), Y5
+	VPMADDWD Y10, Y5, Y5
+	VPADDD Y5, Y1, Y1
+	VPMOVZXBW 16(DX), Y6
+	VPMADDWD Y10, Y6, Y6
+	VPADDD Y6, Y2, Y2
+	VPMOVZXBW 16(R12), Y7
+	VPMADDWD Y10, Y7, Y7
+	VPADDD Y7, Y3, Y3
+	ADDQ $64, R8
+	ADDQ $32, DI
+	ADDQ $32, SI
+	ADDQ $32, DX
+	ADDQ $32, R12
+	DECQ CX
+	JNZ dot
+	SUBQ R9, R8
+	SUBQ R9, R8
+	// Low/high 128-bit halves now hold four row sums each.
+	VPHADDD Y1, Y0, Y4
+	VPHADDD Y3, Y2, Y5
+	VPHADDD Y5, Y4, Y4
+	VEXTRACTI128 $1, Y4, X5
+	VPADDD X5, X4, X4
+	VCVTDQ2PD X4, Y0
+	// Transpose four row-major (m2,t2,s2,cRow) tuples into columns.
+	MOVL 0(BX), CX
+	SHLQ $5, CX
+	VMOVUPD (R15)(CX*1), Y1
+	MOVL 4(BX), CX
+	SHLQ $5, CX
+	VMOVUPD (R15)(CX*1), Y2
+	MOVL 8(BX), CX
+	SHLQ $5, CX
+	VMOVUPD (R15)(CX*1), Y3
+	MOVL 12(BX), CX
+	SHLQ $5, CX
+	VMOVUPD (R15)(CX*1), Y4
+	VUNPCKLPD Y2, Y1, Y5
+	VUNPCKHPD Y2, Y1, Y6
+	VUNPCKLPD Y4, Y3, Y7
+	VUNPCKHPD Y4, Y3, Y8
+	VPERM2F128 $0x20, Y7, Y5, Y1
+	VPERM2F128 $0x20, Y8, Y6, Y2
+	VPERM2F128 $0x31, Y7, Y5, Y3
+	VPERM2F128 $0x31, Y8, Y6, Y4
+	VMULPD Y12, Y1, Y1
+	VADDPD Y13, Y1, Y1
+	VADDPD Y4, Y1, Y1
+	VMULPD Y14, Y2, Y2
+	VADDPD Y2, Y1, Y1
+	VMULPD Y15, Y3, Y3
+	VMULPD Y0, Y3, Y3
+	VADDPD Y3, Y1, Y1
+	VCMPPD $30, Y11, Y1, Y1
+	VMOVMSKPD Y1, SI
+	TESTQ $1, SI
+	JNZ second
+	MOVL 0(BX), CX
+	MOVQ (R14)(CX*8), DX
+	MOVQ DX, 0(AX)
+	MOVQ (R13)(CX*8), DX
+	MOVQ DX, 8(AX)
+	ADDQ $16, AX
+second:
+	TESTQ $2, SI
+	JNZ third
+	MOVL 4(BX), CX
+	MOVQ (R14)(CX*8), DX
+	MOVQ DX, 0(AX)
+	MOVQ (R13)(CX*8), DX
+	MOVQ DX, 8(AX)
+	ADDQ $16, AX
+third:
+	TESTQ $4, SI
+	JNZ fourth
+	MOVL 8(BX), CX
+	MOVQ (R14)(CX*8), DX
+	MOVQ DX, 0(AX)
+	MOVQ (R13)(CX*8), DX
+	MOVQ DX, 8(AX)
+	ADDQ $16, AX
+fourth:
+	TESTQ $8, SI
+	JNZ next
+	MOVL 12(BX), CX
+	MOVQ (R14)(CX*8), DX
+	MOVQ DX, 0(AX)
+	MOVQ (R13)(CX*8), DX
+	MOVQ DX, 8(AX)
+	ADDQ $16, AX
+next:
+	ADDQ $16, BX
+	SUBQ $4, R10
+	JNZ group
+done:
+	MOVQ surv+104(FP), CX
+	SUBQ CX, AX
+	SHRQ $4, AX
+	MOVQ AX, ret+112(FP)
+	VZEROUPPER
+	RET

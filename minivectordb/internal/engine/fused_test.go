@@ -190,8 +190,11 @@ func TestFusedScanEndToEnd(t *testing.T) {
 	}
 	before := fusedBatches.Load()
 	check("clean")
-	if fusedBatches.Load() == before {
+	if useSIMD && fusedBatches.Load() == before {
 		t.Fatalf("fused branch never ran on a clean table (no tombstones, no WHERE)")
+	}
+	if !useSIMD && fusedBatches.Load() != before {
+		t.Fatal("fused SIMD branch ran while SIMD was disabled")
 	}
 	// Deletes create tombstones: the fused gate must exclude the branch,
 	// and results must still match the exact scan bit for bit.

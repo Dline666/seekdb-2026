@@ -62,6 +62,13 @@ func quantizeRow(v []float32, codes []byte) qparam {
 		sc = (mx - mn) / 255
 	}
 	var sumC, sumC2 float64
+	dim := len(v)
+	if quantizeEncodingEnabled && useSIMD && sc > 0 && dim >= 16 && dim <= maxInt8Dim {
+		n := dim &^ 3
+		a, b := quantizeCodesAVX2(v[:n], codes[:n], float64(mn), float64(sc))
+		sumC, sumC2 = float64(a), float64(b)
+		v, codes = v[n:], codes[n:]
+	}
 	for i, f := range v {
 		c := 0
 		if sc > 0 {
@@ -77,7 +84,7 @@ func quantizeRow(v []float32, codes []byte) qparam {
 		sumC2 += float64(c) * float64(c)
 	}
 	mnf, scf := float64(mn), float64(sc)
-	cRow := float64(len(v))*mnf*mnf + 2*scf*mnf*sumC + scf*scf*sumC2
+	cRow := float64(dim)*mnf*mnf + 2*scf*mnf*sumC + scf*scf*sumC2
 	return qparam{min: mn, scale: sc, sumC: float32(sumC), cRow: cRow}
 }
 
@@ -422,3 +429,5 @@ func approxBound(qSum, qNorm2, sqrtDim float64, dim int, dot float64, qp qparam,
 	bound = b0 + prefilterEps*(dhat2+b0+1)
 	return dhat2, bound
 }
+
+var quantizeEncodingEnabled = os.Getenv("MVDB_NO_QUANTIZE_AVX2") == ""

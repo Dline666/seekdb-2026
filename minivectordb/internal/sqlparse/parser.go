@@ -10,10 +10,33 @@ type parser struct {
 
 // Parse parses one SQL statement (without the trailing semicolon handling of the caller).
 func Parse(src string) (Stmt, error) {
-	toks, err := Lex(src)
+	var p Parser
+	return p.Parse(src)
+}
+
+// Parser owns bounded token scratch. Returned statements own their token text
+// values and remain valid after the next Parse; no AST node points at a token.
+// Like the database request loop, one Parser is used by one caller at a time.
+type Parser struct{ tokens []Token }
+
+func (p *Parser) Parse(src string) (Stmt, error) {
+	old := p.tokens
+	toks, err := LexInto(src, old)
 	if err != nil {
+		// LexInto may return nil after filling part of the reused array.
+		// Clear the entire retained capacity even on this error path.
+		clear(old[:cap(old)])
+		p.tokens = old[:0]
 		return nil, err
 	}
+	defer func() {
+		clear(toks)
+		if cap(toks) <= 256 {
+			p.tokens = toks[:0]
+		} else {
+			p.tokens = nil
+		}
+	}()
 	ps := &parser{src: src, toks: toks}
 	st, err := ps.statement()
 	if err != nil {
@@ -50,6 +73,7 @@ func (ps *parser) acceptKw(kw string) bool {
 	}
 	return false
 }
+
 func (ps *parser) acceptOp(op string) bool {
 	if ps.isOp(op) {
 		ps.p++
@@ -72,6 +96,7 @@ func (ps *parser) expectKw(kw string) error {
 	}
 	return nil
 }
+
 func (ps *parser) expectOp(op string) error {
 	if !ps.acceptOp(op) {
 		return ps.errNear()
