@@ -36,7 +36,7 @@
         "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
       }
     ],
-    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料只含一批学生会话（对话 id M 开头，thread 为 astra / opus / minimax-code）。24 个计分实例的档位上限之和是 33.5：8 个 1 分档、7 个 1.5 分档、7 个 2 分档；本轮新增的实例全部取自此前未被计入的原始会话与原始实测输出，没有新写任何实验结果，也没有改写学生原话（只有一处把同线程相邻的 M44、M45 两段原始发言合并为一轮呈现，已在该实例的 reason 里写明）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
+    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料只含一批学生会话（对话 id M 开头，thread 为 astra / opus / minimax-code）。24 个计分实例的档位上限之和是 32.0：11 个 1 分档、4 个 1.5 分档、7 个 2 分档；本轮新增的实例全部取自此前未被计入的原始会话与原始实测输出，没有新写任何实验结果，也没有改写学生原话（只有一处把同线程相邻的 M44、M45 两段原始发言合并为一轮呈现，已在该实例的 reason 里写明）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -389,14 +389,6 @@
       "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t48",
       "topic": "十进制解析等价性的局限",
       "content": "局限：等价性只覆盖单元测试里的固定用例和官方题包的 1 万行数据，没有做随机模糊测试；基准数字来自本机 Go 1.22.2，换 CPU 或 Go 版本会有差别；尾数精确的判定用的是快速路径自己的逻辑，如果那段逻辑本身有系统性偏差，等价性测试会一起错。"
-    },
-    {
-      "id": "M06",
-      "speaker": "student",
-      "thread": "astra",
-      "turn_id": "01a1bebb-7915-7c92-ba87-bc7049620c88",
-      "topic": "恢复阶段证据",
-      "content": "1 万条数据可能几毫秒就恢复完，不能只根据脚本执行顺序推断。请增加恢复进度标记或暂停钩子。"
     }
   ],
   "experiments": [
@@ -716,10 +708,10 @@
       "lifecycle": {
         "prediction": "/conversations/3/content",
         "raw_result": "/experiments/8/output",
-        "interpretation_or_correction": "这条线程里没有找到学生对本次分段计时结果的后续修正原话；与写入相分解有关的另一条实例已单独列出，不在此重复计分。",
-        "limitation": "这条比例预测只在当时的 10,000 条 uniform 负载下成立。"
+        "interpretation_or_correction": "这条线程里没有找到学生对分段计时结果的后续修正原话；本条不补写不存在的原话，改为把写入路径 profile 作为迁移到新场景的复测补上。",
+        "limitation": "这条比例预测只在当时的 10,000 条 uniform 负载下成立；写入相分解另由本次锁定的基线上的写入路径 profile 给出，两相口径不同，不能互相替代。"
       },
-      "reason": "学生先立可证伪的查询相阶段比例预测（scan 95% / heap 4% / sort 1%）并给出理由，实测占比与预测量级一致；但这只是查询相分解，不能冒充写入相分解已被验证。 原链只做了查询相分解并自陈「不能冒充写入相分解已被验证」；本条把写入路径 profile 作为迁移到新场景的复测补上，闭合这条链自己声明的缺口。",
+      "reason": "学生先立可证伪的查询相阶段比例预测（scan 95% / heap 4% / sort 1%）并给出理由，实测占比与预测量级一致；原链只做了查询相分解，本条把写入路径 profile 作为迁移到新场景的复测补上——写入相由 strconv.readFloat / scanString / TrimSpace / parseFloatFast 的占比给出，两相口径不同，不能互相替代。这条线程里没有找到学生对分段计时结果的后续修正原话，本条不补写不存在的原话。 本条把写入路径 profile 作为迁移到新场景的复测补上，闭合这条链自己声明的缺口。",
       "migration_evidence": [
         {
           "pointer": "/experiments/27/output",
@@ -773,7 +765,7 @@
         "new_scenario": "/experiments/3/output",
         "limitation": "/conversations/11/content"
       },
-      "reason": "学生先用旧 commit 的 frame 格式做出恢复预测，随后在恢复过程中再次被杀的新场景上发现该预测失效，并按批次级 frame 语义纠正后复测，最后说明该结论只覆盖进程强杀模型。 本条另有一轮原话说明不能只根据脚本执行顺序推断恢复完成、要加恢复进度标记，恢复过程中再次 kill 的新场景由此成立。"
+      "reason": "学生先用旧 commit 的 frame 格式做出恢复预测，随后在恢复过程中再次被杀的新场景上发现该预测失效，并按批次级 frame 语义纠正后复测，最后说明该结论只覆盖进程强杀模型。"
     },
     {
       "id": "U19",
@@ -788,7 +780,7 @@
         "excerpt": "cold_write_s median=0.066439791 min=0.065024041 max=0.098946666\nwarm_write_s median=0.069045167 min=0.065481666 max=0.175069625"
       },
       "evidence_status": "outlier-aware-benchmarking",
-      "score_ceiling": 1.5,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/9/content",
@@ -796,7 +788,7 @@
         "interpretation_or_correction": "冷启动修正链的后续复测原话不在本条线程中；本实例只保留离群值判据与中位数口径。",
         "limitation": "/conversations/0/content"
       },
-      "reason": "学生用一次冷启动离群值否掉单次性能结论，改用多次运行的中位数，并说明这种修正在空闲本机上的适用范围。 复审确认三要件齐备：解释第 1 次 0.770 秒是冷启动离群值 → 据此改用多次运行中位数口径 → cold/warm 复测给出中位数与极值。"
+      "reason": "学生用一次冷启动离群值否掉单次性能结论，改用多次运行的中位数，并说明这种修正在空闲本机上的适用范围。"
     },
     {
       "id": "U21",
@@ -840,9 +832,9 @@
         "prediction": "/conversations/10/content",
         "raw_result": "/experiments/11/output",
         "interpretation_or_correction": "/conversations/15/content",
-        "limitation": "本实例只重排优化顺序，没有给出准入已经完成的验证结果。"
+        "limitation": "重排优化顺序的判断依据是当时的源码审计结论；官方题包与 go test -race 的通过只说明公开用例这一层，不等于平台隐藏用例与正式负载已经验证。"
       },
-      "reason": "学生把功能准入当作 0 分硬门槛，据此把优化顺序重排为正确性优先、可审计输出优先，性能优化排在准入之后。 原链指出准入缺口（正式入口、SQL、事务、Docker 未完成）；本条把官方题包回归与 go test / -race 作为迁移到新场景的复测补上，说明缺口后来被补齐。",
+      "reason": "学生把功能准入当作 0 分硬门槛，据此把优化顺序重排为正确性优先、可审计输出优先，性能优化排在准入之后。 本条把官方题包回归与 go test / -race 作为迁移到新场景的复测补上，说明缺口后来被补齐。",
       "migration_evidence": [
         {
           "pointer": "/experiments/29/output",
@@ -886,7 +878,7 @@
         "excerpt": "ACCURACY variant=a reference=independent max_abs_dist=7.828e-07 max_abs_dist2=1.499e-05 max_rel_dist=9.074e-08 topk_mismatch=0/1000"
       },
       "evidence_status": "independent-reference-check",
-      "score_ceiling": 1.5,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/6/content",
@@ -894,7 +886,7 @@
         "interpretation_or_correction": "/conversations/12/content",
         "limitation": "独立参考的误差上限只覆盖这次随机样本。"
       },
-      "reason": "学生发现原先的参考实现与被测代码同源、失去独立性，改为独立参考实现，并只报告相对误差而不是绝对值。 复审确认三要件齐备：识别参考实现与被测代码同源、差分测试失去独立性 → 改用独立参考实现 → ACCURACY 复测给出 topk_mismatch=0/1000。"
+      "reason": "学生发现原先的参考实现与被测代码同源、失去独立性，改为独立参考实现，并只报告相对误差而不是绝对值。"
     },
     {
       "id": "U28",
@@ -914,10 +906,10 @@
       "lifecycle": {
         "prediction": "/conversations/2/content",
         "raw_result": "/experiments/1/output",
-        "interpretation_or_correction": "没有找到学生对该 1 ulp 反例的后续修正原话；本实例只保留反例本身。",
+        "interpretation_or_correction": "没有找到学生对该 1 ulp 反例的后续修正原话；本条不补写不存在的原话，改为把源码核对（squared_distance() 没有 sqrt）作为迁移到新场景的验证补上，反例本身仍然只覆盖这两个距离定义在 1 ulp 附近的并列。",
         "limitation": "该反例只覆盖这两个距离定义在 1 ulp 附近的并列。"
       },
-      "reason": "学生构造平方距离与开方距离在 1 ulp 处并列的反例，证明两种排序规则会给出不同名次。 原链只给出 1 ulp 并列反例；本条把源码核对（squared_distance() 没有 sqrt，即排序按平方距离）作为迁移到新场景的验证补上。",
+      "reason": "学生构造平方距离与开方距离在 1 ulp 处并列的反例，证明两种排序规则会给出不同名次。 本条把源码核对（squared_distance() 没有 sqrt，即排序按平方距离）作为迁移到新场景的验证补上。",
       "migration_evidence": [
         {
           "pointer": "/experiments/28/output",
@@ -966,14 +958,14 @@
         "excerpt": "rev  n=10  min=8101  median=8716  max=9207 ns/op\nwt   n=10  min=7852  median=8938  max=10024 ns/op"
       },
       "evidence_status": "revert-unmeasurable-optimizations",
-      "score_ceiling": 1.5,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/30/content",
         "raw_result": "/experiments/17/output",
         "limitation": "这组 A/B 在本机同一台机器上交替十轮取最小值与中位数，差异落在噪声带内，所以只能判定「不是瓶颈」，不能判定「更慢多少」。"
       },
-      "reason": "学生自己先看汇编推翻了「手工拼八个字节能白捡」的想法：le64 的实现其实是八次带边界检查的字节加载，不是单次 64 位加载。他据此改用 unsafe 视图加 binary.LittleEndian，做交替十轮同机 A/B，最小值 7852 对 8101 纳秒、中位数反而更差（8938 对 8716），差异落在噪声里，于是把改动回退、不把 unsafe 带进 types 包。结果证据是这组十轮交替 A/B 的原始最小值/中位数/最大值。 复审确认三要件齐备：看汇编推翻「白捡」的判断（le64 实为八次带边界检查的字节加载）→ 改 unsafe 后十轮交替 A/B → 落在噪声带，回退改动。"
+      "reason": "学生自己先看汇编推翻了「手工拼八个字节能白捡」的想法：le64 的实现其实是八次带边界检查的字节加载，不是单次 64 位加载。他据此改用 unsafe 视图加 binary.LittleEndian，做交替十轮同机 A/B，最小值 7852 对 8101 纳秒、中位数反而更差（8938 对 8716），差异落在噪声里，于是把改动回退、不把 unsafe 带进 types 包。结果证据是这组十轮交替 A/B 的原始最小值/中位数/最大值。"
     },
     {
       "id": "U38",
@@ -1063,9 +1055,9 @@
         "raw_result": "/experiments/15/output",
         "interpretation_or_correction": "/conversations/26/content",
         "new_scenario": "/conversations/25/content",
-        "limitation": "位级等价结论只覆盖本实现的输入形态。"
+        "limitation": "/conversations/42/content"
       },
-      "reason": "他先立下可证伪的前提：改十进制解析必须与 strconv.ParseFloat 逐位相等，不能是「接近」，因为向量值直接决定距离、差一个 ulp 就可能改变 TopK 顺序，所以要求把等价性写成单元测试。实现路径上他推翻了自己想过的一个方案——把上限从 15 位放宽到 19 位不行，因为尾数一旦超过 2^53，float64(mant) 本身就不精确、结果会和 strconv 差一个 ulp；改为按 strconv 的规则做一次正确舍入（放大到商有 54 位、一次 128/64 除法、round-to-nearest-even、余数决定 sticky 位）。支撑这个改动的是第二次 profile 的发现：同一段向量字面量被扫了三遍，真正该改的是让快路径自己把长尾数转对。验收上他明确不接受抽样，改用三百万次随机差分、整数位与小数位 0~19 全组合、指数 -320~320 全扫，再加 20 万条客户端同款字面量，逐位相等才算过；结果证据是这组位级差分测试全部通过，另有代码复审补上的 2^53 进位分支边界用例。他同时写明快路径的边界（只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径），以及等价性结论只覆盖本实现的输入形态。补充证据：/conversations/24/content「等价性成立：TestParseFloatFastMatchesStrconv、TestParseVectorMatchesReference、TestParseVectorFloat32Semantics 和 TestEightDigitsBlock 全部通过。但快路径的边界要说清楚：只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径，所以这个提速不是任何输入都能拿到，不能写成“解析快了两倍”这种笼统结论。」；/conversations/27/content「这种改法错一位就会改距离、进而改 TopK 顺序，所以不能靠抽样验收。我不接受抽样：随机生成 300 万个十进制字面量（各种位数、正负号、指数形态），凡是快路径接受的，逐位和 strconv.ParseFloat 比；再把整数位和小数位从 0 到 19 全组合扫一遍、指数从 -320 到 320 扫一遍；最后用 20 万个客户端同款字面量（float32 展宽后的最短往返表示）再扫一遍。全部逐位相等才算过。」；/experiments/20/output「=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tmi」。 本条把位级等价迁移到两个新场景复测：客户端同款字面量的 ParseVector 同机 A/B，以及代码复审发现此前没有用例能走到的 2^53 进位分支补测；局限另有一轮原话（等价性只覆盖固定用例与官方题包1 万行、没有随机模糊测试）。",
+      "reason": "他先立下可证伪的前提：改十进制解析必须与 strconv.ParseFloat 逐位相等，不能是「接近」，因为向量值直接决定距离、差一个 ulp 就可能改变 TopK 顺序，所以要求把等价性写成单元测试。实现路径上他推翻了自己想过的一个方案——把上限从 15 位放宽到 19 位不行，因为尾数一旦超过 2^53，float64(mant) 本身就不精确、结果会和 strconv 差一个 ulp；改为按 strconv 的规则做一次正确舍入（放大到商有 54 位、一次 128/64 除法、round-to-nearest-even、余数决定 sticky 位）。支撑这个改动的是第二次 profile 的发现：同一段向量字面量被扫了三遍，真正该改的是让快路径自己把长尾数转对。验收上他明确不接受抽样，改用三百万次随机差分、整数位与小数位 0~19 全组合、指数 -320~320 全扫，再加 20 万条客户端同款字面量，逐位相等才算过；结果证据是这组位级差分测试全部通过，另有代码复审补上的 2^53 进位分支边界用例。他同时写明快路径的边界（只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径），以及等价性结论只覆盖本实现的输入形态。补充证据：/conversations/24/content「等价性成立：TestParseFloatFastMatchesStrconv、TestParseVectorMatchesReference、TestParseVectorFloat32Semantics 和 TestEightDigitsBlock 全部通过。但快路径的边界要说清楚：只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径，所以这个提速不是任何输入都能拿到，不能写成“解析快了两倍”这种笼统结论。」；/conversations/27/content「这种改法错一位就会改距离、进而改 TopK 顺序，所以不能靠抽样验收。我不接受抽样：随机生成 300 万个十进制字面量（各种位数、正负号、指数形态），凡是快路径接受的，逐位和 strconv.ParseFloat 比；再把整数位和小数位从 0 到 19 全组合扫一遍、指数从 -320 到 320 扫一遍；最后用 20 万个客户端同款字面量（float32 展宽后的最短往返表示）再扫一遍。全部逐位相等才算过。」；/experiments/20/output「=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tmi」。 本条把位级等价迁移到两个新场景复测：客户端同款字面量的 ParseVector 同机 A/B，以及代码复审发现此前没有用例能走到的 2^53 进位分支补测。",
       "migration_evidence": [
         {
           "pointer": "/experiments/30/output",
@@ -1112,10 +1104,10 @@
     {
       "id": "V01",
       "dimension": "取舍与反思",
-      "topic": "峰值内存成分的结果解读与局限",
+      "topic": "峰值内存成分的预测",
       "student_evidence": {
-        "pointer": "/conversations/33/content",
-        "excerpt": "实测否掉了这个预测：峰值 11.06 MiB 里 anon 只有 4.39 MiB，file 是 5.19 MiB（日志和二进制的映射页），kernel 约 0.65 MiB；基线版本 anon 是 12.29 MiB，file 同样是 5.19 MiB。也就是说堆才是大头，而把 flush 阈值从 4 MiB 降到 256 KiB 之后峰值反而从 11.06 变成 11.19 MiB，一点没省——因为每次 commit 都 Sync，日志缓冲区本来就不占多少。这条“调缓冲阈"
+        "pointer": "/conversations/22/content",
+        "excerpt": "我的预测：查询峰值内存里大部分是匿名堆内存——解码后的向量副本加上 Go 堆本身。如果把日志的 flush 阈值从 4 MiB 降到 256 KiB，应该能省下可观的内存；这是当前最省事、风险最低的一条优化路线。"
       },
       "result_evidence": {
         "pointer": "/experiments/21/output",
@@ -1125,7 +1117,7 @@
       "score_ceiling": 2.0,
       "counted_in_score": true,
       "lifecycle": {
-        "prediction": "/conversations/33/content",
+        "prediction": "/conversations/22/content",
         "raw_result": "/experiments/21/output",
         "interpretation_or_correction": "/conversations/33/content",
         "limitation": "/conversations/33/content"
