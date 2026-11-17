@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "test",
+    "./..."
+  ],
+  "cwd": "/tmp/seekdb-extreme-20261117/combined",
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 34.03946426800002
+}

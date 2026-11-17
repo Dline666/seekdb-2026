@@ -1,0 +1,42 @@
+{"argv": ["systemd-run", "--quiet", "--scope", "--unit=seekdb-remote-micro", "-p", "CPUQuota=200%", "-p", "MemoryMax=2147483648", "-p", "MemorySwapMax=0", "env", "GOMAXPROCS=2", "GOMEMLIMIT=1288490188", "GOGC=20", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-engine.test", "-test.run=^$", "-test.bench=^BenchmarkQuadAVX2$", "-test.benchtime=300ms", "-test.count=3"], "cwd": null, "official_submissions": 0}
+goos: linux
+goarch: amd64
+pkg: minivectordb/internal/engine
+cpu: AMD Ryzen Threadripper PRO 5975WX 32-Cores     
+BenchmarkQuadAVX2/dim128/gatherfalse/quadfalse-2         	  702064	       502.1 ns/op
+BenchmarkQuadAVX2/dim128/gatherfalse/quadfalse-2         	  714738	       503.2 ns/op
+BenchmarkQuadAVX2/dim128/gatherfalse/quadfalse-2         	  716196	       502.6 ns/op
+BenchmarkQuadAVX2/dim128/gatherfalse/quadtrue-2          	  990364	       369.4 ns/op
+BenchmarkQuadAVX2/dim128/gatherfalse/quadtrue-2          	 1000000	       354.6 ns/op
+BenchmarkQuadAVX2/dim128/gatherfalse/quadtrue-2          	  884326	       362.0 ns/op
+BenchmarkQuadAVX2/dim128/gathertrue/quadfalse-2          	  652197	       531.5 ns/op
+BenchmarkQuadAVX2/dim128/gathertrue/quadfalse-2          	  650593	       522.4 ns/op
+BenchmarkQuadAVX2/dim128/gathertrue/quadfalse-2          	  685446	       521.5 ns/op
+BenchmarkQuadAVX2/dim128/gathertrue/quadtrue-2           	 1044894	       336.7 ns/op
+BenchmarkQuadAVX2/dim128/gathertrue/quadtrue-2           	 1000000	       363.8 ns/op
+BenchmarkQuadAVX2/dim128/gathertrue/quadtrue-2           	 1000000	       339.6 ns/op
+BenchmarkQuadAVX2/dim256/gatherfalse/quadfalse-2         	  482599	       810.4 ns/op
+BenchmarkQuadAVX2/dim256/gatherfalse/quadfalse-2         	  407482	       775.5 ns/op
+BenchmarkQuadAVX2/dim256/gatherfalse/quadfalse-2         	  472368	       742.3 ns/op
+BenchmarkQuadAVX2/dim256/gatherfalse/quadtrue-2          	  625424	       621.9 ns/op
+BenchmarkQuadAVX2/dim256/gatherfalse/quadtrue-2          	  550452	       594.1 ns/op
+BenchmarkQuadAVX2/dim256/gatherfalse/quadtrue-2          	  624630	       624.1 ns/op
+BenchmarkQuadAVX2/dim256/gathertrue/quadfalse-2          	  458955	       834.1 ns/op
+BenchmarkQuadAVX2/dim256/gathertrue/quadfalse-2          	  402090	       862.1 ns/op
+BenchmarkQuadAVX2/dim256/gathertrue/quadfalse-2          	  451816	       815.0 ns/op
+BenchmarkQuadAVX2/dim256/gathertrue/quadtrue-2           	  575956	       602.4 ns/op
+BenchmarkQuadAVX2/dim256/gathertrue/quadtrue-2           	  528374	       649.2 ns/op
+BenchmarkQuadAVX2/dim256/gathertrue/quadtrue-2           	  609246	       638.2 ns/op
+BenchmarkQuadAVX2/dim1024/gatherfalse/quadfalse-2        	  151572	      2318 ns/op
+BenchmarkQuadAVX2/dim1024/gatherfalse/quadfalse-2        	  152566	      2470 ns/op
+BenchmarkQuadAVX2/dim1024/gatherfalse/quadfalse-2        	  157191	      2316 ns/op
+BenchmarkQuadAVX2/dim1024/gatherfalse/quadtrue-2         	  194574	      1754 ns/op
+BenchmarkQuadAVX2/dim1024/gatherfalse/quadtrue-2         	  198399	      1755 ns/op
+BenchmarkQuadAVX2/dim1024/gatherfalse/quadtrue-2         	  195714	      1769 ns/op
+BenchmarkQuadAVX2/dim1024/gathertrue/quadfalse-2         	  142886	      2641 ns/op
+BenchmarkQuadAVX2/dim1024/gathertrue/quadfalse-2         	  146385	      2458 ns/op
+BenchmarkQuadAVX2/dim1024/gathertrue/quadfalse-2         	  144085	      2625 ns/op
+BenchmarkQuadAVX2/dim1024/gathertrue/quadtrue-2          	  192279	      1798 ns/op
+BenchmarkQuadAVX2/dim1024/gathertrue/quadtrue-2          	  193213	      1953 ns/op
+BenchmarkQuadAVX2/dim1024/gathertrue/quadtrue-2          	  191067	      1943 ns/op
+PASS

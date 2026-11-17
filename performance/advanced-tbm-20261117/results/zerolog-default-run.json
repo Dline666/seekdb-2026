@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm",
+    "-bins",
+    "remote-final,advanced-zerolog",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-rounds",
+    "5",
+    "-cpu-affinity",
+    "16-17",
+    "-rows",
+    "10000",
+    "-dim",
+    "128",
+    "-queries",
+    "1000",
+    "-seed",
+    "21121"
+  ],
+  "binary_hashes": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-zerolog": "7c2fa9ad2c3b4f1a0b52d09686fa2a613786d01e7ca52c18e8776e2463a90d1f",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm": "c4536de07b3a6a6fe258720525f44bd7c5124d02e8482906d06bfe5ada8d76db"
+  },
+  "driver_allowed_cpus": [
+    18
+  ],
+  "utc": "2026-11-17T11:08:57Z",
+  "diagnostic_only": false,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 12.066065146587789,
+  "identities_unchanged": true
+}

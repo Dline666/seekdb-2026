@@ -1,0 +1,134 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "tool", "pprof", "-top", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-final-profile", "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/profiles/final-default/round0-advanced-final-profile-query/query.cpu"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T12:29:37Z", "uid": 1019, "diagnostic_only": true}
+File: advanced-final-profile
+Type: cpu
+Time: Nov 17, 2026 at 8:28pm (CST)
+Duration: 2.10s, Total samples = 1.65s (78.44%)
+Showing nodes accounting for 1.65s, 100% of 1.65s total
+      flat  flat%   sum%        cum   cum%
+     0.63s 38.18% 38.18%      0.63s 38.18%  minivectordb/internal/engine.fusedScanQuadAVX2
+     0.14s  8.48% 46.67%      0.14s  8.48%  runtime/internal/syscall.Syscall6
+     0.13s  7.88% 54.55%      0.13s  7.88%  minivectordb/internal/engine.l2sqGatherAVX2
+     0.10s  6.06% 60.61%      0.10s  6.06%  minivectordb/internal/engine.fusedScanQuadCandidatesAVX2
+     0.06s  3.64% 64.24%      0.06s  3.64%  minivectordb/internal/types.decimalToFloat
+     0.04s  2.42% 66.67%      0.04s  2.42%  minivectordb/internal/engine.prefilterThreshold (inline)
+     0.04s  2.42% 69.09%      0.04s  2.42%  runtime.memclrNoHeapPointers
+     0.03s  1.82% 70.91%         1s 60.61%  minivectordb/internal/engine.(*DB).vectorTopK.func2
+     0.02s  1.21% 72.12%      0.04s  2.42%  minivectordb/internal/engine.hitHeap.down
+     0.02s  1.21% 73.33%      0.02s  1.21%  minivectordb/internal/engine.worse (inline)
+     0.02s  1.21% 74.55%      0.03s  1.82%  minivectordb/internal/proto.(*Encoder).Result
+     0.02s  1.21% 75.76%      0.02s  1.21%  minivectordb/internal/proto.validStringBytes
+     0.02s  1.21% 76.97%      0.08s  4.85%  minivectordb/internal/sqlparse.(*parser).cmp
+     0.02s  1.21% 78.18%      0.05s  3.03%  minivectordb/internal/sqlparse.(*parser).primary
+     0.02s  1.21% 79.39%      0.11s  6.67%  os.(*File).Read
+     0.02s  1.21% 80.61%      0.11s  6.67%  runtime.mallocgc
+     0.02s  1.21% 81.82%      0.02s  1.21%  runtime.nextFreeFast (inline)
+     0.02s  1.21% 83.03%      0.02s  1.21%  runtime.pcvalue
+     0.01s  0.61% 83.64%      0.07s  4.24%  bufio.(*Writer).Flush
+     0.01s  0.61% 84.24%      0.01s  0.61%  indexbytebody
+     0.01s  0.61% 84.85%      0.09s  5.45%  internal/poll.(*FD).Read
+     0.01s  0.61% 85.45%      0.01s  0.61%  main.advancedProbeBefore
+     0.01s  0.61% 86.06%      1.25s 75.76%  minivectordb/internal/engine.(*DB).execSelect
+     0.01s  0.61% 86.67%      0.01s  0.61%  minivectordb/internal/engine.(*DB).rowBytes
+     0.01s  0.61% 87.27%      0.12s  7.27%  minivectordb/internal/engine.(*scope).vectorArg
+     0.01s  0.61% 87.88%      0.05s  3.03%  minivectordb/internal/engine.(*topK).admit
+     0.01s  0.61% 88.48%      0.01s  0.61%  minivectordb/internal/engine.(*topK).bound (inline)
+     0.01s  0.61% 89.09%      0.64s 38.79%  minivectordb/internal/engine.fusedScanBlockAVX2
+     0.01s  0.61% 89.70%      0.02s  1.21%  minivectordb/internal/engine.quantizeQuery
+     0.01s  0.61% 90.30%      0.04s  2.42%  minivectordb/internal/engine.widen (inline)
+     0.01s  0.61% 90.91%      0.01s  0.61%  minivectordb/internal/proto.parseFast.func2
+     0.01s  0.61% 91.52%      0.01s  0.61%  minivectordb/internal/sqlparse.(*parser).cur (inline)
+     0.01s  0.61% 92.12%      0.10s  6.06%  minivectordb/internal/types.ParseVectorInto
+     0.01s  0.61% 92.73%      0.01s  0.61%  minivectordb/internal/types.eightDigitsValue (inline)
+     0.01s  0.61% 93.33%      0.08s  4.85%  minivectordb/internal/types.scanFloat
+     0.01s  0.61% 93.94%      0.01s  0.61%  runtime.(*mheap).allocSpan
+     0.01s  0.61% 94.55%      0.01s  0.61%  runtime.arenaIndex (inline)
+     0.01s  0.61% 95.15%      0.01s  0.61%  runtime.futex
+     0.01s  0.61% 95.76%      0.09s  5.45%  runtime.makeslice
+     0.01s  0.61% 96.36%      0.02s  1.21%  runtime.newobject
+     0.01s  0.61% 96.97%      0.03s  1.82%  runtime.scanobject
+     0.01s  0.61% 97.58%      0.02s  1.21%  runtime.typePointers.next
+     0.01s  0.61% 98.18%      0.01s  0.61%  runtime.typePointers.nextFast (inline)
+     0.01s  0.61% 98.79%      0.01s  0.61%  runtime.unlock2
+     0.01s  0.61% 99.39%      0.01s  0.61%  strconv.fmtF
+     0.01s  0.61%   100%      0.02s  1.21%  strings.ToLower
+         0     0%   100%      0.12s  7.27%  bufio.(*Reader).ReadSlice
+         0     0%   100%      0.11s  6.67%  bufio.(*Reader).fill
+         0     0%   100%      0.01s  0.61%  bytes.IndexByte (inline)
+         0     0%   100%      0.01s  0.61%  internal/bytealg.MakeNoZero
+         0     0%   100%      0.06s  3.64%  internal/poll.(*FD).Write
+         0     0%   100%      0.14s  8.48%  internal/poll.ignoringEINTRIO (inline)
+         0     0%   100%      1.61s 97.58%  main.main
+         0     0%   100%      0.12s  7.27%  main.main.func2
+         0     0%   100%      1.34s 81.21%  minivectordb/internal/engine.(*DB).Exec
+         0     0%   100%      1.25s 75.76%  minivectordb/internal/engine.(*DB).run
+         0     0%   100%      1.08s 65.45%  minivectordb/internal/engine.(*DB).vectorTopK
+         0     0%   100%      0.12s  7.27%  minivectordb/internal/engine.(*scope).compile
+         0     0%   100%      0.12s  7.27%  minivectordb/internal/engine.(*scope).compileFunc
+         0     0%   100%      0.01s  0.61%  minivectordb/internal/engine.(*topK).result
+         0     0%   100%      0.10s  6.06%  minivectordb/internal/engine.fusedScanCandidateAVX2
+         0     0%   100%      0.10s  6.06%  minivectordb/internal/engine.fusedScanCandidates
+         0     0%   100%      0.64s 38.79%  minivectordb/internal/engine.fusedScanInt8
+         0     0%   100%      0.13s  7.88%  minivectordb/internal/engine.l2sqGatherBytes
+         0     0%   100%      0.04s  2.42%  minivectordb/internal/engine.quantBlockBound.threshold
+         0     0%   100%      0.04s  2.42%  minivectordb/internal/proto.(*RequestParser).Parse
+         0     0%   100%      0.01s  0.61%  minivectordb/internal/proto.appendFloat
+         0     0%   100%      0.01s  0.61%  minivectordb/internal/proto.appendValue
+         0     0%   100%      0.04s  2.42%  minivectordb/internal/proto.parseFast
+         0     0%   100%      0.09s  5.45%  minivectordb/internal/sqlparse.(*Parser).Parse
+         0     0%   100%      0.01s  0.61%  minivectordb/internal/sqlparse.(*parser).acceptOp (inline)
+         0     0%   100%      0.08s  4.85%  minivectordb/internal/sqlparse.(*parser).expr
+         0     0%   100%      0.03s  1.82%  minivectordb/internal/sqlparse.(*parser).funcCall
+         0     0%   100%      0.01s  0.61%  minivectordb/internal/sqlparse.(*parser).isOp (inline)
+         0     0%   100%      0.09s  5.45%  minivectordb/internal/sqlparse.(*parser).selectStmt
+         0     0%   100%      0.09s  5.45%  minivectordb/internal/sqlparse.(*parser).statement
+         0     0%   100%      0.10s  6.06%  minivectordb/internal/types.ParseVector (inline)
+         0     0%   100%      0.06s  3.64%  os.(*File).Write
+         0     0%   100%      0.09s  5.45%  os.(*File).read (inline)
+         0     0%   100%      0.06s  3.64%  os.(*File).write (inline)
+         0     0%   100%      0.02s  1.21%  runtime.(*inlineUnwinder).resolveInternal (inline)
+         0     0%   100%      0.02s  1.21%  runtime.(*mcache).nextFree
+         0     0%   100%      0.02s  1.21%  runtime.(*mcache).refill
+         0     0%   100%      0.02s  1.21%  runtime.(*mcentral).cacheSpan
+         0     0%   100%      0.01s  0.61%  runtime.(*mcentral).grow
+         0     0%   100%      0.01s  0.61%  runtime.(*mheap).alloc
+         0     0%   100%      0.01s  0.61%  runtime.(*mheap).alloc.func1
+         0     0%   100%      0.01s  0.61%  runtime.(*spanSet).push
+         0     0%   100%      0.01s  0.61%  runtime.(*sweepLocked).sweep
+         0     0%   100%      0.01s  0.61%  runtime.bulkBarrierPreWrite
+         0     0%   100%      0.02s  1.21%  runtime.callers
+         0     0%   100%      0.02s  1.21%  runtime.callers.func1
+         0     0%   100%      0.01s  0.61%  runtime.deductSweepCredit
+         0     0%   100%      0.01s  0.61%  runtime.futexsleep
+         0     0%   100%      0.04s  2.42%  runtime.gcBgMarkWorker
+         0     0%   100%      0.03s  1.82%  runtime.gcBgMarkWorker.func2
+         0     0%   100%      0.03s  1.82%  runtime.gcDrain
+         0     0%   100%      0.03s  1.82%  runtime.gcDrainMarkWorkerFractional (inline)
+         0     0%   100%      0.01s  0.61%  runtime.gcMarkDone
+         0     0%   100%      0.01s  0.61%  runtime.gcMarkDone.func2
+         0     0%   100%      0.02s  1.21%  runtime.growslice
+         0     0%   100%      0.02s  1.21%  runtime.mProf_Malloc
+         0     0%   100%      1.61s 97.58%  runtime.main
+         0     0%   100%      0.02s  1.21%  runtime.newInlineUnwinder
+         0     0%   100%      0.01s  0.61%  runtime.notetsleep
+         0     0%   100%      0.01s  0.61%  runtime.notetsleep_internal
+         0     0%   100%      0.02s  1.21%  runtime.pcdatavalue1
+         0     0%   100%      0.02s  1.21%  runtime.profilealloc
+         0     0%   100%      0.01s  0.61%  runtime.spanOf (inline)
+         0     0%   100%      0.01s  0.61%  runtime.stopTheWorldWithSema
+         0     0%   100%      0.01s  0.61%  runtime.sweepone
+         0     0%   100%      0.07s  4.24%  runtime.systemstack
+         0     0%   100%      0.02s  1.21%  runtime.tracebackPCs
+         0     0%   100%      0.01s  0.61%  runtime.unlock (inline)
+         0     0%   100%      0.01s  0.61%  runtime.unlockWithRank (inline)
+         0     0%   100%      0.01s  0.61%  runtime.wbMove
+         0     0%   100%      0.01s  0.61%  strconv.AppendFloat (inline)
+         0     0%   100%      0.01s  0.61%  strconv.formatDigits
+         0     0%   100%      0.01s  0.61%  strconv.genericFtoa
+         0     0%   100%      0.01s  0.61%  strings.(*Builder).Grow
+         0     0%   100%      0.01s  0.61%  strings.(*Builder).grow
+         0     0%   100%      0.14s  8.48%  syscall.RawSyscall6
+         0     0%   100%      0.08s  4.85%  syscall.Read (inline)
+         0     0%   100%      0.14s  8.48%  syscall.Syscall
+         0     0%   100%      0.06s  3.64%  syscall.Write (inline)
+         0     0%   100%      0.08s  4.85%  syscall.read
+         0     0%   100%      0.06s  3.64%  syscall.write

@@ -1,0 +1,681 @@
+--- /dev/null
++++ b/minivectordb/internal/engine/candidate_bounds_test.go
+@@ -0,0 +1,65 @@
++package engine
++
++import (
++	"fmt"
++	"reflect"
++	"strings"
++	"testing"
++)
++
++func TestCandidateBoundCacheLifetimeAndBudget(t *testing.T) {
++	db := open(t, t.TempDir())
++	defer db.Close()
++	mustExec(t, db, "CREATE TABLE docs(id BIGINT PRIMARY KEY, category VARCHAR(8), embedding VECTOR(32))")
++	q := make([]float32, 32)
++	var rows []string
++	for i := 0; i < 513; i++ {
++		v := make([]float32, 32)
++		v[i%32] = float32(i%17) - 8
++		rows = append(rows, fmt.Sprintf("(%d,'c%d','%s')", i, i%2, vectorText(v)))
++	}
++	mustExec(t, db, "INSERT INTO docs VALUES "+strings.Join(rows, ","))
++	tbl := db.tables["docs"]
++	db.vectorTopK(tbl, q, nil, 10, false, nil)
++	x := tbl.Index
++	cand, ok := x.eqSlots(db, tbl, 1, "c0")
++	if !ok {
++		t.Fatal("missing candidates")
++	}
++	before := x.derivedBytes()
++	db.opts.IndexMemBytes = before + quantBlockBytes(len(cand)) - 1
++	if x.candidateBounds(db, 1, "c0") != nil || x.derivedBytes() != before {
++		t.Fatal("cache exceeded budget")
++	}
++	db.opts.IndexMemBytes = before + quantBlockBytes(len(cand))
++	bounds := x.candidateBounds(db, 1, "c0")
++	if len(bounds) != 3 || x.derivedBytes() != db.opts.IndexMemBytes {
++		t.Fatal("budget charge or block count")
++	}
++	for i, b := range bounds {
++		lo := i * quantBlockRows
++		hi := min(lo+quantBlockRows, len(cand))
++		if b != x.boundForSlots(cand[lo:hi]) {
++			t.Fatal("cached merge differs")
++		}
++		for j := lo; j < hi; j++ {
++			sub := x.boundForSlots(cand[j:hi])
++			if sub.maxScale > b.maxScale || sub.maxAbs > b.maxAbs {
++				t.Fatal("subset not bounded")
++			}
++		}
++	}
++	query := fmt.Sprintf("SELECT id,L2_DISTANCE(embedding,'%s') AS d FROM docs WHERE category='c0' ORDER BY d LIMIT 10", vectorText(q))
++	got := mustExec(t, db, query).Rows
++	old := candidateBoundsEnabled
++	candidateBoundsEnabled = false
++	want := mustExec(t, db, query).Rows
++	candidateBoundsEnabled = old
++	if !reflect.DeepEqual(got, want) {
++		t.Fatal("cached path changed exact output")
++	}
++	mustExec(t, db, "UPDATE docs SET category='c1' WHERE id=0")
++	if x.eq != nil || x.eqBytes != 0 {
++		t.Fatal("stale cached bounds after mutation")
++	}
++}
+--- a/minivectordb/internal/engine/db.go
++++ b/minivectordb/internal/engine/db.go
+@@ -8,6 +8,7 @@
+ 	"path/filepath"
+ 	"strings"
+ 
++	sp "minivectordb/internal/sqlparse"
+ 	"minivectordb/internal/storage"
+ 	"minivectordb/internal/types"
+ )
+@@ -43,6 +44,7 @@
+ 	nextTxn uint64
+ 	txn     *Txn // explicit transaction, nil when autocommit
+ 	opts    Options
++	parser  sp.Parser
+ 	fi      fastInsertBufs // reusable buffers for the fast insert path
+ }
+ 
+--- a/minivectordb/internal/engine/eqset.go
++++ b/minivectordb/internal/engine/eqset.go
+@@ -30,8 +30,9 @@
+ }
+ 
+ type eqGroup struct {
+-	slots []int32
+-	n     int
++	slots  []int32
++	n      int
++	bounds []quantBlockBound
+ }
+ 
+ // eqSlots returns the slots whose column col equals v. The second result is
+@@ -51,8 +52,8 @@
+ 		// Reserve the slot array and charge owned strings, groups and map
+ 		// growth before allocating them. Stop once the shared budget is used.
+ 		available := db.indexBudget(x) - x.derivedBytes()
+-		bytes := int64(x.live)*4 + 128
+-		if bytes > available {
++		bytes := int64(128)
++		if int64(x.live)*4+bytes > available {
+ 			x.eqFull = true
+ 			return nil, false
+ 		}
+@@ -64,7 +65,7 @@
+ 			key := t.varBytes(db.rowBytes(x.off[s]), col)
+ 			g := e.m[string(key)] // transient map lookup does not copy the string
+ 			if g == nil {
+-				bytes += int64(len(key)) + 96
++				bytes += int64(len(key)) + 128
+ 				if bytes > available {
+ 					x.eqFull = true
+ 					return nil, false
+@@ -72,24 +73,25 @@
+ 				g = &eqGroup{}
+ 				e.m[string(key)] = g
+ 			}
+-			g.n++
+-		}
+-		// One exact-size allocation replaces repeated growth of every value's
+-		// slice. Fill in slot order so all existing exact ordering is retained.
+-		slots := make([]int32, x.live)
+-		at := 0
+-		for _, g := range e.m {
+-			end := at + g.n
+-			g.slots = slots[at:end:end]
+-			g.n = 0
+-			at = end
+-		}
+-		for s := range x.pks {
+-			if x.off[s] == deleted {
+-				continue
++			if len(g.slots) == cap(g.slots) {
++				// Explicit capacity growth makes the retained-byte charge known
++				// before allocation. A single pass avoids rereading every row's
++				// VARCHAR after counting, critical when the log exceeds memory.
++				capacity := max(8, cap(g.slots)+cap(g.slots)/2)
++				capacity = (capacity + 7) &^ 7
++				// Reduce spare capacity before rejecting a group near the budget.
++				// All capacities are multiples of eight int32 entries.
++				capacity = min(capacity, cap(g.slots)+int((available-bytes)/32)*8)
++				if capacity <= len(g.slots) {
++					x.eqFull = true
++					return nil, false
++				}
++				bytes += int64(capacity-cap(g.slots)) * 4
++				next := make([]int32, len(g.slots), capacity)
++				copy(next, g.slots)
++				g.slots = next
+ 			}
+-			g := e.m[string(t.varBytes(db.rowBytes(x.off[s]), col))]
+-			g.slots[g.n] = int32(s)
++			g.slots = append(g.slots, int32(s))
+ 			g.n++
+ 		}
+ 		x.eq[col] = e
+@@ -229,3 +231,39 @@
+ 	}
+ 	return -1, "", false
+ }
++
++// candidateBounds caches exactly the existing boundForSlots merge, in groups
++// of quantBlockRows candidate positions. A subrange may use its containing
++// group bound, but must never extend into the next group. Derived sets are
++// invalidated on every mutation, and all retained capacity shares the index
++// budget. No vectors or quantized codes are copied.
++func (x *VecIndex) candidateBounds(db *DB, col int, val string) []quantBlockBound {
++	if !candidateBoundsEnabled {
++		return nil
++	}
++	e := x.eq[col]
++	if e == nil || e.gen != x.gen {
++		return nil
++	}
++	g := e.m[val]
++	if g == nil || len(g.slots) == 0 {
++		return nil
++	}
++	if g.bounds != nil {
++		return g.bounds
++	}
++	n := (len(g.slots) + quantBlockRows - 1) / quantBlockRows
++	bytes := int64(n) * 16
++	if bytes > db.indexBudget(x)-x.derivedBytes() {
++		return nil
++	}
++	g.bounds = make([]quantBlockBound, n)
++	for i := range g.bounds {
++		lo := i * quantBlockRows
++		g.bounds[i] = x.boundForSlots(g.slots[lo:min(lo+quantBlockRows, len(g.slots))])
++	}
++	x.eqBytes += bytes
++	return g.bounds
++}
++
++var candidateBoundsEnabled = os.Getenv("MVDB_NO_EQBOUNDS") == ""
+--- a/minivectordb/internal/engine/exec.go
++++ b/minivectordb/internal/engine/exec.go
+@@ -28,7 +28,7 @@
+ 	if res, err, handled := db.tryFastInsert(sql); handled {
+ 		return res, err
+ 	}
+-	st, err := sp.Parse(sql)
++	st, err := db.parser.Parse(sql)
+ 	if err != nil {
+ 		var pe *sp.Error
+ 		if errors.As(err, &pe) {
+--- a/minivectordb/internal/engine/prefilter.go
++++ b/minivectordb/internal/engine/prefilter.go
+@@ -62,6 +62,13 @@
+ 		sc = (mx - mn) / 255
+ 	}
+ 	var sumC, sumC2 float64
++	dim := len(v)
++	if quantizeEncodingEnabled && useSIMD && sc > 0 && dim >= 16 && dim <= maxInt8Dim {
++		n := dim &^ 3
++		a, b := quantizeCodesAVX2(v[:n], codes[:n], float64(mn), float64(sc))
++		sumC, sumC2 = float64(a), float64(b)
++		v, codes = v[n:], codes[n:]
++	}
+ 	for i, f := range v {
+ 		c := 0
+ 		if sc > 0 {
+@@ -77,7 +84,7 @@
+ 		sumC2 += float64(c) * float64(c)
+ 	}
+ 	mnf, scf := float64(mn), float64(sc)
+-	cRow := float64(len(v))*mnf*mnf + 2*scf*mnf*sumC + scf*scf*sumC2
++	cRow := float64(dim)*mnf*mnf + 2*scf*mnf*sumC + scf*scf*sumC2
+ 	return qparam{min: mn, scale: sc, sumC: float32(sumC), cRow: cRow}
+ }
+ 
+@@ -422,3 +429,5 @@
+ 	bound = b0 + prefilterEps*(dhat2+b0+1)
+ 	return dhat2, bound
+ }
++
++var quantizeEncodingEnabled = os.Getenv("MVDB_NO_QUANTIZE_AVX2") == ""
+--- /dev/null
++++ b/minivectordb/internal/engine/quantize_amd64.go
+@@ -0,0 +1,10 @@
++package engine
++
++// quantizeCodesAVX2 encodes a multiple of four finite float32 coordinates.
++// Scale is positive (possibly +Inf), mn is their finite row minimum.
++// Length is at most maxInt8Dim; int32 lane sums cannot overflow. It uses
++// the scalar path's float64 division, then floor plus fraction >= 0.5,
++// avoiding the different tie behavior of nearest-even vector rounding.
++//
++//go:noescape
++func quantizeCodesAVX2(v []float32, codes []byte, mn, scale float64) (sum, square uint64)
+--- /dev/null
++++ b/minivectordb/internal/engine/quantize_amd64.s
+@@ -0,0 +1,57 @@
++#include "textflag.h"
++
++DATA ·quantHalf+0(SB)/8, $0x3fe0000000000000
++GLOBL ·quantHalf(SB), RODATA|NOPTR, $8
++DATA ·quantOne+0(SB)/8, $0x3ff0000000000000
++GLOBL ·quantOne(SB), RODATA|NOPTR, $8
++DATA ·quantMax+0(SB)/4, $255
++GLOBL ·quantMax(SB), RODATA|NOPTR, $4
++
++TEXT ·quantizeCodesAVX2(SB), NOSPLIT, $0-80
++	MOVQ v_base+0(FP), DI
++	MOVQ v_len+8(FP), CX
++	MOVQ codes_base+24(FP), SI
++	VBROADCASTSD mn+48(FP), Y6
++	VBROADCASTSD scale+56(FP), Y7
++	VBROADCASTSD ·quantHalf(SB), Y4
++	VBROADCASTSD ·quantOne(SB), Y3
++	VPBROADCASTD ·quantMax(SB), X5
++	VPXOR X8, X8, X8
++	VPXOR X9, X9, X9
++	VPXOR X10, X10, X10
++qencode_loop:
++	CMPQ CX, $4
++	JL qencode_done
++	VCVTPS2PD (DI), Y0
++	VSUBPD Y6, Y0, Y0
++	VDIVPD Y7, Y0, Y0
++	VCVTTPD2DQY Y0, X1
++	VCVTDQ2PD X1, Y2
++	VSUBPD Y2, Y0, Y0
++	VCMPPD $29, Y4, Y0, Y0
++	VANDPD Y3, Y0, Y0
++	VCVTTPD2DQY Y0, X2
++	VPADDD X2, X1, X1
++	VPMAXSD X10, X1, X1
++	VPMINSD X5, X1, X1
++	VPADDD X1, X8, X8
++	VPMULLD X1, X1, X2
++	VPADDD X2, X9, X9
++	VPACKUSDW X1, X1, X1
++	VPACKUSWB X1, X1, X1
++	VMOVD X1, (SI)
++	ADDQ $16, DI
++	ADDQ $4, SI
++	SUBQ $4, CX
++	JMP qencode_loop
++qencode_done:
++	VPHADDD X8, X8, X8
++	VPHADDD X8, X8, X8
++	VPHADDD X9, X9, X9
++	VPHADDD X9, X9, X9
++	VMOVD X8, AX
++	MOVQ AX, sum+64(FP)
++	VMOVD X9, AX
++	MOVQ AX, square+72(FP)
++	VZEROUPPER
++	RET
+--- /dev/null
++++ b/minivectordb/internal/engine/quantize_encoding_test.go
+@@ -0,0 +1,116 @@
++package engine
++
++import (
++	"bytes"
++	"math"
++	"math/big"
++	"math/rand"
++	"testing"
++)
++
++// Round a positive IEEE quotient with independent rational arithmetic.
++// Two 53-bit big.Float operations reproduce the specified subtract/divide
++// rounding without the production scalar loop, SIMD, or math.Round.
++func oracleQuantCode(v, mn, scale float32) byte {
++	if scale == 0 || math.IsInf(float64(scale), 1) {
++		return 0
++	}
++	a := new(big.Float).SetPrec(53).SetMode(big.ToNearestEven).SetFloat64(float64(v))
++	a.Sub(a, new(big.Float).SetPrec(53).SetFloat64(float64(mn)))
++	a.Quo(a, new(big.Float).SetPrec(53).SetFloat64(float64(scale)))
++	exact, _ := a.Rat(nil)
++	integer, remainder := new(big.Int), new(big.Int)
++	integer.QuoRem(exact.Num(), exact.Denom(), remainder)
++	remainder.Lsh(remainder, 1)
++	if remainder.Cmp(exact.Denom()) >= 0 {
++		integer.Add(integer, big.NewInt(1))
++	}
++	x := integer.Int64()
++	if x < 0 {
++		x = 0
++	}
++	if x > 255 {
++		x = 255
++	}
++	return byte(x)
++}
++
++func TestQuantizeEncodingIndependentOracle(t *testing.T) {
++	old := quantizeEncodingEnabled
++	defer func() { quantizeEncodingEnabled = old }()
++	rng := rand.New(rand.NewSource(41717))
++	for trial := 0; trial < 180; trial++ {
++		n := []int{16, 17, 31, 32, 127, 128, 255, 256, 1023, 1024}[trial%10]
++		v := make([]float32, n)
++		for i := range v {
++			switch trial % 6 {
++			case 0:
++				v[i] = float32(rng.NormFloat64() * 100)
++			case 1:
++				v[i] = float32(i%256) + 0.5
++				switch i % 3 {
++				case 1:
++					v[i] = math.Nextafter32(v[i], float32(math.Inf(-1)))
++				case 2:
++					v[i] = math.Nextafter32(v[i], float32(math.Inf(1)))
++				}
++			case 2:
++				v[i] = float32(0.00001 * float64(i%13))
++			case 3:
++				v[i] = float32(1e30 + 1e25*float64(i%13))
++			case 4:
++				v[i] = 7
++			case 5:
++				v[i] = float32(i%129) * math.SmallestNonzeroFloat32
++			}
++		}
++		if trial%6 == 1 {
++			v[0], v[1] = 0, 255
++		}
++		if trial == 0 {
++			v[0], v[n-1] = -math.MaxFloat32, math.MaxFloat32
++		}
++		gotbuf := bytes.Repeat([]byte{0xA5}, n+2)
++		got := gotbuf[1 : n+1]
++		scalar := make([]byte, n)
++		quantizeEncodingEnabled = false
++		wantParam := quantizeRow(v, scalar)
++		quantizeEncodingEnabled = true
++		gotParam := quantizeRow(v, got)
++		if !bytes.Equal(got, scalar) {
++			t.Fatalf("scalar code mismatch trial %d", trial)
++		}
++		if gotbuf[0] != 0xA5 || gotbuf[n+1] != 0xA5 {
++			t.Fatal("encoder wrote beyond slice")
++		}
++		// The folded expression may be NaN for an infinite scale in both paths.
++		if gotParam.min != wantParam.min || gotParam.scale != wantParam.scale || gotParam.sumC != wantParam.sumC || !(gotParam.cRow == wantParam.cRow || math.IsNaN(gotParam.cRow) && math.IsNaN(wantParam.cRow)) {
++			t.Fatal("parameter mismatch", trial)
++		}
++		for i, x := range v {
++			if want := oracleQuantCode(x, wantParam.min, wantParam.scale); got[i] != want {
++				t.Fatalf("independent rounding mismatch trial=%d coordinate=%d got=%d want=%d", trial, i, got[i], want)
++			}
++		}
++	}
++}
++
++func TestQuantizeEncodingMaxIntegerSum(t *testing.T) {
++	old := quantizeEncodingEnabled
++	defer func() { quantizeEncodingEnabled = old }()
++	for _, n := range []int{maxInt8Dim - 1, maxInt8Dim, maxInt8Dim + 1} {
++		v := make([]float32, n)
++		for i := range v {
++			v[i] = 255
++		}
++		v[0] = 0
++		a, b := make([]byte, n), make([]byte, n)
++		quantizeEncodingEnabled = false
++		p := quantizeRow(v, a)
++		quantizeEncodingEnabled = true
++		q := quantizeRow(v, b)
++		if p != q || !bytes.Equal(a, b) {
++			t.Fatal("sum overflow or tail mismatch", n)
++		}
++	}
++}
+--- /dev/null
++++ b/minivectordb/internal/engine/quantize_generic.go
+@@ -0,0 +1,8 @@
++//go:build !amd64
++
++package engine
++
++// useSIMD is false on these targets; quantizeRow retains its Go fallback.
++func quantizeCodesAVX2(v []float32, codes []byte, mn, scale float64) (sum, square uint64) {
++	panic("AVX2 encoder unavailable")
++}
+--- /dev/null
++++ b/minivectordb/internal/engine/quantize_guard_linux_amd64_test.go
+@@ -0,0 +1,53 @@
++package engine
++
++import (
++	"bytes"
++	"runtime"
++	"syscall"
++	"testing"
++	"unsafe"
++)
++
++func TestQuantizeEncodingGuardPages(t *testing.T) {
++	if !useSIMD {
++		t.Skip("AVX2 unavailable or explicitly disabled")
++	}
++	page := syscall.Getpagesize()
++	old := quantizeEncodingEnabled
++	defer func() { quantizeEncodingEnabled = old }()
++	for _, n := range []int{16, 17, 31, 127, 128, 1024} {
++		func() {
++			input, err := syscall.Mmap(-1, 0, 2*page, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_PRIVATE|syscall.MAP_ANON)
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer syscall.Munmap(input)
++			output, err := syscall.Mmap(-1, 0, 2*page, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_PRIVATE|syscall.MAP_ANON)
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer syscall.Munmap(output)
++			if err = syscall.Mprotect(input[page:], syscall.PROT_NONE); err != nil {
++				t.Fatal(err)
++			}
++			if err = syscall.Mprotect(output[page:], syscall.PROT_NONE); err != nil {
++				t.Fatal(err)
++			}
++			v := unsafe.Slice((*float32)(unsafe.Pointer(&input[page-4*n])), n)
++			codes := output[page-n : page : page]
++			for i := range v {
++				v[i] = float32(i%257) - 128
++			}
++			want := make([]byte, n)
++			quantizeEncodingEnabled = false
++			quantizeRow(v, want)
++			quantizeEncodingEnabled = true
++			quantizeRow(v, codes)
++			if !bytes.Equal(codes, want) {
++				t.Fatal("guard-page encoding mismatch", n)
++			}
++			runtime.KeepAlive(v)
++			runtime.KeepAlive(codes)
++		}()
++	}
++}
+--- /dev/null
++++ b/minivectordb/internal/engine/subnormal_quant_test.go
+@@ -0,0 +1,59 @@
++package engine
++
++import (
++	"fmt"
++	"math"
++	"strings"
++	"testing"
++)
++
++// Expected nearest ID and distance are analytic: one differing coordinate,
++// versus 32 identical differences in every earlier row. No production heap,
++// comparator, quantizer or distance function is used for the expectation.
++func TestSubnormalQuantizationExactness(t *testing.T) {
++	for _, scale := range []uint32{64, 300} {
++		for _, tinyQuery := range []bool{false, true} {
++			t.Run(fmt.Sprintf("units%d_query%v", scale, tinyQuery), func(t *testing.T) {
++				db := open(t, t.TempDir())
++				defer db.Close()
++				mustExec(t, db, "CREATE TABLE docs(id BIGINT PRIMARY KEY, category VARCHAR(8), embedding VECTOR(32))")
++				high := math.Float32frombits(scale)
++				delta := scale / 2
++				if scale == 300 {
++					delta = 60
++					if tinyQuery {
++						delta = 50
++					}
++				}
++				middle := math.Float32frombits(scale - delta)
++				q, target, other := make([]float32, 32), make([]float32, 32), make([]float32, 32)
++				for i := range q {
++					q[i] = high
++					target[i] = high
++					other[i] = middle
++				}
++				if tinyQuery {
++					q[0] = 0
++				} else {
++					target[0] = 0
++				}
++				rows := make([]string, 0, 129)
++				for i := 1; i <= 128; i++ {
++					rows = append(rows, fmt.Sprintf("(%d,'x','%s')", i, vectorText(other)))
++				}
++				rows = append(rows, fmt.Sprintf("(129,'x','%s')", vectorText(target)))
++				mustExec(t, db, "INSERT INTO docs VALUES "+strings.Join(rows, ","))
++				for _, where := range []string{"", " WHERE category='x'"} {
++					sql := fmt.Sprintf("SELECT id,L2_DISTANCE(embedding,'%s') AS d FROM docs%s ORDER BY d LIMIT 1", vectorText(q), where)
++					got := mustExec(t, db, sql).Rows
++					if len(got) != 1 || got[0][0].I != 129 {
++						t.Fatalf("unsafe tiny-scale prune: got %v, expected ID 129", got)
++					}
++					if got[0][1].F != float64(high) {
++						t.Fatalf("distance got %.17g want %.17g", got[0][1].F, float64(high))
++					}
++				}
++			})
++		}
++	}
++}
+--- a/minivectordb/internal/engine/topk.go
++++ b/minivectordb/internal/engine/topk.go
+@@ -330,6 +330,10 @@
+ 	fusedCandidateOK := fusedCandidatesEnabled && prefilterOK && useCand &&
+ 		blk == nil && ov == nil && rowPred == nil && !prefilter6Bit &&
+ 		len(x.qf) >= len(x.pks)*4
++	var candidateBounds []quantBlockBound
++	if fusedCandidateOK {
++		candidateBounds = x.candidateBounds(db, eq.col, eq.val)
++	}
+ 	// The fused integer scan does much less work per row. Estimate its
+ 	// parallel work in 512-byte units, keeping small scans on the caller
+ 	// while retaining parallelism for larger row counts or dimensions.
+@@ -429,7 +433,12 @@
+ 				}
+ 				var bound quantBlockBound
+ 				if fusedCandidateOK {
+-					bound = x.boundForSlots(cand[i : i+n])
++					if candidateBounds != nil {
++						n = min(n, quantBlockRows-i%quantBlockRows)
++						bound = candidateBounds[i/quantBlockRows]
++					} else {
++						bound = x.boundForSlots(cand[i : i+n])
++					}
+ 				} else {
+ 					// Worker partitions can start inside a block. Do not
+ 					// apply its bound to rows from the following block.
+--- a/minivectordb/internal/sqlparse/parser.go
++++ b/minivectordb/internal/sqlparse/parser.go
+@@ -10,10 +10,33 @@
+ 
+ // Parse parses one SQL statement (without the trailing semicolon handling of the caller).
+ func Parse(src string) (Stmt, error) {
+-	toks, err := Lex(src)
++	var p Parser
++	return p.Parse(src)
++}
++
++// Parser owns bounded token scratch. Returned statements own their token text
++// values and remain valid after the next Parse; no AST node points at a token.
++// Like the database request loop, one Parser is used by one caller at a time.
++type Parser struct{ tokens []Token }
++
++func (p *Parser) Parse(src string) (Stmt, error) {
++	old := p.tokens
++	toks, err := LexInto(src, old)
+ 	if err != nil {
++		// LexInto may return nil after filling part of the reused array.
++		// Clear the entire retained capacity even on this error path.
++		clear(old[:cap(old)])
++		p.tokens = old[:0]
+ 		return nil, err
+ 	}
++	defer func() {
++		clear(toks)
++		if cap(toks) <= 256 {
++			p.tokens = toks[:0]
++		} else {
++			p.tokens = nil
++		}
++	}()
+ 	ps := &parser{src: src, toks: toks}
+ 	st, err := ps.statement()
+ 	if err != nil {
+--- /dev/null
++++ b/minivectordb/internal/sqlparse/reuse_test.go
+@@ -0,0 +1,48 @@
++package sqlparse
++
++import (
++	"reflect"
++	"strings"
++	"testing"
++)
++
++func TestParserScratchLifetime(t *testing.T) {
++	var p Parser
++	texts := []string{"SELECT id, L2_DISTANCE(v, '[1,2,3]') AS d FROM docs WHERE tag='alpha' ORDER BY d LIMIT 10", "SELECT 'a\\nβ', 9223372036854775807 FROM docs", "CREATE TABLE docs(id BIGINT PRIMARY KEY,tag VARCHAR(20),v VECTOR(3))", "INSERT INTO docs VALUES (1,'long source','[1,2,3]')"}
++	for _, sql := range texts {
++		want, err := Parse(sql)
++		if err != nil {
++			t.Fatal(err)
++		}
++		got, err := p.Parse(sql)
++		if err != nil {
++			t.Fatal(err)
++		}
++		_, _ = p.Parse("SELECT 'unclosed")
++		_, _ = p.Parse("SELECT x FROM docs")
++		if !reflect.DeepEqual(got, want) {
++			t.Fatalf("statement changed after reuse: %s", sql)
++		}
++		for _, tok := range p.tokens[:cap(p.tokens)] {
++			if tok != (Token{}) {
++				t.Fatal("retained token text")
++			}
++		}
++	}
++	huge := "SELECT " + strings.Repeat("id,", 2000) + "id FROM docs"
++	if _, err := p.Parse(huge); err != nil {
++		t.Fatal(err)
++	}
++	if cap(p.tokens) != 0 {
++		t.Fatal("unbounded retained token capacity")
++	}
++	if _, err := p.Parse("SELECT id FROM docs"); err != nil {
++		t.Fatal(err)
++	}
++	_, _ = p.Parse("SELECT " + strings.Repeat("id,", 1000) + "'unterminated")
++	for _, tok := range p.tokens[:cap(p.tokens)] {
++		if tok != (Token{}) {
++			t.Fatal("lex error retained source")
++		}
++	}
++}

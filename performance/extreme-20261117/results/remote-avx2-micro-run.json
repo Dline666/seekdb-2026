@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "systemd-run",
+    "--quiet",
+    "--scope",
+    "--unit=seekdb-remote-micro",
+    "-p",
+    "CPUQuota=200%",
+    "-p",
+    "MemoryMax=2147483648",
+    "-p",
+    "MemorySwapMax=0",
+    "env",
+    "GOMAXPROCS=2",
+    "GOMEMLIMIT=1288490188",
+    "GOGC=20",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-engine.test",
+    "-test.run=^$",
+    "-test.bench=^BenchmarkQuadAVX2$",
+    "-test.benchtime=300ms",
+    "-test.count=3"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 16.248552843928337
+}

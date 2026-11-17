@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-C",
+    "minivectordb",
+    "lint",
+    "GOLANGCI_LINT=/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 4.297943550162017
+}

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "bash",
+    "-lc",
+    "uname -a; lscpu; df -h /; /tmp/seekdb-round3-go/bin/go version"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 0.16872572800000007
+}

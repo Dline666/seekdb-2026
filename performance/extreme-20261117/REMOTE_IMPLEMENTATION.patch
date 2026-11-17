@@ -1,0 +1,847 @@
+--- remote-handoff/internal/engine/eqset.go
++++ remote-final/internal/engine/eqset.go
+@@ -178,8 +178,7 @@
+ 		// m2=-2*min and s2=-2*scale are exact in float64, so the
+ 		// original per-row bounds need no extra retained parameters.
+ 		f := b.qf[i*4 : i*4+4]
+-		b.qbounds[i/quantBlockRows].addMeasured(float32(-f[2]/2),
+-			x.qbounds[int(s)/quantBlockRows].maxErrorScale, math.Abs(f[0]/2)-128*f[2])
++		b.qbounds[i/quantBlockRows].add(float32(-f[2]/2), math.Abs(f[0]/2)-128*f[2])
+ 	}
+ 	if x.cat == nil {
+ 		x.cat = map[int]map[string]*catBlock{}
+--- remote-handoff/internal/engine/filtered_split_test.go
++++ remote-final/internal/engine/filtered_split_test.go
+@@ -466,9 +466,13 @@
+ 		return offsList, distsList
+ 	}
+ 	catBlocksEnabled = true
++	before := fusedBlockBatches.Load()
+ 	bo, bd := run()
+-	if fusedBlockBatches.Load() == 0 {
++	if useSIMD && fusedBlockBatches.Load() == before {
+ 		t.Fatal("block path never taken with catBlocksEnabled=true")
++	}
++	if !useSIMD && fusedBlockBatches.Load() != before {
++		t.Fatal("block SIMD path ran while SIMD was disabled")
+ 	}
+ 	catBlocksEnabled = false
+ 	co, cd := run()
+--- remote-handoff/internal/engine/fused_quad_avx2_amd64.go
++++ remote-final/internal/engine/fused_quad_avx2_amd64.go
+@@ -0,0 +1,55 @@
++// Copyright (c) 2026 OceanBase.
++// Licensed under the Apache License, Version 2.0.
++
++package engine
++
++import "os"
++
++// Keep the original single-row kernels available for controlled comparisons.
++var quadAVX2 = os.Getenv("MVDB_NO_QUAD_AVX2") == ""
++
++// Four exact int32 row dots share query loads and a packed float64 epilogue.
++// Call only with AVX2 enabled, a positive multiple of four rows, blocks > 0,
++// dim == blocks*32 <= maxInt8Dim, and a nonnegative (or NaN) threshold.
++//
++//go:noescape
++func fusedScanQuadAVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qmin, qscale, thresh2 float64, baseSlot, rows, blocks int, surv *int64) int
++
++// Same arithmetic, over valid candidate slots in the supplied order.
++//
++//go:noescape
++func fusedScanQuadCandidatesAVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qmin, qscale, thresh2 float64, slots *int32, rows, blocks int, surv *int64) int
++
++func fusedScanBlockAVX2(qc []int16, codes []byte, pks, offs []int64, qf []float64, baseSlot, rows int, qSum, qNorm2 float64, qmin, qscale float32, thresh2 float64, surv []int64) int {
++	if quadAVX2 && len(qc) >= 32 && len(qc)%32 == 0 && rows >= 4 && !(thresh2 < 0) {
++		whole := rows &^ 3
++		n := fusedScanQuadAVX2(&qc[0], &codes[0], &pks[0], &offs[0], &qf[0],
++			qSum, qNorm2, float64(qmin), float64(qscale), thresh2, baseSlot, whole, len(qc)/32, &surv[0])
++		if whole < rows {
++			n += fusedScanInt8AVX2(&qc[0], &codes[0], &pks[0], &offs[0], &qf[0],
++				qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
++				baseSlot+whole, rows-whole, len(qc)/32, 0, &surv[2*n])
++		}
++		return n
++	}
++	return fusedScanInt8AVX2(&qc[0], &codes[0], &pks[0], &offs[0], &qf[0],
++		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
++		baseSlot, rows, len(qc)/32, len(qc)%32, &surv[0])
++}
++
++func fusedScanCandidateAVX2(qc []int16, x *VecIndex, slots []int32, qSum, qNorm2 float64, qmin, qscale float32, thresh2 float64, surv []int64) int {
++	if quadAVX2 && len(qc) >= 32 && len(qc)%32 == 0 && len(slots) >= 4 && !(thresh2 < 0) {
++		whole := len(slots) &^ 3
++		n := fusedScanQuadCandidatesAVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
++			qSum, qNorm2, float64(qmin), float64(qscale), thresh2, &slots[0], whole, len(qc)/32, &surv[0])
++		if whole < len(slots) {
++			n += fusedScanCandidatesAVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
++				qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
++				&slots[whole], len(slots)-whole, len(qc)/32, 0, &surv[2*n])
++		}
++		return n
++	}
++	return fusedScanCandidatesAVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
++		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
++		&slots[0], len(slots), len(qc)/32, len(qc)%32, &surv[0])
++}
+--- remote-handoff/internal/engine/fused_quad_avx2_amd64.s
++++ remote-final/internal/engine/fused_quad_avx2_amd64.s
+@@ -0,0 +1,318 @@
++// Copyright (c) 2026 OceanBase.
++// Licensed under the Apache License, Version 2.0.
++
++#include "textflag.h"
++
++// Four rows at a time. Integer dots are exact, and the packed float64
++// epilogue preserves the scalar association without FMA. Only ordered
++// greater-than distances are dropped, so NaNs still reach exact validation.
++// AVX2 widens unsigned row bytes to words before VPMADDWD. Query words
++// are in [0,255], and dim <= maxInt8Dim keeps the complete sum in int32.
++// Query loads are shared across four rows. No saturating byte dot or FMA.
++// As in the original fused AVX2 kernel, callers pass nonnegative thresholds;
++// omitting the scalar clamp-to-zero then preserves every keep/drop decision.
++TEXT ·fusedScanQuadAVX2(SB), NOSPLIT, $0-120
++	MOVQ qc+0(FP), R8
++	MOVQ blocks+96(FP), R9
++	SHLQ $5, R9
++	MOVQ baseSlot+80(FP), AX
++	IMULQ R9, AX
++	MOVQ codes+8(FP), DI
++	ADDQ AX, DI
++	MOVQ baseSlot+80(FP), AX
++	SHLQ $3, AX
++	MOVQ pks+16(FP), R13
++	ADDQ AX, R13
++	MOVQ offs+24(FP), R14
++	ADDQ AX, R14
++	SUBQ R13, R14
++	SHLQ $2, AX
++	MOVQ qf+32(FP), R15
++	ADDQ AX, R15
++	VBROADCASTSD qSum+40(FP), Y12
++	VBROADCASTSD qNorm2+48(FP), Y13
++	VBROADCASTSD qmin+56(FP), Y14
++	VBROADCASTSD qscale+64(FP), Y15
++	VBROADCASTSD thresh2+72(FP), Y11
++	MOVQ rows+88(FP), R10
++	MOVQ surv+104(FP), AX
++	TESTQ R10, R10
++	JZ done
++group:
++	LEAQ (DI)(R9*1), SI
++	LEAQ (SI)(R9*1), DX
++	LEAQ (DX)(R9*1), R12
++	MOVQ blocks+96(FP), CX
++	VPXOR Y0, Y0, Y0
++	VPXOR Y1, Y1, Y1
++	VPXOR Y2, Y2, Y2
++	VPXOR Y3, Y3, Y3
++	PCALIGN $32
++dot:
++	VMOVDQU 0(R8), Y9
++	VMOVDQU 32(R8), Y10
++	VPMOVZXBW 0(DI), Y4
++	VPMADDWD Y9, Y4, Y4
++	VPADDD Y4, Y0, Y0
++	VPMOVZXBW 0(SI), Y5
++	VPMADDWD Y9, Y5, Y5
++	VPADDD Y5, Y1, Y1
++	VPMOVZXBW 0(DX), Y6
++	VPMADDWD Y9, Y6, Y6
++	VPADDD Y6, Y2, Y2
++	VPMOVZXBW 0(R12), Y7
++	VPMADDWD Y9, Y7, Y7
++	VPADDD Y7, Y3, Y3
++	VPMOVZXBW 16(DI), Y4
++	VPMADDWD Y10, Y4, Y4
++	VPADDD Y4, Y0, Y0
++	VPMOVZXBW 16(SI), Y5
++	VPMADDWD Y10, Y5, Y5
++	VPADDD Y5, Y1, Y1
++	VPMOVZXBW 16(DX), Y6
++	VPMADDWD Y10, Y6, Y6
++	VPADDD Y6, Y2, Y2
++	VPMOVZXBW 16(R12), Y7
++	VPMADDWD Y10, Y7, Y7
++	VPADDD Y7, Y3, Y3
++	ADDQ $64, R8
++	ADDQ $32, DI
++	ADDQ $32, SI
++	ADDQ $32, DX
++	ADDQ $32, R12
++	DECQ CX
++	JNZ dot
++	SUBQ R9, R8
++	SUBQ R9, R8
++	MOVQ R12, DI
++	// Low/high 128-bit halves now hold four row sums each.
++	VPHADDD Y1, Y0, Y4
++	VPHADDD Y3, Y2, Y5
++	VPHADDD Y5, Y4, Y4
++	VEXTRACTI128 $1, Y4, X5
++	VPADDD X5, X4, X4
++	VCVTDQ2PD X4, Y0
++	// Transpose four row-major (m2,t2,s2,cRow) tuples into columns.
++	VMOVUPD 0(R15), Y1
++	VMOVUPD 32(R15), Y2
++	VMOVUPD 64(R15), Y3
++	VMOVUPD 96(R15), Y4
++	VUNPCKLPD Y2, Y1, Y5
++	VUNPCKHPD Y2, Y1, Y6
++	VUNPCKLPD Y4, Y3, Y7
++	VUNPCKHPD Y4, Y3, Y8
++	VPERM2F128 $0x20, Y7, Y5, Y1
++	VPERM2F128 $0x20, Y8, Y6, Y2
++	VPERM2F128 $0x31, Y7, Y5, Y3
++	VPERM2F128 $0x31, Y8, Y6, Y4
++	VMULPD Y12, Y1, Y1
++	VADDPD Y13, Y1, Y1
++	VADDPD Y4, Y1, Y1
++	VMULPD Y14, Y2, Y2
++	VADDPD Y2, Y1, Y1
++	VMULPD Y15, Y3, Y3
++	VMULPD Y0, Y3, Y3
++	VADDPD Y3, Y1, Y1
++	VCMPPD $30, Y11, Y1, Y1
++	VMOVMSKPD Y1, CX
++	TESTQ $1, CX
++	JNZ second
++	MOVQ 0(R13)(R14*1), BX
++	MOVQ BX, 0(AX)
++	MOVQ 0(R13), BX
++	MOVQ BX, 8(AX)
++	ADDQ $16, AX
++second:
++	TESTQ $2, CX
++	JNZ third
++	MOVQ 8(R13)(R14*1), BX
++	MOVQ BX, 0(AX)
++	MOVQ 8(R13), BX
++	MOVQ BX, 8(AX)
++	ADDQ $16, AX
++third:
++	TESTQ $4, CX
++	JNZ fourth
++	MOVQ 16(R13)(R14*1), BX
++	MOVQ BX, 0(AX)
++	MOVQ 16(R13), BX
++	MOVQ BX, 8(AX)
++	ADDQ $16, AX
++fourth:
++	TESTQ $8, CX
++	JNZ next
++	MOVQ 24(R13)(R14*1), BX
++	MOVQ BX, 0(AX)
++	MOVQ 24(R13), BX
++	MOVQ BX, 8(AX)
++	ADDQ $16, AX
++next:
++	ADDQ $32, R13
++	ADDQ $128, R15
++	SUBQ $4, R10
++	JNZ group
++done:
++	MOVQ surv+104(FP), CX
++	SUBQ CX, AX
++	SHRQ $4, AX
++	MOVQ AX, ret+112(FP)
++	VZEROUPPER
++	RET
++
++// Candidate slots may be noncontiguous, repeated, or descending.
++TEXT ·fusedScanQuadCandidatesAVX2(SB), NOSPLIT, $0-120
++	MOVQ qc+0(FP), R8
++	MOVQ blocks+96(FP), R9
++	SHLQ $5, R9
++	MOVQ slots+80(FP), BX
++	MOVQ pks+16(FP), R13
++	MOVQ offs+24(FP), R14
++	MOVQ qf+32(FP), R15
++	VBROADCASTSD qSum+40(FP), Y12
++	VBROADCASTSD qNorm2+48(FP), Y13
++	VBROADCASTSD qmin+56(FP), Y14
++	VBROADCASTSD qscale+64(FP), Y15
++	VBROADCASTSD thresh2+72(FP), Y11
++	MOVQ rows+88(FP), R10
++	MOVQ surv+104(FP), AX
++	TESTQ R10, R10
++	JZ done
++group:
++	MOVL 0(BX), DI
++	IMULQ R9, DI
++	ADDQ codes+8(FP), DI
++	MOVL 4(BX), SI
++	IMULQ R9, SI
++	ADDQ codes+8(FP), SI
++	MOVL 8(BX), DX
++	IMULQ R9, DX
++	ADDQ codes+8(FP), DX
++	MOVL 12(BX), R12
++	IMULQ R9, R12
++	ADDQ codes+8(FP), R12
++	MOVQ blocks+96(FP), CX
++	VPXOR Y0, Y0, Y0
++	VPXOR Y1, Y1, Y1
++	VPXOR Y2, Y2, Y2
++	VPXOR Y3, Y3, Y3
++	PCALIGN $32
++dot:
++	VMOVDQU 0(R8), Y9
++	VMOVDQU 32(R8), Y10
++	VPMOVZXBW 0(DI), Y4
++	VPMADDWD Y9, Y4, Y4
++	VPADDD Y4, Y0, Y0
++	VPMOVZXBW 0(SI), Y5
++	VPMADDWD Y9, Y5, Y5
++	VPADDD Y5, Y1, Y1
++	VPMOVZXBW 0(DX), Y6
++	VPMADDWD Y9, Y6, Y6
++	VPADDD Y6, Y2, Y2
++	VPMOVZXBW 0(R12), Y7
++	VPMADDWD Y9, Y7, Y7
++	VPADDD Y7, Y3, Y3
++	VPMOVZXBW 16(DI), Y4
++	VPMADDWD Y10, Y4, Y4
++	VPADDD Y4, Y0, Y0
++	VPMOVZXBW 16(SI), Y5
++	VPMADDWD Y10, Y5, Y5
++	VPADDD Y5, Y1, Y1
++	VPMOVZXBW 16(DX), Y6
++	VPMADDWD Y10, Y6, Y6
++	VPADDD Y6, Y2, Y2
++	VPMOVZXBW 16(R12), Y7
++	VPMADDWD Y10, Y7, Y7
++	VPADDD Y7, Y3, Y3
++	ADDQ $64, R8
++	ADDQ $32, DI
++	ADDQ $32, SI
++	ADDQ $32, DX
++	ADDQ $32, R12
++	DECQ CX
++	JNZ dot
++	SUBQ R9, R8
++	SUBQ R9, R8
++	// Low/high 128-bit halves now hold four row sums each.
++	VPHADDD Y1, Y0, Y4
++	VPHADDD Y3, Y2, Y5
++	VPHADDD Y5, Y4, Y4
++	VEXTRACTI128 $1, Y4, X5
++	VPADDD X5, X4, X4
++	VCVTDQ2PD X4, Y0
++	// Transpose four row-major (m2,t2,s2,cRow) tuples into columns.
++	MOVL 0(BX), CX
++	SHLQ $5, CX
++	VMOVUPD (R15)(CX*1), Y1
++	MOVL 4(BX), CX
++	SHLQ $5, CX
++	VMOVUPD (R15)(CX*1), Y2
++	MOVL 8(BX), CX
++	SHLQ $5, CX
++	VMOVUPD (R15)(CX*1), Y3
++	MOVL 12(BX), CX
++	SHLQ $5, CX
++	VMOVUPD (R15)(CX*1), Y4
++	VUNPCKLPD Y2, Y1, Y5
++	VUNPCKHPD Y2, Y1, Y6
++	VUNPCKLPD Y4, Y3, Y7
++	VUNPCKHPD Y4, Y3, Y8
++	VPERM2F128 $0x20, Y7, Y5, Y1
++	VPERM2F128 $0x20, Y8, Y6, Y2
++	VPERM2F128 $0x31, Y7, Y5, Y3
++	VPERM2F128 $0x31, Y8, Y6, Y4
++	VMULPD Y12, Y1, Y1
++	VADDPD Y13, Y1, Y1
++	VADDPD Y4, Y1, Y1
++	VMULPD Y14, Y2, Y2
++	VADDPD Y2, Y1, Y1
++	VMULPD Y15, Y3, Y3
++	VMULPD Y0, Y3, Y3
++	VADDPD Y3, Y1, Y1
++	VCMPPD $30, Y11, Y1, Y1
++	VMOVMSKPD Y1, SI
++	TESTQ $1, SI
++	JNZ second
++	MOVL 0(BX), CX
++	MOVQ (R14)(CX*8), DX
++	MOVQ DX, 0(AX)
++	MOVQ (R13)(CX*8), DX
++	MOVQ DX, 8(AX)
++	ADDQ $16, AX
++second:
++	TESTQ $2, SI
++	JNZ third
++	MOVL 4(BX), CX
++	MOVQ (R14)(CX*8), DX
++	MOVQ DX, 0(AX)
++	MOVQ (R13)(CX*8), DX
++	MOVQ DX, 8(AX)
++	ADDQ $16, AX
++third:
++	TESTQ $4, SI
++	JNZ fourth
++	MOVL 8(BX), CX
++	MOVQ (R14)(CX*8), DX
++	MOVQ DX, 0(AX)
++	MOVQ (R13)(CX*8), DX
++	MOVQ DX, 8(AX)
++	ADDQ $16, AX
++fourth:
++	TESTQ $8, SI
++	JNZ next
++	MOVL 12(BX), CX
++	MOVQ (R14)(CX*8), DX
++	MOVQ DX, 0(AX)
++	MOVQ (R13)(CX*8), DX
++	MOVQ DX, 8(AX)
++	ADDQ $16, AX
++next:
++	ADDQ $16, BX
++	SUBQ $4, R10
++	JNZ group
++done:
++	MOVQ surv+104(FP), CX
++	SUBQ CX, AX
++	SHRQ $4, AX
++	MOVQ AX, ret+112(FP)
++	VZEROUPPER
++	RET
+--- remote-handoff/internal/engine/fused_quad_avx2_amd64_test.go
++++ remote-final/internal/engine/fused_quad_avx2_amd64_test.go
+@@ -0,0 +1,192 @@
++// Copyright (c) 2026 OceanBase.
++// Licensed under the Apache License, Version 2.0.
++
++package engine
++
++import (
++	"fmt"
++	"math"
++	"math/rand"
++	"slices"
++	"testing"
++)
++
++// Deliberately independent of the production dot/fold/quantization helpers.
++// int64 accumulation detects int32 overflow as well as lane reduction errors.
++func quadAVX2Oracle(q []int16, x *VecIndex, slots []int32, sum, norm float64, mn, scale float32, threshold float64) []int64 {
++	var out []int64
++	for _, slot := range slots {
++		d := quadAVX2OracleDistance(q, x, int(slot), sum, norm, mn, scale)
++		if !(d > threshold) {
++			out = append(out, x.off[slot], x.pks[slot])
++		}
++	}
++	return out
++}
++
++func quadAVX2OracleDistance(q []int16, x *VecIndex, slot int, sum, norm float64, mn, scale float32) float64 {
++	var dot int64
++	for j, c := range q {
++		dot += int64(c) * int64(x.codes[slot*len(q)+j])
++	}
++	f := x.qf[4*slot : 4*slot+4]
++	// Explicit conversions force rounding after each operation, prohibiting FMA.
++	d := float64(norm + float64(f[0]*sum))
++	d = float64(d + f[3])
++	d = float64(d + float64(float64(mn)*f[1]))
++	d = float64(d + float64(float64(float64(scale)*f[2])*float64(dot)))
++	if d < 0 {
++		d = 0
++	}
++	return d
++}
++
++func TestQuadAVX2IndependentOracle(t *testing.T) {
++	if !useSIMD {
++		t.Skip("AVX2 disabled or unavailable")
++	}
++	old := quadAVX2
++	quadAVX2 = true
++	defer func() { quadAVX2 = old }()
++	rng := rand.New(rand.NewSource(2026111701))
++	for _, dim := range []int{1, 15, 31, 32, 64, 96, 127, 128, 129, 256, 1024} {
++		x := &VecIndex{dim: dim, pks: make([]int64, 140), off: make([]int64, 140), codes: make([]byte, 140*dim), qf: make([]float64, 140*4)}
++		q := make([]int16, dim)
++		for j := range q {
++			q[j] = int16(rng.Intn(256))
++		}
++		for j := range x.codes {
++			x.codes[j] = byte(rng.Intn(256))
++		}
++		for j := range x.pks {
++			x.pks[j] = int64(91 - j)
++			x.off[j] = int64(j*1003 + 17)
++			x.qf[4*j] = -2 * rng.Float64()
++			x.qf[4*j+1] = -50 * rng.Float64()
++			x.qf[4*j+2] = -0.02 * rng.Float64()
++			x.qf[4*j+3] = 100 * rng.Float64()
++		}
++		x.qf[4*6+3] = math.NaN()
++		x.qf[4*7+3] = math.Inf(1)
++		x.qf[4*8+3] = math.Inf(-1)
++		const sum, norm, mn, scale = 37.5, 100., -0.25, 0.003
++		thresholds := []float64{0, math.Inf(1), math.NaN()}
++		for _, slot := range []int{0, 1, 2, 3, 4, 5, 127, 128, 129} {
++			d := quadAVX2OracleDistance(q, x, slot, sum, norm, mn, scale)
++			thresholds = append(thresholds, d, math.Nextafter(d, math.Inf(1)))
++			if d > 0 {
++				thresholds = append(thresholds, math.Nextafter(d, 0))
++			}
++		}
++		for _, start := range []int{0, 1, 3, 7} {
++			for _, rows := range []int{0, 1, 2, 3, 4, 5, 7, 8, 15, 32, 127, 128, 129} {
++				slots := make([]int32, rows)
++				for j := range slots {
++					slots[j] = int32(start + j)
++				}
++				for _, gather := range []bool{false, true} {
++					if gather {
++						for j := range slots {
++							slots[j] = int32((139 - j*17 + 140*17) % 140)
++							if j%7 == 0 {
++								slots[j] = 0
++							}
++						}
++					}
++					for _, threshold := range thresholds {
++						want := quadAVX2Oracle(q, x, slots, sum, norm, mn, scale, threshold)
++						buf := make([]int64, 2*rows+4)
++						for j := range buf {
++							buf[j] = -700001
++						}
++						var n int
++						if gather {
++							n = fusedScanCandidates(q, x, slots, sum, norm, mn, scale, threshold, buf[2:])
++						} else {
++							n = fusedScanInt8(q, x, int32(start), rows, sum, norm, mn, scale, threshold, buf[2:])
++						}
++						if n < 0 || n > rows || !slices.Equal(buf[2:2+2*n], want) {
++							t.Fatalf("dim=%d start=%d rows=%d gather=%t threshold=%g n=%d want=%v got=%v", dim, start, rows, gather, threshold, n, want, buf)
++						}
++						if buf[0] != -700001 || buf[1] != -700001 {
++							t.Fatal("prefix overwritten")
++						}
++						for _, v := range buf[2+2*n:] {
++							if v != -700001 {
++								t.Fatal("survivor buffer overrun")
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++}
++
++func TestQuadAVX2MaximumIntegerDot(t *testing.T) {
++	if !useSIMD {
++		t.Skip("AVX2 disabled or unavailable")
++	}
++	old := quadAVX2
++	quadAVX2 = true
++	defer func() { quadAVX2 = old }()
++	dim := maxInt8Dim &^ 31
++	x := &VecIndex{dim: dim, pks: []int64{1, 2, 3, 4}, off: []int64{7, 8, 9, 10}, codes: make([]byte, 4*dim), qf: make([]float64, 16)}
++	q := make([]int16, dim)
++	for j := range q {
++		q[j] = 255
++	}
++	for j := range x.codes {
++		x.codes[j] = 255
++	}
++	for j := range x.pks {
++		x.qf[4*j+2] = 1
++	}
++	d := float64(dim) * 255 * 255
++	for _, threshold := range []float64{math.Nextafter(d, 0), d, math.Nextafter(d, math.Inf(1))} {
++		buf := make([]int64, 8)
++		n := fusedScanInt8(q, x, 0, 4, 0, 0, 0, 1, threshold, buf)
++		want := quadAVX2Oracle(q, x, []int32{0, 1, 2, 3}, 0, 0, 0, 1, threshold)
++		if !slices.Equal(buf[:2*n], want) {
++			t.Fatalf("dim=%d threshold=%g got=%v want=%v", dim, threshold, buf[:2*n], want)
++		}
++	}
++}
++
++func BenchmarkQuadAVX2(b *testing.B) {
++	if !useSIMD {
++		b.Skip("AVX2 disabled or unavailable")
++	}
++	old := quadAVX2
++	defer func() { quadAVX2 = old }()
++	for _, dim := range []int{128, 256, 1024} {
++		x := &VecIndex{dim: dim, pks: make([]int64, 128), off: make([]int64, 128), codes: make([]byte, 128*dim), qf: make([]float64, 128*4)}
++		q := make([]int16, dim)
++		slots := make([]int32, 128)
++		surv := make([]int64, 256)
++		for j := range q {
++			q[j] = int16(j % 256)
++		}
++		for j := range x.codes {
++			x.codes[j] = byte(j)
++		}
++		for j := range slots {
++			slots[j] = int32(127 - j)
++			x.qf[4*j+2] = 1
++		}
++		for _, gather := range []bool{false, true} {
++			for _, enabled := range []bool{false, true} {
++				quadAVX2 = enabled
++				b.Run(fmt.Sprintf("dim%d/gather%t/quad%t", dim, gather, enabled), func(b *testing.B) {
++					for i := 0; i < b.N; i++ {
++						if gather {
++							fusedScanCandidates(q, x, slots, 0, 0, 0, 1, 0, surv)
++						} else {
++							fusedScanInt8(q, x, 0, 128, 0, 0, 0, 1, 0, surv)
++						}
++					}
++				})
++			}
++		}
++	}
++}
+--- remote-handoff/internal/engine/fused_test.go
++++ remote-final/internal/engine/fused_test.go
+@@ -190,8 +190,11 @@
+ 	}
+ 	before := fusedBatches.Load()
+ 	check("clean")
+-	if fusedBatches.Load() == before {
++	if useSIMD && fusedBatches.Load() == before {
+ 		t.Fatalf("fused branch never ran on a clean table (no tombstones, no WHERE)")
++	}
++	if !useSIMD && fusedBatches.Load() != before {
++		t.Fatal("fused SIMD branch ran while SIMD was disabled")
+ 	}
+ 	// Deletes create tombstones: the fused gate must exclude the branch,
+ 	// and results must still match the exact scan bit for bit.
+--- remote-handoff/internal/engine/l2_amd64.go
++++ remote-final/internal/engine/l2_amd64.go
+@@ -76,9 +76,7 @@
+ 	if !useSIMD {
+ 		return fusedScanCandidatesScalar(qc, x, slots, qSum, qNorm2, qmin, qscale, thresh2, surv)
+ 	}
+-	return fusedScanCandidatesAVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
+-		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
+-		&slots[0], len(slots), len(qc)/32, len(qc)%32, &surv[0])
++	return fusedScanCandidateAVX2(qc, x, slots, qSum, qNorm2, qmin, qscale, thresh2, surv)
+ }
+ 
+ // fusedScanInt8VNNI is the VNNI variant of fusedScanInt8AVX2: same
+@@ -155,11 +153,7 @@
+ 	if !useSIMD {
+ 		return fusedScanInt8BlockScalar(qc, codes, pks, offs, qf, baseSlot, rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
+ 	}
+-	blocks := len(qc) / 32
+-	tail := len(qc) - blocks*32
+-	return fusedScanInt8AVX2(&qc[0], &codes[0], &pks[0], &offs[0], &qf[0],
+-		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
+-		baseSlot, rows, blocks, tail, &surv[0])
++	return fusedScanBlockAVX2(qc, codes, pks, offs, qf, baseSlot, rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
+ }
+ 
+ // fusedScanInt8BlockVNNI is the VNNI variant of fusedScanInt8Block: the
+@@ -192,11 +186,7 @@
+ 	if !useSIMD {
+ 		return fusedScanInt8Scalar(qc, x, baseSlot, rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
+ 	}
+-	blocks := len(qc) / 32
+-	tail := len(qc) - blocks*32
+-	return fusedScanInt8AVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
+-		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
+-		int(baseSlot), rows, blocks, tail, &surv[0])
++	return fusedScanBlockAVX2(qc, x.codes, x.pks, x.off, x.qf, int(baseSlot), rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
+ }
+ 
+ // dotInt8GatherInt6 sets out[r] to the exact integer dot product of the
+--- remote-handoff/internal/engine/prefilter.go
++++ remote-final/internal/engine/prefilter.go
+@@ -10,8 +10,6 @@
+ // runs and for safety. When it is off the query path is exactly the old
+ // batched exact scan.
+ var prefilterEnabled = os.Getenv("MVDB_NO_PREFILTER") == ""
+-
+-var residualBounds = os.Getenv("MVDB_NO_RESIDUAL_BOUND") == ""
+ 
+ // prefilter6Bit selects the 6-bit query quantization (VPMADDUBSW kernel)
+ // instead of the 8-bit one (VPMOVZXBW+VPMADDWD kernel). MVDB_PREFILTER_6BIT=1
+@@ -41,11 +39,10 @@
+ // float64 rounding of that one sum. The absolute allowance in
+ // prefilterRoundSlack covers cancellation between large terms.
+ type qparam struct {
+-	min      float32
+-	scale    float32
+-	sumC     float32 // sum of the codes
+-	cRow     float64 // folded per-row constant of the dhat2 expansion
+-	errScale float32 // 2*upper bound on RMS reconstruction error
++	min   float32
++	scale float32
++	sumC  float32 // sum of the codes
++	cRow  float64 // folded per-row constant of the dhat2 expansion
+ }
+ 
+ // quantizeRow writes the int8 codes of v into codes (len(v) bytes) and
+@@ -64,7 +61,7 @@
+ 	if mx > mn {
+ 		sc = (mx - mn) / 255
+ 	}
+-	var sumC, sumC2, residual2 float64
++	var sumC, sumC2 float64
+ 	for i, f := range v {
+ 		c := 0
+ 		if sc > 0 {
+@@ -78,52 +75,10 @@
+ 		codes[i] = byte(c)
+ 		sumC += float64(c)
+ 		sumC2 += float64(c) * float64(c)
+-		if residualBounds {
+-			residual2 += residualSquare(float64(f), float64(mn), float64(sc), float64(c))
+-		}
+ 	}
+ 	mnf, scf := float64(mn), float64(sc)
+ 	cRow := float64(len(v))*mnf*mnf + 2*scf*mnf*sumC + scf*scf*sumC2
+-	errScale := sc
+-	if residualBounds {
+-		errScale = residualScale(residual2, len(v))
+-	}
+-	return qparam{min: mn, scale: sc, sumC: float32(sumC), cRow: cRow, errScale: errScale}
+-}
+-
+-// Each dequantization multiply/add and residual subtraction is rounded in
+-// float64. Bound their absolute errors before squaring; all finite float32
+-// magnitudes (including subnormals) and their squares are normal float64s.
+-// Nonfinite quantization intermediates deliberately disable pruning.
+-func residualSquare(v, mn, sc, code float64) float64 {
+-	if sc == 0 && v == mn {
+-		return 0
+-	}
+-	p := sc * code
+-	e := math.Abs(v-(mn+p)) + 0x1p-50*(math.Abs(v)+math.Abs(mn)+math.Abs(p))
+-	return e * e
+-}
+-
+-func residualScale(sum float64, dim int) float32 {
+-	if math.IsNaN(sum) || math.IsInf(sum, 0) {
+-		return float32(math.Inf(1))
+-	}
+-	if sum == 0 {
+-		return 0
+-	}
+-	// The upward factor bounds the nonnegative accumulation, square root
+-	// and final conversion. Nextafter32 also covers subnormal float32 scales.
+-	e := 2 * math.Sqrt(sum/float64(dim)) * (1 + float64(dim+16)*0x1p-49)
+-	f := float32(e)
+-	return math.Nextafter32(f, float32(math.Inf(1)))
+-}
+-
+-func queryResidualScale(q []float32, codes []int16, mn, sc float32) float32 {
+-	var sum float64
+-	for i, f := range q {
+-		sum += residualSquare(float64(f), float64(mn), float64(sc), float64(codes[i]))
+-	}
+-	return residualScale(sum, len(q))
++	return qparam{min: mn, scale: sc, sumC: float32(sumC), cRow: cRow}
+ }
+ 
+ // quantizeQuery6 is the 6-bit variant of quantizeQuery: q[i] ~=
+@@ -274,33 +229,21 @@
+ const quantBlockRows = 128
+ 
+ type quantBlockBound struct {
+-	maxAbs        float64
+-	maxScale      float32
+-	maxErrorScale float32 // uses the former four bytes of alignment padding
+-}
+-
+-func (b *quantBlockBound) addMeasured(scale, errorScale float32, abs float64) {
++	maxAbs   float64
++	maxScale float32
++}
++
++func (b *quantBlockBound) add(scale float32, abs float64) {
+ 	if scale > b.maxScale {
+ 		b.maxScale = scale
+ 	}
+ 	if abs > b.maxAbs {
+ 		b.maxAbs = abs
+ 	}
+-	if errorScale > b.maxErrorScale {
+-		b.maxErrorScale = errorScale
+-	}
+ }
+ 
+ func (b quantBlockBound) threshold(qmin, qscale float32, dim int, bd float64) float64 {
+-	return b.thresholdResidual(qmin, qscale, qscale, dim, bd)
+-}
+-
+-func (b quantBlockBound) thresholdResidual(qmin, qscale, queryErrorScale float32, dim int, bd float64) float64 {
+-	s := b.maxScale
+-	if residualBounds {
+-		s = b.maxErrorScale
+-	}
+-	return prefilterThreshold(s+queryErrorScale, dim, bd) + prefilterRoundSlack(b.maxAbs, qmin, qscale, dim)
++	return prefilterThreshold(b.maxScale+qscale, dim, bd) + prefilterRoundSlack(b.maxAbs, qmin, qscale, dim)
+ }
+ 
+ func quantBlockBytes(rows int) int64 {
+@@ -316,7 +259,7 @@
+ 		i := int(slot) / quantBlockRows
+ 		if i != prev {
+ 			part := x.qbounds[i]
+-			b.addMeasured(part.maxScale, part.maxErrorScale, part.maxAbs)
++			b.add(part.maxScale, part.maxAbs)
+ 			prev = i
+ 		}
+ 	}
+--- remote-handoff/internal/engine/topk.go
++++ remote-final/internal/engine/topk.go
+@@ -199,10 +199,6 @@
+ 		}
+ 	}
+ 	var ov map[int64]int64
+-	queryErrorScale := qscale
+-	if residualBounds && qok && !prefilter6Bit {
+-		queryErrorScale = queryResidualScale(q, qc, qmin, qscale)
+-	}
+ 	if db.txn != nil {
+ 		ov = db.txn.overlay[t.ID]
+ 	}
+@@ -385,7 +381,7 @@
+ 				}
+ 				n = min(n, quantBlockRows-i%quantBlockRows)
+ 				bd := tk.bound()
+-				thresh2 := blk.qbounds[i/quantBlockRows].thresholdResidual(qmin, qscale, queryErrorScale, t.Dim, bd)
++				thresh2 := blk.qbounds[i/quantBlockRows].threshold(qmin, qscale, t.Dim, bd)
+ 				var m int
+ 				if useVNNI {
+ 					m = fusedScanInt8BlockVNNI(qc8, blk.codes, blk.pks, blk.off, blk.qf, i, n, qSum, qNorm2, qminAdj, float64(qscale), thresh2, surv[:])
+@@ -441,7 +437,7 @@
+ 					bound = x.qbounds[i/quantBlockRows]
+ 				}
+ 				bd := tk.bound()
+-				thresh2 := bound.thresholdResidual(qmin, qscale, queryErrorScale, t.Dim, bd)
++				thresh2 := bound.threshold(qmin, qscale, t.Dim, bd)
+ 				var m int
+ 				if fusedCandidateOK {
+ 					if useAVXVNNI {
+@@ -544,7 +540,7 @@
+ 					dotInt8GatherInt(qc, x.codes, coffs[:n], approxInt[:n])
+ 				}
+ 				bd := tk.bound()
+-				thresh2 := x.boundForSlots(slots[:n]).thresholdResidual(qmin, qscale, queryErrorScale, t.Dim, bd)
++				thresh2 := x.boundForSlots(slots[:n]).threshold(qmin, qscale, t.Dim, bd)
+ 				m = 0
+ 				for j := 0; j < n; j++ {
+ 					f := x.qf[int(slots[j])*4 : int(slots[j])*4+4]
+--- remote-handoff/internal/engine/vecindex.go
++++ remote-final/internal/engine/vecindex.go
+@@ -268,7 +268,7 @@
+ 	for len(x.qbounds) <= block {
+ 		x.qbounds = append(x.qbounds, quantBlockBound{})
+ 	}
+-	x.qbounds[block].addMeasured(qp.scale, qp.errScale, bound)
++	x.qbounds[block].add(qp.scale, bound)
+ 	x.qf[4*int(s)], x.qf[4*int(s)+1], x.qf[4*int(s)+2], x.qf[4*int(s)+3] = foldQparam(qp, x.dim)
+ 	if qp.scale > x.maxScale {
+ 		x.maxScale = qp.scale

@@ -1,0 +1,100 @@
+{
+  "checks": [
+    {
+      "label": "scoring-review",
+      "command": [
+        "python3",
+        "/home/platemo/seekdb-experiments/20261117/publish-repository/performance/advanced-tbm-20261117/scoring_review.py",
+        "--check",
+        "/home/platemo/seekdb-experiments/20261117/publish-repository/performance/advanced-tbm-20261117/COORDINATOR_SCORING_RECHECK.json"
+      ],
+      "exit": 0,
+      "seconds": 0.05,
+      "log": "publication-checks/scoring-review.log",
+      "log_sha256": "ee71dd6149db9720dc0e6464803eb4b9ddd5e7c959ae4e69ca6c19310a5d529c"
+    },
+    {
+      "label": "go-version",
+      "command": [
+        "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+        "version"
+      ],
+      "exit": 0,
+      "seconds": 0.004,
+      "log": "publication-checks/go-version.log",
+      "log_sha256": "65593ce58a2f4d22e9222d43a2c8330d6e6d2f6257da2f06b80949958c14a4ec"
+    },
+    {
+      "label": "go-test",
+      "command": [
+        "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+        "test",
+        "./...",
+        "-count=1"
+      ],
+      "exit": 0,
+      "seconds": 31.629,
+      "log": "publication-checks/go-test.log",
+      "log_sha256": "ad1ab5561f9999d78dfd36701cc6a57c09295f370a73451996e7050f71e15782"
+    },
+    {
+      "label": "format",
+      "command": [
+        "/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint",
+        "fmt",
+        "--diff",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 0.781,
+      "log": "publication-checks/format.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "lint",
+      "command": [
+        "make",
+        "lint",
+        "GOLANGCI_LINT=/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint"
+      ],
+      "exit": 0,
+      "seconds": 3.163,
+      "log": "publication-checks/lint.log",
+      "log_sha256": "59bf47306c45aedf600351ea60da855176ebd84ae9e6095c44e556a248aff2d2"
+    },
+    {
+      "label": "build",
+      "command": [
+        "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+        "build",
+        "-buildvcs=false",
+        "-trimpath",
+        "-pgo=off",
+        "-ldflags=-s -w",
+        "-o",
+        "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/publication-verified",
+        "./cmd/minivectordb"
+      ],
+      "exit": 0,
+      "seconds": 0.375,
+      "log": "publication-checks/build.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.059,
+      "log": "publication-checks/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "tested_source_files_verified": 103,
+  "binary_sha256": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+  "expected_binary_sha256": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+  "status": "passed"
+}

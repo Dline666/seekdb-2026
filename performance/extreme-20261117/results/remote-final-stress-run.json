@@ -1,0 +1,9 @@
+{
+  "candidate": "remote-final",
+  "stress_label": "remote-final-stress",
+  "candidate_binary": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final",
+  "candidate_sha256": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+  "driver_source": "/home/platemo/seekdb-experiments/20261117/repository/performance/extreme-20261117/remote_stress.go",
+  "driver_source_sha256": "5706abeb74bc32f33b799b85c0978ccaba2140f2459949d2e733dfbfd0eae03f",
+  "build_argv": [
+    

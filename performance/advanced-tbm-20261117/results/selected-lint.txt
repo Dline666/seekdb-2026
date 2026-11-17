@@ -1,0 +1,10 @@
+{"argv": ["make", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/selected", "lint", "GOLANGCI_LINT=/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:54:02Z", "uid": 1019, "diagnostic_only": true}
+make: 进入目录“/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/selected”
+/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint run ./...
+internal/engine/quantize_encoding_test.go:51:5: QF1003: could use tagged switch on i % 3 (staticcheck)
+				if i%3 == 1 {
+				^
+1 issues:
+* staticcheck: 1
+make: *** [Makefile:13：lint] 错误 1
+make: 离开目录“/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/selected”

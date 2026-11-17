@@ -1,0 +1,86 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "minivectordb", "test", "./internal/engine", "-run", "Test(QuadAVX2|Fused|Prefilter|Fold)", "-count=1", "-v"], "cwd": null, "official_submissions": 0}
+=== RUN   TestPrefilterSharesIndexBudget
+--- PASS: TestPrefilterSharesIndexBudget (0.00s)
+=== RUN   TestFused10kSequential
+    filtered_split_test.go:401: realistic bd=32.0384 thresh2=32.7609
+    filtered_split_test.go:422: fused 10k sequential tight: median 113.556µs mean 114.613µs survivors 3/query
+    filtered_split_test.go:422: fused 10k sequential inf: median 79.731µs mean 92.632µs survivors 10000/query
+--- PASS: TestFused10kSequential (5.77s)
+=== RUN   TestFusedBlockVsScalar
+--- PASS: TestFusedBlockVsScalar (0.01s)
+=== RUN   TestFusedBlockVNNIVsScalar
+    filtered_split_test.go:589: no AVX512_VNNI on this CPU; VNNI block path cannot run
+--- SKIP: TestFusedBlockVNNIVsScalar (0.00s)
+=== RUN   TestFusedCandidatesMatchScalar
+--- PASS: TestFusedCandidatesMatchScalar (0.01s)
+=== RUN   TestFusedCandidatesExactAfterMutation
+--- PASS: TestFusedCandidatesExactAfterMutation (0.01s)
+=== RUN   TestQuadAVX2IndependentOracle
+--- PASS: TestQuadAVX2IndependentOracle (0.20s)
+=== RUN   TestQuadAVX2MaximumIntegerDot
+--- PASS: TestQuadAVX2MaximumIntegerDot (0.00s)
+=== RUN   TestFusedScanVsScalar
+--- PASS: TestFusedScanVsScalar (0.01s)
+=== RUN   TestFusedScanRawAsm
+--- PASS: TestFusedScanRawAsm (0.00s)
+=== RUN   TestFusedScanEndToEnd
+--- PASS: TestFusedScanEndToEnd (0.32s)
+=== RUN   TestFusedScanVNNIVsScalar
+    he_vnni_test.go:31: no AVX512_VNNI on this CPU; VNNI kernel cannot run
+--- SKIP: TestFusedScanVNNIVsScalar (0.00s)
+=== RUN   TestFusedScanVNNIAll255
+    he_vnni_test.go:103: no AVX512_VNNI on this CPU
+--- SKIP: TestFusedScanVNNIAll255 (0.00s)
+=== RUN   TestFusedScanVNNIEndToEnd
+    he_vnni_test.go:165: no AVX512_VNNI on this CPU
+--- SKIP: TestFusedScanVNNIEndToEnd (0.00s)
+=== RUN   TestPrefilterBound
+    prefilter_test.go:454: 126000 cases, worst |exact-approx|/bound = 0.379 (constant dim 16)
+    prefilter_test.go:506: uniform dim 256: 10th distance 35.03, prefilter skips 983/1000 rows
+--- PASS: TestPrefilterBound (0.46s)
+=== RUN   TestPrefilterBound6Bit
+    prefilter_test.go:603: 6-bit bound validation: 48000 cases, worst |exact-approx|/bound = 0.333 (uniform01 dim 16)
+--- PASS: TestPrefilterBound6Bit (0.17s)
+=== RUN   TestPrefilterThreshold
+    prefilter_test.go:689: uniform01 dim 16 bd 1.07: threshold drops 1988/2000, approxBound drops 1989/2000
+    prefilter_test.go:689: uniform01 dim 16 bd 2.7: threshold drops 953/2000, approxBound drops 957/2000
+    prefilter_test.go:689: normal1 dim 16 bd 13.3: threshold drops 1988/2000, approxBound drops 1989/2000
+    prefilter_test.go:689: normal1 dim 16 bd 34.3: threshold drops 915/2000, approxBound drops 948/2000
+    prefilter_test.go:689: normal1e3 dim 16 bd 9.02e+06: threshold drops 1984/2000, approxBound drops 1985/2000
+    prefilter_test.go:689: normal1e3 dim 16 bd 2.49e+07: threshold drops 922/2000, approxBound drops 948/2000
+    prefilter_test.go:689: mixed dim 16 bd 1.01e+06: threshold drops 1990/2000, approxBound drops 1990/2000
+    prefilter_test.go:689: mixed dim 16 bd 4.76e+06: threshold drops 909/2000, approxBound drops 964/2000
+    prefilter_test.go:689: uniform01 dim 31 bd 3.03: threshold drops 1986/2000, approxBound drops 1986/2000
+    prefilter_test.go:689: uniform01 dim 31 bd 5.45: threshold drops 915/2000, approxBound drops 918/2000
+    prefilter_test.go:689: normal1 dim 31 bd 30.1: threshold drops 1985/2000, approxBound drops 1987/2000
+    prefilter_test.go:689: normal1 dim 31 bd 57.9: threshold drops 870/2000, approxBound drops 912/2000
+    prefilter_test.go:689: normal1e3 dim 31 bd 2.78e+07: threshold drops 1982/2000, approxBound drops 1984/2000
+    prefilter_test.go:689: normal1e3 dim 31 bd 5.3e+07: threshold drops 882/2000, approxBound drops 910/2000
+    prefilter_test.go:689: mixed dim 31 bd 8.26e+06: threshold drops 1983/2000, approxBound drops 1985/2000
+    prefilter_test.go:689: mixed dim 31 bd 1.6e+07: threshold drops 835/2000, approxBound drops 892/2000
+    prefilter_test.go:689: uniform01 dim 128 bd 15.3: threshold drops 1988/2000, approxBound drops 1988/2000
+    prefilter_test.go:689: uniform01 dim 128 bd 20.6: threshold drops 833/2000, approxBound drops 834/2000
+    prefilter_test.go:689: normal1 dim 128 bd 193: threshold drops 1966/2000, approxBound drops 1972/2000
+    prefilter_test.go:689: normal1 dim 128 bd 255: threshold drops 731/2000, approxBound drops 776/2000
+    prefilter_test.go:689: normal1e3 dim 128 bd 1.72e+08: threshold drops 1972/2000, approxBound drops 1977/2000
+    prefilter_test.go:689: normal1e3 dim 128 bd 2.36e+08: threshold drops 791/2000, approxBound drops 831/2000
+    prefilter_test.go:689: mixed dim 128 bd 2.78e+07: threshold drops 1953/2000, approxBound drops 1972/2000
+    prefilter_test.go:689: mixed dim 128 bd 4.31e+07: threshold drops 694/2000, approxBound drops 762/2000
+    prefilter_test.go:689: uniform01 dim 256 bd 36.1: threshold drops 1984/2000, approxBound drops 1984/2000
+    prefilter_test.go:689: uniform01 dim 256 bd 43.5: threshold drops 798/2000, approxBound drops 798/2000
+    prefilter_test.go:689: normal1 dim 256 bd 397: threshold drops 1960/2000, approxBound drops 1967/2000
+    prefilter_test.go:689: normal1 dim 256 bd 489: threshold drops 630/2000, approxBound drops 679/2000
+    prefilter_test.go:689: normal1e3 dim 256 bd 4.07e+08: threshold drops 1962/2000, approxBound drops 1965/2000
+    prefilter_test.go:689: normal1e3 dim 256 bd 4.96e+08: threshold drops 608/2000, approxBound drops 674/2000
+    prefilter_test.go:689: mixed dim 256 bd 4.07e+07: threshold drops 1940/2000, approxBound drops 1967/2000
+    prefilter_test.go:689: mixed dim 256 bd 6.3e+07: threshold drops 567/2000, approxBound drops 666/2000
+--- PASS: TestPrefilterThreshold (0.08s)
+=== RUN   TestPrefilterMatchesExactScan
+--- PASS: TestPrefilterMatchesExactScan (0.18s)
+=== RUN   TestPrefilterLargeLine
+--- PASS: TestPrefilterLargeLine (0.03s)
+=== RUN   TestFoldMatchesApproxDist2
+    prefilter_test.go:1046: 66000 cases, worst |folded-unfolded|/scale = 2.08e-14 (mixed dim 31)
+--- PASS: TestFoldMatchesApproxDist2 (0.25s)
+PASS
+ok  	minivectordb/internal/engine	7.557s

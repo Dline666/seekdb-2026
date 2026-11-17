@@ -1,0 +1,28 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "tool", "pprof", "-top", "-nodecount=20", "-alloc_space", "-base", "performance/advanced-tbm-20261117/profiles/default/round0-advanced-profile-query/query-begin.heap", "performance/advanced-tbm-20261117/profiles/default/round0-advanced-profile-query/query-end.heap"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T10:43:25Z", "uid": 1019, "diagnostic_only": true}
+File: advanced-profile
+Type: alloc_space
+Time: Nov 17, 2026 at 6:42pm (CST)
+Showing nodes accounting for 325.40MB, 98.29% of 331.06MB total
+Dropped 18 nodes (cum <= 1.66MB)
+Showing top 20 nodes out of 38
+      flat  flat%   sum%        cum   cum%
+  106.71MB 32.23% 32.23%   106.71MB 32.23%  minivectordb/internal/sqlparse.LexInto
+   66.44MB 20.07% 52.30%   193.60MB 58.48%  minivectordb/internal/engine.(*DB).execSelect
+   40.12MB 12.12% 64.42%    40.12MB 12.12%  minivectordb/internal/engine.widen (inline)
+   25.61MB  7.74% 72.16%    81.32MB 24.56%  minivectordb/internal/engine.(*DB).vectorTopK
+   18.26MB  5.52% 77.67%    18.26MB  5.52%  minivectordb/internal/types.ParseVectorInto
+   13.32MB  4.02% 81.70%    13.32MB  4.02%  minivectordb/internal/engine.constant (inline)
+   12.01MB  3.63% 85.32%    22.95MB  6.93%  minivectordb/internal/sqlparse.(*parser).selectStmt
+    9.89MB  2.99% 88.31%     9.89MB  2.99%  minivectordb/internal/engine.quantizeQuery
+    8.25MB  2.49% 90.81%    44.14MB 13.33%  minivectordb/internal/engine.(*scope).compile
+    5.69MB  1.72% 92.52%     5.69MB  1.72%  minivectordb/internal/engine.(*topK).result
+    5.56MB  1.68% 94.20%     9.69MB  2.93%  minivectordb/internal/sqlparse.(*parser).primary
+    4.31MB  1.30% 95.51%    36.14MB 10.92%  minivectordb/internal/engine.(*scope).compileFunc
+    3.81MB  1.15% 96.66%     3.81MB  1.15%  minivectordb/internal/proto.parseFast
+    3.44MB  1.04% 97.70%     5.38MB  1.62%  minivectordb/internal/sqlparse.(*parser).funcCall
+    1.27MB  0.38% 98.08%     2.18MB  0.66%  compress/flate.NewWriter (inline)
+    0.69MB  0.21% 98.29%    10.82MB  3.27%  minivectordb/internal/sqlparse.(*parser).cmp
+         0     0% 98.29%     2.18MB  0.66%  compress/gzip.(*Writer).Write
+         0     0% 98.29%     3.62MB  1.09%  main.advancedProbeBefore
+         0     0% 98.29%   331.06MB   100%  main.main
+         0     0% 98.29%     2.62MB  0.79%  main.probeSnapshot

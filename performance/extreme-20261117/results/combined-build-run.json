@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "build",
+    "-trimpath",
+    "-ldflags=-s -w",
+    "-o",
+    "/tmp/seekdb-extreme-20261117/bin/combined",
+    "./cmd/minivectordb"
+  ],
+  "cwd": "/tmp/seekdb-extreme-20261117/combined",
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 1.1838889369999777
+}

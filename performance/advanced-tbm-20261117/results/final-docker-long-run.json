@@ -1,0 +1,48 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm",
+    "-bins",
+    "remote-final,advanced-final",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-rounds",
+    "5",
+    "-cpu-affinity",
+    "16-17",
+    "-rows",
+    "10000",
+    "-dim",
+    "128",
+    "-queries",
+    "5000",
+    "-seed",
+    "41145",
+    "-transport",
+    "docker",
+    "-image-prefix",
+    "seekdb-advanced-20261117:"
+  ],
+  "binary_hashes": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-final": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm": "4acdb1d3683e0fab426cf08b4272b5ef5682923ec255098d41b1a26805e2090d"
+  },
+  "driver_allowed_cpus": [
+    18
+  ],
+  "utc": "2026-11-17T12:14:26Z",
+  "diagnostic_only": false,
+  "official_submissions": 0,
+  "harness_sources": {
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/lab.py": "10d792a248d98b603b53d6b79179e3f94fb3722b1ef9c1906468053b914bc80c",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/driver.go": "55181c21f93bf519aa2f91f431e8892924f07d958a44cb551d3b3ff7b28d232d",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/analyze.py": "cf4a6db9b68258661fd766300c7e146061f0725c84356209256a5aa690aa17db"
+  },
+  "loadavg_start": "2.38 2.12 1.69 1/2987 662366",
+  "exit_code": 0,
+  "wall_s": 58.77082521747798,
+  "identities_unchanged": true,
+  "loadavg_end": "2.58 2.24 1.76 1/2988 667171"
+}

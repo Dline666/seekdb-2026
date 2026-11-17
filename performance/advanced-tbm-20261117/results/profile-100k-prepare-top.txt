@@ -1,0 +1,28 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "tool", "pprof", "-top", "-nodecount=20", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-profile", "performance/advanced-tbm-20261117/profiles/100k/round0-advanced-profile-query/prepare.cpu"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:27:46Z", "uid": 1019, "diagnostic_only": true}
+File: advanced-profile
+Type: cpu
+Time: Nov 17, 2026 at 6:44pm (CST)
+Duration: 301.43ms, Total samples = 150ms (49.76%)
+Showing nodes accounting for 150ms, 100% of 150ms total
+Showing top 20 nodes out of 26
+      flat  flat%   sum%        cum   cum%
+      90ms 60.00% 60.00%      110ms 73.33%  minivectordb/internal/engine.quantizeRow
+      20ms 13.33% 73.33%       20ms 13.33%  math.Round (inline)
+      10ms  6.67% 80.00%       10ms  6.67%  runtime.mapiterinit
+      10ms  6.67% 86.67%       10ms  6.67%  runtime.memmove
+      10ms  6.67% 93.33%       10ms  6.67%  runtime.typePointers.next
+      10ms  6.67%   100%       10ms  6.67%  sort.partition_func
+         0     0%   100%      140ms 93.33%  main.main
+         0     0%   100%      140ms 93.33%  minivectordb/internal/engine.(*DB).Exec
+         0     0%   100%      140ms 93.33%  minivectordb/internal/engine.(*DB).execSelect
+         0     0%   100%       10ms  6.67%  minivectordb/internal/engine.(*DB).indexBudget
+         0     0%   100%      140ms 93.33%  minivectordb/internal/engine.(*DB).run
+         0     0%   100%      140ms 93.33%  minivectordb/internal/engine.(*DB).vectorTopK
+         0     0%   100%       10ms  6.67%  minivectordb/internal/engine.(*VecIndex).decodeInto
+         0     0%   100%      120ms 80.00%  minivectordb/internal/engine.(*VecIndex).quantizeSlot
+         0     0%   100%      140ms 93.33%  minivectordb/internal/engine.(*VecIndex).rebuild
+         0     0%   100%      130ms 86.67%  minivectordb/internal/engine.(*VecIndex).upsert
+         0     0%   100%       10ms  6.67%  minivectordb/internal/types.DecodeVecInto (inline)
+         0     0%   100%       10ms  6.67%  runtime.gcBgMarkWorker
+         0     0%   100%       10ms  6.67%  runtime.gcBgMarkWorker.func2
+         0     0%   100%       10ms  6.67%  runtime.gcDrain

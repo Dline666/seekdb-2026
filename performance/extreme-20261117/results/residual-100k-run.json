@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/tmp/seekdb-extreme-20261117/bin/tbm",
+    "-bins",
+    "quadboth,residual",
+    "-bin-dir",
+    "/tmp/seekdb-extreme-20261117/bin",
+    "-data-dir",
+    "/tmp/seekdb-extreme-20261117",
+    "-rows",
+    "100000",
+    "-dim",
+    "256",
+    "-queries",
+    "500",
+    "-rounds",
+    "5"
+  ],
+  "exit_code": 0,
+  "wall_s": 64.166271362,
+  "binary_hashes": {
+    "/tmp/seekdb-extreme-20261117/bin/quadboth": "7090b06e0c14835bd444525fd45e006306de4d52f1b6c25e51054e11bbba2d58",
+    "/tmp/seekdb-extreme-20261117/bin/residual": "d5b0952d618e142a712d6a36e9482196a92320f5c4c82f82d5b2457edd85eff4",
+    "/tmp/seekdb-extreme-20261117/bin/tbm": "31bb3b5f7de4a0bc621e0531a9e1c9048b8a361679a89062a5b0d91e3ab9a518"
+  },
+  "identities_unchanged": true,
+  "official_submissions": 0
+}

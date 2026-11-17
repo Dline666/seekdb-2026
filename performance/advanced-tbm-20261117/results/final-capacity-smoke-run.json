@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "sudo",
+    "-n",
+    "taskset",
+    "--cpu-list",
+    "18",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-stress",
+    "-binary",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-final",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/final-capacity-smoke",
+    "-rows",
+    "128",
+    "-dim",
+    "1024",
+    "-queries",
+    "2",
+    "-batch",
+    "64",
+    "-bulk-update",
+    "-recovery-kill-delay",
+    "10ms"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T12:19:33Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.24971341993659735
+}

@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-large",
+    "-bins",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-base,/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final",
+    "-fixture",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-stress-v2/db/data.log",
+    "-work-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-large-private",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-queries",
+    "6"
+  ],
+  "start": 1794908917.4875004,
+  "wall_s": 183.6766848564148,
+  "exit_code": 0,
+  "identities": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-large": "851fe88f2110ad492a7c30cc70afcc1a6e215431721c6c9b292f9362f6bc8a2e",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-base": "b190079fe993ad33a0a48006d167a41b98b12bba29c29248c1ae97c5522dd99d",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/extreme-20261117/remote_large/main.go": "b78db5b09080bf698969872881be4bbb84f066f226867e4bacedfb9d85320b1b",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/extreme-20261117/remote_large/analyze.py": "c108cb65a22e1f4f13544c3cbaa5a952d1f26b08ea3928a079b5f663c6389fdb"
+  },
+  "identities_unchanged": true,
+  "driver_allowed_cpus": [
+    18
+  ],
+  "official_submissions": 0
+}

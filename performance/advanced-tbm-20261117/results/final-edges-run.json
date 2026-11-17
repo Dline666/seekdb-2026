@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/home/platemo/.local/bin/python3",
+    "performance/exact-tbm/exact_edges.py",
+    "--binary",
+    "advanced-final",
+    "--bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "--assert-correct"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T12:19:33Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.15094389487057924
+}

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/seekdb-round3-go/bin/go",
+    "test",
+    "./..."
+  ],
+  "cwd": "/tmp/seekdb-extreme-20261117/handoff",
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 33.227086545
+}

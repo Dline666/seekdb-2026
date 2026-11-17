@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "docker",
+    "build",
+    "--progress=plain",
+    "-t",
+    "seekdb-advanced-20261117:advanced-final",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-docker-context/advanced-final"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T12:05:56Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 12.560671063140035
+}

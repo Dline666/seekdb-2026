@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm",
+    "performance/advanced-tbm-20261117/driver.go"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T10:42:26Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.2967347875237465
+}

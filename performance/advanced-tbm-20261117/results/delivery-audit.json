@@ -1,0 +1,12 @@
+{
+  "utc": "2026-11-17T12:40:38.202132+00:00",
+  "passed": true,
+  "final_groups": 17,
+  "raw_phase_resource_checks": 340,
+  "independent_decimal_score_checks": 255,
+  "candidate_archive_files_checked": 3830,
+  "protected_old_files_checked": 352,
+  "patch_recreates_final_snapshot": true,
+  "report_reproduces_exactly": true,
+  "worktree_equals_tested_snapshot": true
+}

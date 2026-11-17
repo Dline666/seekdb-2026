@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "tool",
+    "pprof",
+    "-top",
+    "-nodecount=20",
+    "-alloc_space",
+    "-base",
+    "performance/advanced-tbm-20261117/profiles/default/round0-advanced-profile-query/query-begin.heap",
+    "performance/advanced-tbm-20261117/profiles/default/round0-advanced-profile-query/query-end.heap"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T10:43:25Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.013506951741874218
+}

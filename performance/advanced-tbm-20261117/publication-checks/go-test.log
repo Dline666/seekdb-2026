@@ -1,0 +1,6 @@
+?   	minivectordb/cmd/minivectordb	[no test files]
+?   	minivectordb/internal/storage	[no test files]
+ok  	minivectordb/internal/engine	23.521s
+ok  	minivectordb/internal/proto	4.200s
+ok  	minivectordb/internal/sqlparse	0.067s
+ok  	minivectordb/internal/types	25.678s

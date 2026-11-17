@@ -1,0 +1,5 @@
+{"argv": ["make", "-C", "minivectordb", "lint", "GOLANGCI_LINT=/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint"], "cwd": null, "official_submissions": 0}
+make: 进入目录“/home/platemo/seekdb-experiments/20261117/repository/minivectordb”
+/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint run ./...
+0 issues.
+make: 离开目录“/home/platemo/seekdb-experiments/20261117/repository/minivectordb”

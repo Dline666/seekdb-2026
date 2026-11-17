@@ -1,0 +1,6 @@
+{
+  "sha256": "04815c9ac9cb8e0954a69a0bffe23d3b9549575fd7d97ec413ebcec25f4effa1",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-zerosafe",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

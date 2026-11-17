@@ -1,0 +1,5 @@
+{
+  "validation_passed": false,
+  "error": "TypeError('Object of type PosixPath is not JSON serializable')",
+  "single_version_capacity_check": true
+}
