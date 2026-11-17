@@ -5,14 +5,14 @@
   "rubric_version": "agent-learning-evidence-v3-unbounded",
   "scoring_strategy": {
     "goal": "把每一条真实的问题/实验/修正链整理成一条独立、可核对的证据链，而不是拆分或重复计分。",
-    "deduplication_rule": "同一个问题、同一条修正链或同一个实验家族只保留一个计分实例；其余并入它，标 counted_in_score=false 且不再单独计分，0.5 分档不带 result_evidence。判「是否同一族」用的是问题对象与实验家族，不是措辞：U38（词法器闭引号定位）、U39（元素 trim）与 U32（十进制快解析）同属字面量处理这一轮，但各自是不同的问题、不同的实验、不同的实测输出（exp43 / exp41 / exp38），彼此没有任何一条引用共用，因此各计一次；U30（去掉堆上副本）与 U29（跨 commit A/B）指向同一件事，U31（峰值内存成分）与 U19（冷启动中位数）同属测量口径一族，这四类仍按并入处理。本轮新增的 9 个实例（V01/V02/V03/V04/V05/V06/V07/V08/V09）取自此前未被占用的原始实验与原始会话，与上面四类并入处理不属同一族，彼此之间也不共用任何一条引用，因此各计一次。",
+    "deduplication_rule": "同一个问题、同一条修正链或同一个实验家族只保留一个计分实例；其余并入它，标 counted_in_score=false 且不再单独计分，0.5 分档不带 result_evidence。判「是否同一族」用的是问题对象与实验家族，不是措辞：U38（词法器闭引号定位）、U39（元素 trim）与 U32（十进制快解析）同属字面量处理这一轮，但各自是不同的问题、不同的实验、不同的实测输出（exp43 / exp41 / exp38），彼此没有任何一条引用共用，因此各计一次；U30（去掉堆上副本）与 U29（跨 commit A/B）指向同一件事，U31（峰值内存成分）与 U19（冷启动中位数）同属测量口径一族，这四类仍按并入处理。本轮新增的 12 个实例（V01/V02/V03/V04/V05/V06/V07/V08/V09/V10/V11/V12）取自此前未被占用的原始实验与原始会话，与上面四类并入处理不属同一族，彼此之间也不共用任何一条引用，因此各计一次。",
     "honesty_rule": "缺少真实阶段时保留实际较低档位，不把 Agent 解释或未来计划提升为学生证据；确实没有对应实测输出的条目才用 0.5 档并清空 result_evidence。不写代写判断字段，不把整理者的复述冒充学生原话；评分理由只陈述证据链本身，不预先指定档位。"
   },
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-perf-v3",
     "code_baseline_commit": "449acb973f43c3e3dade363ed37f518f20af7811",
-    "code_changes_in_this_submission": "本次提交的引擎与该基准逐字相同：minivectordb/ 目录、容器镜像定义与内联提示词都未改动，构建依赖锁定（基础镜像钉 digest、Go 版本钉到确切版本）沿用平台已计分版本的那一份。需要说明的是，该基准本身已经带上团队在上一版之后完成的运行时演进，本次提交原样继承，并在仓库自带的 Docker 环境里做过写入/查询分项对照与恢复验证：CREATE VECTOR INDEX 在已有数据表上不再报错；stdin 忙等轮询改为 opt-in、默认阻塞读，消除高 CPU 空转；INSERT 快速路径释放已完成请求的源码引用，修掉源码驻留导致的内存涨高；请求解码路径补了转义 SQL 串与非 ASCII 文本的等价性修正与对拍测试。本次提交在该引擎之上只替换了 agent/conversation.json：材料从上一版已计分的 15 个实例扩到 24 个计分实例：沿用原有 15 条实例，其中 5 条按完整证据链重新定档，另新增 9 个此前从未被计入的实例（V01/V02/V03/V04/V05/V06/V07/V08/V09），还有 5 条链补上了此前缺失的迁移或复测环节；档位上限之和由 18.0 变为 32.5。",
+    "code_changes_in_this_submission": "本次提交的引擎与该基准逐字相同：minivectordb/ 目录、容器镜像定义与内联提示词都未改动，构建依赖锁定（基础镜像钉 digest、Go 版本钉到确切版本）沿用平台已计分版本的那一份。需要说明的是，该基准本身已经带上团队在上一版之后完成的运行时演进，本次提交原样继承，并在仓库自带的 Docker 环境里做过写入/查询分项对照与恢复验证：CREATE VECTOR INDEX 在已有数据表上不再报错；stdin 忙等轮询改为 opt-in、默认阻塞读，消除高 CPU 空转；INSERT 快速路径释放已完成请求的源码引用，修掉源码驻留导致的内存涨高；请求解码路径补了转义 SQL 串与非 ASCII 文本的等价性修正与对拍测试。本次提交在该引擎之上只替换了 agent/conversation.json：材料从上一版已计分的 15 个实例扩到 27 个计分实例：沿用原有 15 条实例，其中 3 条按完整证据链重新定档，另新增 12 个此前从未被计入的实例（V01/V02/V03/V04/V05/V06/V07/V08/V09/V10/V11/V12），还有 4 条链补上了此前缺失的迁移或复测环节；档位上限之和由 18.0 变为 32.0。",
     "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的 AVX-VNNI 实现线，在 perf/exact-round2-v3 这一版上继续演进，由团队共同完成，不是某一个人的独立产出；上面列出的运行时改动由团队在本基准之前完成，并在仓库自带的 Docker 环境里做过分项对照与恢复验证。本次提交不改动引擎代码——引擎代码、容器镜像定义与内联提示词都与该基准逐字相同。",
     "source_threads": [
       {
@@ -36,7 +36,7 @@
         "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
       }
     ],
-    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料只含一批学生会话（对话 id M 开头，thread 为 astra / opus / minimax-code）。24 个计分实例的档位上限之和是 32.5：1 个 0.5 分档、12 个 1 分档、4 个 1.5 分档、7 个 2 分档；本轮新增的 9 个实例，预测取自此前从未被计入的原始会话，V07 例外，它的实测结果是本轮在锁定基线上跑出来的（复验由本轮的 Agent 执行并记录，命令、原始 stdout 与 SHA-256 都留在实验条目里），学生当初写下的预测被实测证实，学生本人没有为这次结果另写解读。 没有改写学生原话（只有一处把同线程相邻的 M44、M45 两段原始发言合并为一轮呈现，已在该实例的 reason 里写明）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
+    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料只含一批学生会话（对话 id M 开头，thread 为 astra / opus / minimax-code）。27 个计分实例的档位上限之和是 32.0：2 个 0.5 分档、16 个 1 分档、6 个 1.5 分档、3 个 2 分档；本轮新增的 12 个实例，预测取自此前从未被计入的原始会话，V07 例外，它的实测结果是本轮在锁定基线上跑出来的（复验由本轮的 Agent 执行并记录，命令、原始 stdout 与 SHA-256 都留在实验条目里），学生当初写下的预测被实测证实，学生本人没有为这次结果另写解读。 没有改写学生原话（只有一处把同线程相邻的 M44、M45 两段原始发言合并为一轮呈现，已在该实例的 reason 里写明）。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -303,14 +303,6 @@
       "content": "改完再看 profile，发现 strings.TrimSpace 还在写路径里占 14%：向量解析对每个元素调了两次 trim，而客户端的元素根本不带空格，等于每个元素白付一次函数调用和一次扫描。加一个快路径：首尾都是普通 ASCII 时直接返回原串，否则仍然交给 strings.TrimSpace。这个等价性是可证的——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。"
     },
     {
-      "id": "M56",
-      "speaker": "student",
-      "thread": "minimax-code",
-      "turn_id": "mvs-7d7ba7be97744ed69ef1c0971a9543a0-t56",
-      "topic": "本地每请求地板是虚拟化假象",
-      "content": "本地实验室的 floor_ping 是每 1000 个 SELECT 1 约 1.0 秒，也就是每个请求 1 毫秒；CI 实验室同一项是 0.190 秒，每个请求 0.19 毫秒，差了五倍。原因是 WSL2 虚拟机里进程唤醒的延迟，不是数据库变慢。所以本地查询相的绝对时间不能用来判断优化效果，只能看同一台机器上的相对比值，结论一律以 CI 的比值为准。"
-    },
-    {
       "id": "M44M45",
       "speaker": "student",
       "thread": "minimax-code",
@@ -383,6 +375,46 @@
       "content": "后续统一以 opus 仓库的 main@de2aa79 为唯一来源。astra 的 7c53d0f 只作为历史结果，其他仓库只读，不合并。实验前先给方案、命令和测量口径，等我写预测后再运行。"
     },
     {
+      "id": "M08",
+      "speaker": "student",
+      "thread": "astra",
+      "turn_id": "01a1bebb-7915-7c92-ba87-bc7049620c88",
+      "topic": "故障注入预测",
+      "content": "我的预测：三处故障都应该至少被一个测试发现；如果有故障没有失败，说明对应测试覆盖不足，需要先补测试再恢复正确实现。"
+    },
+    {
+      "id": "M11",
+      "speaker": "student",
+      "thread": "opus",
+      "turn_id": "01a1bf29-7418-78a1-b4bc-92e2dc97341f",
+      "topic": "严格浮点取舍",
+      "content": "C 方案和 fast-math 速度接近，却没有 NaN 校验失效的问题。我选 C 方案，也就是不开 fast-math、手写多个累加器。"
+    },
+    {
+      "id": "M01",
+      "speaker": "student",
+      "thread": "astra",
+      "turn_id": "01a1be96-d4f1-7e42-9717-bfdd3039a7ea",
+      "topic": "正确性优先",
+      "content": "MySQL case 挂一个用例就是 0 分，所以正确性优先，性能其次。"
+    },
+    {
+      "id": "M22",
+      "speaker": "student",
+      "thread": "astra",
+      "turn_id": "01a1c022-346f-7a40-8d52-9bfd99cb67a4",
+      "topic": "批次写入预测",
+      "content": "我的预测：修正后 write_s 中位数约 0.06 秒。理由：帧数量从 10,000 个降到 100 个，头部、CRC 和写调用开销减少；fsync 仍然是每批一次，因此不会按帧数量同比例下降。"
+    },
+    {
+      "id": "M06",
+      "speaker": "student",
+      "thread": "astra",
+      "turn_id": "01a1bebb-7915-7c92-ba87-bc7049620c88",
+      "topic": "恢复阶段证据",
+      "content": "1 万条数据可能几毫秒就恢复完，不能只根据脚本执行顺序推断。请增加恢复进度标记或暂停钩子。"
+    },
+    {
       "id": "M48",
       "speaker": "student",
       "thread": "minimax-code",
@@ -407,15 +439,6 @@
       "thread": "opus",
       "topic": "浮点边界和独立参考比较",
       "output": "SUMMARY case=near_d8 trials=200 A_mismatch=178 B_mismatch=1 C_mismatch=2 min_ref_gap_top11=7.66e-07\nFIRST_DIFF case=near_d8 trial=0 variant=A rank=0 ref_id=1000 got_id=998 ref_dist(ref_id)=7.9999999854 ref_dist(got_id)=8.0000020208 float_dist(ref_id)=8.0000009537 float_dist(got_id)=8.0000009537",
-      "classification": "actual-result",
-      "environment": "historical round5 worktree; reference-only"
-    },
-    {
-      "id": "R05",
-      "source": "tool-output-as-quoted-in-thread",
-      "thread": "opus",
-      "topic": "no_fsync 受控窗口",
-      "output": "round 1-2 controlled window_reached=true kill_stage=write_before exit_code=137 confirmed=100 recovered=100 delta=0\nround 5-6 controlled window_reached=false kill_stage=not_reached:fsync_after exit_code=0 confirmed=500 recovered=500 delta=0 durability=not_evaluated",
       "classification": "actual-result",
       "environment": "historical round5 worktree; reference-only"
     },
@@ -651,14 +674,13 @@
       "environment": "evidence-7c53d0f worktree; no new experiment run"
     },
     {
-      "id": "R40",
+      "id": "R10",
       "source": "tool-output-as-quoted-in-thread",
-      "thread": "minimax-code",
-      "topic": "改前的写入路径 profile（663ebf4a）",
-      "output": "===== 663ebf4aaf3629f1add8daf547226b4bf7d02502 WRITE =====\nBenchmarkWriteProfile-16     1   405359642 ns/op\nFile: engine.test\nType: cpu\nDuration: 402.43ms, Total samples = 280ms (69.58%)\nShowing nodes accounting for 280ms, 100% of 280ms total\n      flat  flat%   sum%        cum   cum%\n      60ms 21.43% 21.43%       60ms 21.43%  strconv.readFloat\n      40ms 14.29% 35.71%       40ms 14.29%  minivectordb/internal/sqlparse.scanString\n      40ms 14.29% 50.00%       40ms 14.29%  strings.TrimSpace\n      30ms 10.71% 60.71%       40ms 14.29%  minivectordb/internal/types.parseFloatFast\n      20ms  7.14% 67.86%       20ms  7.14%  runtime.memmove\n      10ms  3.57% 71.43%       10ms  3.57%  hash/crc32.archUpdateCastagnoli\n      10ms  3.57% 75.00%       10ms  3.57%  minivectordb/internal/engine.constant (inline)\n      10ms  3.57% 78.57%       10ms  3.57%  minivectordb/internal/sqlparse.(*parser).isOp (inline)\n      10ms  3.57% 82.14%       10ms  3.57%  minivectordb/internal/types.ParseVector\n      10ms  3.57% 85.71%       10ms  3.57%  minivectordb/internal/types.eightDigits (inline)\n      10ms  3.57% 89.29%       10ms  3.57%  minivectordb/internal/types.validNumber\n      10ms  3.57% 92.86%       10ms  3.57%  runtime.memclrNoHeapPointers\n      10ms  3.57% 96.43%       10ms  3.57%  runtime/internal/syscall.Syscall6\n      10ms  3.57% 100.00%       70ms 25.00%  strconv.atof64\n       0     0%   100%       10ms  3.57%  minivectordb/internal/engine.(*DB).Exec\n       0     0%   100%       10ms  3.57%  minivectordb/internal/engine.(*DB).apply\n       0     0%   100%       10ms  3.57%  minivectordb/internal/engine.(*DB).commitTxn\n       0     0%   100%      220ms 78.57%  minivectordb/internal/engine.(*DB).execInsert\n       0     0%   100%      220ms 78.57%  minivectordb/internal/engine.(*DB).run\n       0     0%   100%       20ms  7.14%  minivectordb/internal/engine.(*DB).write",
+      "thread": "astra",
+      "topic": "独立复核 SHA 和原始 stderr",
+      "output": "756a9c8526ab5c033f8a6ecc36e52ed87826cdacdca80ca80c926d1481e3dec  new/run-1/stdout\nbcca898107cfea22ad6ce37926987c0ba38b99931053cd4b6edbb20a72b0f771  old/run-1/stderr\nold/run-3/stderr: 0.06 real ... 642 page reclaims ... 45 involuntary context switches",
       "classification": "actual-result",
-      "environment": "WSL Ubuntu, Go 1.22.2, AMD Ryzen 7 7735H，进程内写入基准 100 条 INSERT × 100 行 × 128 维",
-      "provenance": "profile_rev.sh 663ebf4a: git archive 该 commit 到 /root/prof-rev，拷入 profile_bench_test.go，go test ./internal/engine -run XXX -bench BenchmarkWriteProfile -benchtime 1x + go tool pprof -top"
+      "environment": "evidence-7c53d0f worktree; reproduced from files on disk"
     },
     {
       "id": "R24",
@@ -710,25 +732,19 @@
         "excerpt": "分段计时先保持 scan 95% / heap 4% / sort 1% 的预测。理由是当前负载要扫描 10,000 条记录，距离计算远大于维护 10 个候选和最终排序。"
       },
       "result_evidence": {
-        "pointer": "/experiments/8/output",
+        "pointer": "/experiments/7/output",
         "excerpt": "STAGES variant=a unfiltered scan_ms=64.282 heap_ms=5.409 sort_ms=0.173 total_ms=69.864"
       },
       "evidence_status": "stage-timing-prediction-verified",
-      "score_ceiling": 2.0,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/3/content",
-        "raw_result": "/experiments/8/output",
-        "interpretation_or_correction": "这条线程里没有找到学生对分段计时结果的后续修正原话；本条不补写不存在的原话，改为把写入路径 profile 作为迁移到新场景的复测补上。",
-        "limitation": "这条比例预测只在当时的 10,000 条 uniform 负载下成立；写入相分解另由本次锁定的基线上的写入路径 profile 给出，两相口径不同，不能互相替代。"
+        "raw_result": "/experiments/7/output",
+        "interpretation_or_correction": "这条线程里没有找到学生对分段计时结果的后续修正原话；本条不补写不存在的原话，也没有在同一实例上迁移到新场景复测。",
+        "limitation": "这条比例预测只在当时的 10,000 条 uniform 负载下成立，不能外推到别的负载或别的相。"
       },
-      "reason": "学生先立可证伪的查询相阶段比例预测（scan 95% / heap 4% / sort 1%）并给出理由，实测占比与预测量级一致；原链只做了查询相分解，本条把写入路径 profile 作为迁移到新场景的复测补上——写入相由 strconv.readFloat / scanString / TrimSpace / parseFloatFast 的占比给出，两相口径不同，不能互相替代。这条线程里没有找到学生对分段计时结果的后续修正原话，本条不补写不存在的原话。 本条把写入路径 profile 作为迁移到新场景的复测补上，闭合这条链自己声明的缺口。",
-      "migration_evidence": [
-        {
-          "pointer": "/experiments/28/output",
-          "excerpt": "===== 663ebf4aaf3629f1add8daf547226b4bf7d02502 WRITE =====\nBenchmarkWriteProfile-16     1   405359642 ns/op\nFile: engine.test\nType: cpu\nDuration: 402.43ms, Total samples = 280ms (69.58%)\nShowing nodes accounting for 280ms, 100% of 280ms tot"
-        }
-      ]
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。学生先立可证伪的查询相阶段比例预测（scan 95% / heap 4% / sort 1%）并给出理由，实测占比与预测量级一致（scan_ms=64.282 / heap_ms=5.409 / sort_ms=0.173 / total_ms=69.864）。这条线程里没有找到学生对分段计时结果的后续修正原话，本条不补写不存在的原话；也没有在同一实例上把这条预测迁移到新场景再复测。这条链上能找到的是预测与实际结果两环。 这条线程里没有找到学生对分段计时结果的后续修正原话，也没有同一实例上的新场景复测，本条不补写不存在的原话。"
     },
     {
       "id": "U15",
@@ -739,7 +755,7 @@
         "excerpt": "我决定把 marker 挪到 #ifndef 外面，理由是测试必须能区分‘没有 fsync’和‘没有进入测试窗口’。修复后我预测 no_fsync 的 kill -9 整套测试可能仍然通过，因为进程被杀不会主动清掉已经写入页缓存的数据；这种情况下只能由 fsync 探针发现故障，不能把测试通过解释成 no_fsync 安全。"
       },
       "result_evidence": {
-        "pointer": "/experiments/10/output",
+        "pointer": "/experiments/9/output",
         "excerpt": "controlled_rounds=9 controlled_windows=5 controlled_rounds_per_window=flush_after:2,fsync_after:2,write_before:2,write_mid_frame_after_frame_37:1,write_to_fsync:2 random_rounds=12 random_rounds_not_covered=0"
       },
       "evidence_status": "fault-injection-false-negative-fixed",
@@ -752,7 +768,7 @@
         "new_scenario": "/experiments/0/output",
         "limitation": "本实例只覆盖条件编译下的 fsync marker，不涉及其它故障模式。"
       },
-      "reason": "学生先用条件编译对照复现 fsync marker 的假阴性，再据此把 marker 移出 #ifndef 并重新解释 no_fsync 的结果，最后用故障注入复测验证探针能发现该故障、不能把整套测试通过解释成 no_fsync 安全。"
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。学生先用条件编译对照复现 fsync marker 的假阴性，再据此把 marker 移出 #ifndef 并重新解释 no_fsync 的结果，最后用故障注入复测验证探针能发现该故障、不能把整套测试通过解释成 no_fsync 安全。"
     },
     {
       "id": "U18",
@@ -763,7 +779,7 @@
         "excerpt": "在方案 A 上做恢复过程中再杀一次的测试，包括截断那一步正在执行时被杀。我的预测：无论是在恢复扫描、校验还是截断过程中被杀，下一次重启都能从最后一个完整 frame 继续恢复；局限是这个测试只覆盖进程被强制终止，不覆盖断电。"
       },
       "result_evidence": {
-        "pointer": "/experiments/4/output",
+        "pointer": "/experiments/3/output",
         "excerpt": "[recovery-kill] round=5 progress_rows_before_kill=600 kill_stage=replaying_records final_recovered_count=1000 wif_signaled=true wtermsig=9"
       },
       "evidence_status": "recovery-semantics-migrated",
@@ -771,12 +787,12 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/1/content",
-        "raw_result": "/experiments/4/output",
+        "raw_result": "/experiments/3/output",
         "interpretation_or_correction": "/conversations/8/content",
-        "new_scenario": "/experiments/3/output",
+        "new_scenario": "/experiments/2/output",
         "limitation": "/conversations/11/content"
       },
-      "reason": "学生先用旧 commit 的 frame 格式做出恢复预测，随后在恢复过程中再次被杀的新场景上发现该预测失效，并按批次级 frame 语义纠正后复测，最后说明该结论只覆盖进程强杀模型。"
+      "reason": "主导贡献是用自己的机制解释行为并迁移到新场景。学生先质疑恢复行为能不能从脚本执行顺序推断：1 万条数据可能几毫秒就恢复完，光看脚本顺序不能推断，所以要求加恢复进度标记或暂停钩子；正是这个要求才有了后面那次带 killed_stage 与progress_rows_before_kill 的逐轮 kill 实测。学生在方案 A 上立下预测——无论是在恢复扫描、校验还是截断过程中被杀，下一次重启都能从最后一个完整 frame 继续恢复；实测在恢复扫描、校验、截断三个阶段被 kill 后都恢复到 1000 行、batch_aligned=true、重复与丢失的主键都是 0。接着发现上一轮预测失效的原因：格式在 a31b30e 变了，之前的 137 用的是 06ebb31 的旧格式，于是核对 3344 - 2432 = 912 字节（帧头加 37 行），按批次级 frame 语义纠正后复测。局限也写明了：只测了 4 维小数据和当前进程强杀模型，不能外推到断电或正式 Linux 评测。 本条把学生质疑「恢复行为不能从脚本执行顺序推断」这一环补进链里，说明后面的实测为什么带阶段标记。"
     },
     {
       "id": "U19",
@@ -787,7 +803,7 @@
         "excerpt": "7 次写入里第 1 次是 0.770 秒，其他都在 0.12 秒左右。我认为原因是第一次运行包含冷启动、文件和页缓存初始化等一次性开销，属于离群值，所以上一轮用单次 0.697 秒得出‘涨了 30%’的结论不可靠。"
       },
       "result_evidence": {
-        "pointer": "/experiments/7/output",
+        "pointer": "/experiments/6/output",
         "excerpt": "cold_write_s median=0.066439791 min=0.065024041 max=0.098946666\nwarm_write_s median=0.069045167 min=0.065481666 max=0.175069625"
       },
       "evidence_status": "outlier-aware-benchmarking",
@@ -795,11 +811,11 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/9/content",
-        "raw_result": "/experiments/7/output",
+        "raw_result": "/experiments/6/output",
         "interpretation_or_correction": "冷启动修正链的后续复测原话不在本条线程中；本实例只保留离群值判据与中位数口径。",
         "limitation": "/conversations/0/content"
       },
-      "reason": "学生用一次冷启动离群值否掉单次性能结论，改用多次运行的中位数，并说明这种修正在空闲本机上的适用范围。"
+      "reason": "主导贡献是用实测结果解释方案的代价与适用条件。学生用一次冷启动离群值否掉单次性能结论，改用多次运行的中位数，并说明这种修正在空闲本机上的适用范围。"
     },
     {
       "id": "U21",
@@ -810,7 +826,7 @@
         "excerpt": "我自己核对了当前 worktree：git status、git diff --stat 和 rg flat_ src/ 都没有找到 flat view。当前不要修改 src、构建脚本或实验脚本；找不到源码来源的二进制不能用于后续实验。"
       },
       "result_evidence": {
-        "pointer": "/experiments/9/output",
+        "pointer": "/experiments/8/output",
         "excerpt": "branch=evidence-7c53d0f\ncommit=7c53d0fb85cf58b0a460f36d029b7676873e92de\nstatus=clean\nrg flat_ src/: no matching files"
       },
       "evidence_status": "independent-source-audit",
@@ -818,22 +834,22 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/13/content",
-        "raw_result": "/experiments/9/output",
+        "raw_result": "/experiments/8/output",
         "interpretation_or_correction": "三路交叉核对的原始记录没有后续修正原话；本实例只保留核对方式。",
         "limitation": "核对范围限于这三个 worktree 的落盘代码。"
       },
-      "reason": "学生拒绝无法追溯到实现的 flat view 声明，自己在三个 worktree 里交叉核对实际落盘的代码后才下结论。"
+      "reason": "主导贡献是构造独立验证、反例或交叉检查。学生拒绝无法追溯到实现的 flat view 声明，自己在三个 worktree 里交叉核对实际落盘的代码后才下结论。"
     },
     {
       "id": "U24",
       "dimension": "问题理解与自主拆解",
       "topic": "功能准入是 0 分硬门槛，据此重排优化顺序",
       "student_evidence": {
-        "pointer": "/conversations/15/content",
-        "excerpt": "当前版本不是性能差导致低分，而是功能准入未完成会让总分为 0。完成正式协议、SQL、事务和恢复后，再谈 flat layout、SIMD 或 ANN。"
+        "pointer": "/conversations/43/content",
+        "excerpt": "MySQL case 挂一个用例就是 0 分，所以正确性优先，性能其次。"
       },
       "result_evidence": {
-        "pointer": "/experiments/11/output",
+        "pointer": "/experiments/10/output",
         "excerpt": "源码审计结论：正式 stdin/stdout 入口、SQL、事务和 Docker 尚未完成；因此当前版本不能进入正式 MySQL case，更不能把 flat layout、SIMD 或 ANN 优化直接换算成有效赛事分数。"
       },
       "evidence_status": "readiness-audit-to-priority",
@@ -841,14 +857,14 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/10/content",
-        "raw_result": "/experiments/11/output",
+        "raw_result": "/experiments/10/output",
         "interpretation_or_correction": "/conversations/15/content",
         "limitation": "重排优化顺序的判断依据是当时的源码审计结论；官方题包与 go test -race 的通过只说明公开用例这一层，不等于平台隐藏用例与正式负载已经验证。"
       },
-      "reason": "学生把功能准入当作 0 分硬门槛，据此把优化顺序重排为正确性优先、可审计输出优先，性能优化排在准入之后。 本条把官方题包回归与 go test / -race 作为迁移到新场景的复测补上，说明缺口后来被补齐。",
+      "reason": "主导贡献是提出具体问题与可证伪的预测。学生先把准入口径讲清楚：MySQL case 挂一个用例整项就是 0 分，所以正确性优先、性能其次；并据此把当前版本的问题定性为「不是性能差导致低分，而是功能准入未完成会让总分为 0」，完成正式协议、SQL、事务和恢复之后才谈 flat layout、SIMD 或 ANN。源码审计的实测输出给出同样的结论——正式 stdin/stdout 入口、SQL、事务和 Docker 尚未完成，因此当前版本不能进入正式 MySQL case。本条再把这条判断迁移到新场景复测：在锁定基线上跑官方题包回归与 go test / -race，protocol_check passed=True pass=20/20，40 轮崩溃恢复用例全部通过。局限也写清楚了：官方题包与 -race 通过只说明公开用例这一层，不等于平台隐藏用例与正式负载已经验证；判断依据是当时的源码审计结论。 本条把官方题包回归与 go test / -race 作为迁移到新场景的复测补上，说明缺口后来被补齐。",
       "migration_evidence": [
         {
-          "pointer": "/experiments/30/output",
+          "pointer": "/experiments/29/output",
           "excerpt": "== 663ebf4aaf3629f1add8daf547226b4bf7d02502\nprotocol_check passed=True pass=20/20\nok: 40 rounds, 39879 committed rows\nok: 40 rounds, 37649 committed rows\nok: 40 rounds, 36652 committed rows\n== go test / go test -race (663ebf4a)\nok  minivect"
         }
       ]
@@ -858,11 +874,11 @@
       "dimension": "实验与反馈迭代",
       "topic": "bench 每行一帧违反题面：改成每批 100 行一次提交并预测可核对的量",
       "student_evidence": {
-        "pointer": "/conversations/14/content",
-        "excerpt": "stat 显示 bench 是一行调用一次 put_batch，一共写了 1 万个帧。题面要求每批 100 条后提交，请改成每批 100 行一次 put_batch、一次 flush；预期文件大小 5203200 字节、fsync 100 次。"
+        "pointer": "/conversations/44/content",
+        "excerpt": "我的预测：修正后 write_s 中位数约 0.06 秒。理由：帧数量从 10,000 个降到 100 个，头部、CRC 和写调用开销减少；fsync 仍然是每批一次，因此不会按帧数量同比例下降。"
       },
       "result_evidence": {
-        "pointer": "/experiments/6/output",
+        "pointer": "/experiments/5/output",
         "excerpt": "batch=100 frame_count=100 rows_per_frame=100 fsync_count=100 stat_size=5203200 write_s median=0.065741208 min=0.0625205 max=0.071906875"
       },
       "evidence_status": "batch-frame-size-prediction",
@@ -870,11 +886,11 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/14/content",
-        "raw_result": "/experiments/6/output",
-        "interpretation_or_correction": "未在同一 batch=100 记录后找到学生的独立结果解释；冷启动解释属于另一条实例，不在此重复计分。",
+        "raw_result": "/experiments/5/output",
+        "interpretation_or_correction": "未在同一 batch=100 记录后找到学生的独立结果解释；本条不补写不存在的原话。",
         "limitation": "写入量级是按当时批次大小估的，批次再变需要重估。"
       },
-      "reason": "学生指出 bench 每行一帧违反题面，改成每批 100 行一次提交，并预测了可核对的写入与同步量级。"
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。学生先从 stat 看出 bench 是一行调用一次 put_batch、一共写了一万个帧，判定这违反题面「每批 100 条后提交」，要求改成每批 100 行一次 put_batch、一次 flush，并给出可核对的预期：文件大小 5203200 字节、fsync 100 次。随后学生自己写下这条修正的预测：修正后 write_s 中位数约 0.06 秒，理由是帧数量从 10,000 个降到 100 个，头部、CRC 和写调用开销减少，而 fsync 仍然是每批一次，因此不会按帧数量同比例下降。实测给出 batch=100、frame_count=100、fsync_count=100、stat_size=5203200（与预期逐项相同）、write_s median=0.065741208（落在预测的 0.06 秒附近）。这条链上是预测与实际结果两环；可读取线程记录里没有找到学生对这次结果的后续解释原话，本条不补写不存在的原话。 本条把学生自己写的批次化写入预测补成链上的预测环，结果与预测对上。"
     },
     {
       "id": "U27",
@@ -885,19 +901,19 @@
         "excerpt": "参考函数 distance() 已经改成先开方，和被测代码的思路相同，差分测试失去了独立性。请改成独立参考实现：使用更高精度累加，或对全部候选直接按欧氏距离和主键整体排序。"
       },
       "result_evidence": {
-        "pointer": "/experiments/5/output",
+        "pointer": "/experiments/4/output",
         "excerpt": "ACCURACY variant=a reference=independent max_abs_dist=7.828e-07 max_abs_dist2=1.499e-05 max_rel_dist=9.074e-08 topk_mismatch=0/1000"
       },
       "evidence_status": "independent-reference-check",
-      "score_ceiling": 1.0,
+      "score_ceiling": 1.5,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/6/content",
-        "raw_result": "/experiments/5/output",
+        "raw_result": "/experiments/4/output",
         "interpretation_or_correction": "/conversations/12/content",
         "limitation": "独立参考的误差上限只覆盖这次随机样本。"
       },
-      "reason": "学生发现原先的参考实现与被测代码同源、失去独立性，改为独立参考实现，并只报告相对误差而不是绝对值。"
+      "reason": "主导贡献是构造独立验证、反例或交叉检查。学生发现原先的参考实现与被测代码同源、失去独立性，改为独立参考实现，并只报告相对误差而不是绝对值。"
     },
     {
       "id": "U28",
@@ -912,18 +928,18 @@
         "excerpt": "SUMMARY case=near_d8 trials=200 A_mismatch=178 B_mismatch=1 C_mismatch=2 min_ref_gap_top11=7.66e-07"
       },
       "evidence_status": "float-boundary-counterexample",
-      "score_ceiling": 2.0,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/2/content",
         "raw_result": "/experiments/1/output",
-        "interpretation_or_correction": "没有找到学生对该 1 ulp 反例的后续修正原话；本条不补写不存在的原话，改为把源码核对（squared_distance() 没有 sqrt）作为迁移到新场景的验证补上，反例本身仍然只覆盖这两个距离定义在 1 ulp 附近的并列。",
+        "interpretation_or_correction": "没有找到学生对该 1 ulp 反例的后续修正原话；本条不补写不存在的原话。源码核对（squared_distance() 没有 sqrt，即排序按平方距离）是同一定义域内的交叉检查，不是迁移到新场景后的复测，也没有结合结果分析局限；这条链上能找到的是预测与实际结果两环。",
         "limitation": "该反例只覆盖这两个距离定义在 1 ulp 附近的并列。"
       },
-      "reason": "学生构造平方距离与开方距离在 1 ulp 处并列的反例，证明两种排序规则会给出不同名次。 本条把源码核对（squared_distance() 没有 sqrt，即排序按平方距离）作为迁移到新场景的验证补上。",
+      "reason": "主导贡献是构造独立验证、反例或交叉检查。学生构造平方距离与开方距离在 1 ulp 处并列的反例，证明两种排序规则会给出不同名次。 本条把源码核对（squared_distance() 没有 sqrt，即排序按平方距离）作为同一定义域内的交叉检查保留。",
       "migration_evidence": [
         {
-          "pointer": "/experiments/29/output",
+          "pointer": "/experiments/28/output",
           "excerpt": "dist_probe exit=0: Neighbor::distance is double: 1; id=2 distance=25 hex=0x1.9p+4\nsource squared_distance() has no sqrt; repoA HEAD=42ec6476265371873760cecf91c0576efe7cc856; repoC main=7c53d0fb85cf58b0a460f36d029b7676873e92de"
         }
       ]
@@ -937,21 +953,21 @@
         "excerpt": "写差分测试的时候顺带发现一个真缺陷：指数解析只累计前四位数字，所以 1e00005 被读成 1 而不是 100000，1.5e00003 被读成 1.5。客户端不会发这种字面量，之前一直没暴露，但隐藏用例可能会，而且它会改数值，属于正确性优先的范畴。修法是把指数完整解析出来，超过九位直接退回 strconv，这样超过四位且前面是零的指数也不会错。"
       },
       "result_evidence": {
-        "pointer": "/experiments/16/output",
+        "pointer": "/experiments/15/output",
         "excerpt": "######## HEAD (09b48b6d5) ########\n1e00005                    -> 100000\n1e5                        -> 100000\n1.5e00003                  -> 1500"
       },
       "evidence_status": "exponent-truncation-defect",
-      "score_ceiling": 2.0,
+      "score_ceiling": 1.5,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/29/content",
-        "raw_result": "/experiments/16/output",
+        "raw_result": "/experiments/15/output",
         "limitation": "这条缺陷的触发形态是客户端不会发的超长指数字面量（1e00005），暴露面窄；但它会改数值、进而改 TopK 顺序，所以按正确性优先修掉。"
       },
-      "reason": "学生在写差分测试时顺带发现一个真实缺陷：指数解析只累计前四位数字，1e00005 被读成 1 而不是 100000，1.5e00003 被读成 1.5；客户端不会发这种字面量，但隐藏用例可能会，而且它会改数值，属于正确性范畴。他自己解释了根因并给出修法——把指数完整解析出来、超过九位直接退回 strconv。结果证据是修复前后同一批字面量的逐值对照：旧实现把 1e00005 读成 1，新实现读成 100000，1.5e00003 从 1.5 变成 1500，20 位指数也正确落到 100000。这条链从缺陷发现、根因解释、方案修正一直到修复后的逐值复测对照，都在这一处证据里查得到。 本条把指数截断缺陷迁移到「新实现按 float32 范围拒绝」这个新场景复测：旧实现把 1e00040 读成 10000 并接受，修复后按字面指数得到 1e40，超出 float32 范围于是拒绝。",
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。学生在写差分测试时顺带发现一个真实缺陷：指数解析只累计前四位数字，1e00005 被读成 1 而不是 100000，1.5e00003 被读成 1.5；客户端不会发这种字面量，但隐藏用例可能会，而且它会改数值，属于正确性范畴。他自己解释了根因并给出修法——把指数完整解析出来、超过九位直接退回 strconv。结果证据是修复前后同一批字面量的逐值对照：旧实现把 1e00005 读成 1，新实现读成 100000，1.5e00003 从 1.5 变成 1500，20 位指数也正确落到 100000。这条链从缺陷发现、根因解释、方案修正一直到修复后的逐值复测对照，都在这一处证据里查得到。 本条把指数截断缺陷迁移到「新实现按 float32 范围拒绝」这个新场景复测：旧实现把 1e00040 读成 10000 并接受，修复后按字面指数得到 1e40，超出 float32 范围于是拒绝。",
       "migration_evidence": [
         {
-          "pointer": "/experiments/32/output",
+          "pointer": "/experiments/31/output",
           "excerpt": "######## 663ebf4aaf3629f1add8daf547226b4bf7d02502 ########\n1e00005                    -> 1\n1e00022                    -> 100\n1e00030                    -> 1000\n1e00035                    -> 1000\n1e00040                    -> 10000\n1.5e00040"
         }
       ]
@@ -965,7 +981,7 @@
         "excerpt": "有一处我以为能白捡：le64 手工拼八个字节，看汇编才发现是八次带边界检查的字节加载，不是单次 64 位加载。改成 unsafe 视图加 binary.LittleEndian 之后，交替十轮同机 A/B 的最小值是 7852 对 8101 纳秒，中位数反而更差（8938 对 8716），差异落在噪声里。结论是这条路径根本不是瓶颈，于是把改动回退，不把 unsafe 带进 types 包。测不出收益就不留，这是我给自己定的规矩。"
       },
       "result_evidence": {
-        "pointer": "/experiments/17/output",
+        "pointer": "/experiments/16/output",
         "excerpt": "rev  n=10  min=8101  median=8716  max=9207 ns/op\nwt   n=10  min=7852  median=8938  max=10024 ns/op"
       },
       "evidence_status": "revert-unmeasurable-optimizations",
@@ -973,10 +989,10 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/30/content",
-        "raw_result": "/experiments/17/output",
+        "raw_result": "/experiments/16/output",
         "limitation": "这组 A/B 在本机同一台机器上交替十轮取最小值与中位数，差异落在噪声带内，所以只能判定「不是瓶颈」，不能判定「更慢多少」。"
       },
-      "reason": "学生自己先看汇编推翻了「手工拼八个字节能白捡」的想法：le64 的实现其实是八次带边界检查的字节加载，不是单次 64 位加载。他据此改用 unsafe 视图加 binary.LittleEndian，做交替十轮同机 A/B，最小值 7852 对 8101 纳秒、中位数反而更差（8938 对 8716），差异落在噪声里，于是把改动回退、不把 unsafe 带进 types 包。结果证据是这组十轮交替 A/B 的原始最小值/中位数/最大值。"
+      "reason": "主导贡献是用实测结果解释方案的代价与适用条件。学生自己先看汇编推翻了「手工拼八个字节能白捡」的想法：le64 的实现其实是八次带边界检查的字节加载，不是单次 64 位加载。他据此改用 unsafe 视图加 binary.LittleEndian，做交替十轮同机 A/B，最小值 7852 对 8101 纳秒、中位数反而更差（8938 对 8716），差异落在噪声里，于是把改动回退、不把 unsafe 带进 types 包。结果证据是这组十轮交替 A/B 的原始最小值/中位数/最大值。"
     },
     {
       "id": "U38",
@@ -987,7 +1003,7 @@
         "excerpt": "词法器那一遍也能向量化：strings.IndexByte 找闭引号是 SIMD，比逐字节快一个量级。但反斜杠语义不能省——有转义时必须走慢路径做 MySQL 转义解码，否则 'a\\b' 的取值就变了。所以做法是先用 IndexByte 定位闭引号，再对同一段区间用第二次 IndexByte 查反斜杠，两趟向量化扫描换掉一趟逐字节扫描；旧实现留在测试里当 oracle，随机对拍确认新实现和它逐字一致。"
       },
       "result_evidence": {
-        "pointer": "/experiments/19/output",
+        "pointer": "/experiments/18/output",
         "excerpt": "=== RUN   TestScanStringMatchesReference\n--- PASS: TestScanStringMatchesReference (0.14s)"
       },
       "evidence_status": "vectorized-scan-with-escape-semantics",
@@ -995,10 +1011,10 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/28/content",
-        "raw_result": "/experiments/19/output",
+        "raw_result": "/experiments/18/output",
         "limitation": "对拍只覆盖引号、转义、空白混合的随机字面量，没有穷举全部 MySQL 字符串字面量形态。"
       },
-      "reason": "学生指出词法器找闭引号那一遍也能向量化——strings.IndexByte 是 SIMD，比逐字节快一个量级；同时给出一条不能省的语义约束：出现转义时必须走慢路径做 MySQL 转义解码，否则 'a\\b' 的取值就变了，所以做法是先用 IndexByte 定位闭引号、再用第二次 IndexByte 查反斜杠，两趟向量化扫描换掉一趟逐字节扫描，旧实现留在测试里当 oracle。结果证据是用 20 万条随机字面量（引号、转义、空白混合）把新实现与旧的逐字节实现对拍，取值、结束偏移、错误文本三项逐字相同。"
+      "reason": "主导贡献是用自己的机制解释行为并迁移到新场景。学生指出词法器找闭引号那一遍也能向量化——strings.IndexByte 是 SIMD，比逐字节快一个量级；同时给出一条不能省的语义约束：出现转义时必须走慢路径做 MySQL 转义解码，否则 'a\\b' 的取值就变了，所以做法是先用 IndexByte 定位闭引号、再用第二次 IndexByte 查反斜杠，两趟向量化扫描换掉一趟逐字节扫描，旧实现留在测试里当 oracle。结果证据是用 20 万条随机字面量（引号、转义、空白混合）把新实现与旧的逐字节实现对拍，取值、结束偏移、错误文本三项逐字相同。"
     },
     {
       "id": "U39",
@@ -1009,7 +1025,7 @@
         "excerpt": "改完再看 profile，发现 strings.TrimSpace 还在写路径里占 14%：向量解析对每个元素调了两次 trim，而客户端的元素根本不带空格，等于每个元素白付一次函数调用和一次扫描。加一个快路径：首尾都是普通 ASCII 时直接返回原串，否则仍然交给 strings.TrimSpace。这个等价性是可证的——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。"
       },
       "result_evidence": {
-        "pointer": "/experiments/18/output",
+        "pointer": "/experiments/17/output",
         "excerpt": "rev  n=10  min=8114  median=8816  max=10289 ns/op\nwt   n=10  min=6781  median=7754  max=8980 ns/op"
       },
       "evidence_status": "trim-fast-path",
@@ -1017,10 +1033,10 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/31/content",
-        "raw_result": "/experiments/18/output",
+        "raw_result": "/experiments/17/output",
         "limitation": "这条快路径只对首尾都是普通 ASCII 的元素生效，带 Unicode 空白的元素仍走 strings.TrimSpace。"
       },
-      "reason": "学生改完上一轮再看 profile，发现 strings.TrimSpace 在写路径里仍占 14%：向量解析对每个元素调了两次 trim，而客户端的元素并不带空格，等于每个元素白付一次函数调用和一次扫描。他给出的快路径是首尾都是普通 ASCII 时直接返回原串，并给出可证的等价条件——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。结果证据是交替十轮同机 A/B：中位数从 8816 纳秒降到 7754 纳秒，-12%，超出噪声带，改动保留。"
+      "reason": "主导贡献是用自己的机制解释行为并迁移到新场景。学生改完上一轮再看 profile，发现 strings.TrimSpace 在写路径里仍占 14%：向量解析对每个元素调了两次 trim，而客户端的元素并不带空格，等于每个元素白付一次函数调用和一次扫描。他给出的快路径是首尾都是普通 ASCII 时直接返回原串，并给出可证的等价条件——ASCII 空白字符都不大于 0x20，而小于 0x80 的字节说明那一端的 rune 是 ASCII，不可能落在 Unicode 空白里。结果证据是交替十轮同机 A/B：中位数从 8816 纳秒降到 7754 纳秒，-12%，超出噪声带，改动保留。"
     },
     {
       "id": "U29",
@@ -1031,7 +1047,7 @@
         "excerpt": "先立预测再动手：把解码后的向量副本从堆上去掉以后，查询峰值内存应该能降 30%~50%，因为 1 万行 × 128 维 × 4 字节约 5 MiB，正好是这个量级；写入时间会小幅下降，但查询耗时应基本持平——精确扫描要读全表，算力不是瓶颈。另外逐条 write 的旧路径，写入时间应该明显高于每批 100 行一次 fsync 的路径。"
       },
       "result_evidence": {
-        "pointer": "/experiments/13/output",
+        "pointer": "/experiments/12/output",
         "excerpt": "############ b410e23ac01bcbf1df342faa6030034ab1d05e6c ############\nPHASES queries=1000 parse_ms=13.1 exec_ms=339.3 unfiltered500_ms=258.1 filtered500_ms=76.0  WRITEPHASES batches=100 json_ms=253.6 parse_ms=49.9 exec_ms=406.4 sql_bytes=24825"
       },
       "evidence_status": "cross-commit-ab-on-ci",
@@ -1039,12 +1055,18 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/16/content",
-        "raw_result": "/experiments/12/output",
+        "raw_result": "/experiments/11/output",
         "interpretation_or_correction": "/conversations/17/content",
         "new_scenario": "/conversations/20/content",
         "limitation": "/conversations/21/content"
       },
-      "reason": "他先立了可证伪的预测：去掉解码后的向量副本后，查询峰值内存应降 30%~50%（1 万行 × 128 维 × 4 字节 ≈ 5 MiB），查询耗时应基本持平，写入应明显变快。在正式 Linux cgroup 口径下实测：查询峰值内存 18.3 → 10.9 MiB（降 40%，落在预测区间），查询耗时 0.465 → 0.448 秒（快 3.7%，符合基本持平的预期），写入 0.587 → 0.415 秒、sync_calls 从 null 变成 101 次——三条合起来验证了预测，并说明查询侧的瓶颈不是算力。第二轮他改成直接读日志映射去测查询延迟，预期中位数从 244 ms 降到 210 ms 附近，结果反而慢了 1.78 倍（244 → 435 ms）；他没有接受这个结果，而是先排除 mmap 随机访问的代价，复查后定位到真正的根因是 VecIndex.rebuild 按 t.rows 这个 map 的迭代顺序建槽，扫描时在日志里来回跳、顺序预取被破坏；改成按日志偏移排序建槽后回到 244 ms，与基线持平，并用三版本进程内阶段计时对照复验。他自己写明这条修复的理由是「顺序访问可预期」而不是某个具体耗时数字，且只在本机 WSL 的 10k 行 uniform 数据上复现过，带过滤的查询受候选集大小影响、这次没有单独下结论。补充证据：/conversations/18/content「局限：这台 CI 机器是 4 vCPU 的 AMD EPYC 7763，平台 E 与实验室 E 只有 3 个锚点、拟合出来还是凹函数，外推到 3300~3500 有 ±3% 的平台噪声；cgroup memory.peak 和我本机 RSS 是两个口径，不能直接比。另外这次 A/B 只在官方 10k 行负载上做过，10 倍规模的行为是另一轮实验的事，不能直接外推。」；/experiments/14/output「base  rows=100000 nq=50  writeT=10.522 writeM=63.5  queryT=0.220 queryM=115.3  M_before_q=113.9  floor_ping=0.049  recall=1.000/1.000 bad=0/0\nnew   rows=100000 nq=50  writeT=9.170  writeM=62.9  queryT=0.216 queryM=66.5   M_before_q=66.1   f」。"
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。他先立了可证伪的预测：去掉解码后的向量副本后，查询峰值内存应降 30%~50%（1 万行 × 128 维 × 4 字节 ≈ 5 MiB），查询耗时应基本持平，写入应明显变快。在正式 Linux cgroup 口径下实测：查询峰值内存 18.3 → 10.9 MiB（降 40%，落在预测区间），查询耗时 0.465 → 0.448 秒（快 3.7%，符合基本持平的预期），写入 0.587 → 0.415 秒、sync_calls 从 null 变成 101 次——三条合起来验证了预测，并说明查询侧的瓶颈不是算力。第二轮他改成直接读日志映射去测查询延迟，预期中位数从 244 ms 降到 210 ms 附近，结果反而慢了 1.78 倍（244 → 435 ms）；他没有接受这个结果，而是先排除 mmap 随机访问的代价，复查后定位到真正的根因是 VecIndex.rebuild 按 t.rows 这个 map 的迭代顺序建槽，扫描时在日志里来回跳、顺序预取被破坏；改成按日志偏移排序建槽后回到 244 ms，与基线持平，并用三版本进程内阶段计时对照复验。他自己写明这条修复的理由是「顺序访问可预期」而不是某个具体耗时数字，且只在本机 WSL 的 10k 行 uniform 数据上复现过，带过滤的查询受候选集大小影响、这次没有单独下结论。补充证据：/conversations/18/content「局限：这台 CI 机器是 4 vCPU 的 AMD EPYC 7763，平台 E 与实验室 E 只有 3 个锚点、拟合出来还是凹函数，外推到 3300~3500 有 ±3% 的平台噪声；cgroup memory.peak 和我本机 RSS 是两个口径，不能直接比。另外这次 A/B 只在官方 10k 行负载上做过，10 倍规模的行为是另一轮实验的事，不能直接外推。」；/experiments/13/output「base  rows=100000 nq=50  writeT=10.522 writeM=63.5  queryT=0.220 queryM=115.3  M_before_q=113.9  floor_ping=0.049  recall=1.000/1.000 bad=0/0\nnew   rows=100000 nq=50  writeT=9.170  writeM=62.9  queryT=0.216 queryM=66.5   M_before_q=66.1   f」。",
+      "secondary_result_evidence": [
+        {
+          "pointer": "/experiments/11/output",
+          "excerpt": "| b410e23 | 3 | 0.415 | 10.4 | 0.465 | 18.3 | 1.000/1.000 | 0/0 | 0.6276 |\n| a871971 | 3 | 0.356 | 10.1 | 0.477 | 11.1 | 1.000/1.000 | 0/0 | 0.6484 |\n| 663ebf4 | 3 | 0.323 | 10.5 | 0.448 | 10.9 | 1.000/1.000 | 0/0 | 0.6573 |\nwrite split: 89"
+        }
+      ]
     },
     {
       "id": "U32",
@@ -1055,7 +1077,7 @@
         "excerpt": "改十进制解析必须和 strconv.ParseFloat 逐位相等，不是“接近”就行。向量值直接决定距离，差一个 ulp 就可能改变 TopK 顺序，让 order bad 不再是 0。所以我要求先把等价性写成单元测试，合进去之前必须过。"
       },
       "result_evidence": {
-        "pointer": "/experiments/15/output",
+        "pointer": "/experiments/14/output",
         "excerpt": "=== RUN   TestParseFloatFastMatchesStrconvRandom\n--- PASS: TestParseFloatFastMatchesStrconvRandom (2.93s)\n=== RUN   TestParseFloatFastMatchesStrconvDigits\n--- PASS: TestParseFloatFastMatchesStrconvDigits (0.00s)"
       },
       "evidence_status": "bit-exact-decimal-equivalence",
@@ -1063,19 +1085,19 @@
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/23/content",
-        "raw_result": "/experiments/15/output",
+        "raw_result": "/experiments/14/output",
         "interpretation_or_correction": "/conversations/26/content",
         "new_scenario": "/conversations/25/content",
-        "limitation": "/conversations/42/content"
+        "limitation": "/conversations/46/content"
       },
-      "reason": "他先立下可证伪的前提：改十进制解析必须与 strconv.ParseFloat 逐位相等，不能是「接近」，因为向量值直接决定距离、差一个 ulp 就可能改变 TopK 顺序，所以要求把等价性写成单元测试。实现路径上他推翻了自己想过的一个方案——把上限从 15 位放宽到 19 位不行，因为尾数一旦超过 2^53，float64(mant) 本身就不精确、结果会和 strconv 差一个 ulp；改为按 strconv 的规则做一次正确舍入（放大到商有 54 位、一次 128/64 除法、round-to-nearest-even、余数决定 sticky 位）。支撑这个改动的是第二次 profile 的发现：同一段向量字面量被扫了三遍，真正该改的是让快路径自己把长尾数转对。验收上他明确不接受抽样，改用三百万次随机差分、整数位与小数位 0~19 全组合、指数 -320~320 全扫，再加 20 万条客户端同款字面量，逐位相等才算过；结果证据是这组位级差分测试全部通过，另有代码复审补上的 2^53 进位分支边界用例。他同时写明快路径的边界（只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径），以及等价性结论只覆盖本实现的输入形态。补充证据：/conversations/24/content「等价性成立：TestParseFloatFastMatchesStrconv、TestParseVectorMatchesReference、TestParseVectorFloat32Semantics 和 TestEightDigitsBlock 全部通过。但快路径的边界要说清楚：只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径，所以这个提速不是任何输入都能拿到，不能写成“解析快了两倍”这种笼统结论。」；/conversations/27/content「这种改法错一位就会改距离、进而改 TopK 顺序，所以不能靠抽样验收。我不接受抽样：随机生成 300 万个十进制字面量（各种位数、正负号、指数形态），凡是快路径接受的，逐位和 strconv.ParseFloat 比；再把整数位和小数位从 0 到 19 全组合扫一遍、指数从 -320 到 320 扫一遍；最后用 20 万个客户端同款字面量（float32 展宽后的最短往返表示）再扫一遍。全部逐位相等才算过。」；/experiments/20/output「=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tmi」。 本条把位级等价迁移到两个新场景复测：客户端同款字面量的 ParseVector 同机 A/B，以及代码复审发现此前没有用例能走到的 2^53 进位分支补测。",
+      "reason": "主导贡献是用自己的机制解释行为并迁移到新场景。他先立下可证伪的前提：改十进制解析必须与 strconv.ParseFloat 逐位相等，不能是「接近」，因为向量值直接决定距离、差一个 ulp 就可能改变 TopK 顺序，所以要求把等价性写成单元测试。实现路径上他推翻了自己想过的一个方案——把上限从 15 位放宽到 19 位不行，因为尾数一旦超过 2^53，float64(mant) 本身就不精确、结果会和 strconv 差一个 ulp；改为按 strconv 的规则做一次正确舍入（放大到商有 54 位、一次 128/64 除法、round-to-nearest-even、余数决定 sticky 位）。支撑这个改动的是第二次 profile 的发现：同一段向量字面量被扫了三遍，真正该改的是让快路径自己把长尾数转对。验收上他明确不接受抽样，改用三百万次随机差分、整数位与小数位 0~19 全组合、指数 -320~320 全扫，再加 20 万条客户端同款字面量，逐位相等才算过；结果证据是这组位级差分测试全部通过，另有代码复审补上的 2^53 进位分支边界用例。他同时写明快路径的边界（只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径），以及等价性结论只覆盖本实现的输入形态。补充证据：/conversations/24/content「等价性成立：TestParseFloatFastMatchesStrconv、TestParseVectorMatchesReference、TestParseVectorFloat32Semantics 和 TestEightDigitsBlock 全部通过。但快路径的边界要说清楚：只有尾数和十幂都精确时才走一次 IEEE 乘除，遇到 1e-7 这类科学计数法会退回通用路径，所以这个提速不是任何输入都能拿到，不能写成“解析快了两倍”这种笼统结论。」；/conversations/27/content「这种改法错一位就会改距离、进而改 TopK 顺序，所以不能靠抽样验收。我不接受抽样：随机生成 300 万个十进制字面量（各种位数、正负号、指数形态），凡是快路径接受的，逐位和 strconv.ParseFloat 比；再把整数位和小数位从 0 到 19 全组合扫一遍、指数从 -320 到 320 扫一遍；最后用 20 万个客户端同款字面量（float32 展宽后的最短往返表示）再扫一遍。全部逐位相等才算过。」；/experiments/19/output「=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tmi」。 本条把位级等价迁移到两个新场景复测：客户端同款字面量的 ParseVector 同机 A/B，以及代码复审发现此前没有用例能走到的 2^53 进位分支补测。",
       "migration_evidence": [
         {
-          "pointer": "/experiments/31/output",
+          "pointer": "/experiments/30/output",
           "excerpt": "######## 663ebf4aaf3629f1add8daf547226b4bf7d02502 ########\nBenchmarkParseVectorWorkload-16     20000     18503 ns/op   136.30 MB/s\nBenchmarkParseVectorWorkload-16     20000     17578 ns/op   143.47 MB/s\nBenchmarkParseVectorWorkload-16     2"
         },
         {
-          "pointer": "/experiments/20/output",
+          "pointer": "/experiments/19/output",
           "excerpt": "=== carry branch evidence ===\n=== RUN   TestDecimalExactRoundingBoundary\n--- PASS: TestDecimalExactRoundingBoundary (0.00s)\n=== RUN   TestDecimalExactCarryToFiftyThreeBits\n--- PASS: TestDecimalExactCarryToFiftyThreeBits (0.00s)\nPASS\nok  \tmi"
         }
       ]
@@ -1121,22 +1143,22 @@
         "excerpt": "我的预测：查询峰值内存里大部分是匿名堆内存——解码后的向量副本加上 Go 堆本身。如果把日志的 flush 阈值从 4 MiB 降到 256 KiB，应该能省下可观的内存；这是当前最省事、风险最低的一条优化路线。"
       },
       "result_evidence": {
-        "pointer": "/experiments/22/output",
+        "pointer": "/experiments/21/output",
         "excerpt": "===== b410e23 (mvdb-submit:b410e23) =====\npeak   18.94 MiB\ncurrent 18.94 MiB\n  anon                    12.29 MiB\n  file                     5.19 MiB\n  kernel_stack             0.12 MiB\n  pagetables               0.11 MiB\n  slab             "
       },
       "evidence_status": "expanded-from-unused-source-evidence",
-      "score_ceiling": 2.0,
+      "score_ceiling": 1.5,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/22/content",
-        "raw_result": "/experiments/22/output",
-        "interpretation_or_correction": "/conversations/33/content",
-        "limitation": "/conversations/33/content"
+        "raw_result": "/experiments/21/output",
+        "interpretation_or_correction": "/conversations/32/content",
+        "limitation": "/conversations/32/content"
       },
-      "reason": "学生先立「缓冲阈值是内存大头」的预测，被 cgroup 口径的实测否掉：峰值里 anon 只有 4.39 MiB，file 才是 5.19 MiB，基线版本 anon 反而是 12.29 MiB。于是把 flush 阈值从 4 MiB 降到 256 KiB 做迁移实验，峰值反而从 11.06 变成 11.19，这条路被判无效；同一轮里写清局限——口径是本机 cgroup v2 memory.stat 而不是平台计费口径、只在 1 万行规模验证过、没有逐项归因。迁移、验证与局限放在同一轮呈现；本条把同线程的 M44（结果解读）与 M45（局限）两段原始发言合并为一轮，两段均为原文，未改写。",
+      "reason": "主导贡献是用实测结果解释方案的代价与适用条件。学生先立「缓冲阈值是内存大头」的预测，被 cgroup 口径的实测否掉：峰值里 anon 只有 4.39 MiB，file 才是 5.19 MiB，基线版本 anon 反而是 12.29 MiB。于是把 flush 阈值从 4 MiB 降到 256 KiB 做迁移实验，峰值反而从 11.06 变成 11.19，这条路被判无效；同一轮里写清局限——口径是本机 cgroup v2 memory.stat 而不是平台计费口径、只在 1 万行规模验证过、没有逐项归因。迁移、验证与局限放在同一轮呈现；本条把同线程的 M44（结果解读）与 M45（局限）两段原始发言合并为一轮，两段均为原文，未改写。",
       "secondary_result_evidence": [
         {
-          "pointer": "/experiments/23/output",
+          "pointer": "/experiments/22/output",
           "excerpt": "grep -n 'flushThreshold = ' minivectordb/internal/storage/log.go\n67:const flushThreshold = 4 << 20\n67:const flushThreshold = 256 << 10\n===== flush256k (mvdb-submit:flush256k) =====\npeak   11.19 MiB\ncurrent 11.19 MiB\n  anon                  "
         }
       ]
@@ -1146,15 +1168,38 @@
       "dimension": "实验与反馈迭代",
       "topic": "第二轮的边界",
       "student_evidence": {
-        "pointer": "/conversations/34/content",
+        "pointer": "/conversations/33/content",
         "excerpt": "第二轮只做三件事，都落在字面量处理上：闭引号定位改向量化、十进制长尾数自己按正确舍入转换、元素两端不需要空格时跳过 trim。CI 实验室同一帧里写入时间从 0.353 秒降到 0.294 秒（-17%），上一帧同一改动去掉 trim 快路径的 head 是 0.316 秒降到 0.229 秒（-27.5%，那一帧的基线 b410e23 就是 0.316，不是本帧的 0.432），两帧的机器快慢不同但比值一致；客户端同款字面量的 ParseVector 基准中位数从 17.6"
       },
       "result_evidence": {
-        "pointer": "/experiments/24/output",
+        "pointer": "/experiments/23/output",
         "excerpt": "| commit | rounds | write T s | write B MiB | write M MiB | query T s | query B MiB | query M MiB | recall unf/fil | order/dist bad | E vs first |\n|---|---|---|---|---|---|---|---|---|---|---|\n<!-- 89f6d54 write split sync_calls=None sync=0"
       },
       "evidence_status": "expanded-from-unused-source-evidence",
       "score_ceiling": 1.5,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/33/content",
+        "raw_result": "/experiments/23/output",
+        "interpretation_or_correction": "/conversations/33/content",
+        "limitation": "/conversations/33/content"
+      },
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。学生先划清第二轮的改动边界（只做字面量处理三件事），再用同一帧 CI 实验室四提交跑批给出改前改后的写入时间，并在比较时纠正了基线取错：上一帧基线是 0.316，不是本帧的 0.432。"
+    },
+    {
+      "id": "V03",
+      "dimension": "实验与反馈迭代",
+      "topic": "受控窗口和变体实验的预测",
+      "student_evidence": {
+        "pointer": "/conversations/34/content",
+        "excerpt": "我的预测：修复后 summary 和 kill-summary 的 controlled 计数都是 9，controlled_windows=5。scan 对照中，(a) 骨架布局+16 个 float 累加器 80～120 ms，(b) flat+double 顺序累加 160～220 ms，(c) 骨架+16 个 double 累加器约 120～170 ms。"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/24/output",
+        "excerpt": "skeleton_search unfiltered_ms=369.176 filtered_ms=43.061\nC_float_16acc scan_topk_unfiltered_ms=57.715 scan_topk_filtered_ms=10.803 topk_mismatch=0/1000\nCD_double_16acc scan_topk_unfiltered_ms=119.590 scan_topk_filtered_ms=16.764 topk_mismat"
+      },
+      "evidence_status": "expanded-from-unused-source-evidence",
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/34/content",
@@ -1162,22 +1207,22 @@
         "interpretation_or_correction": "/conversations/34/content",
         "limitation": "/conversations/34/content"
       },
-      "reason": "学生先划清第二轮的改动边界（只做字面量处理三件事），再用同一帧 CI 实验室四提交跑批给出改前改后的写入时间，并在比较时纠正了基线取错：上一帧基线是 0.316，不是本帧的 0.432。"
+      "reason": "主导贡献是「假设→实验→结论→修正→复测」的闭环。学生对三套 scan 变体各自给出耗时区间预测，跑完对照后实测与预测区间对不上：骨架布局 369.176 ms，16 个 float 累加器 57.715 ms，flat+double 顺序累加 119.590 ms，三个变体 topk_mismatch 都是 0/1000。这一轮包含预测、实测与差异，没有落到修正复测。"
     },
     {
-      "id": "V03",
-      "dimension": "实验与反馈迭代",
-      "topic": "受控窗口和变体实验的预测",
+      "id": "V04",
+      "dimension": "取舍与反思",
+      "topic": "fsync 结果解释",
       "student_evidence": {
         "pointer": "/conversations/35/content",
-        "excerpt": "我的预测：修复后 summary 和 kill-summary 的 controlled 计数都是 9，controlled_windows=5。scan 对照中，(a) 骨架布局+16 个 float 累加器 80～120 ms，(b) flat+double 顺序累加 160～220 ms，(c) 骨架+16 个 double 累加器约 120～170 ms。"
+        "excerpt": "none 和 fsync 在当前 kill -9 场景下结果一样，说明进程被杀时已经写入页缓存的数据仍可能被恢复；但我保留 fsync，理由是它仍然作为提交确认前的持久化边界。"
       },
       "result_evidence": {
         "pointer": "/experiments/25/output",
-        "excerpt": "skeleton_search unfiltered_ms=369.176 filtered_ms=43.061\nC_float_16acc scan_topk_unfiltered_ms=57.715 scan_topk_filtered_ms=10.803 topk_mismatch=0/1000\nCD_double_16acc scan_topk_unfiltered_ms=119.590 scan_topk_filtered_ms=16.764 topk_mismat"
+        "excerpt": "none: stage_hit between x10, write x2; delta 0 x12\nfsync: stage_hit sync x9, write x2, between x1; delta 100 x9 (all sync), 0 x3\nall 36: batch_aligned=true ids_ok=true content_mismatch=0"
       },
       "evidence_status": "expanded-from-unused-source-evidence",
-      "score_ceiling": 1.5,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/35/content",
@@ -1185,19 +1230,19 @@
         "interpretation_or_correction": "/conversations/35/content",
         "limitation": "/conversations/35/content"
       },
-      "reason": "学生对三套 scan 变体各自给出耗时区间预测，跑完对照后实测与预测区间对不上：骨架布局 369.176 ms，16 个 float 累加器 57.715 ms，flat+double 顺序累加 119.590 ms，三个变体 topk_mismatch 都是 0/1000。这一轮包含预测、实测与差异，没有落到修正复测。"
+      "reason": "主导贡献是用实测结果解释方案的代价与适用条件。学生解释 none 与 fsync 在当前 kill -9 场景下结果一样的原因——进程被杀时已经写入页缓存的数据仍可能被恢复——并说明仍然保留 fsync 的理由：它仍然是提交确认前的持久化边界。实际结果给出 none 与 fsync 两种设置下 kill 落点的分布。"
     },
     {
-      "id": "V04",
-      "dimension": "取舍与反思",
-      "topic": "fsync 结果解释",
+      "id": "V05",
+      "dimension": "技术理解与迁移",
+      "topic": "确认边界",
       "student_evidence": {
         "pointer": "/conversations/36/content",
-        "excerpt": "none 和 fsync 在当前 kill -9 场景下结果一样，说明进程被杀时已经写入页缓存的数据仍可能被恢复；但我保留 fsync，理由是它仍然作为提交确认前的持久化边界。"
+        "excerpt": "写入确认点定在 write() 之后，还是 fsync() 之后？这个会影响 kill -9 实验怎么判断对错。"
       },
       "result_evidence": {
         "pointer": "/experiments/26/output",
-        "excerpt": "none: stage_hit between x10, write x2; delta 0 x12\nfsync: stage_hit sync x9, write x2, between x1; delta 100 x9 (all sync), 0 x3\nall 36: batch_aligned=true ids_ok=true content_mismatch=0"
+        "excerpt": "fsync 返回\nfsync_after marker\nFSYNC marker\nfsync_after pause\nflush_after marker\nflush_after pause\nVectorStore::flush() 返回\nCONFIRMED_ROWS marker\nOK stdout"
       },
       "evidence_status": "expanded-from-unused-source-evidence",
       "score_ceiling": 1.0,
@@ -1208,106 +1253,83 @@
         "interpretation_or_correction": "/conversations/36/content",
         "limitation": "/conversations/36/content"
       },
-      "reason": "学生解释 none 与 fsync 在当前 kill -9 场景下结果一样的原因——进程被杀时已经写入页缓存的数据仍可能被恢复——并说明仍然保留 fsync 的理由：它仍然是提交确认前的持久化边界。实际结果给出 none 与 fsync 两种设置下 kill 落点的分布。"
-    },
-    {
-      "id": "V05",
-      "dimension": "技术理解与迁移",
-      "topic": "确认边界",
-      "student_evidence": {
-        "pointer": "/conversations/37/content",
-        "excerpt": "写入确认点定在 write() 之后，还是 fsync() 之后？这个会影响 kill -9 实验怎么判断对错。"
-      },
-      "result_evidence": {
-        "pointer": "/experiments/27/output",
-        "excerpt": "fsync 返回\nfsync_after marker\nFSYNC marker\nfsync_after pause\nflush_after marker\nflush_after pause\nVectorStore::flush() 返回\nCONFIRMED_ROWS marker\nOK stdout"
-      },
-      "evidence_status": "expanded-from-unused-source-evidence",
-      "score_ceiling": 1.0,
-      "counted_in_score": true,
-      "lifecycle": {
-        "prediction": "/conversations/37/content",
-        "raw_result": "/experiments/27/output",
-        "interpretation_or_correction": "/conversations/37/content",
-        "limitation": "/conversations/37/content"
-      },
-      "reason": "学生追问写入确认点落在 write() 之后还是 fsync() 之后，并指出这会改变 kill -9 实验判断对错的标准；源码阶段顺序的实测输出给出确认标记实际落在 fsync 之后。"
+      "reason": "主导贡献是用自己的机制解释行为并迁移到新场景。学生追问写入确认点落在 write() 之后还是 fsync() 之后，并指出这会改变 kill -9 实验判断对错的标准；源码阶段顺序的实测输出给出确认标记实际落在 fsync 之后。"
     },
     {
       "id": "V06",
       "dimension": "技术理解与迁移",
       "topic": "精确检索初始假设",
       "student_evidence": {
-        "pointer": "/conversations/38/content",
+        "pointer": "/conversations/37/content",
         "excerpt": "用精确暴力检索加 SIMD，不做 ANN，这样 recall 是 1.0。"
       },
       "result_evidence": {
-        "pointer": "/experiments/14/output",
+        "pointer": "/experiments/13/output",
         "excerpt": "base  rows=100000 nq=50  writeT=10.522 writeM=63.5  queryT=0.220 queryM=115.3  M_before_q=113.9  floor_ping=0.049  recall=1.000/1.000 bad=0/0\nnew   rows=100000 nq=50  writeT=9.170  writeM=62.9  queryT=0.216 queryM=66.5   M_before_q=66.1   f"
       },
       "evidence_status": "expanded-from-unused-source-evidence",
       "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
-        "prediction": "/conversations/38/content",
-        "raw_result": "/experiments/14/output",
-        "interpretation_or_correction": "/conversations/38/content",
-        "limitation": "/conversations/38/content"
+        "prediction": "/conversations/37/content",
+        "raw_result": "/experiments/13/output",
+        "interpretation_or_correction": "/conversations/37/content",
+        "limitation": "/conversations/37/content"
       },
-      "reason": "学生的初始假设是只做精确暴力检索加 SIMD、不上 ANN，这样 recall 恒为 1.0；10 万行 50 查询的规模实验实测 recall=1.000/1.000，假设在更大规模上仍然成立，bad 计数为 0。"
+      "reason": "主导贡献是用自己的机制解释行为并迁移到新场景。学生的初始假设是只做精确暴力检索加 SIMD、不上 ANN，这样 recall 恒为 1.0；10 万行 50 查询的规模实验实测 recall=1.000/1.000，假设在更大规模上仍然成立，bad 计数为 0。"
     },
     {
       "id": "V07",
       "dimension": "问题理解与自主拆解",
       "topic": "语句原子性预测",
       "student_evidence": {
-        "pointer": "/conversations/39/content",
+        "pointer": "/conversations/38/content",
         "excerpt": "同一条 INSERT 中前面的行有效，后面的行包含重复主键。预期整条语句失败，最终一行都不能生效。"
       },
       "result_evidence": {
-        "pointer": "/experiments/21/output",
+        "pointer": "/experiments/20/output",
         "excerpt": "multi_row_insert_with_dup_pk response: {\"id\": 3, \"ok\": false, \"error\": {\"code\": \"duplicate_key\", \"message\": \"ERROR 1062 (23000): Duplicate entry '1' for key 'PRIMARY'\"}}\nrows_after: {\"id\": 4, \"ok\": true, \"columns\": [\"id\"], \"rows\": [[1], [2]"
       },
       "evidence_status": "expanded-from-unused-source-evidence-and-reverified-on-locked-baseline",
       "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
-        "prediction": "/conversations/39/content",
-        "raw_result": "/experiments/21/output",
+        "prediction": "/conversations/38/content",
+        "raw_result": "/experiments/20/output",
         "interpretation_or_correction": "",
         "limitation": "整理者写的实验范围说明（非学生原话）：这条复验只覆盖「同一条 INSERT 里第三行主键与已有主键重复」这一种形态，没有覆盖重复主键出现在第一批，也没有覆盖显式事务里此前成功的语句是否仍然有效；结论只来自这一个锁定基线上的一次运行，没有换基线或换种子复验。"
       },
-      "reason": "学生预测同一条 INSERT 里前面的行有效、后面出现重复主键时整条语句应当失败、最终一行都不能生效。本次在锁定的基线 449acb97 上把这条预测复验了：一条 INSERT 里前三行有效、第三行与已有主键重复时，整条语句报 duplicate_key 失败，表里只剩此前的两行，一行都没有生效——预测成立，这条链因此从「没有实测结果」升到「有实测结果」的档位。这次运行的命令、原始 stdout 与 SHA-256 都留在实验条目里。需要说明的是：这次复验由本轮的 Agent 在锁定基线上执行并记录，学生本人没有为这次结果写下新的解读，这里不代写学生原话；下面局限一条是整理者写的实验范围说明，同样不是学生原话。"
+      "reason": "主导贡献是提出具体问题与可证伪的预测。学生预测同一条 INSERT 里前面的行有效、后面出现重复主键时整条语句应当失败、最终一行都不能生效。本次在锁定的基线 449acb97 上把这条预测复验了：一条 INSERT 里前三行有效、第三行与已有主键重复时，整条语句报 duplicate_key 失败，表里只剩此前的两行，一行都没有生效——预测成立，这条链因此从「没有实测结果」升到「有实测结果」的档位。这次运行的命令、原始 stdout 与 SHA-256 都留在实验条目里。需要说明的是：这次复验由本轮的 Agent 在锁定基线上执行并记录，学生本人没有为这次结果写下新的解读，这里不代写学生原话；下面局限一条是整理者写的实验范围说明，同样不是学生原话。"
     },
     {
       "id": "V08",
       "dimension": "问题理解与自主拆解",
       "topic": "可审计输出",
       "student_evidence": {
-        "pointer": "/conversations/40/content",
+        "pointer": "/conversations/39/content",
         "excerpt": "测试输出不能只有一行 correctness: PASS。每类测试都要输出具体数字，包括用例数、随机种子、每轮 kill 的 confirmed_count、recovered_count、被杀时的阶段。"
       },
       "result_evidence": {
-        "pointer": "/experiments/3/output",
+        "pointer": "/experiments/2/output",
         "excerpt": "[kill] round=3 kill_stage=write_to_fsync confirmed_count=100 recovered_count=200 recovered_minus_confirmed=100 batch_aligned=true\n[kill] round=21 kill_stage=write_mid_frame_after_frame_37 confirmed_count=100 recovered_count=100 frame_writte"
       },
       "evidence_status": "expanded-from-unused-source-evidence",
       "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
-        "prediction": "/conversations/40/content",
-        "raw_result": "/experiments/3/output",
-        "interpretation_or_correction": "/conversations/40/content",
-        "limitation": "/conversations/40/content"
+        "prediction": "/conversations/39/content",
+        "raw_result": "/experiments/2/output",
+        "interpretation_or_correction": "/conversations/39/content",
+        "limitation": "/conversations/39/content"
       },
-      "reason": "学生要求测试输出不能只有一行 correctness: PASS，每类测试都要输出用例数、随机种子、每轮 kill 的 confirmed_count、recovered_count 与被杀时的阶段；实际输出给出了逐轮 kill 阶段、confirmed/recovered 计数与 batch_aligned 标记。"
+      "reason": "主导贡献是提出具体问题与可证伪的预测。学生要求测试输出不能只有一行 correctness: PASS，每类测试都要输出用例数、随机种子、每轮 kill 的 confirmed_count、recovered_count 与被杀时的阶段；实际输出给出了逐轮 kill 阶段、confirmed/recovered 计数与 batch_aligned 标记。"
     },
     {
       "id": "V09",
       "dimension": "问题理解与自主拆解",
       "topic": "来源隔离和实验纪律",
       "student_evidence": {
-        "pointer": "/conversations/41/content",
+        "pointer": "/conversations/40/content",
         "excerpt": "后续统一以 opus 仓库的 main@de2aa79 为唯一来源。astra 的 7c53d0f 只作为历史结果，其他仓库只读，不合并。实验前先给方案、命令和测量口径，等我写预测后再运行。"
       },
       "result_evidence": {
@@ -1318,12 +1340,81 @@
       "score_ceiling": 0.5,
       "counted_in_score": true,
       "lifecycle": {
-        "prediction": "/conversations/41/content",
+        "prediction": "/conversations/40/content",
         "raw_result": "",
         "interpretation_or_correction": "",
+        "limitation": "/conversations/40/content"
+      },
+      "reason": "主导贡献是提出具体问题与可证伪的预测。学生确立实验纪律：统一以一个仓库的 main 为唯一来源，其他仓库只读不合并；实验前先给方案、命令和测量口径，等学生自己写完预测再运行。这条是过程约束，没有对应的实测输出，按没有结果的档位计。"
+    },
+    {
+      "id": "V10",
+      "dimension": "独立验证与质疑",
+      "topic": "故障注入预测",
+      "student_evidence": {
+        "pointer": "/conversations/41/content",
+        "excerpt": "我的预测：三处故障都应该至少被一个测试发现；如果有故障没有失败，说明对应测试覆盖不足，需要先补测试再恢复正确实现。"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/0/output",
+        "excerpt": "fault=none:  probe fsync/truncate/append_after_torn_tail/filter exit=0; suite exit=0 PASS\nfault=no_fsync:  probe=fsync expect=exit1 exit=1 FAIL: fsync marker missing | suite expect=exit1 exit=0 PASS\nfault=no_truncate:  probe=truncate exit=1"
+      },
+      "evidence_status": "expanded-from-unused-source-evidence",
+      "score_ceiling": 1.0,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/41/content",
+        "raw_result": "/experiments/0/output",
+        "interpretation_or_correction": "/conversations/41/content",
         "limitation": "/conversations/41/content"
       },
-      "reason": "学生确立实验纪律：统一以一个仓库的 main 为唯一来源，其他仓库只读不合并；实验前先给方案、命令和测量口径，等学生自己写完预测再运行。这条是过程约束，没有对应的实测输出，按没有结果的档位计。"
+      "reason": "主导贡献是构造独立验证、反例或交叉检查。学生先立下可证伪的预测：三处故障都应该至少被一个测试发现，如果有故障没有失败，说明对应测试覆盖不足，要先补测试再谈恢复正确实现。实测输出是三类故障注入的结果：fault=none 时四个探针（fsync / truncate / append_after_torn_tail / filter）全部 exit=0、整套 PASS，说明正确实现不会被误判；fault=no_fsync 时 fsync 探针确实抓到了缺失的 marker（exit=1，FAIL: fsync marker missing），但整套用例 expect=exit1 却 exit=0 PASS，也就是故障被抓到了、套件却没有失败；fault=no_truncate 时 truncate 探针 exit=1 并报 tail was not truncated。预测的后半句当场对上——覆盖不足这件事在实测里直接暴露出来。这条链上是预测与实际结果两环，没有后续修正原话，也没有迁移到新场景的复测。"
+    },
+    {
+      "id": "V11",
+      "dimension": "取舍与反思",
+      "topic": "严格浮点取舍",
+      "student_evidence": {
+        "pointer": "/conversations/42/content",
+        "excerpt": "C 方案和 fast-math 速度接近，却没有 NaN 校验失效的问题。我选 C 方案，也就是不开 fast-math、手写多个累加器。"
+      },
+      "result_evidence": {
+        "pointer": "",
+        "excerpt": ""
+      },
+      "evidence_status": "expanded-from-unused-source-evidence",
+      "score_ceiling": 0.5,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/42/content",
+        "raw_result": "",
+        "interpretation_or_correction": "",
+        "limitation": "/conversations/42/content"
+      },
+      "reason": "主导贡献是用实测结果解释方案的代价与适用条件。学生在两个实现路线之间做取舍：C 方案和 fast-math 速度接近，但 fast-math 没有 NaN 校验失效的问题，于是选 C 方案，也就是不开 fast-math、手写多个累加器。这条是取舍判断本身，可读取线程记录里没有与它对应的单独实测输出，按没有结果的档位计。"
+    },
+    {
+      "id": "V12",
+      "dimension": "独立验证与质疑",
+      "topic": "独立核对原始证据",
+      "student_evidence": {
+        "pointer": "/conversations/7/content",
+        "excerpt": "我自己核对的结果：磁盘数据没有被改，问题出在复制到对话时的删行、截断或重排。以后贴原始输出只能直接复制 cat 的文件内容，不能重新排版、补字段或截断。"
+      },
+      "result_evidence": {
+        "pointer": "/experiments/27/output",
+        "excerpt": "756a9c8526ab5c033f8a6ecc36e52ed87826cdacdca80ca80c926d1481e3dec  new/run-1/stdout\nbcca898107cfea22ad6ce37926987c0ba38b99931053cd4b6edbb20a72b0f771  old/run-1/stderr\nold/run-3/stderr: 0.06 real ... 642 page reclaims ... 45 involuntary contex"
+      },
+      "evidence_status": "expanded-from-unused-source-evidence",
+      "score_ceiling": 1.0,
+      "counted_in_score": true,
+      "lifecycle": {
+        "prediction": "/conversations/7/content",
+        "raw_result": "/experiments/27/output",
+        "interpretation_or_correction": "/conversations/7/content",
+        "limitation": "/conversations/7/content"
+      },
+      "reason": "主导贡献是构造独立验证、反例或交叉检查。学生自己核对原始输出后给出结论：磁盘上的数据没有被改，问题出在复制到对话时的删行、截断或重排，并定下规矩——以后贴原始输出只能直接复制 cat 的文件内容，不能重新排版、补字段或截断。结果证据是那次独立复核：new/run-1/stdout 的 SHA-256 是 756a9c85…dec，old/run-1/stderr 是 bcca8981…771，old/run-3/stderr 里还有 0.06 real、642 page reclaims 与 45 involuntary context switches 这些原始行。这条链上是预测与实际结果两环，没有后续修正原话，也没有迁移到新场景的复测。"
     }
   ],
   "rubric_coverage": {
@@ -1348,12 +1439,15 @@
       "U19",
       "U36",
       "V01",
-      "V04"
+      "V04",
+      "V11"
     ],
     "独立验证与质疑": [
       "U21",
       "U27",
-      "U28"
+      "U28",
+      "V10",
+      "V12"
     ],
     "问题理解与自主拆解": [
       "U24",
