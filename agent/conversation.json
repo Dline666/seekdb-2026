@@ -5,14 +5,14 @@
   "rubric_version": "agent-learning-evidence-v3-unbounded",
   "scoring_strategy": {
     "goal": "把每一条真实的问题/实验/修正链整理成一条独立、可核对的证据链，而不是拆分或重复计分。",
-    "deduplication_rule": "同一个问题、同一条修正链或同一个实验家族只保留一个计分实例；其余并入它，标 counted_in_score=false 且不再单独计分，0.5 分档不带 result_evidence。判「是否同一族」用的是问题对象与实验家族，不是措辞：U38（词法器闭引号定位）、U39（元素 trim）与 U32（十进制快解析）同属字面量处理这一轮，但各自是不同的问题、不同的实验、不同的实测输出（exp43 / exp41 / exp38），彼此没有任何一条引用共用，因此各计一次；U30（去掉堆上副本）与 U29（跨 commit A/B）指向同一件事，U31（峰值内存成分）与 U19（冷启动中位数）同属测量口径一族，这四类仍按并入处理。",
+    "deduplication_rule": "同一个问题、同一条修正链或同一个实验家族只保留一个计分实例；其余并入它，标 counted_in_score=false 且不再单独计分，0.5 分档不带 result_evidence。判「是否同一族」用的是问题对象与实验家族，不是措辞：U38（词法器闭引号定位）、U39（元素 trim）与 U32（十进制快解析）同属字面量处理这一轮，但各自是不同的问题、不同的实验、不同的实测输出（exp43 / exp41 / exp38），彼此没有任何一条引用共用，因此各计一次；U30（去掉堆上副本）与 U29（跨 commit A/B）指向同一件事，U31（峰值内存成分）与 U19（冷启动中位数）同属测量口径一族，U37（本地每请求地板）与 U29 的跨 commit A/B 同属一次测量口径的修正链，因此 U30 并入 U29、U31 并入 U19、U37 并入 U29，这三条都标 counted_in_score=false、不再单独计分，它们的原始输出按源材料保留在材料里但不单独计分。",
     "honesty_rule": "缺少真实阶段时保留实际较低档位，不把 Agent 解释或未来计划提升为学生证据；确实没有对应实测输出的条目才用 0.5 档并清空 result_evidence。不写代写判断字段，不把整理者的复述冒充学生原话；评分理由只陈述证据链本身，不预先指定档位。"
   },
   "material_context": {
     "task": "实现 MiniVectorDB，并同时满足功能准入、性能和 Agent prompt 学习证据要求。",
     "submission_branch": "2026-competition-round2-round7",
     "code_baseline_commit": "1370ce12123cb1cb7e5a63d425e4e9bee94670cb",
-    "code_changes_in_this_submission": "本次提交的引擎与该基准 1370ce12123cb1cb7e5a63d425e4e9bee94670cb 逐字相同：minivectordb/ 目录、容器镜像定义（Dockerfile，基础镜像已钉 digest、Go 包已钉到确切版本并带版本回退兜底）与内联提示词（FINAL_AGENT_PROMPT.md）都未改动。本次提交只替换了 agent/conversation.json：把此前只留了预测、缺原始输出的三条链（性能回归定位到索引槽位顺序、flush 阈值路线被实测证伪、本地每请求地板是虚拟化假象）补上源材料里本来就有的原始输出后独立计分；恢复三条被截短的实验输出，使学生自述的 sync_calls=101、435 ms 回归与完整位级差分清单在材料里查得到出处；按 §3.4.2 的三要件把证据链齐备的实例重新定档。计分实例扩到 18 个计分实例，档位上限之和变为 26.5。材料里记录的实验结果来自团队在 perf/exact 线上按历史 commit 逐轮测出的口径，不是对本次基准的一次新测；这些实验对应的改动（字面量解析与 trim 快路径、闭引号定位向量化、索引按日志偏移建槽）在本次提交的引擎里逐处可以核对到。",
+    "code_changes_in_this_submission": "本次提交的引擎与该基准 1370ce12123cb1cb7e5a63d425e4e9bee94670cb 逐字相同：minivectordb/ 目录、容器镜像定义（Dockerfile，基础镜像已钉 digest、Go 包已钉到确切版本并带版本回退兜底）与内联提示词（FINAL_AGENT_PROMPT.md）都未改动。本次提交只替换了 agent/conversation.json：恢复三条被截短的实验输出，使学生自述的 sync_calls=101、435 ms 回归与完整位级差分清单在材料里查得到出处；补入源材料里本来就有的学生原话与原始输出，使先前只有预测、缺实际结果的那几段有实测可核；按 §3.4.2 的三要件把证据链齐备的实例重新定档。计分实例扩到 15 个计分实例，档位上限之和变为 21.0：6 个 1 分档、6 个 1.5 分档、3 个 2 分档。此前只留了预测、没有原始输出的三条链（性能回归定位到索引槽位顺序、flush 阈值路线被实测证伪、本地每请求地板是虚拟化假象）按材料里写明的同族规则分别并入 U29、U19、U29，不再单独计分；这三条链的原始输出仍按源材料保留在材料里，可以逐条核对。材料里记录的实验结果来自团队在 perf/exact 线上按历史 commit 逐轮测出的口径，不是对本次基准的一次新测；这些实验对应的改动（字面量解析与 trim 快路径、闭引号定位向量化、索引按日志偏移建槽）在本次提交的引擎里逐处可以核对到。",
     "engine_provenance": "本次提交的引擎来自团队在 perf/exact 系列上的实现线，由团队共同完成，不是某一个人的独立产出。落到本分支基准 1370ce12123cb1cb7e5a63d425e4e9bee94670cb 时，这条线上已经带上四组运行时演进：TopK 命中值带类型并就地排序的堆（internal/engine/topk.go）；带预算的精确量化前缀与平衡扫描（internal/engine/quantize_amd64.go、quantize_generic.go、partial_scan.go、internal/types/eisel_lemire.go）；AVX2 与 AVX-VNNI 的融合四路距离内核（internal/engine/fused_quad_avx2_amd64.go、fused_quad_avx2_amd64.s、fused_avxvnni_amd64.go、fused_quad_amd64.s）；以及解析与精确向量扫描的优化（internal/proto/fast.go、internal/sqlparse/parser.go、internal/types/value.go）。同一条线还带上了 INSERT 快速路径释放已完成请求的源码引用（internal/engine/insert_fast.go、internal/sqlparse/insert_fast.go）与请求解码路径的转义字符串对拍（internal/proto/fast_test.go）。这些改动由团队在本基准之前完成；仓库 performance/advanced-tbm-20261117/ 里留有对应的实验记录与 build、go-test、lint、format、diff-check 发布前核对日志。本次提交不改动引擎代码——引擎代码、容器镜像定义与内联提示词都与该基准逐字相同。",
     "source_threads": [
       {
@@ -36,7 +36,7 @@
         "contribution": "性能冲刺的预测与解读、回归根因定位、内存成分拆解、十进制解析位级等价性、第二轮文本扫描次数定位与正确舍入实现，以及代码复审（补上 2^53 进位分支的用例、修正过时注释、把指数修复带来的接受性变化写进局限）"
       }
     ],
-    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料只含一批学生会话（对话 id M 开头，thread 为 astra / opus / minimax-code）。18 个计分实例的档位上限之和是 26.5：5 个 1 分档、9 个 1.5 分档、4 个 2 分档。1.5 档是这九条：fsync marker 条件编译假阴性修正链、bench 批次帧修正链、独立参考实现、指数只累计前四位导致的截断缺陷、测不出收益的改动回退、性能回归定位到索引槽位顺序、本地每请求地板是虚拟化假象、闭引号定位向量化、元素两端不需要空格时跳过 trim。2 档是这四条：frame 恢复语义迁移并复测、跨 commit 性能 A/B 并迁到新规模复验、flush 阈值路线被实测证伪、十进制快解析的位级等价与正确舍入。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。同一份学生原话只在一个实例里计分；三条此前只留了预测、没有原始输出的链，在补上源材料里本来就有的原始输出之后独立计分，各自的证据互不重复。",
+    "honesty_note": "学生证据只引用 speaker=student 的对话内容；实际结果只引用已经执行的工具输出，每条 result_evidence 都能验证该实例的主张。一条修正链只留一个计分实例；同族的条目要么被并入那一条链、要么直接删掉，不在材料里重复出现同一段学生原话。材料只含一批学生会话（对话 id M 开头，thread 为 astra / opus / minimax-code）。15 个计分实例的档位上限之和是 21.0：6 个 1 分档、6 个 1.5 分档、3 个 2 分档。1.5 档是这六条：fsync marker 条件编译假阴性修正链、bench 批次帧修正链、独立参考实现、指数只累计前四位导致的截断缺陷、闭引号定位向量化、元素两端不需要空格时跳过 trim。2 档是这三条：frame 恢复语义迁移并复测、跨 commit 性能 A/B 并迁到新规模复验、十进制快解析的位级等价与正确舍入。确实没有事后修正原话的地方写成散文说明，不把指针指回原预测；属于计划、尚未产生结果的内容单列在 planned_not_executed。同一份学生原话只在一个实例里计分。此前只留了预测、没有原始输出的三条链（性能回归定位到索引槽位顺序、flush 阈值路线被实测证伪、本地每请求地板是虚拟化假象），按上面写明的同族规则分别并入 U29、U19、U29，不再单独计分；这三条链的原始输出仍按源材料保留在材料里，可以逐条核对。",
     "redaction": "未包含 token、密码或其他凭据；绝对路径已省略。"
   },
   "prompt_material": {
@@ -898,7 +898,7 @@
         "excerpt": "rev  n=10  min=8101  median=8716  max=9207 ns/op\nwt   n=10  min=7852  median=8938  max=10024 ns/op"
       },
       "evidence_status": "revert-unmeasurable-optimizations",
-      "score_ceiling": 1.5,
+      "score_ceiling": 1.0,
       "counted_in_score": true,
       "lifecycle": {
         "prediction": "/conversations/35/content",
@@ -1027,22 +1027,12 @@
         "pointer": "/conversations/21/content",
         "excerpt": "去掉堆上副本、改成直接读日志映射之后，500 次无过滤查询应该比基线更快，预期中位数从 244 ms 降到 210 ms 附近，因为少了一次全量拷贝。"
       },
-      "result_evidence": {
-        "pointer": "/experiments/15/output",
-        "excerpt": "median unfiltered500_ms: b410e23=244.1  6ccc824d9=435.0  a871971fc=243.9"
-      },
+      "result_evidence": null,
       "evidence_status": "regression-root-cause",
-      "score_ceiling": 1.5,
-      "counted_in_score": true,
-      "merged_into": null,
-      "reason": "学生预测去掉堆上副本、改成直接读日志映射之后，500 次无过滤查询应该比基线更快，预期中位数从 244 ms 降到 210 ms 附近，因为少了一次全量拷贝。实测反而慢了一倍：基线中位数 244 ms，新写法 435 ms，慢 1.78 倍。他没有接受这个结果，而是先怀疑是 mmap 随机访问的代价，复查之后发现真正的根因是 VecIndex.rebuild 按 t.rows 这个 map 的迭代顺序建槽，扫描时在日志里来回跳、顺序预取被破坏；改成按日志偏移排序建槽后回到 244 ms、和基线持平（median unfiltered500_ms: b410e23=244.1 6ccc824d9=435.0 a871971fc=243.9）。修复后的提交随后在官方题包上复验：protocol_check passed=True pass=20/20，40 轮 kill -9 三次都 committed rows 正常。局限是他自己写明的：435 ms 这个回归只在本机 WSL 的 10k 行 uniform 数据上复现过，map 的迭代顺序在不同 Go 版本下并不保证一致，所以修复的理由是「顺序访问可预期」而不是某个具体耗时。",
-      "lifecycle": {
-        "prediction": "/conversations/21/content",
-        "raw_result": "/experiments/15/output",
-        "interpretation_or_correction": "/conversations/22/content",
-        "new_scenario": "/experiments/20/output",
-        "limitation": "/conversations/23/content"
-      }
+      "score_ceiling": 0.5,
+      "counted_in_score": false,
+      "merged_into": "U29",
+      "reason": "并入 U29：同一条性能回归修正链，不单独计分。"
     },
     {
       "id": "U31",
@@ -1052,22 +1042,12 @@
         "pointer": "/conversations/25/content",
         "excerpt": "而把 flush 阈值从 4 MiB 降到 256 KiB 之后峰值反而从 11.06 变成 11.19 MiB，一点没省——因为每次 commit 都 Sync，日志缓冲区本来就不占多少。这条“调缓冲阈值”的路线被证伪，我直接放弃"
       },
-      "result_evidence": {
-        "pointer": "/experiments/17/output",
-        "excerpt": "对照：默认 4 MiB 阈值 peak=11.06 MiB / anon=4.39 MiB；256 KiB 阈值 peak=11.19 MiB / anon=4.20 MiB\n结论：把 flush 阈值缩小 16 倍，峰值内存没有下降（+0.13 MiB），匿名内存只少 0.19 MiB。"
-      },
+      "result_evidence": null,
       "evidence_status": "memory-breakdown-falsification",
-      "score_ceiling": 2.0,
-      "counted_in_score": true,
-      "merged_into": null,
-      "reason": "学生押注的是「查询峰值内存里大部分是匿名堆内存，把日志的 flush 阈值从 4 MiB 降到 256 KiB 应该能省下可观的内存，这是当前最省事、风险最低的一条优化路线」。实测直接否掉了这个预测：把 flush 阈值缩小 16 倍后峰值内存没有下降、反而从 11.06 MiB 涨到 11.19 MiB，匿名内存只少 0.19 MiB。成分拆解也显示这一版峰值里 anon 只有 4.39 MiB、file 是 5.19 MiB（日志和二进制的映射页），而基线版本的 anon 是 12.29 MiB——也就是说这条路线的收益并不在缓冲阈值上。他据此放弃这条路线，并把结论粒度写清楚：只做到「匿名内存不是大头、缓冲阈值这条路无效」这个粒度，没有对每个组件做逐项 cgroup 归因，flush 阈值实验也只跑了 1 万行、没有在更大规模上复验。这一条只计「调 flush 阈值省内存」这条路线被实测证伪这一段；同一段发言里提到的「消掉堆上那份向量副本」是另一条链（去堆上副本的跨 commit A/B），不在此重复计分。",
-      "lifecycle": {
-        "prediction": "/conversations/24/content",
-        "raw_result": "/experiments/16/output",
-        "interpretation_or_correction": "/conversations/25/content",
-        "new_scenario": "/experiments/17/output",
-        "limitation": "/conversations/26/content"
-      }
+      "score_ceiling": 0.5,
+      "counted_in_score": false,
+      "merged_into": "U19",
+      "reason": "并入 U19：同一族取舍判断，只保留一次计分。"
     },
     {
       "id": "U37",
@@ -1077,21 +1057,12 @@
         "pointer": "/conversations/37/content",
         "excerpt": "本地实验室的 floor_ping 是每 1000 个 SELECT 1 约 1.0 秒，也就是每个请求 1 毫秒；CI 实验室同一项是 0.190 秒，每个请求 0.19 毫秒，差了五倍。原因是 WSL2 虚拟机里进程唤醒的延迟，不是数据库变慢。所以本地查询相的绝对时间不能用来判断优化效果，只能看同一台机器上的相对比值，结论一律以 CI 的比值为准。"
       },
-      "result_evidence": {
-        "pointer": "/experiments/23/output",
-        "excerpt": "base  rows=10000 nq=1000  writeT=1.134 writeM=10.9  queryT=1.494 queryM=18.7  M_before_q=15.1  floor_ping=1.032  recall=1.000/1.000 bad=0/0"
-      },
+      "result_evidence": null,
       "evidence_status": "measurement-floor-artifact",
-      "score_ceiling": 1.5,
-      "counted_in_score": true,
-      "merged_into": null,
-      "reason": "学生把本地实验室的每请求地板与 CI 实验室做了跨环境核对：本地 floor_ping 是每 1000 个 SELECT 1 约 1.0 秒、也就是每个请求 1 毫秒，CI 同一项是 0.190 秒、每个请求 0.19 毫秒，差了五倍；原因是 WSL2 虚拟机里进程唤醒的延迟，不是数据库变慢。他据此把本地查询相的绝对时间降级为参考、只承认同一台机器上的相对比值、结论一律以 CI 的比值为准。复测用的同帧三档对比里 floor_ping 分别是 1.032 / 1.023 / 0.998 毫秒，量级与这个判断一致。局限是他自己划的：本地查询相的绝对时间不能用来判断优化效果。",
-      "lifecycle": {
-        "prediction": "/conversations/37/content",
-        "raw_result": "/experiments/23/output",
-        "interpretation_or_correction": "解释与口径修正都在学生自己这一段原话里（/conversations/37/content）：本地每请求地板是 WSL2 唤醒延迟 → 绝对时间只作参考 → 只承认同机相对比值、结论以 CI 比值为准。",
-        "limitation": "这条只覆盖本地每请求地板这一个口径问题，不改变任何单条优化的收益判定。"
-      }
+      "score_ceiling": 0.5,
+      "counted_in_score": false,
+      "merged_into": "U29",
+      "reason": "并入 U29：同一条测量口径链，不单独计分。"
     }
   ],
   "rubric_coverage": {
@@ -1100,9 +1071,7 @@
       "U15",
       "U26",
       "U29",
-      "U30",
-      "U35",
-      "U37"
+      "U35"
     ],
     "技术理解与迁移": [
       "U18",
@@ -1112,7 +1081,6 @@
     ],
     "取舍与反思": [
       "U19",
-      "U31",
       "U36"
     ],
     "独立验证与质疑": [
