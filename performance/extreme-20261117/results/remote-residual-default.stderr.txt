@@ -1,0 +1,8 @@
+panic: missing data-device io.stat: 259:4 259:0 rbytes=0 wbytes=5853184 rios=0 wios=206 dbytes=0 dios=0
+
+
+goroutine 1 [running]:
+main.main.func2(0xc0026a9d70, 0xc000084060, 0xc000084070, {0xc0000940a0, 0xd}, 0xc000084050, 0xc000094070, 0xc000084080, {0xc00001a120, 0x8a, ...}, ...)
+	./tbm_eval.go:441 +0x39cc
+main.main()
+	./tbm_eval.go:502 +0x17b0

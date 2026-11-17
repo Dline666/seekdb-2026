@@ -81,8 +81,10 @@ func testBatchedScan(t *testing.T, dim int) {
 			mustExec(t, db, fmt.Sprintf("UPDATE d SET cat = '%s', e = '%s' WHERE id = %d", r.cat, lit(r.v), id))
 		}
 	}
-	wheres := []string{"", "", " WHERE cat = 'a'", " WHERE cat = '你好'", " WHERE cat = 'none'",
-		" WHERE cat = 'bb' AND n > 2", " WHERE n < 3", " WHERE cat <> 'a'"}
+	wheres := []string{
+		"", "", " WHERE cat = 'a'", " WHERE cat = '你好'", " WHERE cat = 'none'",
+		" WHERE cat = 'bb' AND n > 2", " WHERE n < 3", " WHERE cat <> 'a'",
+	}
 	check := func(tag string) {
 		for qn := 0; qn < 40; qn++ {
 			q := vec()

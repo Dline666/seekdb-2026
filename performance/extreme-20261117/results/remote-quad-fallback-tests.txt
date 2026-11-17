@@ -1,0 +1,8 @@
+{"argv": ["env", "MVDB_NO_SIMD=1", "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "minivectordb", "test", "./internal/engine", "-count=1"], "cwd": null, "official_submissions": 0}
+--- FAIL: TestCatBlockBitIdentical (0.07s)
+    filtered_split_test.go:471: block path never taken with catBlocksEnabled=true
+--- FAIL: TestFusedScanEndToEnd (0.25s)
+    fused_test.go:194: fused branch never ran on a clean table (no tombstones, no WHERE)
+FAIL
+FAIL	minivectordb/internal/engine	85.009s
+FAIL

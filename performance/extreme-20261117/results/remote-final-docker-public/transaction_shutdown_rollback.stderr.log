@@ -1,0 +1,4 @@
+minivectordb: cgroup memory limit 2048 MiB, vector budget 256 MiB
+minivectordb: cgroup CPU quota 2, GOMAXPROCS 2
+minivectordb: cgroup memory limit 2048 MiB, vector budget 256 MiB
+minivectordb: cgroup CPU quota 2, GOMAXPROCS 2

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "tool",
+    "pprof",
+    "-top",
+    "-nodecount=30",
+    "performance/advanced-tbm-20261117/profiles/100k/round0-advanced-profile-query/query.cpu"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T10:47:17Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.010818004608154297
+}

@@ -1,0 +1,78 @@
+{
+  "utc": "2026-11-17T12:06:36.138831+00:00",
+  "verified_workspace_against_prior_snapshot": true,
+  "changed_files": [
+    {
+      "path": "internal/engine/candidate_bounds_test.go",
+      "before_sha256": null,
+      "after_sha256": "619ccb656eca5af93b80c520cc2be6898826f747e122f3d16c7b30a951173b01"
+    },
+    {
+      "path": "internal/engine/db.go",
+      "before_sha256": "abc9a7c7dad010615fcfdd2c1f85948e96cd400d2e34466df43e21d61ef0f500",
+      "after_sha256": "fc53881ed04d878818265c6633a5d986ae07bdb8cda4f317f538da38df0c35ee"
+    },
+    {
+      "path": "internal/engine/eqset.go",
+      "before_sha256": "ba80643620f2f0f041e5c3fc6a5148ab1e1ef5b358adead90b1e7c7450c8a8e1",
+      "after_sha256": "f0176eb11d7e74638e50bfe3bf1fc7c314dce8896a8c94f24706de558d71943a"
+    },
+    {
+      "path": "internal/engine/exec.go",
+      "before_sha256": "4fa73527a534f17846c854f9606a5aadfac95fc99a7fac81916a4027a992177c",
+      "after_sha256": "274a0a61fd3543120cda75da4992b156b1eaf091ceaa9e22e5f1cb34a8592276"
+    },
+    {
+      "path": "internal/engine/prefilter.go",
+      "before_sha256": "ca7065f2c3e9c6bd5226d8f0269d4a85ccfdf90c6cdfa5dd79b7bc6fa773cf04",
+      "after_sha256": "b1bdef1bb8c81cc41d2e7351c0011b21233472de36ce15bd487a7086615a9553"
+    },
+    {
+      "path": "internal/engine/quantize_amd64.go",
+      "before_sha256": null,
+      "after_sha256": "b73a02e3a6a37e2324d077322d16527a05a9057f54b07cfc524b07c6f5d1282e"
+    },
+    {
+      "path": "internal/engine/quantize_amd64.s",
+      "before_sha256": null,
+      "after_sha256": "a22b7c4d165691fcf5a17cd9577736e0c79b16d4f1d3a47f8d15f154e9820054"
+    },
+    {
+      "path": "internal/engine/quantize_encoding_test.go",
+      "before_sha256": null,
+      "after_sha256": "9ed543895d32fa32edb9234e511ebc951123f63301aad982c5c5b2163675e2c4"
+    },
+    {
+      "path": "internal/engine/quantize_generic.go",
+      "before_sha256": null,
+      "after_sha256": "f394765b3cc2cdecc5906a10907e7644e0665d4e4d917a4f0fa55f2e1bb4c7de"
+    },
+    {
+      "path": "internal/engine/quantize_guard_linux_amd64_test.go",
+      "before_sha256": null,
+      "after_sha256": "97ac2fc446cceb738854322b179a5626873f64e61e8c4b5d71b0ddb60f3cc876"
+    },
+    {
+      "path": "internal/engine/subnormal_quant_test.go",
+      "before_sha256": null,
+      "after_sha256": "8c7a6dc15b9bef36ed270d8b65d2186752f34449f42b77022334b1f757aaf68a"
+    },
+    {
+      "path": "internal/engine/topk.go",
+      "before_sha256": "70f4797f4cde0f098668f07e524706c22d9226771c58af0168be17f8a7646dca",
+      "after_sha256": "60e001a7781a9f8dc3edd2734bd5a4284fa44a1dec4ccbb50b0a1635c5dfa9c3"
+    },
+    {
+      "path": "internal/sqlparse/parser.go",
+      "before_sha256": "5206a9ca8cd235f0cafdef33a542d0898a205ead5e055f61314a20f733c120f5",
+      "after_sha256": "d884dda7c05f47d1bc1085d1bbf768c2aa83b7632e486787915bec483be0316d"
+    },
+    {
+      "path": "internal/sqlparse/reuse_test.go",
+      "before_sha256": null,
+      "after_sha256": "303dfc535d6c65a3bc44b519943dc09e40e64b7c195987edf3246e888e1a2976"
+    }
+  ],
+  "production_binary_sha256": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+  "previous_work_preserved": true
+}

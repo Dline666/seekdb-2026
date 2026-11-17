@@ -1,0 +1,5 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/zerolog", "test", "./internal/storage", "./internal/engine", "-run", "TestInitialized|Test.*(Recover|Crash|Transaction|Txn|Atomic|Commit|Rollback|Persistence)", "-count=1"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:03:27Z", "uid": 1019, "diagnostic_only": true}
+ok  	minivectordb/internal/storage	0.078s
+signal: terminated
+FAIL	minivectordb/internal/engine	193.081s
+FAIL

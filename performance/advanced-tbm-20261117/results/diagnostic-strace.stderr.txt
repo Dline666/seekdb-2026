@@ -1,0 +1,7 @@
+panic: database CPU affinity mismatch: 18
+
+goroutine 1 [running]:
+main.main.func2(0xc000075d70, 0xc000082080, 0xc000082090, {0xc0000920c0, 0xd}, 0xc000082070, 0xc000082050, 0xc000082020, _, {0x51d84b, ...}, ...)
+	./driver.go:401 +0x5174
+main.main()
+	./driver.go:575 +0x1a7e

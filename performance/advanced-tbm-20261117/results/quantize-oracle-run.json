@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/quantize",
+    "test",
+    "./internal/engine",
+    "-run",
+    "TestQuantizeEncoding|Test.*(Prefilter|Fused|PartialQuant)",
+    "-count=1"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T11:33:00Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 1,
+  "wall_s": 1.4078813046216965
+}

@@ -1,0 +1,127 @@
+{"argv": ["docker", "build", "--progress=plain", "-t", "seekdb-remote-20261117:remote-base", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/docker-context/remote-base"], "cwd": null, "official_submissions": 0}
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile:
+#1 transferring dockerfile: 1.84kB done
+#1 DONE 0.5s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#2 DONE 6.9s
+
+#3 [internal] load .dockerignore
+#3 transferring context:
+#3 transferring context: 2B done
+#3 DONE 0.4s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [build 1/5] FROM docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#5 resolve docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#5 resolve docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 0.3s done
+#5 sha256:78d4744ead1f5b19b04d0df558ab182a5300903900755e515b2ca4d10eb2044d 424B / 424B done
+#5 sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 6.69kB / 6.69kB done
+#5 sha256:d9b8c34d61a9b9a3c44cab883d7d2f2619d674966ab520186f799cf32e3e0377 2.05kB / 2.05kB done
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 0B / 29.77MB 0.2s
+#5 ...
+
+#4 [internal] load build context
+#4 transferring context: 535.56kB 0.0s done
+#4 DONE 0.7s
+
+#5 [build 1/5] FROM docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 1.05MB / 29.77MB 5.2s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 3.15MB / 29.77MB 10.2s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 5.24MB / 29.77MB 14.0s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 7.34MB / 29.77MB 18.2s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 9.44MB / 29.77MB 22.5s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 11.53MB / 29.77MB 27.6s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 13.63MB / 29.77MB 31.2s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 15.73MB / 29.77MB 34.0s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 17.83MB / 29.77MB 37.1s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 19.92MB / 29.77MB 39.2s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 22.02MB / 29.77MB 40.7s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 24.12MB / 29.77MB 42.2s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 26.21MB / 29.77MB 43.7s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 28.31MB / 29.77MB 44.9s
+#5 sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 29.77MB / 29.77MB 45.5s done
+#5 extracting sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a
+#5 extracting sha256:7a48b8f0e5c73d0cc2a85b008978396aa19d253dc1b96fdb0b769ee6dcbeca4a 1.0s done
+#5 DONE 48.1s
+
+#6 [stage-1 2/4] WORKDIR /app
+#6 DONE 4.0s
+
+#7 [build 2/5] RUN (apt-get update || (sed -i 's#http://\(archive\|security\).ubuntu.com#http://mirrors.aliyun.com#g'         /etc/apt/sources.list.d/ubuntu.sources && apt-get update)) &&     { apt-get install -y --no-install-recommends golang-1.22-go=1.22.2-2ubuntu0.5 ||       apt-get install -y --no-install-recommends golang-1.22-go ; } &&     /usr/lib/go-1.22/bin/go version | grep -q 'go1\.22\.' &&     rm -rf /var/lib/apt/lists/*
+#7 2.863 Get:1 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#7 2.863 Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#7 3.894 Get:3 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1558 kB]
+#7 4.895 Get:4 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1472 kB]
+#7 5.021 Get:5 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [55.6 kB]
+#7 5.025 Get:6 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2211 kB]
+#7 5.631 Get:7 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#7 8.548 Get:8 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#7 10.13 Get:9 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#7 18.33 Get:10 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
+#7 19.84 Get:11 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#7 20.41 Get:12 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#7 20.69 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2324 kB]
+#7 21.71 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [61.7 kB]
+#7 22.31 Get:15 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1793 kB]
+#7 23.65 Get:16 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2179 kB]
+#7 24.68 Get:17 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [669 B]
+#7 24.94 Get:18 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
+#7 25.57 Get:19 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+#7 25.61 Fetched 33.9 MB in 24s (1431 kB/s)
+#7 25.61 Reading package lists...
+#7 26.18 Reading package lists...
+#7 26.73 Building dependency tree...
+#7 26.85 Reading state information...
+#7 26.95 The following additional packages will be installed:
+#7 26.95   golang-1.22-src
+#7 26.95 Suggested packages:
+#7 26.95   bzr | brz ca-certificates git mercurial subversion
+#7 26.95 Recommended packages:
+#7 26.95   g++ gcc libc6-dev pkg-config
+#7 26.97 The following NEW packages will be installed:
+#7 26.97   golang-1.22-go golang-1.22-src
+#7 27.41 0 upgraded, 2 newly installed, 0 to remove and 6 not upgraded.
+#7 27.41 Need to get 45.7 MB of archives.
+#7 27.41 After this operation, 228 MB of additional disk space will be used.
+#7 27.41 Get:1 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 golang-1.22-src all 1.22.2-2ubuntu0.5 [19.7 MB]
+#7 30.47 Get:2 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 golang-1.22-go amd64 1.22.2-2ubuntu0.5 [26.0 MB]
+#7 32.53 debconf: delaying package configuration, since apt-utils is not installed
+#7 32.58 Fetched 45.7 MB in 5s (8508 kB/s)
+#7 32.74 Selecting previously unselected package golang-1.22-src.
+#7 32.74 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 4381 files and directories currently installed.)
+#7 32.74 Preparing to unpack .../golang-1.22-src_1.22.2-2ubuntu0.5_all.deb ...
+#7 32.80 Unpacking golang-1.22-src (1.22.2-2ubuntu0.5) ...
+#7 35.08 Selecting previously unselected package golang-1.22-go.
+#7 35.09 Preparing to unpack .../golang-1.22-go_1.22.2-2ubuntu0.5_amd64.deb ...
+#7 35.12 Unpacking golang-1.22-go (1.22.2-2ubuntu0.5) ...
+#7 35.65 Setting up golang-1.22-src (1.22.2-2ubuntu0.5) ...
+#7 35.78 Setting up golang-1.22-go (1.22.2-2ubuntu0.5) ...
+#7 DONE 41.2s
+
+#8 [build 3/5] WORKDIR /src
+#8 DONE 0.8s
+
+#9 [build 4/5] COPY minivectordb/ ./
+#9 DONE 0.9s
+
+#10 [build 5/5] RUN go build -ldflags="-s -w" -o /out/minivectordb ./cmd/minivectordb
+#10 DONE 5.6s
+
+#11 [stage-1 3/4] COPY --from=build /out/minivectordb /app/minivectordb
+#11 DONE 1.0s
+
+#12 [stage-1 4/4] RUN chmod 755 /app/minivectordb && mkdir -p /data
+#12 DONE 1.5s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.9s done
+#13 writing image sha256:02adc8cc2cccd84706d7e52cbe1643878623d5a17f0f77619d37cceeb3841883 0.0s done
+#13 naming to docker.io/library/seekdb-remote-20261117:remote-base 0.1s done
+#13 DONE 1.2s

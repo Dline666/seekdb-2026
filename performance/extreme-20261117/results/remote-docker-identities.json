@@ -1,0 +1,140 @@
+[
+  {
+    "name": "remote-base",
+    "image": "seekdb-remote-20261117:remote-base",
+    "image_id": "sha256:02adc8cc2cccd84706d7e52cbe1643878623d5a17f0f77619d37cceeb3841883",
+    "image_inspect": {
+      "Id": "sha256:02adc8cc2cccd84706d7e52cbe1643878623d5a17f0f77619d37cceeb3841883",
+      "RepoTags": [
+        "seekdb-remote-20261117:remote-base"
+      ],
+      "RepoDigests": [],
+      "Parent": "",
+      "Comment": "buildkit.dockerfile.v0",
+      "Created": "2026-11-17T17:54:09.116562402+08:00",
+      "DockerVersion": "",
+      "Author": "",
+      "Config": {
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "Entrypoint": [
+          "/app/minivectordb"
+        ],
+        "Cmd": [
+          "--data-dir",
+          "/data"
+        ],
+        "Volumes": {
+          "/data": {}
+        },
+        "WorkingDir": "/app",
+        "Labels": {
+          "org.opencontainers.image.version": "24.04"
+        },
+        "ArgsEscaped": true
+      },
+      "Architecture": "amd64",
+      "Os": "linux",
+      "Size": 82851685,
+      "GraphDriver": {
+        "Data": {
+          "LowerDir": "/home/data2/docker_data/overlay2/rmsxi0cckdfnbkemvqci7tv0w/diff:/home/data2/docker_data/overlay2/gyx0bgi09az5q6wlx33u7f3h3/diff:/home/data2/docker_data/overlay2/ec6a66eae02c563e66ea9410b8fddd71e5ba132ebddedc82bda7d0c1ad89426b/diff",
+          "MergedDir": "/home/data2/docker_data/overlay2/j9lxjpvqxyyj63gl81unn1af6/merged",
+          "UpperDir": "/home/data2/docker_data/overlay2/j9lxjpvqxyyj63gl81unn1af6/diff",
+          "WorkDir": "/home/data2/docker_data/overlay2/j9lxjpvqxyyj63gl81unn1af6/work"
+        },
+        "Name": "overlay2"
+      },
+      "RootFS": {
+        "Type": "layers",
+        "Layers": [
+          "sha256:bec87777bc2fb2edcdf9af11df1531469e7df911309c1413082b18fcb8610278",
+          "sha256:cbe9e6c2d9d6eec885797b7b5430a741cd8c65d21c1ee566569cf70b0650cb2e",
+          "sha256:84d495076d289a54a2814e9d79532d7ba8d0dff62c9a3aa83bf4541f689f2643",
+          "sha256:80099274c808e8e9a978273ef0f0f9c5e767813696a78c1bbf0b42420b291c69"
+        ]
+      },
+      "Metadata": {
+        "LastTagTime": "2026-11-17T17:54:10.44985563+08:00"
+      }
+    },
+    "dockerfile_sha256": "8782256bca3b124219965583e8c3ba1e61cecf47676507e9dcccb457d356713e",
+    "source_manifest": "remote-base-source.json",
+    "binary_path": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-docker-remote-base",
+    "binary_sha256": "b190079fe993ad33a0a48006d167a41b98b12bba29c29248c1ae97c5522dd99d",
+    "native_binary_sha256": "b190079fe993ad33a0a48006d167a41b98b12bba29c29248c1ae97c5522dd99d",
+    "binary_build_info": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-docker-remote-base: go1.22.2\n\tpath\tminivectordb/cmd/minivectordb\n\tmod\tminivectordb\t(devel)\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tCGO_ENABLED=0\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=linux\n\tbuild\tGOAMD64=v1",
+    "source_built": true,
+    "official_submissions": 0
+  },
+  {
+    "name": "remote-final",
+    "image": "seekdb-remote-20261117:remote-final",
+    "image_id": "sha256:dd7952f06a59eacaa578166e16a6883bc7d9926956447f6ee8b2ef8f5a72de2b",
+    "image_inspect": {
+      "Id": "sha256:dd7952f06a59eacaa578166e16a6883bc7d9926956447f6ee8b2ef8f5a72de2b",
+      "RepoTags": [
+        "seekdb-remote-20261117:remote-final"
+      ],
+      "RepoDigests": [],
+      "Parent": "",
+      "Comment": "buildkit.dockerfile.v0",
+      "Created": "2026-11-17T17:54:25.565995511+08:00",
+      "DockerVersion": "",
+      "Author": "",
+      "Config": {
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "Entrypoint": [
+          "/app/minivectordb"
+        ],
+        "Cmd": [
+          "--data-dir",
+          "/data"
+        ],
+        "Volumes": {
+          "/data": {}
+        },
+        "WorkingDir": "/app",
+        "Labels": {
+          "org.opencontainers.image.version": "24.04"
+        },
+        "ArgsEscaped": true
+      },
+      "Architecture": "amd64",
+      "Os": "linux",
+      "Size": 82958181,
+      "GraphDriver": {
+        "Data": {
+          "LowerDir": "/home/data2/docker_data/overlay2/w3xiel5jtucaf3qp2ggck4r3b/diff:/home/data2/docker_data/overlay2/gyx0bgi09az5q6wlx33u7f3h3/diff:/home/data2/docker_data/overlay2/ec6a66eae02c563e66ea9410b8fddd71e5ba132ebddedc82bda7d0c1ad89426b/diff",
+          "MergedDir": "/home/data2/docker_data/overlay2/pcqedqnkqk29bjh94j3b4zlk2/merged",
+          "UpperDir": "/home/data2/docker_data/overlay2/pcqedqnkqk29bjh94j3b4zlk2/diff",
+          "WorkDir": "/home/data2/docker_data/overlay2/pcqedqnkqk29bjh94j3b4zlk2/work"
+        },
+        "Name": "overlay2"
+      },
+      "RootFS": {
+        "Type": "layers",
+        "Layers": [
+          "sha256:bec87777bc2fb2edcdf9af11df1531469e7df911309c1413082b18fcb8610278",
+          "sha256:cbe9e6c2d9d6eec885797b7b5430a741cd8c65d21c1ee566569cf70b0650cb2e",
+          "sha256:c57044699e8eb911625d8f1dfca1b7853fcc0bc9ced62e3fd69533e60e91ee0d",
+          "sha256:0ca49df64d4aa7dfa2d60f9092f862a42bec365c94e6cfa3a116c41c7f3dbfa6"
+        ]
+      },
+      "Metadata": {
+        "LastTagTime": "2026-11-17T17:54:26.525963518+08:00"
+      }
+    },
+    "dockerfile_sha256": "8782256bca3b124219965583e8c3ba1e61cecf47676507e9dcccb457d356713e",
+    "source_manifest": "remote-final-source.json",
+    "binary_path": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-docker-remote-final",
+    "binary_sha256": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+    "native_binary_sha256": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+    "binary_build_info": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-docker-remote-final: go1.22.2\n\tpath\tminivectordb/cmd/minivectordb\n\tmod\tminivectordb\t(devel)\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tCGO_ENABLED=0\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=linux\n\tbuild\tGOAMD64=v1",
+    "source_built": true,
+    "official_submissions": 0
+  }
+]

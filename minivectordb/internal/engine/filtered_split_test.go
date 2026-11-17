@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
+	"path/filepath"
+	"runtime/pprof"
 	"sort"
 	"strings"
 	"sync"
@@ -12,9 +15,6 @@ import (
 	"unsafe"
 
 	"minivectordb/internal/storage"
-	"os"
-	"path/filepath"
-	"runtime/pprof"
 )
 
 var decompTOnce sync.Once
@@ -408,13 +408,13 @@ func TestFused10kSequential(t *testing.T) {
 	} {
 		surv := make([]int64, 2*10000)
 		// Warm.
-		m := fusedScanInt8(qc, x, 0, 10000, qSum, qNorm2, qmin, qscale, tc.thresh, surv)
+		fusedScanInt8(qc, x, 0, 10000, qSum, qNorm2, qmin, qscale, tc.thresh, surv)
 		const n = 200
 		var ds []time.Duration
 		var tot int
 		for i := 0; i < n; i++ {
 			t0 := time.Now()
-			m = fusedScanInt8(qc, x, 0, 10000, qSum, qNorm2, qmin, qscale, tc.thresh, surv)
+			m := fusedScanInt8(qc, x, 0, 10000, qSum, qNorm2, qmin, qscale, tc.thresh, surv)
 			ds = append(ds, time.Since(t0))
 			tot += m
 		}
@@ -466,9 +466,13 @@ func TestCatBlockBitIdentical(t *testing.T) {
 		return offsList, distsList
 	}
 	catBlocksEnabled = true
+	before := fusedBlockBatches.Load()
 	bo, bd := run()
-	if fusedBlockBatches.Load() == 0 {
+	if useSIMD && fusedBlockBatches.Load() == before {
 		t.Fatal("block path never taken with catBlocksEnabled=true")
+	}
+	if !useSIMD && fusedBlockBatches.Load() != before {
+		t.Fatal("block SIMD path ran while SIMD was disabled")
 	}
 	catBlocksEnabled = false
 	co, cd := run()

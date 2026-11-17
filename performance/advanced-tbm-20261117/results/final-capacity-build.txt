@@ -1,0 +1,11 @@
+{
+  "reproduce_argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-stress",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/stress.go"
+  ],
+  "prebuilt_as_workspace_owner": true
+}

@@ -1,0 +1,66 @@
+{
+  "image": "seekdb-advanced-20261117:advanced-readopt",
+  "image_id": "sha256:72cdc49d7c74ffe95e2bada3d98b9a70cad8baa88ed15fd99166880873e7b281",
+  "image_inspect": {
+    "Id": "sha256:72cdc49d7c74ffe95e2bada3d98b9a70cad8baa88ed15fd99166880873e7b281",
+    "RepoTags": [
+      "seekdb-advanced-20261117:advanced-readopt"
+    ],
+    "RepoDigests": [],
+    "Parent": "",
+    "Comment": "buildkit.dockerfile.v0",
+    "Created": "2026-11-17T19:38:59.616116695+08:00",
+    "DockerVersion": "",
+    "Author": "",
+    "Config": {
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      ],
+      "Entrypoint": [
+        "/app/minivectordb"
+      ],
+      "Cmd": [
+        "--data-dir",
+        "/data"
+      ],
+      "Volumes": {
+        "/data": {}
+      },
+      "WorkingDir": "/app",
+      "Labels": {
+        "org.opencontainers.image.version": "24.04"
+      },
+      "ArgsEscaped": true
+    },
+    "Architecture": "amd64",
+    "Os": "linux",
+    "Size": 82974565,
+    "GraphDriver": {
+      "Data": {
+        "LowerDir": "/home/data2/docker_data/overlay2/dpck7w8v6uc4us2h1tg4ndbut/diff:/home/data2/docker_data/overlay2/gyx0bgi09az5q6wlx33u7f3h3/diff:/home/data2/docker_data/overlay2/ec6a66eae02c563e66ea9410b8fddd71e5ba132ebddedc82bda7d0c1ad89426b/diff",
+        "MergedDir": "/home/data2/docker_data/overlay2/rezk5z5kx64u23rrpcsyyl9ao/merged",
+        "UpperDir": "/home/data2/docker_data/overlay2/rezk5z5kx64u23rrpcsyyl9ao/diff",
+        "WorkDir": "/home/data2/docker_data/overlay2/rezk5z5kx64u23rrpcsyyl9ao/work"
+      },
+      "Name": "overlay2"
+    },
+    "RootFS": {
+      "Type": "layers",
+      "Layers": [
+        "sha256:bec87777bc2fb2edcdf9af11df1531469e7df911309c1413082b18fcb8610278",
+        "sha256:cbe9e6c2d9d6eec885797b7b5430a741cd8c65d21c1ee566569cf70b0650cb2e",
+        "sha256:505634e02fd55b96f838161cde6e4649e0e38ba2ee27f857e7263c9a4a09f957",
+        "sha256:e742f3d2135d762cb2c7032d455707ec7cfeafcf20f5d3f9429d002a44c35c89"
+      ]
+    },
+    "Metadata": {
+      "LastTagTime": "2026-11-17T19:39:00.643412304+08:00"
+    }
+  },
+  "source_manifest": "docker-advanced-readopt-source.json",
+  "dockerfile_sha256": "8782256bca3b124219965583e8c3ba1e61cecf47676507e9dcccb457d356713e",
+  "binary_sha256": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+  "native_binary_sha256": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+  "identical": true,
+  "official_submissions": 0
+}

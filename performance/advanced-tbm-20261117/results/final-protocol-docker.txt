@@ -1,0 +1,22 @@
+{"argv": ["/home/platemo/.local/bin/python3", "protocol_check/run.py", "--image", "seekdb-advanced-20261117:advanced-final", "--output", "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/results/final-public-docker"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T12:19:34Z", "uid": 1019, "diagnostic_only": true}
+sql_crud: PASS 
+sql_comparisons: PASS 
+sql_ordering: PASS 
+sql_empty: PASS 
+sql_primary_key: PASS 
+sql_unicode: PASS 
+sql_bigint: PASS 
+sql_unsupported: PASS 
+storage_restart: PASS 
+vector_euclidean: PASS 
+transaction_commit: PASS 
+transaction_rollback: PASS 
+storage_mutations: PASS 
+storage_multiple_tables: PASS 
+vector_ties_and_filter: PASS 
+vector_float32: PASS 
+vector_index_maintenance: PASS 
+transaction_failed_insert: PASS 
+transaction_autocommit_atomic: PASS 
+transaction_shutdown_rollback: PASS 
+Report: /home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/results/final-public-docker/result.json

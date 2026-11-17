@@ -80,10 +80,12 @@ type Delete struct {
 	Where Expr
 }
 
-type Begin struct{}
-type Commit struct{}
-type Rollback struct{}
-type Quit struct{}
+type (
+	Begin    struct{}
+	Commit   struct{}
+	Rollback struct{}
+	Quit     struct{}
+)
 
 type Set struct {
 	Name  string
@@ -110,9 +112,11 @@ type ColRef struct {
 	Name  string
 }
 
-type IntLit struct{ V int64 }
-type FloatLit struct{ V float64 }
-type StrLit struct{ V string }
+type (
+	IntLit   struct{ V int64 }
+	FloatLit struct{ V float64 }
+	StrLit   struct{ V string }
+)
 
 // Ordinal is a bare integer in ORDER BY that refers to a select item position.
 type Ordinal struct{ N int64 }

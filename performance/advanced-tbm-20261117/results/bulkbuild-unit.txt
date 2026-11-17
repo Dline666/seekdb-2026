@@ -1,0 +1,2 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/bulkbuild", "test", "./internal/engine", "-run", "TestQuantizeEncoding|Test.*(Budget|PartialQuant|Fused|Compaction|Exact)", "-count=1"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:43:12Z", "uid": 1019, "diagnostic_only": true}
+ok  	minivectordb/internal/engine	11.426s

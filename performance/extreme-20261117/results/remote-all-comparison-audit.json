@@ -1,0 +1,159 @@
+{
+  "validation_passed": true,
+  "utc": "2026-11-17T10:02:24.818836+00:00",
+  "comparisons": [
+    {
+      "summary": "remote-avx2-100k-summary.json",
+      "raw": "remote-avx2-100k.jsonl",
+      "raw_sha256": "f6a0fd399999e4e488a7f6ec17528cad3f4d6d361c2bf9d5754aa6b056881188",
+      "records": 20,
+      "independent_queries": 5000
+    },
+    {
+      "summary": "remote-avx2-default-summary.json",
+      "raw": "remote-avx2-default.jsonl",
+      "raw_sha256": "937bd01047b32443bc8e4e31efd53072c20754a60a82fca9b2e96735248ab2de",
+      "records": 20,
+      "independent_queries": 50000
+    },
+    {
+      "summary": "remote-avx2-isolated-summary.json",
+      "raw": "remote-avx2-isolated.jsonl",
+      "raw_sha256": "c463319792e7c4026c28366cee32ee3cd70d69a5f5b2460b633562ddc23ffe64",
+      "records": 20,
+      "independent_queries": 200000
+    },
+    {
+      "summary": "remote-avx2-pinned-summary.json",
+      "raw": "remote-avx2-pinned.jsonl",
+      "raw_sha256": "3955877f21c871a471cfbc34b88d389515433500746fa257f53bf0f2e2966e53",
+      "records": 20,
+      "independent_queries": 100000
+    },
+    {
+      "summary": "remote-final-100k-summary.json",
+      "raw": "remote-final-100k.jsonl",
+      "raw_sha256": "c1d2e9a5c4153bfb159dc0f250b17746a6a9335ab8f66aec4eb1adba6dc06765",
+      "records": 20,
+      "independent_queries": 5000
+    },
+    {
+      "summary": "remote-final-constant-summary.json",
+      "raw": "remote-final-constant.jsonl",
+      "raw_sha256": "99b452823b6243e20a49947abd0b62032bb5896e7043857c3f6f17f5beca3bd4",
+      "records": 20,
+      "independent_queries": 5000
+    },
+    {
+      "summary": "remote-final-default-summary.json",
+      "raw": "remote-final-default.jsonl",
+      "raw_sha256": "4fe15b2ecc74ce829534c217137fc4ef3ea01e1a1f586b22377aa7f5e832aabe",
+      "records": 20,
+      "independent_queries": 10000
+    },
+    {
+      "summary": "remote-final-dim1024-summary.json",
+      "raw": "remote-final-dim1024.jsonl",
+      "raw_sha256": "6cc70a1fb866a96d40765f62895e9be36e82df25e0386dcaf074fb15d8bd28b6",
+      "records": 20,
+      "independent_queries": 5000
+    },
+    {
+      "summary": "remote-final-docker-summary.json",
+      "raw": "remote-final-docker.jsonl",
+      "raw_sha256": "158235fbb969d248d82075d3e53a8117b2b6740b40705c5fcab182a28bce3785",
+      "records": 20,
+      "independent_queries": 10000
+    },
+    {
+      "summary": "remote-final-long-summary.json",
+      "raw": "remote-final-long.jsonl",
+      "raw_sha256": "e0f4085b08160e0536ebc5b78dcece029723da34a8219b6c591de675a8af1bd4",
+      "records": 20,
+      "independent_queries": 50000
+    },
+    {
+      "summary": "remote-final-multiline-summary.json",
+      "raw": "remote-final-multiline.jsonl",
+      "raw_sha256": "140b8b8e9f45cb37a9a320a5b403223fbf462575e2005c0cb7a0057330ef7f64",
+      "records": 20,
+      "independent_queries": 10000
+    },
+    {
+      "summary": "remote-final-outlier-summary.json",
+      "raw": "remote-final-outlier.jsonl",
+      "raw_sha256": "ad7dffef41ad0b6d4e16a3f44c3de23ff8969ca5012d50a3413dd4573f5546ad",
+      "records": 20,
+      "independent_queries": 5000
+    },
+    {
+      "summary": "remote-final-partial4m-summary.json",
+      "raw": "remote-final-partial4m.jsonl",
+      "raw_sha256": "9ae4b32bd8377630a50ac175624ececafa8cce364011b3b7538deb5f41483a0f",
+      "records": 20,
+      "independent_queries": 1000
+    },
+    {
+      "summary": "remote-final-seed9001-summary.json",
+      "raw": "remote-final-seed9001.jsonl",
+      "raw_sha256": "e726373381eb88646102c7ded08b281dd548261d6e7a21433b71044341ac2d40",
+      "records": 20,
+      "independent_queries": 10000
+    },
+    {
+      "summary": "remote-final-tail127-confirm-summary.json",
+      "raw": "remote-final-tail127-confirm.jsonl",
+      "raw_sha256": "0193049eb67195c976c3910c0290bfdd9c1bdadca209ce5abe16dee445c81fa1",
+      "records": 20,
+      "independent_queries": 50000
+    },
+    {
+      "summary": "remote-final-tail127-summary.json",
+      "raw": "remote-final-tail127.jsonl",
+      "raw_sha256": "2fd5a8b885ec51b41d2454f034d5f5682fcfc37ad52cec49cac8264563d72d60",
+      "records": 20,
+      "independent_queries": 10000
+    },
+    {
+      "summary": "remote-insert-workers-summary.json",
+      "raw": "remote-insert-workers.jsonl",
+      "raw_sha256": "f149905b8630e7e0ec7cbeaa3c9f7d9a8278189a0251d6479598a0b35c030b82",
+      "records": 20,
+      "independent_queries": 10000
+    },
+    {
+      "summary": "remote-projection-confirm-summary.json",
+      "raw": "remote-projection-confirm.jsonl",
+      "raw_sha256": "39b95462b87252622b39bd3e18526ccc01f1a73c49d6ab6b3c1a9fd82ab0d059",
+      "records": 20,
+      "independent_queries": 100000
+    },
+    {
+      "summary": "remote-projection-default-summary.json",
+      "raw": "remote-projection-default.jsonl",
+      "raw_sha256": "119d9ed0b212aecced68a65c2329cee1140f145f77bdfc1d60f6c646fe8ac374",
+      "records": 20,
+      "independent_queries": 50000
+    },
+    {
+      "summary": "remote-residual-default-v2-summary.json",
+      "raw": "remote-residual-default-v2.jsonl",
+      "raw_sha256": "1c08da86d863d3c05c937b0f4e47e6cc80519dc94e9f7ac563f2462c30c6b1fc",
+      "records": 20,
+      "independent_queries": 10000
+    }
+  ],
+  "records": 400,
+  "independent_query_checks": 696000,
+  "checks": [
+    "limits",
+    "zero swap",
+    "fdatasync",
+    "exact mode",
+    "independent truth",
+    "I/O sum and sysfs identity",
+    "zero OOM",
+    "final CPU affinity"
+  ],
+  "historical_scores_modified": false
+}

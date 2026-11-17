@@ -1,0 +1,6 @@
+{
+  "sha256": "b1e1142079eb9cbaf621814c3966864595232b87769acf24fa5ac9cd4fd0d0f8",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-budget768",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

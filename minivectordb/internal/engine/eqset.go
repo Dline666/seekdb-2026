@@ -30,8 +30,9 @@ type eqSet struct {
 }
 
 type eqGroup struct {
-	slots []int32
-	n     int
+	slots  []int32
+	n      int
+	bounds []quantBlockBound
 }
 
 // eqSlots returns the slots whose column col equals v. The second result is
@@ -51,8 +52,8 @@ func (x *VecIndex) eqSlots(db *DB, t *Table, col int, v string) ([]int32, bool) 
 		// Reserve the slot array and charge owned strings, groups and map
 		// growth before allocating them. Stop once the shared budget is used.
 		available := db.indexBudget(x) - x.derivedBytes()
-		bytes := int64(x.live)*4 + 128
-		if bytes > available {
+		bytes := int64(128)
+		if int64(x.live)*4+bytes > available {
 			x.eqFull = true
 			return nil, false
 		}
@@ -64,7 +65,7 @@ func (x *VecIndex) eqSlots(db *DB, t *Table, col int, v string) ([]int32, bool) 
 			key := t.varBytes(db.rowBytes(x.off[s]), col)
 			g := e.m[string(key)] // transient map lookup does not copy the string
 			if g == nil {
-				bytes += int64(len(key)) + 96
+				bytes += int64(len(key)) + 128
 				if bytes > available {
 					x.eqFull = true
 					return nil, false
@@ -72,24 +73,25 @@ func (x *VecIndex) eqSlots(db *DB, t *Table, col int, v string) ([]int32, bool) 
 				g = &eqGroup{}
 				e.m[string(key)] = g
 			}
-			g.n++
-		}
-		// One exact-size allocation replaces repeated growth of every value's
-		// slice. Fill in slot order so all existing exact ordering is retained.
-		slots := make([]int32, x.live)
-		at := 0
-		for _, g := range e.m {
-			end := at + g.n
-			g.slots = slots[at:end:end]
-			g.n = 0
-			at = end
-		}
-		for s := range x.pks {
-			if x.off[s] == deleted {
-				continue
+			if len(g.slots) == cap(g.slots) {
+				// Explicit capacity growth makes the retained-byte charge known
+				// before allocation. A single pass avoids rereading every row's
+				// VARCHAR after counting, critical when the log exceeds memory.
+				capacity := max(8, cap(g.slots)+cap(g.slots)/2)
+				capacity = (capacity + 7) &^ 7
+				// Reduce spare capacity before rejecting a group near the budget.
+				// All capacities are multiples of eight int32 entries.
+				capacity = min(capacity, cap(g.slots)+int((available-bytes)/32)*8)
+				if capacity <= len(g.slots) {
+					x.eqFull = true
+					return nil, false
+				}
+				bytes += int64(capacity-cap(g.slots)) * 4
+				next := make([]int32, len(g.slots), capacity)
+				copy(next, g.slots)
+				g.slots = next
 			}
-			g := e.m[string(t.varBytes(db.rowBytes(x.off[s]), col))]
-			g.slots[g.n] = int32(s)
+			g.slots = append(g.slots, int32(s))
 			g.n++
 		}
 		x.eq[col] = e
@@ -229,3 +231,39 @@ func eqFilter(sc *scope, e sp.Expr) (col int, val string, ok bool) {
 	}
 	return -1, "", false
 }
+
+// candidateBounds caches exactly the existing boundForSlots merge, in groups
+// of quantBlockRows candidate positions. A subrange may use its containing
+// group bound, but must never extend into the next group. Derived sets are
+// invalidated on every mutation, and all retained capacity shares the index
+// budget. No vectors or quantized codes are copied.
+func (x *VecIndex) candidateBounds(db *DB, col int, val string) []quantBlockBound {
+	if !candidateBoundsEnabled {
+		return nil
+	}
+	e := x.eq[col]
+	if e == nil || e.gen != x.gen {
+		return nil
+	}
+	g := e.m[val]
+	if g == nil || len(g.slots) == 0 {
+		return nil
+	}
+	if g.bounds != nil {
+		return g.bounds
+	}
+	n := (len(g.slots) + quantBlockRows - 1) / quantBlockRows
+	bytes := int64(n) * 16
+	if bytes > db.indexBudget(x)-x.derivedBytes() {
+		return nil
+	}
+	g.bounds = make([]quantBlockBound, n)
+	for i := range g.bounds {
+		lo := i * quantBlockRows
+		g.bounds[i] = x.boundForSlots(g.slots[lo:min(lo+quantBlockRows, len(g.slots))])
+	}
+	x.eqBytes += bytes
+	return g.bounds
+}
+
+var candidateBoundsEnabled = os.Getenv("MVDB_NO_EQBOUNDS") == ""

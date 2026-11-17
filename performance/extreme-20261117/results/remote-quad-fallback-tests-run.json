@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "env",
+    "MVDB_NO_SIMD=1",
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "minivectordb",
+    "test",
+    "./internal/engine",
+    "-count=1"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 1,
+  "wall_s": 85.2512378366664
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "make",
+    "-C",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/selected",
+    "fmt",
+    "GOLANGCI_LINT=/home/platemo/seekdb-experiments/20261117/experiment-runtime/lint/golangci-lint-2.15.0-linux-amd64/golangci-lint"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T11:54:01Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 1.093641904182732
+}

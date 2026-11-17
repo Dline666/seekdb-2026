@@ -1,0 +1,48 @@
+{
+  "candidate": "remote-final",
+  "stress_label": "remote-final-stress-v2",
+  "candidate_binary": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final",
+  "candidate_sha256": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+  "driver_source": "/home/platemo/seekdb-experiments/20261117/repository/performance/extreme-20261117/remote_stress.go",
+  "driver_source_sha256": "5706abeb74bc32f33b799b85c0978ccaba2140f2459949d2e733dfbfd0eae03f",
+  "build_argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-stress-v2/stress-driver",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/extreme-20261117/remote_stress.go"
+  ],
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-stress-v2/stress-driver",
+    "-binary",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-stress-v2",
+    "-rows",
+    "550000",
+    "-dim",
+    "1024",
+    "-queries",
+    "12",
+    "-batch",
+    "64",
+    "-bulk-update",
+    "-recovery-kill-delay",
+    "10ms"
+  ],
+  "data_dir": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-stress-v2",
+  "exit_code": 0,
+  "validation_passed": true,
+  "official_submissions": 0,
+  "database_env": [
+    "GOMAXPROCS=2",
+    "GOMEMLIMIT=1288490188",
+    "GOGC=20"
+  ],
+  "build_exit_code": 0,
+  "driver_sha256": "5cd60fd6eb3c10be503bbd90c365c5f51f2524fe69b91a29c1388ddcb391ba52",
+  "start": 1794908568.6712923,
+  "workflow_wall_s": 303.03838658332825,
+  "build_and_workflow_wall_s": 308.74161672592163
+}

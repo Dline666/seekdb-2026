@@ -1,0 +1,320 @@
+{
+  "baseline_default": {
+    "path": "profiles/default/round0-advanced-profile-query/runtime.jsonl",
+    "diagnostic_only": true,
+    "startup": {
+      "allocated_bytes": 4844672,
+      "allocated_objects": 1000,
+      "gc_cycles": 4,
+      "gc_pause_s": 5.347e-05,
+      "gc_cpu_s": 0.00072247,
+      "end_heap_alloc_bytes": 1383600,
+      "end_heap_objects": 565,
+      "user_cpu_s": 0.004158,
+      "system_cpu_s": 0.0,
+      "Minflt": 812,
+      "Majflt": 0,
+      "Nvcsw": 81,
+      "Nivcsw": 6
+    },
+    "prepare": {
+      "allocated_bytes": 6098664,
+      "allocated_objects": 1420,
+      "gc_cycles": 5,
+      "gc_pause_s": 0.00010956,
+      "gc_cpu_s": 0.002203623,
+      "end_heap_alloc_bytes": 5007296,
+      "end_heap_objects": 761,
+      "user_cpu_s": 0.02895700000000001,
+      "system_cpu_s": 0.0023980000000000112,
+      "Minflt": 1069,
+      "Majflt": 0,
+      "Nvcsw": 43,
+      "Nivcsw": 1
+    },
+    "query": {
+      "allocated_bytes": 347073960,
+      "allocated_objects": 3003226,
+      "gc_cycles": 369,
+      "gc_pause_s": 0.004270966,
+      "gc_cpu_s": 0.077912638,
+      "end_heap_alloc_bytes": 5300112,
+      "end_heap_objects": 1792,
+      "user_cpu_s": 1.665559,
+      "system_cpu_s": 0.19767,
+      "Minflt": 926,
+      "Majflt": 0,
+      "Nvcsw": 43323,
+      "Nivcsw": 112
+    },
+    "after_forced_gc": {
+      "heap_alloc_bytes": 3818512,
+      "scan_heap_bytes": 153392
+    }
+  },
+  "final_default": {
+    "path": "profiles/final-default/round0-advanced-final-profile-query/runtime.jsonl",
+    "diagnostic_only": true,
+    "startup": {
+      "allocated_bytes": 4841200,
+      "allocated_objects": 996,
+      "gc_cycles": 4,
+      "gc_pause_s": 4.0396e-05,
+      "gc_cpu_s": 0.000772178,
+      "end_heap_alloc_bytes": 1383544,
+      "end_heap_objects": 558,
+      "user_cpu_s": 0.0,
+      "system_cpu_s": 0.0036489999999999995,
+      "Minflt": 840,
+      "Majflt": 0,
+      "Nvcsw": 81,
+      "Nivcsw": 7
+    },
+    "prepare": {
+      "allocated_bytes": 6063288,
+      "allocated_objects": 1247,
+      "gc_cycles": 4,
+      "gc_pause_s": 8.1094e-05,
+      "gc_cpu_s": 0.0015978350000000006,
+      "end_heap_alloc_bytes": 5008008,
+      "end_heap_objects": 750,
+      "user_cpu_s": 0.007192000000000004,
+      "system_cpu_s": 0.011913,
+      "Minflt": 660,
+      "Majflt": 0,
+      "Nvcsw": 68,
+      "Nivcsw": 5
+    },
+    "query": {
+      "allocated_bytes": 239568192,
+      "allocated_objects": 2762885,
+      "gc_cycles": 245,
+      "gc_pause_s": 0.002802659,
+      "gc_cpu_s": 0.052396317,
+      "end_heap_alloc_bytes": 5266144,
+      "end_heap_objects": 1555,
+      "user_cpu_s": 1.551989,
+      "system_cpu_s": 0.13769399999999998,
+      "Minflt": 1042,
+      "Majflt": 0,
+      "Nvcsw": 42299,
+      "Nivcsw": 67
+    },
+    "after_forced_gc": {
+      "heap_alloc_bytes": 3828456,
+      "scan_heap_bytes": 154296
+    }
+  },
+  "baseline_100k": {
+    "path": "profiles/100k/round0-advanced-profile-query/runtime.jsonl",
+    "diagnostic_only": true,
+    "startup": {
+      "allocated_bytes": 4846632,
+      "allocated_objects": 1028,
+      "gc_cycles": 4,
+      "gc_pause_s": 0.000131239,
+      "gc_cpu_s": 0.000973518,
+      "end_heap_alloc_bytes": 1380552,
+      "end_heap_objects": 565,
+      "user_cpu_s": 0.001186,
+      "system_cpu_s": 0.003314,
+      "Minflt": 875,
+      "Majflt": 0,
+      "Nvcsw": 97,
+      "Nivcsw": 6
+    },
+    "prepare": {
+      "allocated_bytes": 38227392,
+      "allocated_objects": 3436,
+      "gc_cycles": 7,
+      "gc_pause_s": 6.5876e-05,
+      "gc_cpu_s": 0.0014808070000000007,
+      "end_heap_alloc_bytes": 40974864,
+      "end_heap_objects": 4308,
+      "user_cpu_s": 0.136258,
+      "system_cpu_s": 0.02524000000000004,
+      "Minflt": 10593,
+      "Majflt": 0,
+      "Nvcsw": 79,
+      "Nivcsw": 1
+    },
+    "query": {
+      "allocated_bytes": 117386168,
+      "allocated_objects": 843514,
+      "gc_cycles": 18,
+      "gc_pause_s": 0.000474679,
+      "gc_cpu_s": 0.006201911000000001,
+      "end_heap_alloc_bytes": 41327232,
+      "end_heap_objects": 14179,
+      "user_cpu_s": 5.614526,
+      "system_cpu_s": 0.04545100000000002,
+      "Minflt": 1254,
+      "Majflt": 0,
+      "Nvcsw": 30179,
+      "Nivcsw": 516
+    },
+    "after_forced_gc": {
+      "heap_alloc_bytes": 37326848,
+      "scan_heap_bytes": 224600
+    }
+  },
+  "final_100k": {
+    "path": "profiles/final-100k/round0-advanced-final-profile-query/runtime.jsonl",
+    "diagnostic_only": true,
+    "startup": {
+      "allocated_bytes": 4848200,
+      "allocated_objects": 1037,
+      "gc_cycles": 4,
+      "gc_pause_s": 5.8301e-05,
+      "gc_cpu_s": 0.001017623,
+      "end_heap_alloc_bytes": 1381816,
+      "end_heap_objects": 567,
+      "user_cpu_s": 0.004394,
+      "system_cpu_s": 0.0,
+      "Minflt": 865,
+      "Majflt": 0,
+      "Nvcsw": 87,
+      "Nivcsw": 9
+    },
+    "prepare": {
+      "allocated_bytes": 38240552,
+      "allocated_objects": 3517,
+      "gc_cycles": 7,
+      "gc_pause_s": 0.000116489,
+      "gc_cpu_s": 0.0019501269999999994,
+      "end_heap_alloc_bytes": 38144576,
+      "end_heap_objects": 4172,
+      "user_cpu_s": 0.11251199999999995,
+      "system_cpu_s": 0.020081000000000016,
+      "Minflt": 10719,
+      "Majflt": 0,
+      "Nvcsw": 76,
+      "Nivcsw": 1
+    },
+    "query": {
+      "allocated_bytes": 91793584,
+      "allocated_objects": 783595,
+      "gc_cycles": 13,
+      "gc_pause_s": 0.000317769,
+      "gc_cpu_s": 0.004856352000000001,
+      "end_heap_alloc_bytes": 43739640,
+      "end_heap_objects": 34342,
+      "user_cpu_s": 6.176908,
+      "system_cpu_s": 0.0,
+      "Minflt": 1530,
+      "Majflt": 0,
+      "Nvcsw": 30423,
+      "Nivcsw": 532
+    },
+    "after_forced_gc": {
+      "heap_alloc_bytes": 37514216,
+      "scan_heap_bytes": 226816
+    }
+  },
+  "baseline_large": {
+    "path": "profiles/large/trial1-advanced-profile/runtime.jsonl",
+    "diagnostic_only": true,
+    "startup": {
+      "allocated_bytes": 118763992,
+      "allocated_objects": 20549,
+      "gc_cycles": 18,
+      "gc_pause_s": 0.000255792,
+      "gc_cpu_s": 0.018311258,
+      "end_heap_alloc_bytes": 37977432,
+      "end_heap_objects": 951,
+      "user_cpu_s": 0.31718700000000005,
+      "system_cpu_s": 2.046535,
+      "Minflt": 27202,
+      "Majflt": 0,
+      "Nvcsw": 5984,
+      "Nivcsw": 1164
+    },
+    "prepare": {
+      "allocated_bytes": 253718072,
+      "allocated_objects": 1629,
+      "gc_cycles": 4,
+      "gc_pause_s": 6.7928e-05,
+      "gc_cpu_s": 0.0010657719999999996,
+      "end_heap_alloc_bytes": 273700192,
+      "end_heap_objects": 1292,
+      "user_cpu_s": 1.2018469999999999,
+      "system_cpu_s": 2.788114,
+      "Minflt": 107312,
+      "Majflt": 43200,
+      "Nvcsw": 32116,
+      "Nivcsw": 1624
+    },
+    "query": {
+      "allocated_bytes": 6393808,
+      "allocated_objects": 2700,
+      "gc_cycles": 0,
+      "gc_pause_s": 0.0,
+      "gc_cpu_s": 0.0,
+      "end_heap_alloc_bytes": 281540144,
+      "end_heap_objects": 4452,
+      "user_cpu_s": 1.0265339999999998,
+      "system_cpu_s": 7.128932000000001,
+      "Minflt": 101120,
+      "Majflt": 89350,
+      "Nvcsw": 60651,
+      "Nivcsw": 7229
+    },
+    "after_forced_gc": {
+      "heap_alloc_bytes": 264491144,
+      "scan_heap_bytes": 157328
+    }
+  },
+  "single_pass_large": {
+    "path": "profiles/large/trial2-advanced-eqsingle-profile/runtime.jsonl",
+    "diagnostic_only": true,
+    "startup": {
+      "allocated_bytes": 118819984,
+      "allocated_objects": 20831,
+      "gc_cycles": 17,
+      "gc_pause_s": 0.000275229,
+      "gc_cpu_s": 0.019477708,
+      "end_heap_alloc_bytes": 38012112,
+      "end_heap_objects": 1057,
+      "user_cpu_s": 0.28328,
+      "system_cpu_s": 2.078977,
+      "Minflt": 27132,
+      "Majflt": 0,
+      "Nvcsw": 5865,
+      "Nivcsw": 1258
+    },
+    "prepare": {
+      "allocated_bytes": 253744584,
+      "allocated_objects": 1631,
+      "gc_cycles": 3,
+      "gc_pause_s": 5.0687e-05,
+      "gc_cpu_s": 0.00133343,
+      "end_heap_alloc_bytes": 273750232,
+      "end_heap_objects": 1402,
+      "user_cpu_s": 1.142832,
+      "system_cpu_s": 2.8554280000000003,
+      "Minflt": 114427,
+      "Majflt": 43170,
+      "Nvcsw": 32381,
+      "Nivcsw": 1757
+    },
+    "query": {
+      "allocated_bytes": 13112056,
+      "allocated_objects": 2637,
+      "gc_cycles": 0,
+      "gc_pause_s": 0.0,
+      "gc_cpu_s": 0.0,
+      "end_heap_alloc_bytes": 288311728,
+      "end_heap_objects": 4432,
+      "user_cpu_s": 0.9726970000000001,
+      "system_cpu_s": 3.6551799999999997,
+      "Minflt": 54131,
+      "Majflt": 46366,
+      "Nvcsw": 31967,
+      "Nivcsw": 3704
+    },
+    "after_forced_gc": {
+      "heap_alloc_bytes": 265255080,
+      "scan_heap_bytes": 159184
+    }
+  }
+}

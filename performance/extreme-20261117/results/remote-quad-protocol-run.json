@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "protocol_check/run.py",
+    "--command",
+    "[\"/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-quad\",\"--data-dir\",\"{data_dir}\"]",
+    "--output",
+    "performance/extreme-20261117/results/remote-quad-protocol-public"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 0.48052727803587914
+}

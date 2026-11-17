@@ -1,0 +1,6 @@
+{
+  "sha256": "72cdb4b0dc7d9d4e767872befcbafec225b2f187bfe5a63a35a7f230936eb3b4",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-combo",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

@@ -1,0 +1,11 @@
+{
+  "probe_utc": "2026-11-17T09:06:01Z",
+  "cgroup": "/sys/fs/cgroup/seekdb-remote-probe-44788",
+  "cpu.max": "max 100000",
+  "memory.max": "max",
+  "memory.swap.max": "max",
+  "pids.max": "max",
+  "memory.peak": "0",
+  "memory_peak_reset_supported": false,
+  "reset_error": "[Errno 22] Invalid argument"
+}

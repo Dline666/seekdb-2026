@@ -1,0 +1,6 @@
+{
+  "sha256": "52df441c2cdf9248629758cead9df34c67fa373d0de11d86637001a64ff5ccfa",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-zerotrim1m",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

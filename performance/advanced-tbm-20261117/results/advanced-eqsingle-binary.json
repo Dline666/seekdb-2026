@@ -1,0 +1,6 @@
+{
+  "sha256": "7752b696bcfcd50d325023b38313f34c0fd43b37520aa6cf4b0b59c8a107a427",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-eqsingle",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

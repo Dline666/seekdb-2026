@@ -1,0 +1,26 @@
+# golangci-lint v2.15.0 (2026-10-16). The database still targets Go 1.22.
+version: "2"
+
+run:
+  go: "1.22"
+  timeout: 5m
+  concurrency: 2
+
+linters:
+  default: none
+  enable:
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      module-path: minivectordb
+    goimports:
+      local-prefixes:
+        - minivectordb

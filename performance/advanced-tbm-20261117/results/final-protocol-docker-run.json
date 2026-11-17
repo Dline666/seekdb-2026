@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/platemo/.local/bin/python3",
+    "protocol_check/run.py",
+    "--image",
+    "seekdb-advanced-20261117:advanced-final",
+    "--output",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/results/final-public-docker"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T12:19:34Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 44.87847336102277
+}

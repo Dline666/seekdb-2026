@@ -1,0 +1,7 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "test", "./..."], "cwd": "/tmp/seekdb-extreme-20261117/handoff", "official_submissions": 0}
+?   	minivectordb/cmd/minivectordb	[no test files]
+?   	minivectordb/internal/storage	[no test files]
+ok  	minivectordb/internal/engine	19.026s
+ok  	minivectordb/internal/proto	4.521s
+ok  	minivectordb/internal/sqlparse	0.067s
+ok  	minivectordb/internal/types	25.993s

@@ -51,7 +51,13 @@ var multiOps = []string{"<->", "<=>", "<=", ">=", "<>", "!=", "&&", "||"}
 
 // Lex splits src into tokens. Comments are skipped.
 func Lex(src string) ([]Token, error) {
-	var toks []Token
+	return LexInto(src, nil)
+}
+
+// LexInto is Lex reusing buf as the token buffer: the result is buf[:0] with
+// the tokens appended, so a caller parsing many statements allocates once.
+func LexInto(src string, buf []Token) ([]Token, error) {
+	toks := buf[:0]
 	n := len(src)
 	i := 0
 	for i < n {
@@ -113,6 +119,13 @@ func Lex(src string) ([]Token, error) {
 			toks = append(toks, Token{String, s, i, j})
 			i = j
 		default:
+			// Single-character operators that cannot begin a multi-character
+			// one; the multiOps prefix scan is skipped for them.
+			if strings.IndexByte("(),;*=+-/%.[]", c) >= 0 {
+				toks = append(toks, Token{Op, string(c), i, i + 1})
+				i++
+				continue
+			}
 			op := ""
 			for _, m := range multiOps {
 				if strings.HasPrefix(src[i:], m) {
@@ -120,7 +133,7 @@ func Lex(src string) ([]Token, error) {
 					break
 				}
 			}
-			if op == "" && strings.IndexByte("(),;*=<>+-/%.[]!", c) >= 0 {
+			if op == "" && strings.IndexByte("<>!", c) >= 0 {
 				op = string(c)
 			}
 			if op == "" {
@@ -182,7 +195,7 @@ func scanString(src string, i int) (string, int, error) {
 	rest := src[i+1:]
 	if j := strings.IndexByte(rest, q); j >= 0 {
 		if strings.IndexByte(rest[:j], '\\') < 0 &&
-			!(j+1 < len(rest) && rest[j+1] == q) {
+			(j+1 >= len(rest) || rest[j+1] != q) {
 			return rest[:j], i + 1 + j + 1, nil
 		}
 	}

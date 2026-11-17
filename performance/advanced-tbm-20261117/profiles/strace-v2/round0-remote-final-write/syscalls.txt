@@ -1,0 +1,47 @@
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ------------------
+ 42.38    0.041841          66       626        50 futex
+ 42.27    0.041723          44       941           nanosleep
+  4.38    0.004328          42       101           fdatasync
+  3.89    0.003836          37       101           pwrite64
+  3.81    0.003761           9       406           read
+  0.71    0.000698          19        35           tgkill
+  0.29    0.000286           2       104           write
+  0.26    0.000261           8        31           sched_yield
+  0.25    0.000249           2       114           rt_sigaction
+  0.22    0.000218         109         2           execve
+  0.20    0.000198          28         7           clone
+  0.19    0.000185           3        49           mmap
+  0.17    0.000169          10        16           sigaltstack
+  0.15    0.000153           4        35           getpid
+  0.14    0.000134           5        26           rt_sigprocmask
+  0.13    0.000128           3        35         1 rt_sigreturn
+  0.12    0.000123           3        39           epoll_pwait
+  0.12    0.000119         119         1           mkdirat
+  0.11    0.000112           7        15           gettid
+  0.09    0.000088           2        37        17 openat
+  0.03    0.000034           3        10           fcntl
+  0.02    0.000018           0        20         1 newfstatat
+  0.01    0.000008           0        16           madvise
+  0.01    0.000008           8         1           setrlimit
+  0.01    0.000007           7         1           epoll_create1
+  0.01    0.000007           7         1           pipe2
+  0.01    0.000006           3         2         1 epoll_ctl
+  0.01    0.000005           0        20           close
+  0.01    0.000005           5         1           getrlimit
+  0.00    0.000003           3         1           fstat
+  0.00    0.000003           1         3         1 arch_prctl
+  0.00    0.000003           1         2           sched_getaffinity
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         3           brk
+  0.00    0.000000           0         4           pread64
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           sched_setaffinity
+  0.00    0.000000           0         1           set_tid_address
+  0.00    0.000000           0         1           set_robust_list
+  0.00    0.000000           0         1           prlimit64
+  0.00    0.000000           0         1           getrandom
+  0.00    0.000000           0         1           rseq
+------ ----------- ----------- --------- --------- ------------------
+100.00    0.098717          35      2818        72 total

@@ -1,0 +1,27 @@
+{
+  "selected_source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/selected",
+  "base": "advanced-readopt",
+  "additional_correctness_tests": [
+    "guard pages",
+    "analytic subnormal cases that passed baseline; no speculative fix"
+  ],
+  "kept": [
+    "bounded Parser token reuse",
+    "single-pass equality candidates with bounded capacity",
+    "cached conservative candidate block maxima",
+    "AVX2 row quantization encoding bit-identical to Go"
+  ],
+  "rejected": [
+    "KEEP_SIZE preallocation",
+    "initialized-log-block variants (physical I/O vs full Docker T)",
+    "query vector scratch",
+    "GOGC100",
+    "768MiB index budget",
+    "bulk build and generic sort"
+  ],
+  "Go": "1.22.2",
+  "index_budget_MiB": 256,
+  "GOGC": 20,
+  "PGO": "off",
+  "residual_bounds": "still removed; not reintroduced"
+}

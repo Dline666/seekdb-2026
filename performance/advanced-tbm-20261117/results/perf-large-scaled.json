@@ -1,0 +1,100 @@
+{
+  "diagnostic_only": true,
+  "event_scope": "user hardware; all-mode software; whole process; generic cache event is not asserted to be LLC",
+  "scaled_events": {
+    "trial1-advanced-profile": {
+      "cycles": {
+        "raw": 7982122749,
+        "estimated_scaled": 11126901573.917105,
+        "running_fraction": 0.7173715608045934
+      },
+      "instructions": {
+        "raw": 17358672703,
+        "estimated_scaled": 24345396675.14681,
+        "running_fraction": 0.713016630397349
+      },
+      "cache_references": {
+        "raw": 671343949,
+        "estimated_scaled": 939483074.0757947,
+        "running_fraction": 0.7145886578748921
+      },
+      "cache_misses": {
+        "raw": 69985237,
+        "estimated_scaled": 97890282.53608117,
+        "running_fraction": 0.7149354888643241
+      },
+      "branches": {
+        "raw": 2750741845,
+        "estimated_scaled": 3856655465.479333,
+        "running_fraction": 0.7132454194111213
+      },
+      "branch_misses": {
+        "raw": 10077730,
+        "estimated_scaled": 14135782.652518438,
+        "running_fraction": 0.7129233837084037
+      },
+      "L1D_read_misses": {
+        "raw": 116301979,
+        "estimated_scaled": 162773897.03197962,
+        "running_fraction": 0.7145001816670308
+      },
+      "page_faults": {
+        "raw": 370557,
+        "estimated_scaled": 370557.0,
+        "running_fraction": 1.0
+      },
+      "context_switches": {
+        "raw": 108827,
+        "estimated_scaled": 108827.0,
+        "running_fraction": 1.0
+      }
+    },
+    "trial2-advanced-eqsingle-profile": {
+      "cycles": {
+        "raw": 7750468087,
+        "estimated_scaled": 10997950702.073837,
+        "running_fraction": 0.7047192969812573
+      },
+      "instructions": {
+        "raw": 17372297441,
+        "estimated_scaled": 24288474254.9543,
+        "running_fraction": 0.7152486096345243
+      },
+      "cache_references": {
+        "raw": 672364669,
+        "estimated_scaled": 941828151.6608262,
+        "running_fraction": 0.7138931532406921
+      },
+      "cache_misses": {
+        "raw": 69838743,
+        "estimated_scaled": 97559931.503122,
+        "running_fraction": 0.7158547768943965
+      },
+      "branches": {
+        "raw": 2738921066,
+        "estimated_scaled": 3787158739.674172,
+        "running_fraction": 0.723212638886017
+      },
+      "branch_misses": {
+        "raw": 9581253,
+        "estimated_scaled": 13307211.008986337,
+        "running_fraction": 0.7200045895063808
+      },
+      "L1D_read_misses": {
+        "raw": 115511707,
+        "estimated_scaled": 163104580.9036942,
+        "running_fraction": 0.7082063934685217
+      },
+      "page_faults": {
+        "raw": 287236,
+        "estimated_scaled": 287236.0,
+        "running_fraction": 1.0
+      },
+      "context_switches": {
+        "raw": 77025,
+        "estimated_scaled": 77025.0,
+        "running_fraction": 1.0
+      }
+    }
+  }
+}

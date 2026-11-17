@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-tbm-audit",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-bins",
+    "remote-final:MVDB_NO_SIMD=1,remote-final",
+    "-cpu-affinity",
+    "16-17",
+    "-rows",
+    "10000",
+    "-dim",
+    "128",
+    "-queries",
+    "1000",
+    "-rounds",
+    "5",
+    "-seed",
+    "459"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 19.40722592920065
+}

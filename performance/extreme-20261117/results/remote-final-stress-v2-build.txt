@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final-stress-v2/stress-driver",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/extreme-20261117/remote_stress.go"
+  ],
+  "start": 1794908562.9746902
+}

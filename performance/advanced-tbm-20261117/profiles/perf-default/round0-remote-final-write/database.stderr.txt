@@ -1,0 +1,1 @@
+minivectordb: syncstats {"sync_calls":101,"sync_ns":635451060,"write_calls":101,"bytes_written":5441883}

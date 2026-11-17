@@ -1,0 +1,71 @@
+// Diagnostic-only source, injected into a separate snapshot. Never a score build.
+package main
+
+import (
+ "encoding/json"
+ "os"
+ "path/filepath"
+ "runtime"
+ "runtime/metrics"
+ "runtime/pprof"
+ "strings"
+ "syscall"
+ "time"
+)
+
+var probeDir, probeStage string
+var probeCPU *os.File
+var probeFinished bool
+var probeSelects int
+
+func advancedProbeInit() {
+ probeDir=os.Getenv("MVDB_PROFILE_DIR")
+ if probeDir=="" { return }
+ runtime.MemProfileRate=65536
+ if err:=os.MkdirAll(probeDir,0755);err!=nil { panic(err) }
+ probeSwitch("startup")
+}
+func probeSnapshot(event string) {
+ if probeDir=="" { return }
+ var m runtime.MemStats;runtime.ReadMemStats(&m)
+ var usage syscall.Rusage;syscall.Getrusage(syscall.RUSAGE_SELF,&usage)
+ var samples []metrics.Sample
+ for _,d:=range metrics.All() {
+  if strings.HasPrefix(d.Name,"/gc/") || strings.HasPrefix(d.Name,"/cpu/classes/") || strings.HasPrefix(d.Name,"/memory/classes/") { samples=append(samples,metrics.Sample{Name:d.Name}) }
+ }
+ metrics.Read(samples)
+ values:=map[string]any{}
+ for _,s:=range samples {
+  switch s.Value.Kind() {
+  case metrics.KindUint64:values[s.Name]=s.Value.Uint64()
+  case metrics.KindFloat64:values[s.Name]=s.Value.Float64()
+  }
+ }
+ f,e:=os.OpenFile(filepath.Join(probeDir,"runtime.jsonl"),os.O_CREATE|os.O_APPEND|os.O_WRONLY,0644);if e!=nil {panic(e)}
+ json.NewEncoder(f).Encode(map[string]any{"event":event,"time":time.Now().Format(time.RFC3339Nano),"memstats":m,"metrics":values,"rusage":usage});f.Close()
+ h,e:=os.Create(filepath.Join(probeDir,event+".heap"));if e!=nil {panic(e)}
+ pprof.Lookup("heap").WriteTo(h,0);h.Close()
+}
+func probeStop() {
+ if probeCPU!=nil {pprof.StopCPUProfile();probeCPU.Close();probeCPU=nil;probeSnapshot(probeStage+"-end")}
+}
+func probeSwitch(stage string) {
+ if probeDir=="" || stage==probeStage {return}
+ probeStop();probeStage=stage;probeSnapshot(stage+"-begin")
+ f,e:=os.Create(filepath.Join(probeDir,stage+".cpu"));if e!=nil {panic(e)}
+ if e=pprof.StartCPUProfile(f);e!=nil {panic(e)};probeCPU=f
+}
+func advancedProbeReady() {probeStop();probeStage="idle"}
+func advancedProbeBefore(sql string) {
+ if probeDir=="" {return}
+ s:=strings.TrimSpace(sql)
+ if len(s)>=6 && strings.EqualFold(s[:6],"SELECT") {
+  probeSelects++
+  if probeSelects==1 {probeSwitch("prepare")} else {probeSwitch("query")}
+ } else if len(s)>=6 && strings.EqualFold(s[:6],"INSERT") {probeSwitch("write")} else {probeSwitch("setup")}
+}
+func advancedProbeFinish() {
+ if probeDir=="" || probeFinished {return}
+ probeFinished=true;probeStop();probeSnapshot("finish-before-gc");runtime.GC();probeSnapshot("finish-after-gc")
+}
+func profileExit(code int) {advancedProbeFinish();os.Exit(code)}

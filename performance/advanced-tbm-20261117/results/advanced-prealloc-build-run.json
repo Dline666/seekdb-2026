@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "build",
+    "-trimpath",
+    "-pgo=off",
+    "-ldflags=-s -w",
+    "-o",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-prealloc",
+    "./cmd/minivectordb"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-prealloc",
+  "utc": "2026-11-17T10:51:57Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.6424056394025683
+}

@@ -1,0 +1,39 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "tool", "pprof", "-top", "-nodecount=30", "performance/advanced-tbm-20261117/profiles/100k/round0-advanced-profile-query/query.cpu"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T10:47:17Z", "uid": 1019, "diagnostic_only": true}
+File: advanced-profile
+Type: cpu
+Time: Nov 17, 2026 at 6:44pm (CST)
+Duration: 3.30s, Total samples = 5.64s (170.66%)
+Showing nodes accounting for 5.33s, 94.50% of 5.64s total
+Dropped 91 nodes (cum <= 0.03s)
+Showing top 30 nodes out of 45
+      flat  flat%   sum%        cum   cum%
+     3.78s 67.02% 67.02%      3.78s 67.02%  minivectordb/internal/engine.fusedScanQuadAVX2
+     0.64s 11.35% 78.37%      0.64s 11.35%  minivectordb/internal/engine.fusedScanQuadCandidatesAVX2
+     0.52s  9.22% 87.59%      0.52s  9.22%  minivectordb/internal/engine.l2sqGatherAVX2
+     0.16s  2.84% 90.43%      5.32s 94.33%  minivectordb/internal/engine.(*DB).vectorTopK.func2
+     0.07s  1.24% 91.67%      0.07s  1.24%  runtime/internal/syscall.Syscall6
+     0.06s  1.06% 92.73%      0.07s  1.24%  minivectordb/internal/engine.(*VecIndex).boundForSlots (inline)
+     0.04s  0.71% 93.44%      3.82s 67.73%  minivectordb/internal/engine.fusedScanBlockAVX2
+     0.03s  0.53% 93.97%      0.03s  0.53%  minivectordb/internal/engine.prefilterThreshold (inline)
+     0.01s  0.18% 94.15%      0.08s  1.42%  minivectordb/internal/engine.(*DB).execSelect
+     0.01s  0.18% 94.33%      0.04s  0.71%  minivectordb/internal/engine.(*topK).admit
+     0.01s  0.18% 94.50%      0.04s  0.71%  runtime.growslice
+         0     0% 94.50%      0.05s  0.89%  bufio.(*Reader).ReadSlice
+         0     0% 94.50%      0.05s  0.89%  bufio.(*Reader).fill
+         0     0% 94.50%      0.05s  0.89%  internal/poll.(*FD).Read
+         0     0% 94.50%      0.07s  1.24%  internal/poll.ignoringEINTRIO (inline)
+         0     0% 94.50%      0.25s  4.43%  main.main
+         0     0% 94.50%      0.05s  0.89%  main.main.func2
+         0     0% 94.50%      0.13s  2.30%  minivectordb/internal/engine.(*DB).Exec
+         0     0% 94.50%      0.08s  1.42%  minivectordb/internal/engine.(*DB).run
+         0     0% 94.50%      0.05s  0.89%  minivectordb/internal/engine.(*DB).vectorTopK
+         0     0% 94.50%      5.32s 94.33%  minivectordb/internal/engine.(*DB).vectorTopK.func3
+         0     0% 94.50%      0.64s 11.35%  minivectordb/internal/engine.fusedScanCandidateAVX2
+         0     0% 94.50%      0.64s 11.35%  minivectordb/internal/engine.fusedScanCandidates
+         0     0% 94.50%      3.82s 67.73%  minivectordb/internal/engine.fusedScanInt8
+         0     0% 94.50%      0.52s  9.22%  minivectordb/internal/engine.l2sqGatherBytes
+         0     0% 94.50%      0.04s  0.71%  minivectordb/internal/engine.quantBlockBound.threshold
+         0     0% 94.50%      0.03s  0.53%  minivectordb/internal/proto.(*RequestParser).Parse
+         0     0% 94.50%      0.03s  0.53%  minivectordb/internal/proto.parseFast
+         0     0% 94.50%      0.03s  0.53%  minivectordb/internal/sqlparse.Lex (inline)
+         0     0% 94.50%      0.03s  0.53%  minivectordb/internal/sqlparse.LexInto

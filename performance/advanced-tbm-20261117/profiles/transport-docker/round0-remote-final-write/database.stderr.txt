@@ -1,0 +1,1 @@
+minivectordb: cgroup memory limit 2048 MiB, vector budget 256 MiB

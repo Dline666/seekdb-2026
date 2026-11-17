@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/zerotrim1m",
+    "test",
+    "./internal/storage",
+    "./internal/engine",
+    "-run",
+    "TestInitialized|TestCrashAtEveryOffset|TestStatementAtomicityAndTxn|TestCompaction",
+    "-count=1"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T11:15:57Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 7.041000488214195
+}

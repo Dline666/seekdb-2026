@@ -1,0 +1,32 @@
+{
+  "candidate": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/combo",
+  "files_from_snapshots": {
+    "advanced-parser": [
+      "internal/sqlparse/parser.go",
+      "internal/sqlparse/reuse_test.go",
+      "internal/engine/db.go",
+      "internal/engine/exec.go"
+    ],
+    "advanced-eqbounds": [
+      "internal/engine/eqset.go",
+      "internal/engine/topk.go",
+      "internal/engine/candidate_bounds_test.go"
+    ],
+    "advanced-zerotrim1m": [
+      "internal/storage/log.go",
+      "internal/storage/initialize.go",
+      "internal/storage/initialize_test.go",
+      "internal/engine/compact.go",
+      "internal/engine/engine_test.go",
+      "internal/engine/initialized_compaction_test.go"
+    ]
+  },
+  "tentative": true,
+  "excluded": [
+    "prealloc",
+    "queryscratch",
+    "gogc100",
+    "unsafe zerolog",
+    "close-trim zerosafe"
+  ]
+}

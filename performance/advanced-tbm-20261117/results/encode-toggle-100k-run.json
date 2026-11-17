@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm",
+    "-bins",
+    "advanced-readopt:MVDB_NO_QUANTIZE_AVX2=1,advanced-readopt",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-rounds",
+    "5",
+    "-cpu-affinity",
+    "16-17",
+    "-rows",
+    "100000",
+    "-dim",
+    "256",
+    "-queries",
+    "2000",
+    "-seed",
+    "31131"
+  ],
+  "binary_hashes": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-readopt": "4fb46d9c21d40092c0b12e6be3f3cd8bcef012351a72511539e65481ce68f178",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-tbm": "4acdb1d3683e0fab426cf08b4272b5ef5682923ec255098d41b1a26805e2090d"
+  },
+  "driver_allowed_cpus": [
+    18
+  ],
+  "utc": "2026-11-17T11:43:26Z",
+  "diagnostic_only": false,
+  "official_submissions": 0,
+  "harness_sources": {
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/lab.py": "574b152abba9fddb3db9897fe45ee5b50739adab7aa69af12bb67ba4422637d5",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/driver.go": "55181c21f93bf519aa2f91f431e8892924f07d958a44cb551d3b3ff7b28d232d",
+    "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/analyze.py": "cf4a6db9b68258661fd766300c7e146061f0725c84356209256a5aa690aa17db"
+  },
+  "loadavg_start": "1.39 1.70 1.46 1/2983 559606",
+  "exit_code": 0,
+  "wall_s": 190.54974955692887,
+  "identities_unchanged": true,
+  "loadavg_end": "2.64 2.10 1.66 1/2974 569486"
+}

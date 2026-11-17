@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "docker",
+    "build",
+    "--progress=plain",
+    "-t",
+    "seekdb-remote-20261117:remote-final",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/docker-context/remote-final"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 13.89408015459776
+}

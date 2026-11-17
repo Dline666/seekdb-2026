@@ -1,0 +1,65 @@
+[
+  {
+    "url": "https://go.dev/doc/gc-guide",
+    "applicable_version": "Go 1.19+ / tested 1.22.2",
+    "mechanism": "GOGC and memory-limit tradeoff; measured separately",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/golang/go/go1.22.2/src/runtime/map.go",
+    "applicable_version": "Go 1.22.2",
+    "mechanism": "pointer-free map bucket GC scanning",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://go.dev/doc/pgo",
+    "applicable_version": "Go 1.20+ / 1.22",
+    "mechanism": "representative CPU profiles, inlining and devirtualization",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://go.dev/doc/go1.22",
+    "applicable_version": "Go 1.22",
+    "mechanism": "compiler/runtime capabilities; no claimed newer compiler features",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://www.kernel.org/doc/html/v6.5/admin-guide/cgroup-v2.html",
+    "applicable_version": "Linux 6.5",
+    "mechanism": "page-cache-inclusive memory and physical I/O accounting",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://man7.org/linux/man-pages/man2/fallocate.2.html",
+    "applicable_version": "Linux API",
+    "mechanism": "KEEP_SIZE preallocation hypothesis; rejected measured variant",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://man7.org/linux/man-pages/man2/madvise.2.html",
+    "applicable_version": "Linux API",
+    "mechanism": "readahead and reclaim tradeoffs; private file only",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://man7.org/linux/man-pages/man2/fsync.2.html",
+    "applicable_version": "Linux API",
+    "mechanism": "fdatasync still persists metadata needed to retrieve data; EOF matters",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  },
+  {
+    "url": "https://man7.org/linux/man-pages/man2/perf_event_open.2.html",
+    "applicable_version": "Linux API",
+    "mechanism": "inherited process-only counters, multiplex time_enabled/time_running",
+    "access_date": "2026-11-17",
+    "status": "hypothesis_or_mechanism_only; see RESEARCH.md for measured results"
+  }
+]
