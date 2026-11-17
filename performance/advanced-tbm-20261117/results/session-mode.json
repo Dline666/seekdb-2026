@@ -1,0 +1,11 @@
+{
+  "utc": "2026-11-17T12:33:58.531101+00:00",
+  "own_user_launcher_processes": [
+    {
+      "pid": 6960,
+      "yolo": true,
+      "model": "gpt-6-astra",
+      "reasoning_config": "model_reasoning_effort=\"max\""
+    }
+  ]
+}

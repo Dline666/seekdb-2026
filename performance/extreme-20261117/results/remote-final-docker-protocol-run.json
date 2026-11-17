@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "protocol_check/run.py",
+    "--image",
+    "seekdb-remote-20261117:remote-final",
+    "--output",
+    "performance/extreme-20261117/results/remote-final-docker-public"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 43.33252828195691
+}

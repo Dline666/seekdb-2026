@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/parser",
+    "test",
+    "./internal/sqlparse",
+    "./internal/engine"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T11:00:36Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 28.043834273703396
+}

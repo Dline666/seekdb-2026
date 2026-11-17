@@ -35,6 +35,9 @@ func hasAVXVNNI() bool {
 
 var useAVXVNNI = hasAVXVNNI()
 
+// Keep a diagnostic fallback for comparing the two exact prefilter kernels.
+var quadAVXVNNI = os.Getenv("MVDB_NO_QUAD_VNNI") == ""
+
 // The query is biased by -128, with the same qminAdj correction and
 // conservative floating-point allowance as the AVX512-VNNI path. Integer
 // accumulation is exact. Only the final folded-distance association can
@@ -47,6 +50,18 @@ func fusedScanInt8AVXVNNI(qc8 *int8, codes *byte, pks *int64, offs *int64, qf *f
 //go:noescape
 func fusedScanCandidatesAVXVNNI(qc8 *int8, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qminAdj, qscale, thresh2 float64, slots *int32, rows, blocks, tail int, surv *int64) int
 
+// Four independent rows share the float64 folded-distance instructions.
+// rows must be a positive multiple of four, blocks > 0, and dim == blocks*32.
+// The caller has already checked AVX-VNNI and all slice bounds.
+//
+//go:noescape
+func fusedScanQuadAVXVNNI(qc8 *int8, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qminAdj, qscale, thresh2 float64, baseSlot, rows, blocks int, surv *int64) int
+
+// The same four-row computation over caller-supplied candidate slots.
+//
+//go:noescape
+func fusedScanQuadCandidatesAVXVNNI(qc8 *int8, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qminAdj, qscale, thresh2 float64, slots *int32, rows, blocks int, surv *int64) int
+
 func fusedScanAVXVNNI(qc8 []int8, x *VecIndex, baseSlot int32, rows int, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
 	return fusedScanBlockAVXVNNI(qc8, x.codes, x.pks, x.off, x.qf, int(baseSlot), rows, qSum, qNorm2, qminAdj, qscale, thresh2, surv)
 }
@@ -54,6 +69,17 @@ func fusedScanAVXVNNI(qc8 []int8, x *VecIndex, baseSlot int32, rows int, qSum, q
 func fusedScanBlockAVXVNNI(qc8 []int8, codes []byte, pks, offs []int64, qf []float64, baseSlot, rows int, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
 	if rows == 0 {
 		return 0
+	}
+	if quadAVXVNNI && len(qc8) >= 32 && len(qc8)%32 == 0 && rows >= 4 {
+		whole := rows &^ 3
+		n := fusedScanQuadAVXVNNI(&qc8[0], &codes[0], &pks[0], &offs[0], &qf[0],
+			qSum, qNorm2, qminAdj, qscale, thresh2, baseSlot, whole, len(qc8)/32, &surv[0])
+		if whole < rows {
+			n += fusedScanInt8AVXVNNI(&qc8[0], &codes[0], &pks[0], &offs[0], &qf[0],
+				qSum, qNorm2, qminAdj, qscale, thresh2,
+				baseSlot+whole, rows-whole, len(qc8)/32, 0, &surv[2*n])
+		}
+		return n
 	}
 	return fusedScanInt8AVXVNNI(&qc8[0], &codes[0], &pks[0], &offs[0], &qf[0],
 		qSum, qNorm2, qminAdj, qscale, thresh2,
@@ -63,6 +89,17 @@ func fusedScanBlockAVXVNNI(qc8 []int8, codes []byte, pks, offs []int64, qf []flo
 func fusedScanCandidateAVXVNNI(qc8 []int8, x *VecIndex, slots []int32, qSum, qNorm2, qminAdj, qscale, thresh2 float64, surv []int64) int {
 	if len(slots) == 0 {
 		return 0
+	}
+	if quadAVXVNNI && len(qc8) >= 32 && len(qc8)%32 == 0 && len(slots) >= 4 {
+		whole := len(slots) &^ 3
+		n := fusedScanQuadCandidatesAVXVNNI(&qc8[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
+			qSum, qNorm2, qminAdj, qscale, thresh2, &slots[0], whole, len(qc8)/32, &surv[0])
+		if whole < len(slots) {
+			n += fusedScanCandidatesAVXVNNI(&qc8[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
+				qSum, qNorm2, qminAdj, qscale, thresh2,
+				&slots[whole], len(slots)-whole, len(qc8)/32, 0, &surv[2*n])
+		}
+		return n
 	}
 	return fusedScanCandidatesAVXVNNI(&qc8[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
 		qSum, qNorm2, qminAdj, qscale, thresh2,

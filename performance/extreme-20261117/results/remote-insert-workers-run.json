@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/tbm",
+    "-bins",
+    "remote-flat:MVDB_FAST_INSERT_WORKERS=1,remote-flat",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-rows",
+    "10000",
+    "-dim",
+    "128",
+    "-queries",
+    "1000",
+    "-rounds",
+    "5",
+    "-seed",
+    "2026"
+  ],
+  "exit_code": 0,
+  "wall_s": 17.015702137723565,
+  "binary_hashes": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-flat": "96668344f3c25582c3790c0f72df7bf9b72111f0ff156fa83159e4bc34717022",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/tbm": "fcfa9ca60e4db7736f12c7531cd988e4170d3a551b325bd98ac5f18d53ac7877"
+  },
+  "identities_unchanged": true,
+  "official_submissions": 0
+}

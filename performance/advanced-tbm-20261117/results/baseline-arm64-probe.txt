@@ -1,0 +1,8 @@
+{"argv": ["env", "GOARCH=arm64", "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final", "build", "-o", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-baseline-arm64-probe", "./cmd/minivectordb"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T12:29:38Z", "uid": 1019, "diagnostic_only": true}
+# minivectordb/internal/engine
+internal/engine/topk.go:279:31: undefined: useVNNI
+internal/engine/topk.go:360:7: undefined: useVNNI
+internal/engine/topk.go:386:8: undefined: useVNNI
+internal/engine/topk.go:387:10: undefined: fusedScanInt8BlockVNNI
+internal/engine/topk.go:449:15: undefined: useVNNI
+internal/engine/topk.go:450:10: undefined: fusedScanVNNI

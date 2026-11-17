@@ -1,0 +1,7 @@
+{
+  "driver_allowed_cpus": [
+    18
+  ],
+  "migration_receipt": "/home/platemo/seekdb-experiments/20261117/MIGRATION_COMPLETE.json",
+  "cpu_quota": "200000 100000"
+}

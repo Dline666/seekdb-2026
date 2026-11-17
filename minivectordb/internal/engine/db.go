@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	sp "minivectordb/internal/sqlparse"
 	"minivectordb/internal/storage"
 	"minivectordb/internal/types"
 )
@@ -43,7 +44,8 @@ type DB struct {
 	nextTxn uint64
 	txn     *Txn // explicit transaction, nil when autocommit
 	opts    Options
-	scratch []byte
+	parser  sp.Parser
+	fi      fastInsertBufs // reusable buffers for the fast insert path
 }
 
 // ddl is the JSON payload of a RecDDL record.
@@ -77,8 +79,10 @@ func Open(dir string, opts Options) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db := &DB{dir: dir, log: l, tables: map[string]*Table{}, byID: map[uint32]*Table{},
-		nextTID: 1, nextTxn: 1, opts: opts}
+	db := &DB{
+		dir: dir, log: l, tables: map[string]*Table{}, byID: map[uint32]*Table{},
+		nextTID: 1, nextTxn: 1, opts: opts,
+	}
 	if err := db.recover(); err != nil {
 		db.log.Close()
 		return nil, err

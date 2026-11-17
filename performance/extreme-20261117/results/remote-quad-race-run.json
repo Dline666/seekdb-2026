@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "env",
+    "CGO_ENABLED=1",
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "minivectordb",
+    "test",
+    "-race",
+    "./internal/engine",
+    "./internal/proto",
+    "./internal/sqlparse",
+    "-run",
+    "Test(QuadAVX2|FastInsert|Insert|Partial|Typed|Scan|Filtered|Fused|Request|Parse|Unescape)",
+    "-count=1"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 129.85928302817047
+}

@@ -1,0 +1,6 @@
+{
+  "sha256": "4aec1e3bf1e1c3cbdf5d05c60f4b1b892a07de516071e3ef67dc8dd3118fe72f",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-queryscratch",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

@@ -86,36 +86,44 @@ func valueText(v types.Value) string {
 	return v.S
 }
 
+// insertTarget maps the i-th supplied value to its column definition index.
+func insertTarget(t *Table, cols []string) ([]int, *types.SQLError) {
+	target := make([]int, 0, len(t.Cols))
+	if cols == nil {
+		for i := range t.Cols {
+			target = append(target, i)
+		}
+		return target, nil
+	}
+	seen := make([]bool, len(t.Cols))
+	for _, name := range cols {
+		i := t.colIndex(name)
+		if i < 0 {
+			return nil, types.ErrBadField(name)
+		}
+		if seen[i] {
+			return nil, types.ErrDupField(name)
+		}
+		seen[i] = true
+		target = append(target, i)
+	}
+	// No NULLs and no defaults: every column must be supplied.
+	for i, ok := range seen {
+		if !ok {
+			return nil, types.ErrNoDefault(t.Cols[i].Name)
+		}
+	}
+	return target, nil
+}
+
 func (db *DB) execInsert(s *sp.Insert) (*Result, error) {
 	t, err := db.table(s.Table)
 	if err != nil {
 		return nil, err
 	}
-	// target[i] is the definition index for the i-th supplied value.
-	target := make([]int, 0, len(t.Cols))
-	if s.Cols == nil {
-		for i := range t.Cols {
-			target = append(target, i)
-		}
-	} else {
-		seen := make([]bool, len(t.Cols))
-		for _, name := range s.Cols {
-			i := t.colIndex(name)
-			if i < 0 {
-				return nil, types.ErrBadField(name)
-			}
-			if seen[i] {
-				return nil, types.ErrDupField(name)
-			}
-			seen[i] = true
-			target = append(target, i)
-		}
-		// No NULLs and no defaults: every column must be supplied.
-		for i, ok := range seen {
-			if !ok {
-				return nil, types.ErrNoDefault(t.Cols[i].Name)
-			}
-		}
+	target, terr := insertTarget(t, s.Cols)
+	if terr != nil {
+		return nil, terr
 	}
 	sc := &scope{}
 	chs := make([]change, 0, len(s.Rows))

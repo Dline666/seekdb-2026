@@ -11,8 +11,10 @@ import (
 
 // fusedBatches counts the batches the fused single-pass scan kernel has
 // run (diagnostic for tests: it proves the fused branch was taken).
-var fusedBatches atomic.Int64
-var fusedCandidateBatches atomic.Int64
+var (
+	fusedBatches          atomic.Int64
+	fusedCandidateBatches atomic.Int64
+)
 
 // Counts workers assigned nonempty coded and uncoded ranges, for path tests.
 var partialBalancedWorkers atomic.Int64
@@ -328,6 +330,10 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 	fusedCandidateOK := fusedCandidatesEnabled && prefilterOK && useCand &&
 		blk == nil && ov == nil && rowPred == nil && !prefilter6Bit &&
 		len(x.qf) >= len(x.pks)*4
+	var candidateBounds []quantBlockBound
+	if fusedCandidateOK {
+		candidateBounds = x.candidateBounds(db, eq.col, eq.val)
+	}
 	// The fused integer scan does much less work per row. Estimate its
 	// parallel work in 512-byte units, keeping small scans on the caller
 	// while retaining parallelism for larger row counts or dimensions.
@@ -427,7 +433,12 @@ func (db *DB) vectorTopK(t *Table, q []float32, pred func([]byte) bool, k int, a
 				}
 				var bound quantBlockBound
 				if fusedCandidateOK {
-					bound = x.boundForSlots(cand[i : i+n])
+					if candidateBounds != nil {
+						n = min(n, quantBlockRows-i%quantBlockRows)
+						bound = candidateBounds[i/quantBlockRows]
+					} else {
+						bound = x.boundForSlots(cand[i : i+n])
+					}
 				} else {
 					// Worker partitions can start inside a block. Do not
 					// apply its bound to rows from the following block.

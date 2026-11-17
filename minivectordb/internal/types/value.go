@@ -87,12 +87,54 @@ func ParseVectorInto(s string, dst []float32) ([]float32, *SQLError) {
 	}
 	out := dst[:0]
 	for len(body) > 0 {
-		i := strings.IndexByte(body, ',')
+		// Fast path: [' ']* number [' ']* then ',' or the end of body. Only
+		// the byte 0x20 is skipped; tabs, newlines, Unicode spaces and
+		// anything else fall to the slow path, which is the behavioural
+		// definition.
+		i := 0
+		for i < len(body) && body[i] == ' ' {
+			i++
+		}
+		if f, j, ok := scanFloat(body, i); ok {
+			e := j
+			for e < len(body) && body[e] == ' ' {
+				e++
+			}
+			if e == len(body) || body[e] == ',' {
+				var rest string
+				if e < len(body) {
+					rest = body[e+1:]
+					// The trailing-comma check comes before the float32
+					// range check, in the same order as the original: the
+					// rest is blank only when it is all whitespace. The cheap
+					// test decides directly once a byte that is not 0x20 turns
+					// out to be non-space ASCII; trimSpace decides the rest.
+					k := 0
+					for k < len(rest) && rest[k] == ' ' {
+						k++
+					}
+					if k == len(rest) || rest[k] <= ' ' || rest[k] >= 0x80 {
+						if len(trimSpace(rest)) == 0 {
+							return nil, ErrVectorFormat(s)
+						}
+					}
+				}
+				f32, ok := ToFloat32(f)
+				if !ok {
+					return nil, ErrVectorValue(body[i:j])
+				}
+				out = append(out, f32)
+				body = rest
+				continue
+			}
+		}
+		// Slow path: the original per-element code, unchanged.
+		c := strings.IndexByte(body, ',')
 		var part string
-		if i < 0 {
+		if c < 0 {
 			part, body = body, ""
 		} else {
-			part, body = body[:i], body[i+1:]
+			part, body = body[:c], body[c+1:]
 			if len(trimSpace(body)) == 0 {
 				return nil, ErrVectorFormat(s)
 			}
@@ -100,9 +142,9 @@ func ParseVectorInto(s string, dst []float32) ([]float32, *SQLError) {
 		part = trimSpace(part)
 		f, ok := parseFloatFast(part)
 		if !ok {
-			// Slow path: anything the single-pass scanner does not handle
-			// exactly. This is also the path that decides whether the literal
-			// is well formed at all.
+			// Anything the single-pass scanner does not handle exactly.
+			// This is also the path that decides whether the literal is
+			// well formed at all.
 			if !validNumber(part) {
 				return nil, ErrVectorFormat(s)
 			}
@@ -170,8 +212,18 @@ const smallestNormal = 2.2250738585072014e-308
 // result, and anything the two paths above decline. Those inputs are handled
 // by strconv.ParseFloat.
 func parseFloatFast(s string) (float64, bool) {
+	f, end, ok := scanFloat(s, 0)
+	return f, ok && end == len(s)
+}
+
+// scanFloat is parseFloatFast starting at offset i: it scans the same
+// grammar, stops at the first byte that cannot continue the number and
+// returns that offset as end. It makes the same accept/reject decisions as
+// parseFloatFast on the scanned prefix: ok=false means the prefix cannot be
+// converted exactly, and ok=true with end < len(s) means a well-formed,
+// exactly converted number is followed by bytes that are not part of it.
+func scanFloat(s string, i int) (f float64, end int, ok bool) {
 	n := len(s)
-	i := 0
 	neg := false
 	if i < n && (s[i] == '+' || s[i] == '-') {
 		neg = s[i] == '-'
@@ -224,7 +276,7 @@ func parseFloatFast(s string) (float64, bool) {
 		}
 	}
 	if digits == 0 {
-		return 0, false
+		return 0, 0, false
 	}
 	exp := 0
 	if i < n && (s[i] == 'e' || s[i] == 'E') {
@@ -239,47 +291,47 @@ func parseFloatFast(s string) (float64, bool) {
 			if expDigits >= 9 {
 				// The exponent is far outside any range the conversion
 				// below can use. Leave it to strconv.
-				return 0, false
+				return 0, 0, false
 			}
 			exp = exp*10 + int(s[i]-'0')
 			expDigits++
 			i++
 		}
 		if expDigits == 0 {
-			return 0, false
+			return 0, 0, false
 		}
 		if negExp {
 			exp = -exp
 		}
 	}
-	if i != n {
-		return 0, false
-	}
 	if digits > maxFastDigits {
 		// The accumulator may have wrapped; the value is not exact anyway.
-		return 0, false
+		return 0, 0, false
 	}
 	k := exp - fracDigits
-	f, ok := decimalToFloat(mant, k)
+	g, ok := decimalToFloat(mant, k)
 	if !ok {
-		return 0, false
+		return 0, 0, false
 	}
 	if neg {
-		f = -f
+		g = -g
 	}
-	return f, true
+	return g, i, true
 }
 
 // decimalToFloat converts the decimal value mant*10^k to the float64 that is
 // nearest to it.
 //
-// Two paths are used. The cheap one applies when the mantissa is exactly
+// Three paths are used. The cheap one applies when the mantissa is exactly
 // representable in float64 and the power of ten is exact as well: a single
 // IEEE multiplication or division then produces the correctly rounded result.
-// The exact path handles the longer mantissas the workload uses: it divides
-// the scaled numerator by the power of five with one 128/64 division and
-// rounds the quotient to a 53 bit significand. Both apply the rounding rule
-// strconv applies, so both give the same bits.
+// The Eisel-Lemire path handles the longer mantissas the workload uses: the
+// same 128-bit approximation of the power of ten that strconv uses, with the
+// same ambiguity checks, gives the correctly rounded result in a few
+// instructions. The exact path remains for the rare inputs Eisel-Lemire
+// declines: it divides the scaled numerator by the power of five with one
+// 128/64 division and rounds the quotient to a 53 bit significand. All of
+// them apply the rounding rule strconv applies, so all give the same bits.
 //
 // It reports ok=false when the value cannot be carried out exactly.
 func decimalToFloat(mant uint64, k int) (float64, bool) {
@@ -295,6 +347,9 @@ func decimalToFloat(mant uint64, k int) (float64, bool) {
 		default:
 			f /= pow10[-k]
 		}
+		return f, true
+	}
+	if f, ok := eiselLemire64(mant, k); ok {
 		return f, true
 	}
 	return decimalExact(mant, k)
@@ -408,9 +463,9 @@ func decimalExact(mant uint64, k int) (float64, bool) {
 }
 
 // le64 reads the eight bytes of s starting at i as a little-endian word.
+// Callers guarantee i+8 <= len(s).
 func le64(s string, i int) uint64 {
-	return uint64(s[i]) | uint64(s[i+1])<<8 | uint64(s[i+2])<<16 | uint64(s[i+3])<<24 |
-		uint64(s[i+4])<<32 | uint64(s[i+5])<<40 | uint64(s[i+6])<<48 | uint64(s[i+7])<<56
+	return binary.LittleEndian.Uint64(unsafe.Slice((*byte)(unsafe.Add(unsafe.Pointer(unsafe.StringData(s)), i)), 8))
 }
 
 // eightDigits reports whether the eight bytes of v are all ASCII digits.

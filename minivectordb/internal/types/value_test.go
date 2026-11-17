@@ -98,8 +98,10 @@ func checkAgainstReference(t *testing.T, in string) {
 
 func TestParseVectorIntoRepeatedReuse(t *testing.T) {
 	var dst []float32
-	for _, in := range []string{"[1,2,3]", "[]", "[-0,3.4028235e38]",
-		"[1,2,oops]", "[7]", "[1e-50,-1e-50,9,10,11]", " [  ] ", "[12]"} {
+	for _, in := range []string{
+		"[1,2,3]", "[]", "[-0,3.4028235e38]",
+		"[1,2,oops]", "[7]", "[1e-50,-1e-50,9,10,11]", " [  ] ", "[12]",
+	} {
 		got, err := ParseVectorInto(in, dst)
 		want, wantErr := parseVectorReference(in)
 		sameResult(t, in, got, err, want, wantErr)
@@ -242,9 +244,11 @@ func TestEightDigitsBlock(t *testing.T) {
 		}
 	}
 	// Blocks that are not eight digits must be rejected.
-	for _, s := range []string{"1234567a", "1234567 ", "1234567+", "1234567.",
+	for _, s := range []string{
+		"1234567a", "1234567 ", "1234567+", "1234567.",
 		"-1234567", "1234567.5", "\x80\x80\x80\x80\x80\x80\x80\x80",
-		"\xff\xff\xff\xff\xff\xff\xff\xff", "        ", "\n\n\n\n\n\n\n\n"} {
+		"\xff\xff\xff\xff\xff\xff\xff\xff", "        ", "\n\n\n\n\n\n\n\n",
+	} {
 		if eightDigits(le64(s, 0)) {
 			t.Fatalf("%q must not be eight digits", s)
 		}
@@ -315,12 +319,14 @@ func TestParseFloatFastMatchesStrconv(t *testing.T) {
 		check(digits)
 		check(strings.TrimPrefix(digits, "-"))
 	}
-	for _, s := range []string{"0", "-0", "+0", "0.0", "1", "1.", ".5", "-.5",
+	for _, s := range []string{
+		"0", "-0", "+0", "0.0", "1", "1.", ".5", "-.5",
 		"0.5", "00.50", "1e0", "1E0", "1e+5", "1e-5", "1e22", "1e-22", "1e23",
 		"1e-23", "1e308", "1e-308", "1e-323", "1e-324", "1e-400",
 		"1.7976931348623157e308", "900719925474099", "9007199254740991",
 		"9007199254740992", "9007199254740993", "12345678901234567",
-		"123456789012345678901234567890", "0.00000000000000000001"} {
+		"123456789012345678901234567890", "0.00000000000000000001",
+	} {
 		check(s)
 	}
 }
@@ -341,8 +347,10 @@ func TestTrimSpaceMatchesStdlib(t *testing.T) {
 		}
 	}
 	rng := rand.New(rand.NewSource(4242))
-	alphabet := []rune{' ', '\t', '\n', '\r', '\v', '\f', 'a', '1', '.', 'e',
-		'-', '\u00a0', '\u2003', '\u3000', '\u2028'}
+	alphabet := []rune{
+		' ', '\t', '\n', '\r', '\v', '\f', 'a', '1', '.', 'e',
+		'-', '\u00a0', '\u2003', '\u3000', '\u2028',
+	}
 	for i := 0; i < 100000; i++ {
 		n := rng.Intn(8)
 		b := make([]rune, n)
@@ -406,6 +414,25 @@ func BenchmarkParseVectorWorkload(b *testing.B) {
 		lit[i] = strconv.FormatFloat(float64(float32(rng.NormFloat64())), 'f', -1, 64)
 	}
 	s := "[" + strings.Join(lit, ",") + "]"
+	b.SetBytes(int64(len(s)))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		v, err := ParseVector(s)
+		if err != nil || len(v) != 128 {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkParseVectorWorkloadSpaced is the same workload shape joined with
+// ", ", the separator form many clients emit.
+func BenchmarkParseVectorWorkloadSpaced(b *testing.B) {
+	rng := rand.New(rand.NewSource(3))
+	lit := make([]string, 128)
+	for i := range lit {
+		lit[i] = strconv.FormatFloat(float64(float32(rng.NormFloat64())), 'f', -1, 64)
+	}
+	s := "[" + strings.Join(lit, ", ") + "]"
 	b.SetBytes(int64(len(s)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -1,0 +1,220 @@
+{
+  "validation_passed": true,
+  "raw": "remote-fallback-audit.txt",
+  "score_computed": false,
+  "complete_interleaving": [
+    [
+      0,
+      "remote-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      0,
+      "remote-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      0,
+      "remote-final",
+      "write"
+    ],
+    [
+      0,
+      "remote-final",
+      "query"
+    ],
+    [
+      1,
+      "remote-final",
+      "write"
+    ],
+    [
+      1,
+      "remote-final",
+      "query"
+    ],
+    [
+      1,
+      "remote-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      1,
+      "remote-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      2,
+      "remote-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      2,
+      "remote-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      2,
+      "remote-final",
+      "write"
+    ],
+    [
+      2,
+      "remote-final",
+      "query"
+    ],
+    [
+      3,
+      "remote-final",
+      "write"
+    ],
+    [
+      3,
+      "remote-final",
+      "query"
+    ],
+    [
+      3,
+      "remote-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      3,
+      "remote-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      4,
+      "remote-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      4,
+      "remote-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      4,
+      "remote-final",
+      "write"
+    ],
+    [
+      4,
+      "remote-final",
+      "query"
+    ]
+  ],
+  "ordered_ids_hash": "6fdc78121a2ec3f4",
+  "independent_queries_checked": 10000,
+  "max_oracle_abs_error": 3.552713678800501e-15,
+  "max_oracle_relative_error": 8.397658626025806e-16,
+  "max_oracle_ulp_error": 6,
+  "versions": [
+    {
+      "name": "remote-final:MVDB_NO_SIMD=1",
+      "response_hash": "f68d15e9dc1ee450",
+      "nonidentical_distance_count_per_round": [
+        8494,
+        8494,
+        8494,
+        8494,
+        8494
+      ],
+      "sample_differences": [
+        {
+          "got": 3.760585556879613,
+          "id": 5049,
+          "oracle": 3.7605855568796125,
+          "query": 0,
+          "rank": 0,
+          "ulp": 1
+        },
+        {
+          "got": 3.7958365672155,
+          "id": 6760,
+          "oracle": 3.7958365672154986,
+          "query": 0,
+          "rank": 1,
+          "ulp": 3
+        },
+        {
+          "got": 3.846072019415106,
+          "id": 1940,
+          "oracle": 3.846072019415105,
+          "query": 0,
+          "rank": 2,
+          "ulp": 2
+        },
+        {
+          "got": 3.855294290194469,
+          "id": 6335,
+          "oracle": 3.8552942901944687,
+          "query": 0,
+          "rank": 3,
+          "ulp": 1
+        },
+        {
+          "got": 3.8635943418847014,
+          "id": 9756,
+          "oracle": 3.8635943418847005,
+          "query": 0,
+          "rank": 4,
+          "ulp": 2
+        }
+      ]
+    },
+    {
+      "name": "remote-final",
+      "response_hash": "fcc120a647ec1bfc",
+      "nonidentical_distance_count_per_round": [
+        8576,
+        8576,
+        8576,
+        8576,
+        8576
+      ],
+      "sample_differences": [
+        {
+          "got": 3.760585556879613,
+          "id": 5049,
+          "oracle": 3.7605855568796125,
+          "query": 0,
+          "rank": 0,
+          "ulp": 1
+        },
+        {
+          "got": 3.7958365672155,
+          "id": 6760,
+          "oracle": 3.7958365672154986,
+          "query": 0,
+          "rank": 1,
+          "ulp": 3
+        },
+        {
+          "got": 3.8460720194151063,
+          "id": 1940,
+          "oracle": 3.846072019415105,
+          "query": 0,
+          "rank": 2,
+          "ulp": 3
+        },
+        {
+          "got": 3.8552942901944696,
+          "id": 6335,
+          "oracle": 3.8552942901944687,
+          "query": 0,
+          "rank": 3,
+          "ulp": 2
+        },
+        {
+          "got": 3.8635943418847014,
+          "id": 9756,
+          "oracle": 3.8635943418847005,
+          "query": 0,
+          "rank": 4,
+          "ulp": 2
+        }
+      ]
+    }
+  ]
+}

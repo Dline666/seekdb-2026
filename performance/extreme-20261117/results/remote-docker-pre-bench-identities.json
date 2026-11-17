@@ -1,0 +1,15 @@
+{
+  "utc": "2026-11-17T10:00:30.580037+00:00",
+  "checks": [
+    {
+      "image": "seekdb-remote-20261117:remote-base",
+      "image_id": "sha256:02adc8cc2cccd84706d7e52cbe1643878623d5a17f0f77619d37cceeb3841883",
+      "expected_id_matches": true
+    },
+    {
+      "image": "seekdb-remote-20261117:remote-final",
+      "image_id": "sha256:dd7952f06a59eacaa578166e16a6883bc7d9926956447f6ee8b2ef8f5a72de2b",
+      "expected_id_matches": true
+    }
+  ]
+}

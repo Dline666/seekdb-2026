@@ -1,0 +1,4 @@
+{"argv": ["env", "CGO_ENABLED=1", "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-final", "test", "-race", "./internal/engine", "./internal/proto", "./internal/sqlparse", "-count=1"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:59:53Z", "uid": 1019, "diagnostic_only": true}
+ok  	minivectordb/internal/engine	151.458s
+ok  	minivectordb/internal/proto	33.748s
+ok  	minivectordb/internal/sqlparse	1.527s

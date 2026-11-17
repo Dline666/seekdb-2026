@@ -1,0 +1,6 @@
+{
+  "sha256": "2277796f2c04eab7131564710d6ab9c4e579c6f4781bcc140a1adac8956bbe43",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-prealloc",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

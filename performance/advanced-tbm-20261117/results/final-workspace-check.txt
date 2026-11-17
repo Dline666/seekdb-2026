@@ -1,0 +1,2 @@
+{"argv": ["/home/platemo/.local/bin/python3", "performance/advanced-tbm-20261117/verify_artifacts.py"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T12:30:35Z", "uid": 1019, "diagnostic_only": true}
+PASS: tested sources equal worktree, native equals Docker, gofmt clean, 352 protected old files unchanged

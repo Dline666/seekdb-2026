@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/tbm",
+    "-bins",
+    "remote-quad:MVDB_NO_QUAD_AVX2=1,remote-quad",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-rows",
+    "10000",
+    "-dim",
+    "128",
+    "-queries",
+    "20000",
+    "-rounds",
+    "5",
+    "-seed",
+    "34347",
+    "-cpu-affinity",
+    "16-17"
+  ],
+  "exit_code": 0,
+  "wall_s": 39.24569941498339,
+  "binary_hashes": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-quad": "d1bb32fdaf2e12ba0b5d02bd37d8c2ff072e611fa419994c4641ae652bf55541",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/tbm": "3cad010954b961038ed13a26443a5e74f8a0b02ee063a61910c6aa3408c40c5b"
+  },
+  "identities_unchanged": true,
+  "official_submissions": 0
+}

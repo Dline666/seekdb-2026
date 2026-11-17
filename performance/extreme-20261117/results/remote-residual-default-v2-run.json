@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/tbm",
+    "-bins",
+    "remote-handoff,remote-nres",
+    "-bin-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin",
+    "-data-dir",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "-rows",
+    "10000",
+    "-dim",
+    "128",
+    "-queries",
+    "1000",
+    "-rounds",
+    "5",
+    "-seed",
+    "17"
+  ],
+  "exit_code": 0,
+  "wall_s": 17.11644797306508,
+  "binary_hashes": {
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-handoff": "27d6244d00f53fc0d9ce07f80242af7e1250388c60ce9792f597bae078c6618b",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-nres": "b60aa4dcf4a6f85e3d2c0f67885f86b7057c65340600dc4e5ad04dc98a1ea53b",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/tbm": "fcfa9ca60e4db7736f12c7531cd988e4170d3a551b325bd98ac5f18d53ac7877"
+  },
+  "identities_unchanged": true,
+  "official_submissions": 0
+}

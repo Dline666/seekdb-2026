@@ -1,0 +1,220 @@
+{
+  "validation_passed": true,
+  "raw": "final-fallback-oracle.txt",
+  "score_computed": false,
+  "complete_interleaving": [
+    [
+      0,
+      "advanced-final",
+      "write"
+    ],
+    [
+      0,
+      "advanced-final",
+      "query"
+    ],
+    [
+      0,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      0,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      1,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      1,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      1,
+      "advanced-final",
+      "write"
+    ],
+    [
+      1,
+      "advanced-final",
+      "query"
+    ],
+    [
+      2,
+      "advanced-final",
+      "write"
+    ],
+    [
+      2,
+      "advanced-final",
+      "query"
+    ],
+    [
+      2,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      2,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      3,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      3,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "query"
+    ],
+    [
+      3,
+      "advanced-final",
+      "write"
+    ],
+    [
+      3,
+      "advanced-final",
+      "query"
+    ],
+    [
+      4,
+      "advanced-final",
+      "write"
+    ],
+    [
+      4,
+      "advanced-final",
+      "query"
+    ],
+    [
+      4,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "write"
+    ],
+    [
+      4,
+      "advanced-final:MVDB_NO_SIMD=1",
+      "query"
+    ]
+  ],
+  "ordered_ids_hash": "a141860c100acd53",
+  "independent_queries_checked": 2000,
+  "max_oracle_abs_error": 3.1086244689504383e-15,
+  "max_oracle_relative_error": 7.796038317146715e-16,
+  "max_oracle_ulp_error": 7,
+  "versions": [
+    {
+      "name": "advanced-final",
+      "response_hash": "3c6e194017cd92bd",
+      "nonidentical_distance_count_per_round": [
+        1532,
+        1532,
+        1532,
+        1532,
+        1532
+      ],
+      "sample_differences": [
+        {
+          "got": 3.9090460810993877,
+          "id": 198,
+          "oracle": 3.9090460810993872,
+          "query": 0,
+          "rank": 1,
+          "ulp": 1
+        },
+        {
+          "got": 3.92943741361316,
+          "id": 944,
+          "oracle": 3.9294374136131585,
+          "query": 0,
+          "rank": 2,
+          "ulp": 3
+        },
+        {
+          "got": 3.93003565016905,
+          "id": 262,
+          "oracle": 3.9300356501690494,
+          "query": 0,
+          "rank": 3,
+          "ulp": 1
+        },
+        {
+          "got": 3.9318664619961288,
+          "id": 192,
+          "oracle": 3.9318664619961283,
+          "query": 0,
+          "rank": 4,
+          "ulp": 1
+        },
+        {
+          "got": 3.983106257011897,
+          "id": 82,
+          "oracle": 3.9831062570118965,
+          "query": 0,
+          "rank": 5,
+          "ulp": 1
+        }
+      ]
+    },
+    {
+      "name": "advanced-final:MVDB_NO_SIMD=1",
+      "response_hash": "8cf22e33ddcb9fb6",
+      "nonidentical_distance_count_per_round": [
+        1593,
+        1593,
+        1593,
+        1593,
+        1593
+      ],
+      "sample_differences": [
+        {
+          "got": 3.8954582306216103,
+          "id": 965,
+          "oracle": 3.89545823062161,
+          "query": 0,
+          "rank": 0,
+          "ulp": 1
+        },
+        {
+          "got": 3.9294374136131602,
+          "id": 944,
+          "oracle": 3.9294374136131585,
+          "query": 0,
+          "rank": 2,
+          "ulp": 4
+        },
+        {
+          "got": 3.93003565016905,
+          "id": 262,
+          "oracle": 3.9300356501690494,
+          "query": 0,
+          "rank": 3,
+          "ulp": 1
+        },
+        {
+          "got": 3.931866461996129,
+          "id": 192,
+          "oracle": 3.9318664619961283,
+          "query": 0,
+          "rank": 4,
+          "ulp": 2
+        },
+        {
+          "got": 3.9831062570118974,
+          "id": 82,
+          "oracle": 3.9831062570118965,
+          "query": 0,
+          "rank": 5,
+          "ulp": 2
+        }
+      ]
+    }
+  ]
+}

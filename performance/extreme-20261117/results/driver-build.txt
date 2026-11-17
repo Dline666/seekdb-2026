@@ -1,0 +1,1 @@
+{"argv": ["/tmp/seekdb-round3-go/bin/go", "build", "-o", "/tmp/seekdb-extreme-20261117/bin/tbm", "/mnt/c/Users/27372/seekdb-fable-v3-experiments/tbm_eval.go"], "cwd": null, "official_submissions": 0}

@@ -1,0 +1,14 @@
+// A partition-backed filesystem is charged to its parent disk in io.stat on
+// this kernel. Resolve that identity through sysfs, never guess or sum devices.
+func accountingDevice(major, minor uint64) string {
+ name := fmt.Sprintf("%d:%d", major, minor)
+ node := "/sys/dev/block/" + name
+ if _, err := os.Stat(node + "/partition"); err == nil {
+  resolved, err := filepath.EvalSymlinks(node)
+  must(err)
+  data, err := os.ReadFile(filepath.Join(filepath.Dir(resolved), "dev"))
+  must(err)
+  return strings.TrimSpace(string(data))
+ }
+ return name
+}

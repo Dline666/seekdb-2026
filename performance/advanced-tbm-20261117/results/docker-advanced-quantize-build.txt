@@ -1,0 +1,50 @@
+{"argv": ["docker", "build", "--progress=plain", "-t", "seekdb-advanced-20261117:advanced-quantize", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-docker-context/advanced-quantize"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:38:31Z", "uid": 1019, "diagnostic_only": true}
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile:
+#1 transferring dockerfile: 1.84kB done
+#1 DONE 0.4s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#2 DONE 0.4s
+
+#3 [internal] load .dockerignore
+#3 transferring context:
+#3 transferring context: 2B done
+#3 DONE 0.4s
+
+#4 [build 1/5] FROM docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 680.85kB 0.0s done
+#5 DONE 0.8s
+
+#6 [build 2/5] RUN (apt-get update || (sed -i 's#http://\(archive\|security\).ubuntu.com#http://mirrors.aliyun.com#g'         /etc/apt/sources.list.d/ubuntu.sources && apt-get update)) &&     { apt-get install -y --no-install-recommends golang-1.22-go=1.22.2-2ubuntu0.5 ||       apt-get install -y --no-install-recommends golang-1.22-go ; } &&     /usr/lib/go-1.22/bin/go version | grep -q 'go1\.22\.' &&     rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [build 3/5] WORKDIR /src
+#7 CACHED
+
+#8 [build 4/5] COPY minivectordb/ ./
+#8 DONE 1.0s
+
+#9 [build 5/5] RUN go build -ldflags="-s -w" -o /out/minivectordb ./cmd/minivectordb
+#9 DONE 6.8s
+
+#10 [stage-1 2/4] WORKDIR /app
+#10 CACHED
+
+#11 [stage-1 3/4] COPY --from=build /out/minivectordb /app/minivectordb
+#11 DONE 0.8s
+
+#12 [stage-1 4/4] RUN chmod 755 /app/minivectordb && mkdir -p /data
+#12 DONE 1.5s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.7s done
+#13 writing image sha256:7737add2795a23974355ce0329d1bb9fa659d54dc66d498c01bff985cd0a476a 0.0s done
+#13 naming to docker.io/library/seekdb-advanced-20261117:advanced-quantize 0.1s done
+#13 DONE 1.0s

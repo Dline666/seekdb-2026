@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "env",
+    "MVDB_TMP=/home/platemo/seekdb-experiments/20261117/experiment-runtime",
+    "/home/platemo/.local/bin/python3",
+    "minivectordb/tools/crash_test.py",
+    "--bin",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-final",
+    "--rounds",
+    "40",
+    "--seed",
+    "3"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T12:20:24Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 2.408553651534021
+}

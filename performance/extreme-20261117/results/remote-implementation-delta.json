@@ -1,0 +1,18 @@
+{
+  "from": "remote-handoff",
+  "to": "remote-final",
+  "normalized_newlines": true,
+  "changed_files": [
+    "internal/engine/eqset.go",
+    "internal/engine/filtered_split_test.go",
+    "internal/engine/fused_quad_avx2_amd64.go",
+    "internal/engine/fused_quad_avx2_amd64.s",
+    "internal/engine/fused_quad_avx2_amd64_test.go",
+    "internal/engine/fused_test.go",
+    "internal/engine/l2_amd64.go",
+    "internal/engine/prefilter.go",
+    "internal/engine/topk.go",
+    "internal/engine/vecindex.go"
+  ],
+  "patch_sha256": "524591cf476fb3c48e89bb5148cdbc970b3427de29aaeb0a3c7d65de8e001914"
+}

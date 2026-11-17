@@ -65,6 +65,7 @@ func fusedScanInt8AVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *floa
 
 // Same bound and survivor format as fusedScanInt8AVX2, over valid live
 // candidate slots in their supplied order. surv has room for 2*rows values.
+//
 //go:noescape
 func fusedScanCandidatesAVX2(qc *int16, codes *byte, pks *int64, offs *int64, qf *float64, qSum, qNorm2, qmin, qscale, thresh2 float64, slots *int32, rows, blocks, tail int, surv *int64) int
 
@@ -75,9 +76,7 @@ func fusedScanCandidates(qc []int16, x *VecIndex, slots []int32, qSum, qNorm2 fl
 	if !useSIMD {
 		return fusedScanCandidatesScalar(qc, x, slots, qSum, qNorm2, qmin, qscale, thresh2, surv)
 	}
-	return fusedScanCandidatesAVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
-		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
-		&slots[0], len(slots), len(qc)/32, len(qc)%32, &surv[0])
+	return fusedScanCandidateAVX2(qc, x, slots, qSum, qNorm2, qmin, qscale, thresh2, surv)
 }
 
 // fusedScanInt8VNNI is the VNNI variant of fusedScanInt8AVX2: same
@@ -154,11 +153,7 @@ func fusedScanInt8Block(qc []int16, codes []byte, pks, offs []int64, qf []float6
 	if !useSIMD {
 		return fusedScanInt8BlockScalar(qc, codes, pks, offs, qf, baseSlot, rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
 	}
-	blocks := len(qc) / 32
-	tail := len(qc) - blocks*32
-	return fusedScanInt8AVX2(&qc[0], &codes[0], &pks[0], &offs[0], &qf[0],
-		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
-		baseSlot, rows, blocks, tail, &surv[0])
+	return fusedScanBlockAVX2(qc, codes, pks, offs, qf, baseSlot, rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
 }
 
 // fusedScanInt8BlockVNNI is the VNNI variant of fusedScanInt8Block: the
@@ -191,11 +186,7 @@ func fusedScanInt8(qc []int16, x *VecIndex, baseSlot int32, rows int, qSum, qNor
 	if !useSIMD {
 		return fusedScanInt8Scalar(qc, x, baseSlot, rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
 	}
-	blocks := len(qc) / 32
-	tail := len(qc) - blocks*32
-	return fusedScanInt8AVX2(&qc[0], &x.codes[0], &x.pks[0], &x.off[0], &x.qf[0],
-		qSum, qNorm2, float64(qmin), float64(qscale), thresh2,
-		int(baseSlot), rows, blocks, tail, &surv[0])
+	return fusedScanBlockAVX2(qc, x.codes, x.pks, x.off, x.qf, int(baseSlot), rows, qSum, qNorm2, qmin, qscale, thresh2, surv)
 }
 
 // dotInt8GatherInt6 sets out[r] to the exact integer dot product of the

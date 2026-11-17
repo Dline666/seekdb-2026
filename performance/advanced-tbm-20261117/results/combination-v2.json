@@ -1,0 +1,9 @@
+{
+  "candidate": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/combo2",
+  "base": "advanced-combo",
+  "replace": {
+    "internal/engine/eqset.go": "advanced-eqsingle"
+  },
+  "tentative": true,
+  "budget_kept_MiB": 256
+}

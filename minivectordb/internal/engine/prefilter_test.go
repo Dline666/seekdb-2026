@@ -770,8 +770,10 @@ func testPrefilterScan(t *testing.T, dim int) {
 			mustExec(t, db, fmt.Sprintf("UPDATE d SET cat = '%s', e = '%s' WHERE id = %d", r.cat, lit(r.v), id))
 		}
 	}
-	wheres := []string{"", "", " WHERE cat = 'a'", " WHERE cat = '你好'", " WHERE cat = 'none'",
-		" WHERE cat = 'bb' AND n > 2", " WHERE n < 3", " WHERE cat <> 'a'"}
+	wheres := []string{
+		"", "", " WHERE cat = 'a'", " WHERE cat = '你好'", " WHERE cat = 'none'",
+		" WHERE cat = 'bb' AND n > 2", " WHERE n < 3", " WHERE cat <> 'a'",
+	}
 	check := func(tag string) {
 		for qn := 0; qn < 20; qn++ {
 			q := vec()
@@ -876,7 +878,7 @@ func TestPrefilterLargeLine(t *testing.T) {
 			v[j] = float32(rng.NormFloat64())
 		}
 		rows[i] = v
-		sb.WriteString(fmt.Sprintf("(%d,'[", i+1))
+		fmt.Fprintf(&sb, "(%d,'[", i+1)
 		for j, f := range v {
 			if j > 0 {
 				sb.WriteString(",")

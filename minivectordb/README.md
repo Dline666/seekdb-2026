@@ -21,6 +21,26 @@ Flags (each also has an environment variable):
 | `--sync` | `MVDB_SYNC` | `fdatasync` | `none` skips fdatasync (survives kill -9, not power loss) |
 | `--index-mem-mb` | `MVDB_INDEX_MEM_MB` | `256` | cap on in-memory vectors per table; also capped to 1/4 of the cgroup limit |
 
+## Go formatting and lint
+
+Use **golangci-lint v2.15.0**, released on 2026-10-16. The database remains
+compatible with Go 1.22; the linter is a development-only executable. Download
+the pinned release from
+https://github.com/golangci/golangci-lint/releases/tag/v2.15.0 and verify its
+published SHA-256 checksum. The Linux amd64 archive has SHA-256
+`9b7fe6a6bf6334b98decf8d86b11415ea7889afdabdd1959fdce23af2a9ebcea`.
+
+From `minivectordb/`, with Go and golangci-lint on PATH:
+
+```sh
+make fmt   # gofumpt and goimports
+make lint  # formatting, govet, ineffassign, staticcheck, unused
+```
+
+Both targets verify the tool version. Alternatively set
+`GOLANGCI_LINT=/absolute/path/to/golangci-lint`. Configuration is in
+`.golangci.yml`; the compiler used to build submission binaries is unchanged.
+
 ## Protocol
 
 JSON Lines over stdin/stdout, as specified in the repository root

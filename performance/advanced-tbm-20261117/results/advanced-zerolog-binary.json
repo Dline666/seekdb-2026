@@ -1,0 +1,6 @@
+{
+  "sha256": "7c2fa9ad2c3b4f1a0b52d09686fa2a613786d01e7ca52c18e8776e2463a90d1f",
+  "source": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-zerolog",
+  "go": "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+  "pgo": null
+}

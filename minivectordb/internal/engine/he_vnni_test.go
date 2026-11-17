@@ -126,7 +126,7 @@ func TestFusedScanVNNIAll255(t *testing.T) {
 	for j := range q {
 		q[j] = 1
 	}
-	qmin, qscale, qc, qSum, qNorm2, ok := quantizeQuery(q)
+	_, qscale, qc, _, _, ok := quantizeQuery(q)
 	if !ok {
 		t.Fatal("quantizeQuery rejected the all-ones query")
 	}
@@ -134,16 +134,15 @@ func TestFusedScanVNNIAll255(t *testing.T) {
 	if qscale != 0 {
 		t.Fatalf("expected qscale 0 for a constant query, got %v", qscale)
 	}
-	qc8, qminAdj := heBiasQuery(qc, qmin, qscale)
 	// With qscale 0 the bias term vanishes (qminAdj == qmin) and the
 	// dot is 0 either way; force the interesting case by using qc all
 	// 255 directly with qmin=0, qscale=1/255.
 	for i := range qc {
 		qc[i] = 255
 	}
-	qc8, qminAdj = heBiasQuery(qc, 0, 1.0/255.0)
+	qc8, qminAdj := heBiasQuery(qc, 0, 1.0/255.0)
 	// Dequantized query is all ones: qSum=dim, qNorm2=dim.
-	qSum, qNorm2 = float64(dim), float64(dim)
+	qSum, qNorm2 := float64(dim), float64(dim)
 	survVNNI := make([]int64, 2*rows)
 	survRef := make([]int64, 2*rows)
 	// dhat2 here: row vector dequantizes to all 255, query to all 1,

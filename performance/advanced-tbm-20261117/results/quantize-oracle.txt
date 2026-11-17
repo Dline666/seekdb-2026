@@ -1,0 +1,8 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/quantize", "test", "./internal/engine", "-run", "TestQuantizeEncoding|Test.*(Prefilter|Fused|PartialQuant)", "-count=1"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:33:00Z", "uid": 1019, "diagnostic_only": true}
+# minivectordb/internal/engine
+# [minivectordb/internal/engine]
+asm: minivectordb/internal/engine.quantizeCodesAVX2: invalid instruction: 00089 (/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/quantize/internal/engine/quantize_amd64.s:28)	VCVTTPD2DQ	Y0, X1
+asm: minivectordb/internal/engine.quantizeCodesAVX2: invalid instruction: 00106 (/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/quantize/internal/engine/quantize_amd64.s:33)	VCVTTPD2DQ	Y0, X2
+asm: assembly failed
+FAIL	minivectordb/internal/engine [build failed]
+FAIL

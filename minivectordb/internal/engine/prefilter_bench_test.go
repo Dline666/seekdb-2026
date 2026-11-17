@@ -5,10 +5,10 @@ import (
 	"math"
 	"math/rand"
 	"strings"
-
-	"minivectordb/internal/storage"
 	"sync"
 	"testing"
+
+	"minivectordb/internal/storage"
 )
 
 // Timing decomposition for the int8 prefilter at the benchmark scale
@@ -27,9 +27,11 @@ import (
 //     (parse, Flush/Prepare/Map, heap setup, result build) with a
 //     negligible scan.
 
-var decompOnce sync.Once
-var decompDB *DB
-var decompQueries [][]float32
+var (
+	decompOnce    sync.Once
+	decompDB      *DB
+	decompQueries [][]float32
+)
 
 func decompSetup(b *testing.B) {
 	b.Helper()

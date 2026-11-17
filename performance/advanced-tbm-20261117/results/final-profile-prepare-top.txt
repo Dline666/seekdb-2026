@@ -1,0 +1,27 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "tool", "pprof", "-top", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-final-profile", "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/profiles/final-100k/round0-advanced-final-profile-query/prepare.cpu"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T12:29:37Z", "uid": 1019, "diagnostic_only": true}
+File: advanced-final-profile
+Type: cpu
+Time: Nov 17, 2026 at 8:29pm (CST)
+Duration: 301.30ms, Total samples = 120ms (39.83%)
+Showing nodes accounting for 120ms, 100% of 120ms total
+      flat  flat%   sum%        cum   cum%
+      50ms 41.67% 41.67%       70ms 58.33%  minivectordb/internal/engine.quantizeRow
+      20ms 16.67% 58.33%       20ms 16.67%  minivectordb/internal/engine.(*VecIndex).rebuild.func1
+      20ms 16.67% 75.00%       20ms 16.67%  minivectordb/internal/engine.quantizeCodesAVX2
+      10ms  8.33% 83.33%       10ms  8.33%  runtime.mapassign_fast64
+      10ms  8.33% 91.67%       10ms  8.33%  runtime.memclrNoHeapPointers
+      10ms  8.33%   100%       10ms  8.33%  runtime.memmove
+         0     0%   100%      120ms   100%  main.main
+         0     0%   100%      120ms   100%  minivectordb/internal/engine.(*DB).Exec
+         0     0%   100%      120ms   100%  minivectordb/internal/engine.(*DB).execSelect
+         0     0%   100%      120ms   100%  minivectordb/internal/engine.(*DB).run
+         0     0%   100%      120ms   100%  minivectordb/internal/engine.(*DB).vectorTopK
+         0     0%   100%       10ms  8.33%  minivectordb/internal/engine.(*VecIndex).decodeInto
+         0     0%   100%       80ms 66.67%  minivectordb/internal/engine.(*VecIndex).quantizeSlot
+         0     0%   100%      120ms   100%  minivectordb/internal/engine.(*VecIndex).rebuild
+         0     0%   100%      100ms 83.33%  minivectordb/internal/engine.(*VecIndex).upsert
+         0     0%   100%       10ms  8.33%  minivectordb/internal/types.DecodeVecInto (inline)
+         0     0%   100%      120ms   100%  runtime.main
+         0     0%   100%       20ms 16.67%  sort.Slice
+         0     0%   100%       20ms 16.67%  sort.insertionSort_func
+         0     0%   100%       20ms 16.67%  sort.pdqsort_func

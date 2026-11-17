@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-final",
+    "build",
+    "-gcflags=minivectordb/internal/engine=-m=2 -d=ssa/check_bce/debug=1",
+    "-o",
+    "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-escape-engine",
+    "./cmd/minivectordb"
+  ],
+  "cwd": "/home/platemo/seekdb-experiments/20261117/repository",
+  "utc": "2026-11-17T12:29:37Z",
+  "uid": 1019,
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "wall_s": 0.6519305724650621
+}

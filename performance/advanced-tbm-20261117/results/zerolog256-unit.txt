@@ -1,0 +1,12 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/advanced-candidates/zerolog256", "test", "./internal/storage", "./internal/engine", "-run", "TestInitialized|TestCrashAtEveryOffset|TestStatementAtomicityAndTxn|TestCompaction", "-count=1"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T11:11:15Z", "uid": 1019, "diagnostic_only": true}
+ok  	minivectordb/internal/storage	0.092s
+--- FAIL: TestCompactionThresholdBoundaries (0.06s)
+    --- FAIL: TestCompactionThresholdBoundaries/equal_live (0.02s)
+        compact_bounds_test.go:90: compacted=false want true; before=3712 after=262144
+    --- FAIL: TestCompactionThresholdBoundaries/equal_minimum (0.02s)
+        compact_bounds_test.go:90: compacted=false want true; before=3712 after=262144
+--- FAIL: TestCompaction (0.02s)
+    engine_test.go:195: log not compacted: 262144 >= 4936
+FAIL
+FAIL	minivectordb/internal/engine	5.357s
+FAIL

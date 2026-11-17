@@ -1,0 +1,1 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "build", "-trimpath", "-ldflags=-s -w", "-o", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/remote-final", "./cmd/minivectordb"], "cwd": "/home/platemo/seekdb-experiments/20261117/experiment-runtime/remote-final", "official_submissions": 0}

@@ -1,0 +1,48 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "tool", "pprof", "-top", "-alloc_space", "-base", "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/profiles/final-default/round0-advanced-final-profile-query/query-begin.heap", "/home/platemo/seekdb-experiments/20261117/experiment-runtime/bin/advanced-final-profile", "/home/platemo/seekdb-experiments/20261117/repository/performance/advanced-tbm-20261117/profiles/final-default/round0-advanced-final-profile-query/query-end.heap"], "cwd": "/home/platemo/seekdb-experiments/20261117/repository", "utc": "2026-11-17T12:29:37Z", "uid": 1019, "diagnostic_only": true}
+File: advanced-final-profile
+Type: alloc_space
+Time: Nov 17, 2026 at 8:28pm (CST)
+Showing nodes accounting for 229.78MB, 98.22% of 233.94MB total
+Dropped 22 nodes (cum <= 1.17MB)
+      flat  flat%   sum%        cum   cum%
+   69.19MB 29.58% 29.58%   203.43MB 86.96%  minivectordb/internal/engine.(*DB).execSelect
+   41.38MB 17.69% 47.27%    41.38MB 17.69%  minivectordb/internal/engine.widen (inline)
+   26.18MB 11.19% 58.46%    84.09MB 35.94%  minivectordb/internal/engine.(*DB).vectorTopK
+   20.08MB  8.58% 67.04%    20.08MB  8.58%  minivectordb/internal/types.ParseVectorInto
+   13.63MB  5.83% 72.87%    13.63MB  5.83%  minivectordb/internal/engine.constant (inline)
+   12.63MB  5.40% 78.27%    21.82MB  9.33%  minivectordb/internal/sqlparse.(*parser).selectStmt
+   10.58MB  4.52% 82.79%    10.58MB  4.52%  minivectordb/internal/engine.quantizeQuery
+    9.94MB  4.25% 87.04%    48.22MB 20.61%  minivectordb/internal/engine.(*scope).compile
+    5.82MB  2.49% 89.53%     5.82MB  2.49%  minivectordb/internal/engine.(*topK).result
+    4.56MB  1.95% 91.48%    39.15MB 16.73%  minivectordb/internal/engine.(*scope).compileFunc
+    4.50MB  1.92% 93.40%     7.75MB  3.31%  minivectordb/internal/sqlparse.(*parser).primary
+    3.31MB  1.42% 94.82%     3.31MB  1.42%  minivectordb/internal/proto.parseFast
+    2.50MB  1.07% 95.89%     3.81MB  1.63%  minivectordb/internal/sqlparse.(*parser).funcCall
+    1.50MB  0.64% 96.53%     1.50MB  0.64%  strings.(*Builder).grow
+    1.38MB  0.59% 97.12%     1.38MB  0.59%  minivectordb/internal/engine.cmpPred
+    1.27MB  0.54% 97.66%     2.02MB  0.87%  compress/flate.NewWriter (inline)
+    1.19MB  0.51% 98.16%     9.06MB  3.87%  minivectordb/internal/sqlparse.(*parser).cmp
+    0.14MB 0.058% 98.22%     1.27MB  0.54%  runtime/pprof.(*profileBuilder).emitLocation
+         0     0% 98.22%     2.02MB  0.87%  compress/gzip.(*Writer).Write
+         0     0% 98.22%     3.75MB  1.60%  main.advancedProbeBefore
+         0     0% 98.22%   233.94MB   100%  main.main
+         0     0% 98.22%     2.60MB  1.11%  main.probeSnapshot
+         0     0% 98.22%     3.75MB  1.60%  main.probeSwitch
+         0     0% 98.22%   226.88MB 96.98%  minivectordb/internal/engine.(*DB).Exec
+         0     0% 98.22%   203.43MB 86.96%  minivectordb/internal/engine.(*DB).run
+         0     0% 98.22%     6.06MB  2.59%  minivectordb/internal/engine.(*scope).pred
+         0     0% 98.22%    34.58MB 14.78%  minivectordb/internal/engine.(*scope).vectorArg
+         0     0% 98.22%     3.31MB  1.42%  minivectordb/internal/proto.(*RequestParser).Parse
+         0     0% 98.22%    23.45MB 10.02%  minivectordb/internal/sqlparse.(*Parser).Parse
+         0     0% 98.22%     9.06MB  3.87%  minivectordb/internal/sqlparse.(*parser).expr
+         0     0% 98.22%    22.32MB  9.54%  minivectordb/internal/sqlparse.(*parser).statement
+         0     0% 98.22%    20.08MB  8.58%  minivectordb/internal/types.ParseVector (inline)
+         0     0% 98.22%   233.94MB   100%  runtime.main
+         0     0% 98.22%     2.47MB  1.06%  runtime/pprof.(*Profile).WriteTo
+         0     0% 98.22%     1.52MB  0.65%  runtime/pprof.(*profileBuilder).appendLocsForStack
+         0     0% 98.22%     2.02MB  0.87%  runtime/pprof.(*profileBuilder).flush
+         0     0% 98.22%     2.47MB  1.06%  runtime/pprof.writeHeap
+         0     0% 98.22%     2.47MB  1.06%  runtime/pprof.writeHeapInternal
+         0     0% 98.22%     2.47MB  1.06%  runtime/pprof.writeHeapProto
+         0     0% 98.22%     1.50MB  0.64%  strings.(*Builder).Grow
+         0     0% 98.22%     1.50MB  0.64%  strings.ToLower

@@ -1,0 +1,7 @@
+{"argv": ["/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go", "-C", "minivectordb", "test", "./...", "-count=1"], "cwd": null, "official_submissions": 0}
+?   	minivectordb/cmd/minivectordb	[no test files]
+?   	minivectordb/internal/storage	[no test files]
+ok  	minivectordb/internal/engine	25.834s
+ok  	minivectordb/internal/proto	4.924s
+ok  	minivectordb/internal/sqlparse	0.071s
+ok  	minivectordb/internal/types	26.840s

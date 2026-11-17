@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/home/platemo/seekdb-experiments/20261117/toolchains/go/bin/go",
+    "-C",
+    "minivectordb",
+    "test",
+    "./internal/engine",
+    "-run",
+    "Test(QuadAVX2|Fused|Prefilter|Fold)",
+    "-count=1",
+    "-v"
+  ],
+  "cwd": null,
+  "official_submissions": 0,
+  "exit_code": 0,
+  "wall_s": 9.274520298466086
+}

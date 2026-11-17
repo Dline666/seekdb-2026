@@ -1,0 +1,24 @@
+goos: linux
+goarch: amd64
+pkg: minivectordb/internal/engine
+cpu: Intel(R) Core(TM) Ultra 5 125H
+BenchmarkQuadAVXVNNI/dim128/quadfalse-2         	 2096412	       286.7 ns/op
+BenchmarkQuadAVXVNNI/dim128/quadfalse-2         	 2094559	       285.2 ns/op
+BenchmarkQuadAVXVNNI/dim128/quadfalse-2         	 2062750	       284.7 ns/op
+BenchmarkQuadAVXVNNI/dim128/quadtrue-2          	 3329157	       173.5 ns/op
+BenchmarkQuadAVXVNNI/dim128/quadtrue-2          	 3361324	       175.5 ns/op
+BenchmarkQuadAVXVNNI/dim128/quadtrue-2          	 3453564	       174.9 ns/op
+BenchmarkQuadAVXVNNI/dim256/quadfalse-2         	 1665574	       385.1 ns/op
+BenchmarkQuadAVXVNNI/dim256/quadfalse-2         	 1659656	       362.3 ns/op
+BenchmarkQuadAVXVNNI/dim256/quadfalse-2         	 1630672	       364.7 ns/op
+BenchmarkQuadAVXVNNI/dim256/quadtrue-2          	 2112768	       280.7 ns/op
+BenchmarkQuadAVXVNNI/dim256/quadtrue-2          	 2159059	       281.5 ns/op
+BenchmarkQuadAVXVNNI/dim256/quadtrue-2          	 2149732	       282.5 ns/op
+BenchmarkQuadAVXVNNI/dim1024/quadfalse-2        	  460924	      1319 ns/op
+BenchmarkQuadAVXVNNI/dim1024/quadfalse-2        	  451099	      1304 ns/op
+BenchmarkQuadAVXVNNI/dim1024/quadfalse-2        	  455546	      1315 ns/op
+BenchmarkQuadAVXVNNI/dim1024/quadtrue-2         	  503878	      1221 ns/op
+BenchmarkQuadAVXVNNI/dim1024/quadtrue-2         	  494527	      1229 ns/op
+BenchmarkQuadAVXVNNI/dim1024/quadtrue-2         	  458790	      1229 ns/op
+PASS
+ok  	minivectordb/internal/engine	14.596s

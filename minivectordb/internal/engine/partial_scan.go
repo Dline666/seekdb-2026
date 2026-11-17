@@ -10,7 +10,8 @@ var partialPrefilterBatches, partialPrefilterRows, partialUncodedRows atomic.Int
 // to a dot-product kernel or tested against an approximate distance. The caller
 // has already checked tombstones, transaction overlays and any residual WHERE.
 func (x *VecIndex) filterPartialBatch(qc []int16, qc6 []int8, qSum, qNorm2 float64,
-	qmin, qscale float32, bound float64, slots []int32, offs, pks, rows []int64) int {
+	qmin, qscale float32, bound float64, slots []int32, offs, pks, rows []int64,
+) int {
 	var codedSlots [scanBatch]int32
 	var positions [scanBatch]int
 	var coffs [scanBatch]int64
